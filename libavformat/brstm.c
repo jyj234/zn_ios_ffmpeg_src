@@ -68,7 +68,7 @@ static int read_close(AVFormatContext *s)
 {
     BRSTMDemuxContext *b = s->priv_data;
 
-    av_freep(&b->adpc);
+    zn_av_freep(&b->adpc);
 
     return 0;
 }
@@ -108,7 +108,7 @@ static int read_header(AVFormatContext *s)
     int loop = 0;
     int bfstm = !strcmp("bfstm", s->iformat->name);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

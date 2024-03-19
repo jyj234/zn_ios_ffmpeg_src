@@ -82,7 +82,7 @@ int av_aes_ctr_init(struct AVAESCTR *a, const uint8_t *key)
 
 void av_aes_ctr_free(struct AVAESCTR *a)
 {
-    av_free(a);
+    zn_av_free(a);
 }
 
 static void av_aes_ctr_increment_be64(uint8_t* counter)

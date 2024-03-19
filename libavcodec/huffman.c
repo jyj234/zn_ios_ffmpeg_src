@@ -59,10 +59,10 @@ static void heap_sift(HeapElem *h, int root, int size)
 
 int ff_huff_gen_len_table(uint8_t *dst, const uint64_t *stats, int stats_size, int skip0)
 {
-    HeapElem *h  = av_malloc_array(sizeof(*h), stats_size);
-    int *up      = av_malloc_array(sizeof(*up) * 2, stats_size);
-    uint8_t *len = av_malloc_array(sizeof(*len) * 2, stats_size);
-    uint16_t *map= av_malloc_array(sizeof(*map), stats_size);
+    HeapElem *h  = zn_av_malloc_array(sizeof(*h), stats_size);
+    int *up      = zn_av_malloc_array(sizeof(*up) * 2, stats_size);
+    uint8_t *len = zn_av_malloc_array(sizeof(*len) * 2, stats_size);
+    uint16_t *map= zn_av_malloc_array(sizeof(*map), stats_size);
     int offset, i, next;
     int size = 0;
     int ret = 0;
@@ -108,10 +108,10 @@ int ff_huff_gen_len_table(uint8_t *dst, const uint64_t *stats, int stats_size, i
         if (i==size) break;
     }
 end:
-    av_free(h);
-    av_free(up);
-    av_free(len);
-    av_free(map);
+    zn_av_free(h);
+    zn_av_free(up);
+    zn_av_free(len);
+    zn_av_free(map);
     return ret;
 }
 

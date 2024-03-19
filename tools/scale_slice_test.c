@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 
     /* allocate the frames for scaler output */
     for (int i = 0; i < 2; i++) {
-        AVFrame *frame = av_frame_alloc();
+        AVFrame *frame = zn_av_frame_alloc();
         if (!frame) {
             fprintf(stderr, "Error allocating frames\n");
             return AVERROR(ENOMEM);
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
         frame->height = height;
         frame->format = pix_fmt;
 
-        ret = av_frame_get_buffer(frame, 0);
+        ret = zn_av_frame_get_buffer(frame, 0);
         if (ret < 0) {
             fprintf(stderr, "Error allocating frame data\n");
             return ret;
@@ -182,8 +182,8 @@ int main(int argc, char **argv)
 
     ret = ds_run(&dc);
 
-    av_frame_free(&pd.frame_dst);
-    av_frame_free(&pd.frame_ref);
+    zn_av_frame_free(&pd.frame_dst);
+    zn_av_frame_free(&pd.frame_ref);
     sws_freeContext(pd.scaler);
     ds_free(&dc);
     return ret;

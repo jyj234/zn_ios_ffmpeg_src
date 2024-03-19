@@ -433,7 +433,7 @@ static void alloc_rbsp_buffer(H2645RBSP *rbsp, unsigned int size, int use_ref)
     if (rbsp->rbsp_buffer_ref)
         av_buffer_unref(&rbsp->rbsp_buffer_ref);
     else
-        av_free(rbsp->rbsp_buffer);
+        zn_av_free(rbsp->rbsp_buffer);
 
     rbsp->rbsp_buffer = av_mallocz(size);
     if (!rbsp->rbsp_buffer)
@@ -455,7 +455,7 @@ fail:
         av_buffer_unref(&rbsp->rbsp_buffer_ref);
         rbsp->rbsp_buffer = NULL;
     } else
-        av_freep(&rbsp->rbsp_buffer);
+        zn_av_freep(&rbsp->rbsp_buffer);
 
     return;
 }
@@ -539,7 +539,7 @@ int ff_h2645_packet_split(H2645Packet *pkt, const uint8_t *buf, int length,
 
             nal = &pkt->nals[pkt->nb_nals];
             nal->skipped_bytes_pos_size = FFMIN(1024, extract_length/3+1); // initial buffer size
-            nal->skipped_bytes_pos = av_malloc_array(nal->skipped_bytes_pos_size, sizeof(*nal->skipped_bytes_pos));
+            nal->skipped_bytes_pos = zn_av_malloc_array(nal->skipped_bytes_pos_size, sizeof(*nal->skipped_bytes_pos));
             if (!nal->skipped_bytes_pos)
                 return AVERROR(ENOMEM);
 
@@ -598,14 +598,14 @@ void ff_h2645_packet_uninit(H2645Packet *pkt)
 {
     int i;
     for (i = 0; i < pkt->nals_allocated; i++) {
-        av_freep(&pkt->nals[i].skipped_bytes_pos);
+        zn_av_freep(&pkt->nals[i].skipped_bytes_pos);
     }
-    av_freep(&pkt->nals);
+    zn_av_freep(&pkt->nals);
     pkt->nals_allocated = pkt->nal_buffer_size = 0;
     if (pkt->rbsp.rbsp_buffer_ref) {
         av_buffer_unref(&pkt->rbsp.rbsp_buffer_ref);
         pkt->rbsp.rbsp_buffer = NULL;
     } else
-        av_freep(&pkt->rbsp.rbsp_buffer);
+        zn_av_freep(&pkt->rbsp.rbsp_buffer);
     pkt->rbsp.rbsp_buffer_alloc_size = pkt->rbsp.rbsp_buffer_size = 0;
 }

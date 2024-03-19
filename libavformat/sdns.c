@@ -46,7 +46,7 @@ static int sdns_read_header(AVFormatContext *s)
 
     avio_skip(pb, 8);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -57,7 +57,7 @@ static int sdns_read_header(AVFormatContext *s)
     channels         = avio_rb32(pb);
     if (channels <= 0 || channels > 128)
         return AVERROR_INVALIDDATA;
-    av_channel_layout_default(&par->ch_layout, channels);
+    zn_av_channel_layout_default(&par->ch_layout, channels);
     if (par->sample_rate <= 0)
         return AVERROR_INVALIDDATA;
     par->block_align = 2048;

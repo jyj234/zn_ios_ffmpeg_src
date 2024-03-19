@@ -245,7 +245,7 @@ static int pcx_decode_frame(AVCodecContext *avctx, AVFrame *p,
     *got_frame = 1;
 
 end:
-    av_free(scanline);
+    zn_av_free(scanline);
     return ret;
 }
 

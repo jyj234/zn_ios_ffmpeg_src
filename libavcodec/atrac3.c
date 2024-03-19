@@ -199,8 +199,8 @@ static av_cold int atrac3_decode_close(AVCodecContext *avctx)
 {
     ATRAC3Context *q = avctx->priv_data;
 
-    av_freep(&q->units);
-    av_freep(&q->decoded_bytes_buffer);
+    zn_av_freep(&q->units);
+    zn_av_freep(&q->decoded_bytes_buffer);
 
     av_tx_uninit(&q->mdct_ctx);
 
@@ -1006,9 +1006,9 @@ static av_cold int atrac3_decode_init(AVCodecContext *avctx)
     if (!fdsp)
         return AVERROR(ENOMEM);
     q->vector_fmul = fdsp->vector_fmul;
-    av_free(fdsp);
+    zn_av_free(fdsp);
 
-    q->units = av_calloc(channels, sizeof(*q->units));
+    q->units = zn_av_calloc(channels, sizeof(*q->units));
     if (!q->units)
         return AVERROR(ENOMEM);
 

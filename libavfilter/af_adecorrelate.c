@@ -67,8 +67,8 @@ static int ap_init(APContext *ap, int fs, double delay)
 
     ap->len = delay_samples + 1;
     ap->p = 0;
-    ap->mx = av_calloc(ap->len, sizeof(*ap->mx));
-    ap->my = av_calloc(ap->len, sizeof(*ap->my));
+    ap->mx = zn_av_calloc(ap->len, sizeof(*ap->mx));
+    ap->my = zn_av_calloc(ap->len, sizeof(*ap->my));
     if (!ap->mx || !ap->my)
         return AVERROR(ENOMEM);
 
@@ -83,8 +83,8 @@ static int ap_init(APContext *ap, int fs, double delay)
 
 static void ap_free(APContext *ap)
 {
-    av_freep(&ap->mx);
-    av_freep(&ap->my);
+    zn_av_freep(&ap->mx);
+    zn_av_freep(&ap->my);
 }
 
 static double ap_run(APContext *ap, double x)
@@ -131,7 +131,7 @@ static int config_input(AVFilterLink *inlink)
     av_lfg_init(&s->c, s->seed);
 
     s->nb_channels = inlink->ch_layout.nb_channels;
-    s->ap = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->ap));
+    s->ap = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->ap));
     if (!s->ap)
         return AVERROR(ENOMEM);
 
@@ -180,7 +180,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -191,7 +191,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                       FFMIN(inlink->ch_layout.nb_channels, ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -206,7 +206,7 @@ static av_cold void uninit(AVFilterContext *ctx)
         }
     }
 
-    av_freep(&s->ap);
+    zn_av_freep(&s->ap);
 }
 
 #define OFFSET(x) offsetof(ADecorrelateContext, x)

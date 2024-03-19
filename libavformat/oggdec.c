@@ -68,14 +68,14 @@ static void free_stream(AVFormatContext *s, int i)
     struct ogg *ogg = s->priv_data;
     struct ogg_stream *stream = &ogg->streams[i];
 
-    av_freep(&stream->buf);
+    zn_av_freep(&stream->buf);
     if (stream->codec &&
         stream->codec->cleanup) {
         stream->codec->cleanup(s, i);
     }
 
-    av_freep(&stream->private);
-    av_freep(&stream->new_metadata);
+    zn_av_freep(&stream->private);
+    zn_av_freep(&stream->new_metadata);
 }
 
 //FIXME We could avoid some structure duplication
@@ -129,8 +129,8 @@ static int ogg_restore(AVFormatContext *s)
 
         for (i = 0; i < ogg->nstreams; i++) {
             struct ogg_stream *stream = &ogg->streams[i];
-            av_freep(&stream->buf);
-            av_freep(&stream->new_metadata);
+            zn_av_freep(&stream->buf);
+            zn_av_freep(&stream->new_metadata);
 
             if (i >= ost->nstreams || !ost->streams[i].private) {
                 free_stream(s, i);
@@ -149,7 +149,7 @@ static int ogg_restore(AVFormatContext *s)
             memcpy(ogg->streams, ost->streams,
                    ost->nstreams * sizeof(*ogg->streams));
 
-    av_free(ost);
+    zn_av_free(ost);
 
     return 0;
 }
@@ -179,7 +179,7 @@ static int ogg_reset(AVFormatContext *s)
         }
         os->start_trimming = 0;
         os->end_trimming = 0;
-        av_freep(&os->new_metadata);
+        zn_av_freep(&os->new_metadata);
         os->new_metadata_size = 0;
     }
 
@@ -274,9 +274,9 @@ static int ogg_new_stream(AVFormatContext *s, uint32_t serial)
         return AVERROR(ENOMEM);
 
     /* Create the associated AVStream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st) {
-        av_freep(&os->buf);
+        zn_av_freep(&os->buf);
         return AVERROR(ENOMEM);
     }
     st->id = idx;
@@ -403,14 +403,14 @@ static int ogg_read_page(AVFormatContext *s, int *sid, int probing)
     ret = avio_read(bc, readout_buf, size);
     if (ret < size) {
         if (idx < 0)
-            av_free(readout_buf);
+            zn_av_free(readout_buf);
         return ret < 0 ? ret : AVERROR_EOF;
     }
 
     if (crc ^ ffio_get_checksum(bc)) {
         av_log(s, AV_LOG_ERROR, "CRC mismatch!\n");
         if (idx < 0)
-            av_free(readout_buf);
+            zn_av_free(readout_buf);
         avio_seek(bc, start_pos, SEEK_SET);
         *sid = -1;
         return 0;
@@ -421,7 +421,7 @@ static int ogg_read_page(AVFormatContext *s, int *sid, int probing)
     if (version) {
         av_log(s, AV_LOG_ERROR, "Invalid Ogg vers!\n");
         if (idx < 0)
-            av_free(readout_buf);
+            zn_av_free(readout_buf);
         avio_seek(bc, start_pos, SEEK_SET);
         *sid = -1;
         return 0;
@@ -436,7 +436,7 @@ static int ogg_read_page(AVFormatContext *s, int *sid, int probing)
 
         if (idx < 0) {
             av_log(s, AV_LOG_ERROR, "failed to create or replace stream\n");
-            av_free(readout_buf);
+            zn_av_free(readout_buf);
             return idx;
         }
 
@@ -444,12 +444,12 @@ static int ogg_read_page(AVFormatContext *s, int *sid, int probing)
 
         ret = buf_realloc(os, size);
         if (ret < 0) {
-            av_free(readout_buf);
+            zn_av_free(readout_buf);
             return ret;
         }
 
         memcpy(os->buf + os->bufpos, readout_buf, size);
-        av_free(readout_buf);
+        zn_av_free(readout_buf);
     }
 
     ogg->page_pos = page_pos;
@@ -568,7 +568,7 @@ static int ogg_packet(AVFormatContext *s, int *sid, int *dstart, int *dsize,
 
     if (os->header) {
         if ((ret = os->codec->header(s, idx)) < 0) {
-            av_log(s, AV_LOG_ERROR, "Header processing failed: %s\n", av_err2str(ret));
+            av_log(s, AV_LOG_ERROR, "Header processing failed: %s\n", zn_av_err2str(ret));
             return ret;
         }
         os->header = ret;
@@ -604,7 +604,7 @@ static int ogg_packet(AVFormatContext *s, int *sid, int *dstart, int *dsize,
         os->pduration = 0;
         if (os->codec && os->codec->packet) {
             if ((ret = os->codec->packet(s, idx)) < 0) {
-                av_log(s, AV_LOG_ERROR, "Packet processing failed: %s\n", av_err2str(ret));
+                av_log(s, AV_LOG_ERROR, "Packet processing failed: %s\n", zn_av_err2str(ret));
                 return ret;
             }
         }
@@ -718,7 +718,7 @@ static int ogg_read_close(AVFormatContext *s)
 
     ogg->nstreams = 0;
 
-    av_freep(&ogg->streams);
+    zn_av_freep(&ogg->streams);
     return 0;
 }
 
@@ -743,7 +743,7 @@ static int ogg_read_header(AVFormatContext *s)
         if (ogg->streams[i].header < 0) {
             av_log(s, AV_LOG_ERROR, "Header parsing failed for stream %d\n", i);
             ogg->streams[i].codec = NULL;
-            av_freep(&ogg->streams[i].private);
+            zn_av_freep(&ogg->streams[i].private);
         } else if (os->codec && os->nb_header < os->codec->nb_header) {
             av_log(s, AV_LOG_WARNING,
                    "Headers mismatch for stream %d: "

@@ -193,7 +193,7 @@ static int unsharp_opencl_make_filter_params(AVFilterContext *avctx)
             ctx->plane[p].coef_y = buffer;
         }
 
-        av_freep(&matrix);
+        zn_av_freep(&matrix);
 
         ctx->plane[p].size_x = size_x;
         ctx->plane[p].size_y = size_y;
@@ -202,7 +202,7 @@ static int unsharp_opencl_make_filter_params(AVFilterContext *avctx)
 
     err = 0;
 fail:
-    av_freep(&matrix);
+    zn_av_freep(&matrix);
     return err;
 }
 
@@ -286,7 +286,7 @@ static int unsharp_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     av_log(ctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(output->format),
@@ -296,8 +296,8 @@ static int unsharp_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
 
 fail:
     clFinish(ctx->command_queue);
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

@@ -477,8 +477,8 @@ static int mms_close(URLContext *h)
     }
 
     /* free all separately allocated pointers in mms */
-    av_freep(&mms->streams);
-    av_freep(&mms->asf_header);
+    zn_av_freep(&mms->streams);
+    zn_av_freep(&mms->asf_header);
 
     return 0;
 }

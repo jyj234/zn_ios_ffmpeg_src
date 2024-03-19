@@ -174,7 +174,7 @@ static int vaapi_encode_wait(AVCodecContext *avctx,
     }
 
     // Input is definitely finished with now.
-    av_frame_free(&pic->input_image);
+    zn_av_frame_free(&pic->input_image);
 
     pic->encode_complete = 1;
     return 0;
@@ -308,7 +308,7 @@ static int vaapi_encode_issue(AVCodecContext *avctx,
 
     av_log(avctx, AV_LOG_DEBUG, "Input surface is %#x.\n", pic->input_surface);
 
-    pic->recon_image = av_frame_alloc();
+    pic->recon_image = zn_av_frame_alloc();
     if (!pic->recon_image) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -469,7 +469,7 @@ static int vaapi_encode_issue(AVCodecContext *avctx,
     if (pic->nb_slices == 0)
         pic->nb_slices = ctx->nb_slices;
     if (pic->nb_slices > 0) {
-        pic->slices = av_calloc(pic->nb_slices, sizeof(*pic->slices));
+        pic->slices = zn_av_calloc(pic->nb_slices, sizeof(*pic->slices));
         if (!pic->slices) {
             err = AVERROR(ENOMEM);
             goto fail;
@@ -551,7 +551,7 @@ static int vaapi_encode_issue(AVCodecContext *avctx,
             nb_roi = ctx->roi_max_regions;
         }
 
-        pic->roi = av_calloc(nb_roi, sizeof(*pic->roi));
+        pic->roi = zn_av_calloc(nb_roi, sizeof(*pic->roi));
         if (!pic->roi) {
             err = AVERROR(ENOMEM);
             goto fail;
@@ -650,14 +650,14 @@ fail:
         vaDestroyBuffer(ctx->hwctx->display, pic->param_buffers[i]);
     if (pic->slices) {
         for (i = 0; i < pic->nb_slices; i++)
-            av_freep(&pic->slices[i].codec_slice_params);
+            zn_av_freep(&pic->slices[i].codec_slice_params);
     }
 fail_at_end:
-    av_freep(&pic->codec_picture_params);
-    av_freep(&pic->param_buffers);
-    av_freep(&pic->slices);
-    av_freep(&pic->roi);
-    av_frame_free(&pic->recon_image);
+    zn_av_freep(&pic->codec_picture_params);
+    zn_av_freep(&pic->param_buffers);
+    zn_av_freep(&pic->slices);
+    zn_av_freep(&pic->roi);
+    zn_av_frame_free(&pic->recon_image);
     av_buffer_unref(&pic->output_buffer_ref);
     pic->output_buffer = VA_INVALID_ID;
     return err;
@@ -891,7 +891,7 @@ static VAAPIEncodePicture *vaapi_encode_alloc(AVCodecContext *avctx)
     if (ctx->codec->picture_priv_data_size > 0) {
         pic->priv_data = av_mallocz(ctx->codec->picture_priv_data_size);
         if (!pic->priv_data) {
-            av_freep(&pic);
+            zn_av_freep(&pic);
             return NULL;
         }
     }
@@ -913,25 +913,25 @@ static int vaapi_encode_free(AVCodecContext *avctx,
 
     if (pic->slices) {
         for (i = 0; i < pic->nb_slices; i++)
-            av_freep(&pic->slices[i].codec_slice_params);
+            zn_av_freep(&pic->slices[i].codec_slice_params);
     }
-    av_freep(&pic->codec_picture_params);
+    zn_av_freep(&pic->codec_picture_params);
 
-    av_frame_free(&pic->input_image);
-    av_frame_free(&pic->recon_image);
+    zn_av_frame_free(&pic->input_image);
+    zn_av_frame_free(&pic->recon_image);
 
     av_buffer_unref(&pic->opaque_ref);
 
-    av_freep(&pic->param_buffers);
-    av_freep(&pic->slices);
+    zn_av_freep(&pic->param_buffers);
+    zn_av_freep(&pic->slices);
     // Output buffer should already be destroyed.
     av_assert0(pic->output_buffer == VA_INVALID_ID);
 
-    av_freep(&pic->priv_data);
-    av_freep(&pic->codec_picture_params);
-    av_freep(&pic->roi);
+    zn_av_freep(&pic->priv_data);
+    zn_av_freep(&pic->codec_picture_params);
+    zn_av_freep(&pic->roi);
 
-    av_free(pic);
+    zn_av_free(pic);
 
     return 0;
 }
@@ -1337,7 +1337,7 @@ static int vaapi_encode_send_frame(AVCodecContext *avctx, AVFrame *frame)
         if (!pic)
             return AVERROR(ENOMEM);
 
-        pic->input_image = av_frame_alloc();
+        pic->input_image = zn_av_frame_alloc();
         if (!pic->input_image) {
             err = AVERROR(ENOMEM);
             goto fail;
@@ -1596,7 +1596,7 @@ static av_cold int vaapi_encode_profile_entrypoint(AVCodecContext *avctx)
            desc->name);
 
     n = vaMaxNumProfiles(ctx->hwctx->display);
-    va_profiles = av_malloc_array(n, sizeof(VAProfile));
+    va_profiles = zn_av_malloc_array(n, sizeof(VAProfile));
     if (!va_profiles) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -1656,7 +1656,7 @@ static av_cold int vaapi_encode_profile_entrypoint(AVCodecContext *avctx)
            profile_string, ctx->va_profile);
 
     n = vaMaxNumEntrypoints(ctx->hwctx->display);
-    va_entrypoints = av_malloc_array(n, sizeof(VAEntrypoint));
+    va_entrypoints = zn_av_malloc_array(n, sizeof(VAEntrypoint));
     if (!va_entrypoints) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -1746,8 +1746,8 @@ static av_cold int vaapi_encode_profile_entrypoint(AVCodecContext *avctx)
 
     err = 0;
 fail:
-    av_freep(&va_profiles);
-    av_freep(&va_entrypoints);
+    zn_av_freep(&va_profiles);
+    zn_av_freep(&va_entrypoints);
     return err;
 }
 
@@ -2727,7 +2727,7 @@ static av_cold int vaapi_encode_create_recon_frames(AVCodecContext *avctx)
         goto fail;
     }
 
-    av_freep(&hwconfig);
+    zn_av_freep(&hwconfig);
     av_hwframe_constraints_free(&constraints);
 
     ctx->recon_frames_ref = av_hwframe_ctx_alloc(ctx->device_ref);
@@ -2751,7 +2751,7 @@ static av_cold int vaapi_encode_create_recon_frames(AVCodecContext *avctx)
 
     err = 0;
   fail:
-    av_freep(&hwconfig);
+    zn_av_freep(&hwconfig);
     av_hwframe_constraints_free(&constraints);
     return err;
 }
@@ -2766,9 +2766,9 @@ av_cold int ff_vaapi_encode_init(AVCodecContext *avctx)
     ctx->va_config  = VA_INVALID_ID;
     ctx->va_context = VA_INVALID_ID;
 
-    /* If you add something that can fail above this av_frame_alloc(),
+    /* If you add something that can fail above this zn_av_frame_alloc(),
      * modify ff_vaapi_encode_close() accordingly. */
-    ctx->frame = av_frame_alloc();
+    ctx->frame = zn_av_frame_alloc();
     if (!ctx->frame) {
         return AVERROR(ENOMEM);
     }
@@ -2794,7 +2794,7 @@ av_cold int ff_vaapi_encode_init(AVCodecContext *avctx)
     ctx->device = (AVHWDeviceContext*)ctx->device_ref->data;
     ctx->hwctx = ctx->device->hwctx;
 
-    ctx->tail_pkt = av_packet_alloc();
+    ctx->tail_pkt = zn_av_packet_alloc();
     if (!ctx->tail_pkt) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -2991,11 +2991,11 @@ av_cold int ff_vaapi_encode_close(AVCodecContext *avctx)
         ctx->va_config = VA_INVALID_ID;
     }
 
-    av_frame_free(&ctx->frame);
-    av_packet_free(&ctx->tail_pkt);
+    zn_av_frame_free(&ctx->frame);
+    zn_av_packet_free(&ctx->tail_pkt);
 
-    av_freep(&ctx->codec_sequence_params);
-    av_freep(&ctx->codec_picture_params);
+    zn_av_freep(&ctx->codec_sequence_params);
+    zn_av_freep(&ctx->codec_picture_params);
     av_fifo_freep2(&ctx->encode_fifo);
 
     av_buffer_unref(&ctx->recon_frames_ref);

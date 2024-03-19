@@ -401,7 +401,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf)
     }
 
     if (buf != out_buf)
-        av_frame_free(&buf);
+        zn_av_frame_free(&buf);
 
     return ff_filter_frame(outlink, out_buf);
 }
@@ -598,13 +598,13 @@ static int activate(AVFilterContext *ctx)
 
             ret = ff_inlink_consume_samples(ctx->inputs[0], s->nb_samples, s->nb_samples, &cf[0]);
             if (ret < 0) {
-                av_frame_free(&out);
+                zn_av_frame_free(&out);
                 return ret;
             }
 
             ret = ff_inlink_consume_samples(ctx->inputs[1], s->nb_samples, s->nb_samples, &cf[1]);
             if (ret < 0) {
-                av_frame_free(&out);
+                zn_av_frame_free(&out);
                 return ret;
             }
 
@@ -616,8 +616,8 @@ static int activate(AVFilterContext *ctx)
             s->pts += av_rescale_q(s->nb_samples,
                 (AVRational){ 1, outlink->sample_rate }, outlink->time_base);
             s->passthrough = 1;
-            av_frame_free(&cf[0]);
-            av_frame_free(&cf[1]);
+            zn_av_frame_free(&cf[0]);
+            zn_av_frame_free(&cf[1]);
             return ff_filter_frame(outlink, out);
         } else {
             out = ff_get_audio_buffer(outlink, s->nb_samples);
@@ -626,7 +626,7 @@ static int activate(AVFilterContext *ctx)
 
             ret = ff_inlink_consume_samples(ctx->inputs[0], s->nb_samples, s->nb_samples, &cf[0]);
             if (ret < 0) {
-                av_frame_free(&out);
+                zn_av_frame_free(&out);
                 return ret;
             }
 
@@ -635,7 +635,7 @@ static int activate(AVFilterContext *ctx)
             out->pts = s->pts;
             s->pts += av_rescale_q(s->nb_samples,
                 (AVRational){ 1, outlink->sample_rate }, outlink->time_base);
-            av_frame_free(&cf[0]);
+            zn_av_frame_free(&cf[0]);
             ret = ff_filter_frame(outlink, out);
             if (ret < 0)
                 return ret;
@@ -646,7 +646,7 @@ static int activate(AVFilterContext *ctx)
 
             ret = ff_inlink_consume_samples(ctx->inputs[1], s->nb_samples, s->nb_samples, &cf[1]);
             if (ret < 0) {
-                av_frame_free(&out);
+                zn_av_frame_free(&out);
                 return ret;
             }
 
@@ -656,7 +656,7 @@ static int activate(AVFilterContext *ctx)
             s->pts += av_rescale_q(s->nb_samples,
                 (AVRational){ 1, outlink->sample_rate }, outlink->time_base);
             s->passthrough = 1;
-            av_frame_free(&cf[1]);
+            zn_av_frame_free(&cf[1]);
             return ff_filter_frame(outlink, out);
         }
     } else if (ff_outlink_frame_wanted(outlink)) {

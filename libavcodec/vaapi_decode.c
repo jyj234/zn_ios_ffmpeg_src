@@ -220,7 +220,7 @@ exit:
     pic->nb_param_buffers = 0;
     pic->nb_slices        = 0;
     pic->slices_allocated = 0;
-    av_freep(&pic->slice_buffers);
+    zn_av_freep(&pic->slice_buffers);
 
     return err;
 }
@@ -233,7 +233,7 @@ int ff_vaapi_decode_cancel(AVCodecContext *avctx,
     pic->nb_param_buffers = 0;
     pic->nb_slices        = 0;
     pic->slices_allocated = 0;
-    av_freep(&pic->slice_buffers);
+    zn_av_freep(&pic->slice_buffers);
 
     return 0;
 }
@@ -316,7 +316,7 @@ static int vaapi_decode_find_best_format(AVCodecContext *avctx,
         return AVERROR(ENOSYS);
     }
 
-    attr = av_malloc_array(nb_attr, sizeof(*attr));
+    attr = zn_av_malloc_array(nb_attr, sizeof(*attr));
     if (!attr)
         return AVERROR(ENOMEM);
 
@@ -325,7 +325,7 @@ static int vaapi_decode_find_best_format(AVCodecContext *avctx,
     if (vas != VA_STATUS_SUCCESS) {
         av_log(avctx, AV_LOG_ERROR, "Failed to query surface attributes: "
                "%d (%s).\n", vas, vaErrorStr(vas));
-        av_freep(&attr);
+        zn_av_freep(&attr);
         return AVERROR(ENOSYS);
     }
 
@@ -355,7 +355,7 @@ static int vaapi_decode_find_best_format(AVCodecContext *avctx,
             best_fourcc = fourcc;
     }
 
-    av_freep(&attr);
+    zn_av_freep(&attr);
 
     if (best_format == AV_PIX_FMT_NONE) {
         av_log(avctx, AV_LOG_ERROR, "No usable formats for decoding!\n");
@@ -474,7 +474,7 @@ static int vaapi_decode_make_config(AVCodecContext *avctx,
     }
 
     profile_count = vaMaxNumProfiles(hwctx->display);
-    profile_list  = av_malloc_array(profile_count,
+    profile_list  = zn_av_malloc_array(profile_count,
                                     sizeof(VAProfile));
     if (!profile_list) {
         err = AVERROR(ENOMEM);
@@ -519,7 +519,7 @@ static int vaapi_decode_make_config(AVCodecContext *avctx,
                 break;
         }
     }
-    av_freep(&profile_list);
+    zn_av_freep(&profile_list);
 
     if (matched_va_profile == VAProfileNone) {
         av_log(avctx, AV_LOG_ERROR, "No support for codec %s "
@@ -621,18 +621,18 @@ static int vaapi_decode_make_config(AVCodecContext *avctx,
     }
 
     av_hwframe_constraints_free(&constraints);
-    av_freep(&hwconfig);
+    zn_av_freep(&hwconfig);
 
     return 0;
 
 fail:
     av_hwframe_constraints_free(&constraints);
-    av_freep(&hwconfig);
+    zn_av_freep(&hwconfig);
     if (*va_config != VA_INVALID_ID) {
         vaDestroyConfig(hwctx->display, *va_config);
         *va_config = VA_INVALID_ID;
     }
-    av_freep(&profile_list);
+    zn_av_freep(&profile_list);
     return err;
 }
 

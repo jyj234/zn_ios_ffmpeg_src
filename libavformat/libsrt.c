@@ -277,10 +277,10 @@ static int libsrt_listen_connect(int eid, int fd, const struct sockaddr *addr, s
         if (will_try_next) {
             av_log(h, AV_LOG_WARNING,
                    "Connection to %s failed (%s), trying next address\n",
-                   h->filename, av_err2str(ret));
+                   h->filename, zn_av_err2str(ret));
         } else {
             av_log(h, AV_LOG_ERROR, "Connection to %s failed: %s\n",
-                   h->filename, av_err2str(ret));
+                   h->filename, zn_av_err2str(ret));
         }
     }
     return ret;
@@ -546,7 +546,7 @@ static int libsrt_open(URLContext *h, const char *uri, int flags)
             s->pbkeylen = strtol(buf, NULL, 10);
         }
         if (av_find_info_tag(buf, sizeof(buf), "passphrase", p)) {
-            av_freep(&s->passphrase);
+            zn_av_freep(&s->passphrase);
             s->passphrase = av_strndup(buf, strlen(buf));
         }
 #if SRT_VERSION_VALUE >= 0x010302
@@ -631,7 +631,7 @@ static int libsrt_open(URLContext *h, const char *uri, int flags)
             s->minversion = strtol(buf, NULL, 0);
         }
         if (av_find_info_tag(buf, sizeof(buf), "streamid", p)) {
-            av_freep(&s->streamid);
+            zn_av_freep(&s->streamid);
             s->streamid = av_strdup(buf);
             if (!s->streamid) {
                 ret = AVERROR(ENOMEM);
@@ -639,7 +639,7 @@ static int libsrt_open(URLContext *h, const char *uri, int flags)
             }
         }
         if (av_find_info_tag(buf, sizeof(buf), "smoother", p)) {
-            av_freep(&s->smoother);
+            zn_av_freep(&s->smoother);
             s->smoother = av_strdup(buf);
             if(!s->smoother) {
                 ret = AVERROR(ENOMEM);
@@ -669,8 +669,8 @@ static int libsrt_open(URLContext *h, const char *uri, int flags)
     return 0;
 
 err:
-    av_freep(&s->smoother);
-    av_freep(&s->streamid);
+    zn_av_freep(&s->smoother);
+    zn_av_freep(&s->streamid);
     srt_cleanup();
     return ret;
 }

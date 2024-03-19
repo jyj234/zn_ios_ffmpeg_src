@@ -701,18 +701,18 @@ static av_cold int av1_decode_free(AVCodecContext *avctx)
     for (int i = 0; i < FF_ARRAY_ELEMS(s->ref); i++) {
         if (s->ref[i].f) {
             av1_frame_unref(&s->ref[i]);
-            av_frame_free(&s->ref[i].f);
+            zn_av_frame_free(&s->ref[i].f);
         }
     }
     if (s->cur_frame.f) {
         av1_frame_unref(&s->cur_frame);
-        av_frame_free(&s->cur_frame.f);
+        zn_av_frame_free(&s->cur_frame.f);
     }
     ff_refstruct_unref(&s->seq_ref);
     ff_refstruct_unref(&s->header_ref);
     ff_refstruct_unref(&s->cll_ref);
     ff_refstruct_unref(&s->mdcv_ref);
-    av_freep(&s->tile_group_info);
+    zn_av_freep(&s->tile_group_info);
 
     while (s->itut_t35_fifo && av_fifo_read(s->itut_t35_fifo, &itut_t35, 1) >= 0)
         av_buffer_unref(&itut_t35.payload_ref);
@@ -818,12 +818,12 @@ static av_cold int av1_decode_init(AVCodecContext *avctx)
     s->pix_fmt = AV_PIX_FMT_NONE;
 
     for (int i = 0; i < FF_ARRAY_ELEMS(s->ref); i++) {
-        s->ref[i].f = av_frame_alloc();
+        s->ref[i].f = zn_av_frame_alloc();
         if (!s->ref[i].f)
             return AVERROR(ENOMEM);
     }
 
-    s->cur_frame.f = av_frame_alloc();
+    s->cur_frame.f = zn_av_frame_alloc();
     if (!s->cur_frame.f)
         return AVERROR(ENOMEM);
 
@@ -1118,7 +1118,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
 
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
 
     return 0;
 }
@@ -1405,7 +1405,7 @@ end:
     if ((ret < 0 && ret != AVERROR(EAGAIN)) || s->current_obu.nb_units == i) {
         if (ret < 0)
             s->raw_frame_header = NULL;
-        av_packet_unref(s->pkt);
+        zn_av_packet_unref(s->pkt);
         ff_cbs_fragment_reset(&s->current_obu);
         s->nb_unit = 0;
     }
@@ -1427,7 +1427,7 @@ static int av1_receive_frame(AVCodecContext *avctx, AVFrame *frame)
             ret = ff_cbs_read_packet(s->cbc, &s->current_obu, s->pkt);
             if (ret < 0) {
                 ff_cbs_fragment_reset(&s->current_obu);
-                av_packet_unref(s->pkt);
+                zn_av_packet_unref(s->pkt);
                 av_log(avctx, AV_LOG_ERROR, "Failed to read packet.\n");
                 return ret;
             }

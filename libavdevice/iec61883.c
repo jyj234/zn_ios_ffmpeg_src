@@ -122,7 +122,7 @@ static int iec61883_callback(unsigned char *data, int length,
 
     packet->buf = av_malloc(length + AV_INPUT_BUFFER_PADDING_SIZE);
     if (!packet->buf) {
-        av_free(packet);
+        zn_av_free(packet);
         ret = -1;
         goto exit;
     }
@@ -204,16 +204,16 @@ static int iec61883_parse_queue_dv(struct iec61883_data *dv, AVPacket *pkt)
                                     packet->buf, packet->len, -1);
     dv->queue_first = packet->next;
     if (size < 0)
-        av_free(packet->buf);
-    av_free(packet);
+        zn_av_free(packet->buf);
+    zn_av_free(packet);
     dv->packets--;
 
     if (size < 0)
         return -1;
 
     if (av_packet_from_data(pkt, pkt->data, pkt->size) < 0) {
-        av_freep(&pkt->data);
-        av_packet_unref(pkt);
+        zn_av_freep(&pkt->data);
+        zn_av_packet_unref(pkt);
         return -1;
     }
 
@@ -231,8 +231,8 @@ static int iec61883_parse_queue_hdv(struct iec61883_data *dv, AVPacket *pkt)
         size = avpriv_mpegts_parse_packet(dv->mpeg_demux, pkt, packet->buf,
                                           packet->len);
         dv->queue_first = packet->next;
-        av_freep(&packet->buf);
-        av_freep(&packet);
+        zn_av_freep(&packet->buf);
+        zn_av_freep(&packet);
         dv->packets--;
 
         if (size > 0)
@@ -366,7 +366,7 @@ static int iec61883_read_header(AVFormatContext *context)
 
         /* Init HDV receive */
 
-        avformat_new_stream(context, NULL);
+        zn_avformat_new_stream(context, NULL);
 
         dv->mpeg_demux = avpriv_mpegts_parse_open(context);
         if (!dv->mpeg_demux)
@@ -466,13 +466,13 @@ static int iec61883_close(AVFormatContext *context)
     } else {
         iec61883_dv_fb_stop(dv->iec61883_dv);
         iec61883_dv_fb_close(dv->iec61883_dv);
-        av_freep(&dv->dv_demux);
+        zn_av_freep(&dv->dv_demux);
     }
     while (dv->queue_first) {
         DVPacket *packet = dv->queue_first;
         dv->queue_first = packet->next;
-        av_freep(&packet->buf);
-        av_freep(&packet);
+        zn_av_freep(&packet->buf);
+        zn_av_freep(&packet);
     }
 
     iec61883_cmp_disconnect(dv->raw1394, dv->node, dv->output_port,

@@ -148,7 +148,7 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *frame,
         channels = 2;
     }
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, channels);
     pcm_data[0] = get_sbits(&gb, 16);
     if (channels > 1) {
         channel_hint[1] = get_sbits(&gb, 8);

@@ -572,7 +572,7 @@ static int pixfmt_from_pixmap_format(AVFormatContext *s, int depth,
 static int create_stream(AVFormatContext *s)
 {
     XCBGrabContext *c = s->priv_data;
-    AVStream *st      = avformat_new_stream(s, NULL);
+    AVStream *st      = zn_avformat_new_stream(s, NULL);
     xcb_get_geometry_cookie_t gc;
     xcb_get_geometry_reply_t *geo;
     int64_t frame_size_bits;
@@ -830,7 +830,7 @@ static av_cold int xcbgrab_read_header(AVFormatContext *s)
     }
 
     c->conn = xcb_connect(display_name[0] ? display_name : NULL, &screen_num);
-    av_freep(&display_name);
+    zn_av_freep(&display_name);
 
     if ((ret = xcb_connection_has_error(c->conn))) {
         av_log(s, AV_LOG_ERROR, "Cannot open display %s, error %d.\n",

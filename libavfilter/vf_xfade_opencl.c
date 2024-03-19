@@ -206,7 +206,7 @@ static int xfade_frame(AVFilterContext *avctx, AVFrame *a, AVFrame *b)
     return ff_filter_frame(outlink, output);
 
 fail:
-    av_frame_free(&output);
+    zn_av_frame_free(&output);
     return err;
 }
 
@@ -310,8 +310,8 @@ static int xfade_opencl_activate(AVFilterContext *avctx)
         if (ctx->xf[0]->pts - (ctx->first_pts + ctx->offset_pts) > ctx->duration_pts)
             ctx->xfade_is_over = 1;
         ret = xfade_frame(avctx, ctx->xf[0], ctx->xf[1]);
-        av_frame_free(&ctx->xf[0]);
-        av_frame_free(&ctx->xf[1]);
+        zn_av_frame_free(&ctx->xf[0]);
+        zn_av_frame_free(&ctx->xf[1]);
         return ret;
     }
 

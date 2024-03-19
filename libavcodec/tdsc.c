@@ -80,12 +80,12 @@ static av_cold int tdsc_close(AVCodecContext *avctx)
 {
     TDSCContext *ctx = avctx->priv_data;
 
-    av_frame_free(&ctx->refframe);
-    av_frame_free(&ctx->jpgframe);
-    av_packet_free(&ctx->jpkt);
-    av_freep(&ctx->deflatebuffer);
-    av_freep(&ctx->tilebuffer);
-    av_freep(&ctx->cursor);
+    zn_av_frame_free(&ctx->refframe);
+    zn_av_frame_free(&ctx->jpgframe);
+    zn_av_packet_free(&ctx->jpkt);
+    zn_av_freep(&ctx->deflatebuffer);
+    zn_av_freep(&ctx->tilebuffer);
+    zn_av_freep(&ctx->cursor);
     avcodec_free_context(&ctx->jpeg_avctx);
 
     return 0;
@@ -112,24 +112,24 @@ static av_cold int tdsc_init(AVCodecContext *avctx)
         return ret;
 
     /* Allocate reference and JPEG frame */
-    ctx->refframe = av_frame_alloc();
-    ctx->jpgframe = av_frame_alloc();
-    ctx->jpkt     = av_packet_alloc();
+    ctx->refframe = zn_av_frame_alloc();
+    ctx->jpgframe = zn_av_frame_alloc();
+    ctx->jpkt     = zn_av_packet_alloc();
     if (!ctx->refframe || !ctx->jpgframe || !ctx->jpkt)
         return AVERROR(ENOMEM);
 
     /* Prepare everything needed for JPEG decoding */
-    codec = avcodec_find_decoder(AV_CODEC_ID_MJPEG);
+    codec = zn_avcodec_find_decoder(AV_CODEC_ID_MJPEG);
     if (!codec)
         return AVERROR_BUG;
-    ctx->jpeg_avctx = avcodec_alloc_context3(codec);
+    ctx->jpeg_avctx = zn_avcodec_alloc_context3(codec);
     if (!ctx->jpeg_avctx)
         return AVERROR(ENOMEM);
     ctx->jpeg_avctx->flags = avctx->flags;
     ctx->jpeg_avctx->flags2 = avctx->flags2;
     ctx->jpeg_avctx->dct_algo = avctx->dct_algo;
     ctx->jpeg_avctx->idct_algo = avctx->idct_algo;
-    ret = avcodec_open2(ctx->jpeg_avctx, codec, NULL);
+    ret = zn_avcodec_open2(ctx->jpeg_avctx, codec, NULL);
     if (ret < 0)
         return ret;
 
@@ -349,17 +349,17 @@ static int tdsc_decode_jpeg_tile(AVCodecContext *avctx, int tile_size,
     int ret;
 
     /* Prepare a packet and send to the MJPEG decoder */
-    av_packet_unref(ctx->jpkt);
+    zn_av_packet_unref(ctx->jpkt);
     ctx->jpkt->data = ctx->tilebuffer;
     ctx->jpkt->size = tile_size;
 
-    ret = avcodec_send_packet(ctx->jpeg_avctx, ctx->jpkt);
+    ret = zn_avcodec_send_packet(ctx->jpeg_avctx, ctx->jpkt);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
         return ret;
     }
 
-    ret = avcodec_receive_frame(ctx->jpeg_avctx, ctx->jpgframe);
+    ret = zn_avcodec_receive_frame(ctx->jpeg_avctx, ctx->jpgframe);
     if (ret < 0 || ctx->jpgframe->format != AV_PIX_FMT_YUVJ420P) {
         av_log(avctx, AV_LOG_ERROR,
                "JPEG decoding error (%d).\n", ret);
@@ -486,7 +486,7 @@ static int tdsc_parse_tdsf(AVCodecContext *avctx, int number_tiles)
 
     /* Allocate the reference frame if not already done or on size change */
     if (init_refframe) {
-        ret = av_frame_get_buffer(ctx->refframe, 0);
+        ret = zn_av_frame_get_buffer(ctx->refframe, 0);
         if (ret < 0)
             return ret;
     }

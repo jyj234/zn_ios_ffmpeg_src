@@ -66,7 +66,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
         av_log(ctx, AV_LOG_ERROR, "could not allocate memory for output frame\n");
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -74,7 +74,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     dnn_result = ff_dnn_execute_model(&dr_context->dnnctx, in, out);
     if (dnn_result != 0){
         av_log(ctx, AV_LOG_ERROR, "failed to execute model\n");
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return dnn_result;
     }
     do {
@@ -84,7 +84,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (async_state != DAST_SUCCESS)
         return AVERROR(EINVAL);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

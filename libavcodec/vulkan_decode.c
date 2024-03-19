@@ -161,13 +161,13 @@ static int vk_decode_create_view(FFVulkanDecodeContext *dec, VkImageView *dst_vi
 static AVFrame *vk_get_dpb_pool(FFVulkanDecodeShared *ctx)
 {
     int err;
-    AVFrame *avf = av_frame_alloc();
+    AVFrame *avf = zn_av_frame_alloc();
     if (!avf)
         return NULL;
 
     err = av_hwframe_get_buffer(ctx->dpb_hwfc_ref, avf, 0x0);
     if (err < 0)
-        av_frame_free(&avf);
+        zn_av_frame_free(&avf);
 
     return avf;
 }
@@ -586,7 +586,7 @@ void ff_vk_decode_free_frame(AVHWDeviceContext *dev_ctx, FFVulkanDecodePicture *
     if (vp->img_view_dest)
         vp->destroy_image_view(hwctx->act_dev, vp->img_view_dest, hwctx->alloc);
 
-    av_frame_free(&vp->dpb_frame);
+    zn_av_frame_free(&vp->dpb_frame);
 }
 
 static void free_common(FFRefStructOpaque unused, void *obj)
@@ -600,7 +600,7 @@ static void free_common(FFRefStructOpaque unused, void *obj)
         vk->DestroyImageView(s->hwctx->act_dev, ctx->layered_view, s->hwctx->alloc);
 
     /* This also frees all references from this pool */
-    av_frame_free(&ctx->layered_frame);
+    zn_av_frame_free(&ctx->layered_frame);
     av_buffer_unref(&ctx->dpb_hwfc_ref);
 
     /* Destroy parameters */
@@ -947,12 +947,12 @@ static int vulkan_decode_get_profile(AVCodecContext *avctx, AVBufferRef *frames_
                                                         &nb_out_fmts, ret_info);
     if (ret == VK_ERROR_FORMAT_NOT_SUPPORTED ||
         (!nb_out_fmts && ret == VK_SUCCESS)) {
-        av_free(ret_info);
+        zn_av_free(ret_info);
         return AVERROR(EINVAL);
     } else if (ret != VK_SUCCESS) {
         av_log(avctx, AV_LOG_ERROR, "Unable to get Vulkan format properties: %s!\n",
                ff_vk_ret2str(ret));
-        av_free(ret_info);
+        zn_av_free(ret_info);
         return AVERROR_EXTERNAL;
     }
 
@@ -978,7 +978,7 @@ static int vulkan_decode_get_profile(AVCodecContext *avctx, AVBufferRef *frames_
                ret_info[i].format);
     }
 
-    av_free(ret_info);
+    zn_av_free(ret_info);
 
     if (best_format == AV_PIX_FMT_NONE) {
         av_log(avctx, AV_LOG_ERROR, "No valid/compatible pixel format found for decoding!\n");
@@ -998,7 +998,7 @@ static int vulkan_decode_get_profile(AVCodecContext *avctx, AVBufferRef *frames_
 
 static void free_profile_data(AVHWFramesContext *hwfc)
 {
-    av_free(hwfc->user_opaque);
+    zn_av_free(hwfc->user_opaque);
 }
 
 int ff_vk_frame_params(AVCodecContext *avctx, AVBufferRef *hw_frames_ctx)
@@ -1024,7 +1024,7 @@ int ff_vk_frame_params(AVCodecContext *avctx, AVBufferRef *hw_frames_ctx)
                                     &frames_ctx->sw_format, &vkfmt,
                                     prof, &dedicated_dpb);
     if (err < 0) {
-        av_free(prof);
+        zn_av_free(prof);
         return err;
     }
 
@@ -1055,7 +1055,7 @@ static void vk_decode_free_params(void *opaque, uint8_t *data)
     VkVideoSessionParametersKHR *par = (VkVideoSessionParametersKHR *)data;
     vk->DestroyVideoSessionParametersKHR(ctx->s.hwctx->act_dev, *par,
                                          ctx->s.hwctx->alloc);
-    av_free(par);
+    zn_av_free(par);
 }
 
 int ff_vk_decode_create_params(AVBufferRef **par_ref, void *logctx, FFVulkanDecodeShared *ctx,
@@ -1074,7 +1074,7 @@ int ff_vk_decode_create_params(AVBufferRef **par_ref, void *logctx, FFVulkanDeco
     if (ret != VK_SUCCESS) {
         av_log(logctx, AV_LOG_ERROR, "Unable to create Vulkan video session parameters: %s!\n",
                ff_vk_ret2str(ret));
-        av_free(par);
+        zn_av_free(par);
         return AVERROR_EXTERNAL;
     }
     *par_ref = av_buffer_create((uint8_t *)par, sizeof(*par),
@@ -1095,10 +1095,10 @@ int ff_vk_decode_uninit(AVCodecContext *avctx)
     /* Wait on and free execution pool */
     ff_vk_exec_pool_free(&ctx->s, &dec->exec_pool);
 
-    av_freep(&dec->hevc_headers);
+    zn_av_freep(&dec->hevc_headers);
     av_buffer_unref(&dec->session_params);
     ff_refstruct_unref(&dec->shared_ctx);
-    av_freep(&dec->slice_off);
+    zn_av_freep(&dec->slice_off);
     return 0;
 }
 

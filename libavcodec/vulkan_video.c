@@ -205,7 +205,7 @@ static void free_data_buf(void *opaque, uint8_t *data)
     FFVkVideoBuffer *buf = (FFVkVideoBuffer *)data;
     ff_vk_unmap_buffer(ctx, &buf->buf, 0);
     ff_vk_free_buf(ctx, &buf->buf);
-    av_free(data);
+    zn_av_free(data);
 }
 
 static AVBufferRef *alloc_data_buf(void *opaque, size_t size)
@@ -217,7 +217,7 @@ static AVBufferRef *alloc_data_buf(void *opaque, size_t size)
 
     ref = av_buffer_create(buf, size, free_data_buf, opaque, 0);
     if (!ref)
-        av_free(buf);
+        zn_av_free(buf);
     return ref;
 }
 
@@ -294,7 +294,7 @@ av_cold void ff_vk_video_common_uninit(FFVulkanContext *s,
         for (int i = 0; i < common->nb_mem; i++)
             vk->FreeMemory(s->hwctx->act_dev, common->mem[i], s->hwctx->alloc);
 
-    av_freep(&common->mem);
+    zn_av_freep(&common->mem);
 
     av_buffer_pool_uninit(&common->buf_pool);
 }
@@ -396,16 +396,16 @@ av_cold int ff_vk_video_common_init(void *log, FFVulkanContext *s,
         goto fail;
     }
 
-    av_freep(&mem);
-    av_freep(&mem_req);
-    av_freep(&bind_mem);
+    zn_av_freep(&mem);
+    zn_av_freep(&mem_req);
+    zn_av_freep(&bind_mem);
 
     return 0;
 
 fail:
-    av_freep(&mem);
-    av_freep(&mem_req);
-    av_freep(&bind_mem);
+    zn_av_freep(&mem);
+    zn_av_freep(&mem_req);
+    zn_av_freep(&bind_mem);
 
     ff_vk_video_common_uninit(s, common);
     return err;

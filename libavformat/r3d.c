@@ -52,7 +52,7 @@ static int read_atom(AVFormatContext *s, Atom *atom)
 
 static int r3d_read_red1(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     R3DContext *r3d = s->priv_data;
     char filename[258];
     int tmp;
@@ -281,7 +281,7 @@ static int r3d_read_reda(AVFormatContext *s, AVPacket *pkt, Atom *atom)
     int ret;
 
     if (s->nb_streams < 2) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

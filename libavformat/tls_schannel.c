@@ -132,10 +132,10 @@ static int tls_close(URLContext *h)
     DeleteSecurityContext(&c->ctxt_handle);
     FreeCredentialsHandle(&c->cred_handle);
 
-    av_freep(&c->enc_buf);
+    zn_av_freep(&c->enc_buf);
     c->enc_buf_size = c->enc_buf_offset = 0;
 
-    av_freep(&c->dec_buf);
+    zn_av_freep(&c->dec_buf);
     c->dec_buf_size = c->dec_buf_offset = 0;
 
     ffurl_closep(&c->tls_shared.tcp);
@@ -211,7 +211,7 @@ static int tls_client_handshake_loop(URLContext *h, int initial)
         sspi_ret = InitializeSecurityContext(&c->cred_handle, &c->ctxt_handle, s->host, c->request_flags,
                                              0, 0, &inbuf_desc, 0, NULL, &outbuf_desc, &c->context_flags,
                                              &c->ctxt_timestamp);
-        av_freep(&inbuf[0].pvBuffer);
+        zn_av_freep(&inbuf[0].pvBuffer);
 
         if (sspi_ret == SEC_E_INCOMPLETE_MESSAGE) {
             av_log(h, AV_LOG_DEBUG, "Received incomplete handshake, need more data\n");
@@ -579,7 +579,7 @@ static int tls_write(URLContext *h, const uint8_t *buf, int len)
     }
 
 done:
-    av_freep(&data);
+    zn_av_freep(&data);
     return ret < 0 ? ret : outbuf[1].cbBuffer;
 }
 

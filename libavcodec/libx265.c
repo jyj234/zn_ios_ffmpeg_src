@@ -137,11 +137,11 @@ static av_cold int libx265_encode_close(AVCodecContext *avctx)
     libx265Context *ctx = avctx->priv_data;
 
     ctx->api->param_free(ctx->params);
-    av_freep(&ctx->sei_data);
+    zn_av_freep(&ctx->sei_data);
 
     for (int i = 0; i < ctx->nb_rd; i++)
         rd_release(ctx, i);
-    av_freep(&ctx->rd);
+    zn_av_freep(&ctx->rd);
 
     if (ctx->encoder)
         ctx->api->encoder_close(ctx->encoder);
@@ -524,7 +524,7 @@ static av_cold int libx265_encode_set_roi(libx265Context *ctx, const AVFrame *fr
             }
             nb_rois = sd->size / roi_size;
 
-            qoffsets = av_calloc(mbx * mby, sizeof(*qoffsets));
+            qoffsets = zn_av_calloc(mbx * mby, sizeof(*qoffsets));
             if (!qoffsets)
                 return AVERROR(ENOMEM);
 
@@ -542,7 +542,7 @@ static av_cold int libx265_encode_set_roi(libx265Context *ctx, const AVFrame *fr
                 endx   = FFMIN(mbx, (roi->right + mb_size - 1)/ mb_size);
 
                 if (roi->qoffset.den == 0) {
-                    av_free(qoffsets);
+                    zn_av_free(qoffsets);
                     av_log(ctx, AV_LOG_ERROR, "AVRegionOfInterest.qoffset.den must not be zero.\n");
                     return AVERROR(EINVAL);
                 }
@@ -564,7 +564,7 @@ static void free_picture(libx265Context *ctx, x265_picture *pic)
 {
     x265_sei *sei = &pic->userSEI;
     for (int i = 0; i < sei->numPayloads; i++)
-        av_free(sei->payloads[i].payload);
+        zn_av_free(sei->payloads[i].payload);
 
     if (pic->userData) {
         int idx = (int)(intptr_t)pic->userData - 1;
@@ -572,7 +572,7 @@ static void free_picture(libx265Context *ctx, x265_picture *pic)
         pic->userData = NULL;
     }
 
-    av_freep(&pic->quantOffsets);
+    zn_av_freep(&pic->quantOffsets);
     sei->numPayloads = 0;
 }
 
@@ -658,7 +658,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                         &ctx->sei_data_size,
                         (sei->numPayloads + 1) * sizeof(*sei_payload));
                 if (!tmp) {
-                    av_free(sei_data);
+                    zn_av_free(sei_data);
                     free_picture(ctx, &x265pic);
                     return AVERROR(ENOMEM);
                 }
@@ -708,8 +708,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
                                    pic ? &x265pic : NULL, &x265pic_out);
 
     for (i = 0; i < sei->numPayloads; i++)
-        av_free(sei->payloads[i].payload);
-    av_freep(&x265pic.quantOffsets);
+        zn_av_free(sei->payloads[i].payload);
+    zn_av_freep(&x265pic.quantOffsets);
 
     if (ret < 0)
         return AVERROR_EXTERNAL;

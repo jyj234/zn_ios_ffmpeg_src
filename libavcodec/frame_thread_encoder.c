@@ -111,7 +111,7 @@ static void * attribute_align_arg worker(void *v){
     }
 end:
     avcodec_close(avctx);
-    av_freep(&avctx);
+    zn_av_freep(&avctx);
     return NULL;
 }
 
@@ -186,8 +186,8 @@ av_cold int ff_frame_thread_encoder_init(AVCodecContext *avctx)
 
     c->max_tasks = avctx->thread_count + 2;
     for (unsigned j = 0; j < c->max_tasks; j++) {
-        if (!(c->tasks[j].indata  = av_frame_alloc()) ||
-            !(c->tasks[j].outdata = av_packet_alloc())) {
+        if (!(c->tasks[j].indata  = zn_av_frame_alloc()) ||
+            !(c->tasks[j].outdata = zn_av_packet_alloc())) {
             ret = AVERROR(ENOMEM);
             goto fail;
         }
@@ -195,7 +195,7 @@ av_cold int ff_frame_thread_encoder_init(AVCodecContext *avctx)
 
     for(i=0; i<avctx->thread_count ; i++){
         void *tmpv;
-        thread_avctx = avcodec_alloc_context3(avctx->codec);
+        thread_avctx = zn_avcodec_alloc_context3(avctx->codec);
         if (!thread_avctx) {
             ret = AVERROR(ENOMEM);
             goto fail;
@@ -216,7 +216,7 @@ av_cold int ff_frame_thread_encoder_init(AVCodecContext *avctx)
         thread_avctx->thread_count = 1;
         thread_avctx->active_thread_type &= ~FF_THREAD_FRAME;
 
-        if ((ret = avcodec_open2(thread_avctx, avctx->codec, NULL)) < 0)
+        if ((ret = zn_avcodec_open2(thread_avctx, avctx->codec, NULL)) < 0)
             goto fail;
         av_assert0(!thread_avctx->internal->frame_thread_encoder);
         thread_avctx->internal->frame_thread_encoder = c;
@@ -231,7 +231,7 @@ av_cold int ff_frame_thread_encoder_init(AVCodecContext *avctx)
     return 0;
 fail:
     avcodec_close(thread_avctx);
-    av_freep(&thread_avctx);
+    zn_av_freep(&thread_avctx);
     avctx->thread_count = i;
     av_log(avctx, AV_LOG_ERROR, "ff_frame_thread_encoder_init failed\n");
     ff_frame_thread_encoder_free(avctx);
@@ -256,12 +256,12 @@ av_cold void ff_frame_thread_encoder_free(AVCodecContext *avctx)
     }
 
     for (unsigned i = 0; i < c->max_tasks; i++) {
-        av_frame_free(&c->tasks[i].indata);
-        av_packet_free(&c->tasks[i].outdata);
+        zn_av_frame_free(&c->tasks[i].indata);
+        zn_av_packet_free(&c->tasks[i].outdata);
     }
 
     ff_pthread_free(c, thread_ctx_offsets);
-    av_freep(&avctx->internal->frame_thread_encoder);
+    zn_av_freep(&avctx->internal->frame_thread_encoder);
 }
 
 int ff_thread_video_encode_frame(AVCodecContext *avctx, AVPacket *pkt,

@@ -119,7 +119,7 @@ int main(void)
         double stddev = 53;
         double samp_mean = 0.0, samp_stddev = 0.0, QH = 0;
         double Z, p_value = -1, tot_samp = 1000;
-        double *PRN_arr = av_malloc_array(tot_samp, sizeof(double));
+        double *PRN_arr = zn_av_malloc_array(tot_samp, sizeof(double));
 
         if (!PRN_arr) {
             fprintf(stderr, "failed to allocate memory!\n");
@@ -185,7 +185,7 @@ SKIP:   for (i = 0; i < tot_samp; ++i) {
                "QH[normality]: %f\n",
                samp_mean, mean, samp_stddev, stddev, Z, p_value, QH);
 
-        av_freep(&PRN_arr);
+        zn_av_freep(&PRN_arr);
     }
     return 0;
 }

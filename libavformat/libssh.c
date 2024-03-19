@@ -344,7 +344,7 @@ static int libssh_read_dir(URLContext *h, AVIODirEntry **next)
             sftp_attributes_free(attr);
         attr = sftp_readdir(libssh->sftp, libssh->dir);
         if (!attr) {
-            av_freep(next);
+            zn_av_freep(next);
             if (sftp_dir_eof(libssh->dir))
                 return 0;
             return AVERROR(EIO);

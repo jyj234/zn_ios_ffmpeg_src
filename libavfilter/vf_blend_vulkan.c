@@ -263,7 +263,7 @@ static int blend_frame(FFFrameSync *fs)
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&out);
+    zn_av_frame_free(&out);
     return err;
 }
 

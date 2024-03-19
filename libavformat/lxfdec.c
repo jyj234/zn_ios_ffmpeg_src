@@ -250,7 +250,7 @@ static int lxf_read_header(AVFormatContext *s)
     if ((ret = avio_read(pb, header_data, LXF_HEADER_DATA_SIZE)) != LXF_HEADER_DATA_SIZE)
         return ret < 0 ? ret : AVERROR_EOF;
 
-    if (!(st = avformat_new_stream(s, NULL)))
+    if (!(st = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
     st->duration          = AV_RL32(&header_data[32]);
@@ -277,7 +277,7 @@ static int lxf_read_header(AVFormatContext *s)
         av_log(s, AV_LOG_WARNING, "VBI data not yet supported\n");
 
     if ((lxf->channels = 1 << (disk_params >> 4 & 3) + 1)) {
-        if (!(st = avformat_new_stream(s, NULL)))
+        if (!(st = zn_avformat_new_stream(s, NULL)))
             return AVERROR(ENOMEM);
 
         st->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;

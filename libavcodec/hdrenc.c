@@ -32,7 +32,7 @@ static av_cold int hdr_encode_init(AVCodecContext *avctx)
 {
     HDREncContext *s = avctx->priv_data;
 
-    s->scanline = av_calloc(avctx->width * 4, sizeof(*s->scanline));
+    s->scanline = zn_av_calloc(avctx->width * 4, sizeof(*s->scanline));
     if (!s->scanline)
         return AVERROR(ENOMEM);
 
@@ -43,7 +43,7 @@ static av_cold int hdr_encode_close(AVCodecContext *avctx)
 {
     HDREncContext *s = avctx->priv_data;
 
-    av_freep(&s->scanline);
+    zn_av_freep(&s->scanline);
 
     return 0;
 }
@@ -131,7 +131,7 @@ static int hdr_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     buf = pkt->data;
     bytestream_put_str(&buf, "#?RADIANCE\n");
     bytestream_put_str(&buf, "SOFTWARE=lavc\n");
-    ret = snprintf(buf, 32, "PIXASPECT=%f\n", av_q2d(av_inv_q(avctx->sample_aspect_ratio)));
+    ret = snprintf(buf, 32, "PIXASPECT=%f\n", zn_av_q2d(av_inv_q(avctx->sample_aspect_ratio)));
     if (ret > 0)
         buf += ret;
     bytestream_put_str(&buf, "FORMAT=32-bit_rle_rgbe\n\n");

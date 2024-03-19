@@ -96,7 +96,7 @@ void ff_cbs_sei_free_message_list(SEIRawMessageList *list)
         ff_refstruct_unref(&message->payload_ref);
         ff_refstruct_unref(&message->extension_data);
     }
-    av_free(list->messages);
+    zn_av_free(list->messages);
 }
 
 static int cbs_sei_get_unit(CodedBitstreamContext *ctx,

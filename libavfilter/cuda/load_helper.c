@@ -65,7 +65,7 @@ int ff_cuda_load_module(void *avctx, AVCUDADeviceContext *hwctx, CUmodule *cu_mo
         if (ret != Z_OK && ret != Z_STREAM_END && ret != Z_BUF_ERROR) {
             av_log(avctx, AV_LOG_ERROR, "zlib inflate error(%d): %s\n", ret, stream.msg);
             inflateEnd(&stream);
-            av_free(buf);
+            zn_av_free(buf);
             return AVERROR(EINVAL);
         }
 
@@ -74,7 +74,7 @@ int ff_cuda_load_module(void *avctx, AVCUDADeviceContext *hwctx, CUmodule *cu_mo
             tmp = av_realloc(buf, buf_size);
             if (!tmp) {
                 inflateEnd(&stream);
-                av_free(buf);
+                zn_av_free(buf);
                 return AVERROR(ENOMEM);
             }
             buf = tmp;
@@ -88,7 +88,7 @@ int ff_cuda_load_module(void *avctx, AVCUDADeviceContext *hwctx, CUmodule *cu_mo
     inflateEnd(&stream);
 
     ret = CHECK_CU(cu->cuModuleLoadData(cu_module, buf));
-    av_free(buf);
+    zn_av_free(buf);
     return ret;
 #else
     return CHECK_CU(cu->cuModuleLoadData(cu_module, data));

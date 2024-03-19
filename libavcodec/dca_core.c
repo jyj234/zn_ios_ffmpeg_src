@@ -2452,18 +2452,18 @@ av_cold int ff_dca_core_init(DCACoreDecoder *s)
 
 av_cold void ff_dca_core_close(DCACoreDecoder *s)
 {
-    av_freep(&s->float_dsp);
-    av_freep(&s->fixed_dsp);
+    zn_av_freep(&s->float_dsp);
+    zn_av_freep(&s->fixed_dsp);
 
     av_tx_uninit(&s->imdct[0]);
     av_tx_uninit(&s->imdct[1]);
 
-    av_freep(&s->subband_buffer);
+    zn_av_freep(&s->subband_buffer);
     s->subband_size = 0;
 
-    av_freep(&s->x96_subband_buffer);
+    zn_av_freep(&s->x96_subband_buffer);
     s->x96_subband_size = 0;
 
-    av_freep(&s->output_buffer);
+    zn_av_freep(&s->output_buffer);
     s->output_size = 0;
 }

@@ -52,7 +52,7 @@ static int fits_read_header(AVFormatContext *s)
     AVStream *st;
     FITSContext * fits = s->priv_data;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -192,7 +192,7 @@ static int fits_read_packet(AVFormatContext *s, AVPacket *pkt)
 
     memcpy(pkt->data, buf + 80, avbuf.len - 80);
     pkt->size = avbuf.len - 80;
-    av_freep(&buf);
+    zn_av_freep(&buf);
     ret = avio_read(s->pb, pkt->data + pkt->size, size);
     if (ret < 0)
         return ret;

@@ -390,7 +390,7 @@ dequeue:
                 ctx->done = 1;
                 if (errno != EPIPE)
                     av_log(logger(ctx), AV_LOG_DEBUG, "%s VIDIOC_DQBUF, errno (%s)\n",
-                        ctx->name, av_err2str(AVERROR(errno)));
+                        ctx->name, zn_av_err2str(AVERROR(errno)));
             }
             return NULL;
         }
@@ -456,7 +456,7 @@ static int v4l2_release_buffers(V4L2Context* ctx)
             struct V4L2Plane_info *p = &buffer->plane_info[j];
             if (p->mm_addr && p->length)
                 if (munmap(p->mm_addr, p->length) < 0)
-                    av_log(logger(ctx), AV_LOG_ERROR, "%s unmap plane (%s))\n", ctx->name, av_err2str(AVERROR(errno)));
+                    av_log(logger(ctx), AV_LOG_ERROR, "%s unmap plane (%s))\n", ctx->name, zn_av_err2str(AVERROR(errno)));
         }
     }
 
@@ -706,7 +706,7 @@ void ff_v4l2_context_release(V4L2Context* ctx)
     if (ret)
         av_log(logger(ctx), AV_LOG_WARNING, "V4L2 failed to unmap the %s buffers\n", ctx->name);
 
-    av_freep(&ctx->buffers);
+    zn_av_freep(&ctx->buffers);
 }
 
 int ff_v4l2_context_init(V4L2Context* ctx)
@@ -745,7 +745,7 @@ int ff_v4l2_context_init(V4L2Context* ctx)
         ctx->buffers[i].context = ctx;
         ret = ff_v4l2_buffer_initialize(&ctx->buffers[i], i);
         if (ret < 0) {
-            av_log(logger(ctx), AV_LOG_ERROR, "%s buffer[%d] initialization (%s)\n", ctx->name, i, av_err2str(ret));
+            av_log(logger(ctx), AV_LOG_ERROR, "%s buffer[%d] initialization (%s)\n", ctx->name, i, zn_av_err2str(ret));
             goto error;
         }
     }
@@ -763,7 +763,7 @@ int ff_v4l2_context_init(V4L2Context* ctx)
 error:
     v4l2_release_buffers(ctx);
 
-    av_freep(&ctx->buffers);
+    zn_av_freep(&ctx->buffers);
 
     return ret;
 }

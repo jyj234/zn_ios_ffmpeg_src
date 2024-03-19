@@ -65,12 +65,12 @@ static int read_close(AVFormatContext *s)
 {
     PAFDemuxContext *p = s->priv_data;
 
-    av_freep(&p->blocks_count_table);
-    av_freep(&p->frames_offset_table);
-    av_freep(&p->blocks_offset_table);
-    av_freep(&p->video_frame);
-    av_freep(&p->audio_frame);
-    av_freep(&p->temp_audio_frame);
+    zn_av_freep(&p->blocks_count_table);
+    zn_av_freep(&p->frames_offset_table);
+    zn_av_freep(&p->blocks_offset_table);
+    zn_av_freep(&p->video_frame);
+    zn_av_freep(&p->audio_frame);
+    zn_av_freep(&p->temp_audio_frame);
 
     return 0;
 }
@@ -98,7 +98,7 @@ static int read_header(AVFormatContext *s)
 
     avio_skip(pb, 132);
 
-    vst = avformat_new_stream(s, 0);
+    vst = zn_avformat_new_stream(s, 0);
     if (!vst)
         return AVERROR(ENOMEM);
 
@@ -119,7 +119,7 @@ static int read_header(AVFormatContext *s)
     vst->codecpar->codec_id   = AV_CODEC_ID_PAF_VIDEO;
     avpriv_set_pts_info(vst, 64, frame_ms, 1000);
 
-    ast = avformat_new_stream(s, 0);
+    ast = zn_avformat_new_stream(s, 0);
     if (!ast)
         return AVERROR(ENOMEM);
 
@@ -154,11 +154,11 @@ static int read_header(AVFormatContext *s)
         p->frame_blks     > INT_MAX / sizeof(uint32_t))
         return AVERROR_INVALIDDATA;
 
-    p->blocks_count_table  = av_malloc_array(p->nb_frames,
+    p->blocks_count_table  = zn_av_malloc_array(p->nb_frames,
                                         sizeof(*p->blocks_count_table));
-    p->frames_offset_table = av_malloc_array(p->nb_frames,
+    p->frames_offset_table = zn_av_malloc_array(p->nb_frames,
                                         sizeof(*p->frames_offset_table));
-    p->blocks_offset_table = av_malloc_array(p->frame_blks,
+    p->blocks_offset_table = zn_av_malloc_array(p->frame_blks,
                                         sizeof(*p->blocks_offset_table));
 
     p->video_size  = p->max_video_blks * p->buffer_size;

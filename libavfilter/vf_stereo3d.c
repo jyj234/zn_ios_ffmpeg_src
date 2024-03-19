@@ -717,10 +717,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
         oright = av_frame_clone(s->prev);
         oleft  = av_frame_clone(s->prev);
         if (!oright || !oleft) {
-            av_frame_free(&oright);
-            av_frame_free(&oleft);
-            av_frame_free(&s->prev);
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&oright);
+            zn_av_frame_free(&oleft);
+            zn_av_frame_free(&s->prev);
+            zn_av_frame_free(&inpicref);
             return AVERROR(ENOMEM);
         }
     } else if ((s->out.format == MONO_L ||
@@ -737,20 +737,20 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
          s->in.format == INTERLEAVE_ROWS_RL)) {
         out = oleft = oright = av_frame_clone(inpicref);
         if (!out) {
-            av_frame_free(&s->prev);
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&s->prev);
+            zn_av_frame_free(&inpicref);
             return AVERROR(ENOMEM);
         }
     } else if ((s->out.format == MONO_L && s->in.format == ALTERNATING_LR) ||
                (s->out.format == MONO_R && s->in.format == ALTERNATING_RL)) {
         s->prev->pts /= 2;
         ret = ff_filter_frame(outlink, s->prev);
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&inpicref);
         s->prev = NULL;
         return ret;
     } else if ((s->out.format == MONO_L && s->in.format == ALTERNATING_RL) ||
                (s->out.format == MONO_R && s->in.format == ALTERNATING_LR)) {
-        av_frame_free(&s->prev);
+        zn_av_frame_free(&s->prev);
         inpicref->pts /= 2;
         return ff_filter_frame(outlink, inpicref);
     } else if ((s->out.format == ALTERNATING_LR && s->in.format == ALTERNATING_RL) ||
@@ -763,8 +763,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
     } else {
         out = oleft = oright = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&s->prev);
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&s->prev);
+            zn_av_frame_free(&inpicref);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, inpicref);
@@ -773,9 +773,9 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
             s->out.format == ALTERNATING_RL) {
             oright = ff_get_video_buffer(outlink, outlink->w, outlink->h);
             if (!oright) {
-                av_frame_free(&oleft);
-                av_frame_free(&s->prev);
-                av_frame_free(&inpicref);
+                zn_av_frame_free(&oleft);
+                zn_av_frame_free(&s->prev);
+                zn_av_frame_free(&inpicref);
                 return AVERROR(ENOMEM);
             }
             av_frame_copy_props(oright, s->prev);
@@ -1068,16 +1068,16 @@ copy:
         ff_filter_frame(outlink, oright);
         out = oleft;
         oleft->pts = s->prev->pts + inpicref->pts;
-        av_frame_free(&s->prev);
+        zn_av_frame_free(&s->prev);
         s->prev = inpicref;
     } else if (s->in.format == ALTERNATING_LR ||
                s->in.format == ALTERNATING_RL) {
         out->pts = s->prev->pts / 2;
-        av_frame_free(&s->prev);
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&s->prev);
+        zn_av_frame_free(&inpicref);
     } else {
-        av_frame_free(&s->prev);
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&s->prev);
+        zn_av_frame_free(&inpicref);
     }
     av_assert0(out);
     out->sample_aspect_ratio = s->aspect;
@@ -1088,7 +1088,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     Stereo3DContext *s = ctx->priv;
 
-    av_frame_free(&s->prev);
+    zn_av_frame_free(&s->prev);
 }
 
 static const AVFilterPad stereo3d_inputs[] = {

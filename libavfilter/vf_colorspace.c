@@ -249,8 +249,8 @@ static void fill_whitepoint_conv_table(double out[3][3], enum WhitepointAdaptati
         },
     };
     const double (*ma)[3] = ma_tbl[wp_adapt];
-    double xw_src = av_q2d(wp_src->x), yw_src = av_q2d(wp_src->y);
-    double xw_dst = av_q2d(wp_dst->x), yw_dst = av_q2d(wp_dst->y);
+    double xw_src = zn_av_q2d(wp_src->x), yw_src = zn_av_q2d(wp_src->y);
+    double xw_dst = zn_av_q2d(wp_dst->x), yw_dst = zn_av_q2d(wp_dst->y);
     double zw_src = 1.0 - xw_src - yw_src;
     double zw_dst = 1.0 - xw_dst - yw_dst;
     double mai[3][3], fac[3][3], tmp[3][3];
@@ -498,7 +498,7 @@ static int create_filtergraph(AVFilterContext *ctx,
     }
 
     if (!s->in_txchr) {
-        av_freep(&s->lin_lut);
+        zn_av_freep(&s->lin_lut);
         s->in_trc = in->color_trc;
         if (s->user_iall != CS_UNSPECIFIED)
             s->in_trc = default_trc[FFMIN(s->user_iall, CS_NB)];
@@ -514,7 +514,7 @@ static int create_filtergraph(AVFilterContext *ctx,
     }
 
     if (!s->out_txchr) {
-        av_freep(&s->lin_lut);
+        zn_av_freep(&s->lin_lut);
         s->out_trc = out->color_trc;
         s->out_txchr = get_transfer_characteristics(s->out_trc);
         if (!s->out_txchr) {
@@ -695,18 +695,18 @@ static void uninit(AVFilterContext *ctx)
 {
     ColorSpaceContext *s = ctx->priv;
 
-    av_freep(&s->rgb[0]);
-    av_freep(&s->rgb[1]);
-    av_freep(&s->rgb[2]);
+    zn_av_freep(&s->rgb[0]);
+    zn_av_freep(&s->rgb[1]);
+    zn_av_freep(&s->rgb[2]);
     s->rgb_sz = 0;
-    av_freep(&s->dither_scratch_base[0][0]);
-    av_freep(&s->dither_scratch_base[0][1]);
-    av_freep(&s->dither_scratch_base[1][0]);
-    av_freep(&s->dither_scratch_base[1][1]);
-    av_freep(&s->dither_scratch_base[2][0]);
-    av_freep(&s->dither_scratch_base[2][1]);
+    zn_av_freep(&s->dither_scratch_base[0][0]);
+    zn_av_freep(&s->dither_scratch_base[0][1]);
+    zn_av_freep(&s->dither_scratch_base[1][0]);
+    zn_av_freep(&s->dither_scratch_base[1][1]);
+    zn_av_freep(&s->dither_scratch_base[2][0]);
+    zn_av_freep(&s->dither_scratch_base[2][1]);
 
-    av_freep(&s->lin_lut);
+    zn_av_freep(&s->lin_lut);
 }
 
 static int filter_frame(AVFilterLink *link, AVFrame *in)
@@ -724,13 +724,13 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
     ThreadData td;
 
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     res = av_frame_copy_props(out, in);
     if (res < 0) {
-        av_frame_free(&in);
-        av_frame_free(&out);
+        zn_av_frame_free(&in);
+        zn_av_frame_free(&out);
         return res;
     }
 
@@ -753,16 +753,16 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
         const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(out->format);
         int uvw = in->width >> desc->log2_chroma_w;
 
-        av_freep(&s->rgb[0]);
-        av_freep(&s->rgb[1]);
-        av_freep(&s->rgb[2]);
+        zn_av_freep(&s->rgb[0]);
+        zn_av_freep(&s->rgb[1]);
+        zn_av_freep(&s->rgb[2]);
         s->rgb_sz = 0;
-        av_freep(&s->dither_scratch_base[0][0]);
-        av_freep(&s->dither_scratch_base[0][1]);
-        av_freep(&s->dither_scratch_base[1][0]);
-        av_freep(&s->dither_scratch_base[1][1]);
-        av_freep(&s->dither_scratch_base[2][0]);
-        av_freep(&s->dither_scratch_base[2][1]);
+        zn_av_freep(&s->dither_scratch_base[0][0]);
+        zn_av_freep(&s->dither_scratch_base[0][1]);
+        zn_av_freep(&s->dither_scratch_base[1][0]);
+        zn_av_freep(&s->dither_scratch_base[1][1]);
+        zn_av_freep(&s->dither_scratch_base[2][0]);
+        zn_av_freep(&s->dither_scratch_base[2][1]);
 
         s->rgb[0] = av_malloc(rgb_sz);
         s->rgb[1] = av_malloc(rgb_sz);
@@ -790,16 +790,16 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
             !s->dither_scratch_base[1][0] || !s->dither_scratch_base[1][1] ||
             !s->dither_scratch_base[2][0] || !s->dither_scratch_base[2][1]) {
             uninit(ctx);
-            av_frame_free(&in);
-            av_frame_free(&out);
+            zn_av_frame_free(&in);
+            zn_av_frame_free(&out);
             return AVERROR(ENOMEM);
         }
         s->rgb_sz = rgb_sz;
     }
     res = create_filtergraph(ctx, in, out);
     if (res < 0) {
-        av_frame_free(&in);
-        av_frame_free(&out);
+        zn_av_frame_free(&in);
+        zn_av_frame_free(&out);
         return res;
     }
     s->rgb_stride = rgb_stride / sizeof(int16_t);
@@ -816,15 +816,15 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
     if (s->yuv2yuv_passthrough) {
         res = av_frame_copy(out, in);
         if (res < 0) {
-            av_frame_free(&in);
-            av_frame_free(&out);
+            zn_av_frame_free(&in);
+            zn_av_frame_free(&out);
             return res;
         }
     } else {
         ff_filter_execute(ctx, convert, &td, NULL,
                           FFMIN((in->height + 1) >> 1, ff_filter_get_nb_threads(ctx)));
     }
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

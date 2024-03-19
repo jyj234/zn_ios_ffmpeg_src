@@ -58,7 +58,7 @@ static int dirac_header(AVFormatContext *s, int idx)
     // Dirac in Ogg always stores timestamps as though the video were interlaced
     avpriv_set_pts_info(st, 64, dsh->framerate.den, 2 * dsh->framerate.num);
 
-    av_freep(&dsh);
+    zn_av_freep(&dsh);
     return 1;
 }
 

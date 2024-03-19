@@ -134,10 +134,10 @@ static void hwdevice_ctx_free(void *opaque, uint8_t *data)
 
     av_buffer_unref(&ctx->internal->source_device);
 
-    av_freep(&ctx->hwctx);
-    av_freep(&ctx->internal->priv);
-    av_freep(&ctx->internal);
-    av_freep(&ctx);
+    zn_av_freep(&ctx->hwctx);
+    zn_av_freep(&ctx->internal->priv);
+    zn_av_freep(&ctx->internal);
+    zn_av_freep(&ctx);
 }
 
 AVBufferRef *av_hwdevice_ctx_alloc(enum AVHWDeviceType type)
@@ -191,10 +191,10 @@ AVBufferRef *av_hwdevice_ctx_alloc(enum AVHWDeviceType type)
 
 fail:
     if (ctx->internal)
-        av_freep(&ctx->internal->priv);
-    av_freep(&ctx->internal);
-    av_freep(&ctx->hwctx);
-    av_freep(&ctx);
+        zn_av_freep(&ctx->internal->priv);
+    zn_av_freep(&ctx->internal);
+    zn_av_freep(&ctx->hwctx);
+    zn_av_freep(&ctx);
     return NULL;
 }
 
@@ -239,10 +239,10 @@ static void hwframe_ctx_free(void *opaque, uint8_t *data)
 
     av_buffer_unref(&ctx->device_ref);
 
-    av_freep(&ctx->hwctx);
-    av_freep(&ctx->internal->priv);
-    av_freep(&ctx->internal);
-    av_freep(&ctx);
+    zn_av_freep(&ctx->hwctx);
+    zn_av_freep(&ctx->internal->priv);
+    zn_av_freep(&ctx->internal);
+    zn_av_freep(&ctx);
 }
 
 AVBufferRef *av_hwframe_ctx_alloc(AVBufferRef *device_ref_in)
@@ -296,10 +296,10 @@ fail:
     if (device_ref)
         av_buffer_unref(&device_ref);
     if (ctx->internal)
-        av_freep(&ctx->internal->priv);
-    av_freep(&ctx->internal);
-    av_freep(&ctx->hwctx);
-    av_freep(&ctx);
+        zn_av_freep(&ctx->internal->priv);
+    zn_av_freep(&ctx->internal);
+    zn_av_freep(&ctx->hwctx);
+    zn_av_freep(&ctx);
     return NULL;
 }
 
@@ -309,12 +309,12 @@ static int hwframe_pool_prealloc(AVBufferRef *ref)
     AVFrame **frames;
     int i, ret = 0;
 
-    frames = av_calloc(ctx->initial_pool_size, sizeof(*frames));
+    frames = zn_av_calloc(ctx->initial_pool_size, sizeof(*frames));
     if (!frames)
         return AVERROR(ENOMEM);
 
     for (i = 0; i < ctx->initial_pool_size; i++) {
-        frames[i] = av_frame_alloc();
+        frames[i] = zn_av_frame_alloc();
         if (!frames[i])
             goto fail;
 
@@ -325,8 +325,8 @@ static int hwframe_pool_prealloc(AVBufferRef *ref)
 
 fail:
     for (i = 0; i < ctx->initial_pool_size; i++)
-        av_frame_free(&frames[i]);
-    av_freep(&frames);
+        zn_av_frame_free(&frames[i]);
+    zn_av_freep(&frames);
 
     return ret;
 }
@@ -405,7 +405,7 @@ static int transfer_data_alloc(AVFrame *dst, const AVFrame *src, int flags)
         return AVERROR(EINVAL);
     ctx = (AVHWFramesContext*)src->hw_frames_ctx->data;
 
-    frame_tmp = av_frame_alloc();
+    frame_tmp = zn_av_frame_alloc();
     if (!frame_tmp)
         return AVERROR(ENOMEM);
 
@@ -422,12 +422,12 @@ static int transfer_data_alloc(AVFrame *dst, const AVFrame *src, int flags)
         if (ret < 0)
             goto fail;
         frame_tmp->format = formats[0];
-        av_freep(&formats);
+        zn_av_freep(&formats);
     }
     frame_tmp->width  = ctx->width;
     frame_tmp->height = ctx->height;
 
-    ret = av_frame_get_buffer(frame_tmp, 0);
+    ret = zn_av_frame_get_buffer(frame_tmp, 0);
     if (ret < 0)
         goto fail;
 
@@ -441,7 +441,7 @@ static int transfer_data_alloc(AVFrame *dst, const AVFrame *src, int flags)
     av_frame_move_ref(dst, frame_tmp);
 
 fail:
-    av_frame_free(&frame_tmp);
+    zn_av_frame_free(&frame_tmp);
     return ret;
 }
 
@@ -519,14 +519,14 @@ int av_hwframe_get_buffer(AVBufferRef *hwframe_ref, AVFrame *frame, int flags)
         if (!frame->hw_frames_ctx)
             return AVERROR(ENOMEM);
 
-        src_frame = av_frame_alloc();
+        src_frame = zn_av_frame_alloc();
         if (!src_frame)
             return AVERROR(ENOMEM);
 
         ret = av_hwframe_get_buffer(ctx->internal->source_frames,
                                     src_frame, 0);
         if (ret < 0) {
-            av_frame_free(&src_frame);
+            zn_av_frame_free(&src_frame);
             return ret;
         }
 
@@ -535,13 +535,13 @@ int av_hwframe_get_buffer(AVBufferRef *hwframe_ref, AVFrame *frame, int flags)
         if (ret) {
             av_log(ctx, AV_LOG_ERROR, "Failed to map frame into derived "
                    "frame context: %d.\n", ret);
-            av_frame_free(&src_frame);
+            zn_av_frame_free(&src_frame);
             return ret;
         }
 
         // Free the source frame immediately - the mapped frame still
         // contains a reference to it.
-        av_frame_free(&src_frame);
+        zn_av_frame_free(&src_frame);
 
         return 0;
     }
@@ -606,10 +606,10 @@ AVHWFramesConstraints *av_hwdevice_get_hwframe_constraints(AVBufferRef *ref,
 void av_hwframe_constraints_free(AVHWFramesConstraints **constraints)
 {
     if (*constraints) {
-        av_freep(&(*constraints)->valid_hw_formats);
-        av_freep(&(*constraints)->valid_sw_formats);
+        zn_av_freep(&(*constraints)->valid_hw_formats);
+        zn_av_freep(&(*constraints)->valid_sw_formats);
     }
-    av_freep(constraints);
+    zn_av_freep(constraints);
 }
 
 int av_hwdevice_ctx_create(AVBufferRef **pdevice_ref, enum AVHWDeviceType type,
@@ -732,11 +732,11 @@ static void ff_hwframe_unmap(void *opaque, uint8_t *data)
     if (hwmap->unmap)
         hwmap->unmap(ctx, hwmap);
 
-    av_frame_free(&hwmap->source);
+    zn_av_frame_free(&hwmap->source);
 
     av_buffer_unref(&hwmap->hw_frames_ctx);
 
-    av_free(hwmap);
+    zn_av_free(hwmap);
 }
 
 int ff_hwframe_map_create(AVBufferRef *hwframe_ref,
@@ -755,7 +755,7 @@ int ff_hwframe_map_create(AVBufferRef *hwframe_ref,
         goto fail;
     }
 
-    hwmap->source = av_frame_alloc();
+    hwmap->source = zn_av_frame_alloc();
     if (!hwmap->source) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -785,9 +785,9 @@ int ff_hwframe_map_create(AVBufferRef *hwframe_ref,
 fail:
     if (hwmap) {
         av_buffer_unref(&hwmap->hw_frames_ctx);
-        av_frame_free(&hwmap->source);
+        zn_av_frame_free(&hwmap->source);
     }
-    av_free(hwmap);
+    zn_av_free(hwmap);
     return ret;
 }
 

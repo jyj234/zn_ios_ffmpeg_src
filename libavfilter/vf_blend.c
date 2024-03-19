@@ -172,7 +172,7 @@ static int filter_slice(AVFilterContext *ctx, void *arg, int jobnr, int nb_jobs)
     double values[VAR_VARS_NB];
 
     values[VAR_N]  = td->inlink->frame_count_out;
-    values[VAR_T]  = td->dst->pts == AV_NOPTS_VALUE ? NAN : td->dst->pts * av_q2d(td->inlink->time_base);
+    values[VAR_T]  = td->dst->pts == AV_NOPTS_VALUE ? NAN : td->dst->pts * zn_av_q2d(td->inlink->time_base);
     values[VAR_W]  = td->w;
     values[VAR_H]  = td->h;
     values[VAR_SW] = td->w / (double)td->dst->width;
@@ -202,7 +202,7 @@ static AVFrame *blend_frame(AVFilterContext *ctx, AVFrame *top_buf,
         return top_buf;
 
     if (av_frame_copy_props(dst_buf, top_buf) < 0) {
-        av_frame_free(&dst_buf);
+        zn_av_frame_free(&dst_buf);
         return top_buf;
     }
 
@@ -221,7 +221,7 @@ static AVFrame *blend_frame(AVFilterContext *ctx, AVFrame *top_buf,
     }
 
     if (!s->tblend)
-        av_frame_free(&top_buf);
+        zn_av_frame_free(&top_buf);
 
     return dst_buf;
 }
@@ -278,7 +278,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     ff_framesync_uninit(&s->fs);
-    av_frame_free(&s->prev_frame);
+    zn_av_frame_free(&s->prev_frame);
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->params); i++)
         av_expr_free(s->params[i].e);
@@ -437,7 +437,7 @@ static int tblend_filter_frame(AVFilterLink *inlink, AVFrame *frame)
             out = av_frame_clone(frame);
         else
             out = blend_frame(ctx, frame, s->prev_frame);
-        av_frame_free(&s->prev_frame);
+        zn_av_frame_free(&s->prev_frame);
         s->prev_frame = frame;
         return ff_filter_frame(outlink, out);
     }

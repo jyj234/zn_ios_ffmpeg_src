@@ -299,7 +299,7 @@ static av_cold int metasound_decode_init(AVCodecContext *avctx)
     }
 
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, channels);
 
     ibps = avctx->bit_rate / (1000 * channels);
 

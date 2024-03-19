@@ -417,7 +417,7 @@ static av_cold int cdtoons_decode_init(AVCodecContext *avctx)
 
     avctx->pix_fmt = AV_PIX_FMT_PAL8;
     c->last_pal_id = 0;
-    c->frame       = av_frame_alloc();
+    c->frame       = zn_av_frame_alloc();
     if (!c->frame)
         return AVERROR(ENOMEM);
 
@@ -438,11 +438,11 @@ static av_cold int cdtoons_decode_end(AVCodecContext *avctx)
     CDToonsContext *c = avctx->priv_data;
 
     for (int i = 0; i < CDTOONS_MAX_SPRITES; i++) {
-        av_freep(&c->sprites[i].data);
+        zn_av_freep(&c->sprites[i].data);
         c->sprites[i].active = 0;
     }
 
-    av_frame_free(&c->frame);
+    zn_av_frame_free(&c->frame);
 
     return 0;
 }

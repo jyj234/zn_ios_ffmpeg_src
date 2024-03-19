@@ -365,7 +365,7 @@ static int h264_metadata_handle_display_orientation(AVBSFContext *bsf,
         if (err < 0) {
             av_log(bsf, AV_LOG_ERROR, "Failed to attach extracted "
                    "displaymatrix side data to packet.\n");
-            av_free(matrix);
+            zn_av_free(matrix);
             return AVERROR(ENOMEM);
         }
     }

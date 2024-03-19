@@ -59,11 +59,11 @@ static av_cold int bonk_close(AVCodecContext *avctx)
 {
     BonkContext *s = avctx->priv_data;
 
-    av_freep(&s->bitstream);
-    av_freep(&s->input_samples);
-    av_freep(&s->samples[0]);
-    av_freep(&s->samples[1]);
-    av_freep(&s->bits);
+    zn_av_freep(&s->bitstream);
+    zn_av_freep(&s->input_samples);
+    zn_av_freep(&s->samples[0]);
+    zn_av_freep(&s->samples[1]);
+    zn_av_freep(&s->bits);
     s->bitstream_size = 0;
 
     return 0;
@@ -109,20 +109,20 @@ static av_cold int bonk_init(AVCodecContext *avctx)
     if (s->max_framesize > (INT32_MAX - AV_INPUT_BUFFER_PADDING_SIZE) / 8)
         return AVERROR_INVALIDDATA;
 
-    s->bitstream = av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE, sizeof(*s->bitstream));
+    s->bitstream = zn_av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE, sizeof(*s->bitstream));
     if (!s->bitstream)
         return AVERROR(ENOMEM);
 
-    s->input_samples = av_calloc(s->samples_per_packet, sizeof(*s->input_samples));
+    s->input_samples = zn_av_calloc(s->samples_per_packet, sizeof(*s->input_samples));
     if (!s->input_samples)
         return AVERROR(ENOMEM);
 
-    s->samples[0] = av_calloc(s->samples_per_packet * s->down_sampling, sizeof(*s->samples[0]));
-    s->samples[1] = av_calloc(s->samples_per_packet * s->down_sampling, sizeof(*s->samples[0]));
+    s->samples[0] = zn_av_calloc(s->samples_per_packet * s->down_sampling, sizeof(*s->samples[0]));
+    s->samples[1] = zn_av_calloc(s->samples_per_packet * s->down_sampling, sizeof(*s->samples[0]));
     if (!s->samples[0] || !s->samples[1])
         return AVERROR(ENOMEM);
 
-    s->bits = av_calloc(s->max_framesize * 8, sizeof(*s->bits));
+    s->bits = zn_av_calloc(s->max_framesize * 8, sizeof(*s->bits));
     if (!s->bits)
         return AVERROR(ENOMEM);
 

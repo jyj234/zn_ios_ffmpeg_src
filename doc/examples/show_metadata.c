@@ -45,10 +45,10 @@ int main (int argc, char **argv)
         return 1;
     }
 
-    if ((ret = avformat_open_input(&fmt_ctx, argv[1], NULL, NULL)))
+    if ((ret = zn_avformat_open_input(&fmt_ctx, argv[1], NULL, NULL)))
         return ret;
 
-    if ((ret = avformat_find_stream_info(fmt_ctx, NULL)) < 0) {
+    if ((ret = zn_avformat_find_stream_info(fmt_ctx, NULL)) < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
@@ -56,6 +56,6 @@ int main (int argc, char **argv)
     while ((tag = av_dict_iterate(fmt_ctx->metadata, tag)))
         printf("%s=%s\n", tag->key, tag->value);
 
-    avformat_close_input(&fmt_ctx);
+    zn_avformat_close_input(&fmt_ctx);
     return 0;
 }

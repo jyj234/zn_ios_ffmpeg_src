@@ -748,14 +748,14 @@ av_cold int ff_twinvq_decode_close(AVCodecContext *avctx)
 
     for (i = 0; i < 3; i++) {
         av_tx_uninit(&tctx->tx[i]);
-        av_freep(&tctx->cos_tabs[i]);
+        zn_av_freep(&tctx->cos_tabs[i]);
     }
 
-    av_freep(&tctx->curr_frame);
-    av_freep(&tctx->spectrum);
-    av_freep(&tctx->prev_frame);
-    av_freep(&tctx->tmp_buf);
-    av_freep(&tctx->fdsp);
+    zn_av_freep(&tctx->curr_frame);
+    zn_av_freep(&tctx->spectrum);
+    zn_av_freep(&tctx->prev_frame);
+    zn_av_freep(&tctx->tmp_buf);
+    zn_av_freep(&tctx->fdsp);
 
     return 0;
 }

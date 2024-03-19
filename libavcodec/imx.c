@@ -39,7 +39,7 @@ static av_cold int imx_decode_init(AVCodecContext *avctx)
     avctx->width   = 320;
     avctx->height  = 160;
 
-    imx->frame = av_frame_alloc();
+    imx->frame = zn_av_frame_alloc();
     if (!imx->frame)
         return AVERROR(ENOMEM);
 
@@ -182,7 +182,7 @@ static int imx_decode_close(AVCodecContext *avctx)
 {
     SimbiosisIMXContext *imx = avctx->priv_data;
 
-    av_frame_free(&imx->frame);
+    zn_av_frame_free(&imx->frame);
 
     return 0;
 }

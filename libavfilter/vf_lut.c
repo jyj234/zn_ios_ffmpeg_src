@@ -107,7 +107,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     for (i = 0; i < 4; i++) {
         av_expr_free(s->comp_expr[i]);
         s->comp_expr[i] = NULL;
-        av_freep(&s->comp_expr_str[i]);
+        zn_av_freep(&s->comp_expr_str[i]);
     }
 }
 
@@ -530,7 +530,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -559,7 +559,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

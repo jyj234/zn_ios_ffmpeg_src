@@ -227,8 +227,8 @@ static int load_mask(uint8_t **mask, int *w, int *h,
     av_image_copy_plane(*mask, *w, gray_data[0], gray_linesize[0], *w, *h);
 
 end:
-    av_freep(&src_data[0]);
-    av_freep(&gray_data[0]);
+    zn_av_freep(&src_data[0]);
+    zn_av_freep(&gray_data[0]);
     return ret;
 }
 
@@ -304,20 +304,20 @@ static av_cold int init(AVFilterContext *ctx)
        the filter is applied, the mask size is determined on a pixel
        by pixel basis, with pixels nearer the edge of the logo getting
        smaller mask sizes. */
-    mask = (int ***)av_malloc_array(s->max_mask_size + 1, sizeof(int **));
+    mask = (int ***)zn_av_malloc_array(s->max_mask_size + 1, sizeof(int **));
     if (!mask)
         return AVERROR(ENOMEM);
 
     for (a = 0; a <= s->max_mask_size; a++) {
-        mask[a] = (int **)av_malloc_array((a * 2) + 1, sizeof(int *));
+        mask[a] = (int **)zn_av_malloc_array((a * 2) + 1, sizeof(int *));
         if (!mask[a]) {
-            av_free(mask);
+            zn_av_free(mask);
             return AVERROR(ENOMEM);
         }
         for (b = -a; b <= a; b++) {
-            mask[a][b + a] = (int *)av_malloc_array((a * 2) + 1, sizeof(int));
+            mask[a][b + a] = (int *)zn_av_malloc_array((a * 2) + 1, sizeof(int));
             if (!mask[a][b + a]) {
-                av_free(mask);
+                zn_av_free(mask);
                 return AVERROR(ENOMEM);
             }
             for (c = -a; c <= a; c++) {
@@ -495,7 +495,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
     } else {
         outpicref = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!outpicref) {
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(outpicref, inpicref);
@@ -518,7 +518,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
                inlink->w/2, inlink->h/2, direct, &s->half_mask_bbox);
 
     if (!direct)
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&inpicref);
 
     return ff_filter_frame(outlink, outpicref);
 }
@@ -528,20 +528,20 @@ static av_cold void uninit(AVFilterContext *ctx)
     RemovelogoContext *s = ctx->priv;
     int a, b;
 
-    av_freep(&s->full_mask_data);
-    av_freep(&s->half_mask_data);
+    zn_av_freep(&s->full_mask_data);
+    zn_av_freep(&s->half_mask_data);
 
     if (s->mask) {
         /* Loop through each mask. */
         for (a = 0; a <= s->max_mask_size; a++) {
             /* Loop through each scanline in a mask. */
             for (b = -a; b <= a; b++) {
-                av_freep(&s->mask[a][b + a]); /* Free a scanline. */
+                zn_av_freep(&s->mask[a][b + a]); /* Free a scanline. */
             }
-            av_freep(&s->mask[a]);
+            zn_av_freep(&s->mask[a]);
         }
         /* Free the array of pointers pointing to the masks. */
-        av_freep(&s->mask);
+        zn_av_freep(&s->mask);
     }
 }
 

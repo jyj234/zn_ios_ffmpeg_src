@@ -263,7 +263,7 @@ av_cold int ff_vc2enc_init_transforms(VC2TransformContext *s, int p_stride,
     s->vc2_subband_dwt[VC2_TRANSFORM_HAAR_S] = vc2_subband_dwt_haar_shift;
 
     /* Pad by the slice size, only matters for non-Haar wavelets */
-    s->buffer = av_calloc((p_stride + slice_w)*(p_height + slice_h), sizeof(dwtcoef));
+    s->buffer = zn_av_calloc((p_stride + slice_w)*(p_height + slice_h), sizeof(dwtcoef));
     if (!s->buffer)
         return 1;
 
@@ -276,7 +276,7 @@ av_cold int ff_vc2enc_init_transforms(VC2TransformContext *s, int p_stride,
 av_cold void ff_vc2enc_free_transforms(VC2TransformContext *s)
 {
     if (s->buffer) {
-        av_free(s->buffer - s->padding);
+        zn_av_free(s->buffer - s->padding);
         s->buffer = NULL;
     }
 }

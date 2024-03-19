@@ -171,7 +171,7 @@ static int sdp_parse_fmtp_config_h264(AVFormatContext *s,
             return 0;
         }
         par->extradata_size = 0;
-        av_freep(&par->extradata);
+        zn_av_freep(&par->extradata);
         ret = ff_h264_parse_sprop_parameter_sets(s, &par->extradata,
                                                  &par->extradata_size, value);
         av_log(s, AV_LOG_DEBUG, "Extradata set to %p (size: %d)\n",

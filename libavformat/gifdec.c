@@ -129,7 +129,7 @@ static int gif_read_header(AVFormatContext *s)
     if (width == 0 || height == 0)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -255,7 +255,7 @@ static int gif_read_packet(AVFormatContext *s, AVPacket *pkt)
     pkt->stream_index = 0;
     ret = avio_read_partial(pb, pkt->data, GIF_PACKET_SIZE);
     if (ret < 0) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return ret;
     }
     av_shrink_packet(pkt, ret);

@@ -47,7 +47,7 @@ static int pcm_read_header(AVFormatContext *s)
     uint8_t *mime_type = NULL;
     int ret;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     par = st->codecpar;
@@ -58,7 +58,7 @@ static int pcm_read_header(AVFormatContext *s)
 #if FF_API_OLD_CHANNEL_LAYOUT
     if (s1->ch_layout.nb_channels) {
 #endif
-    ret = av_channel_layout_copy(&par->ch_layout, &s1->ch_layout);
+    ret = zn_av_channel_layout_copy(&par->ch_layout, &s1->ch_layout);
     if (ret < 0)
         return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT
@@ -88,7 +88,7 @@ static int pcm_read_header(AVFormatContext *s)
                 av_log(s, AV_LOG_ERROR,
                        "Invalid sample_rate found in mime_type \"%s\"\n",
                        mime_type);
-                av_freep(&mime_type);
+                zn_av_freep(&mime_type);
                 return AVERROR_INVALIDDATA;
             }
             par->sample_rate = rate;
@@ -100,7 +100,7 @@ static int pcm_read_header(AVFormatContext *s)
                 par->codec_id = AV_CODEC_ID_PCM_S16LE;
         }
     }
-    av_freep(&mime_type);
+    zn_av_freep(&mime_type);
 
     par->bits_per_coded_sample = av_get_bits_per_sample(par->codec_id);
 

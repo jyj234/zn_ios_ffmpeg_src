@@ -550,7 +550,7 @@ static int vp56_size_changed(VP56Context *s)
                       sizeof(*s->above_blocks));
     av_reallocp_array(&s->macroblocks, s->mb_width*s->mb_height,
                       sizeof(*s->macroblocks));
-    av_free(s->edge_emu_buffer_alloc);
+    zn_av_free(s->edge_emu_buffer_alloc);
     s->edge_emu_buffer_alloc = av_malloc(16*stride);
     s->edge_emu_buffer = s->edge_emu_buffer_alloc;
     if (!s->above_blocks || !s->macroblocks || !s->edge_emu_buffer_alloc)
@@ -793,7 +793,7 @@ av_cold int ff_vp56_init_context(AVCodecContext *avctx, VP56Context *s,
     }
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->frames); i++) {
-        s->frames[i] = av_frame_alloc();
+        s->frames[i] = zn_av_frame_alloc();
         if (!s->frames[i])
             return AVERROR(ENOMEM);
     }
@@ -828,12 +828,12 @@ av_cold int ff_vp56_free_context(VP56Context *s)
 {
     int i;
 
-    av_freep(&s->above_blocks);
-    av_freep(&s->macroblocks);
-    av_freep(&s->edge_emu_buffer_alloc);
+    zn_av_freep(&s->above_blocks);
+    zn_av_freep(&s->macroblocks);
+    zn_av_freep(&s->edge_emu_buffer_alloc);
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->frames); i++)
-        av_frame_free(&s->frames[i]);
+        zn_av_frame_free(&s->frames[i]);
 
     return 0;
 }

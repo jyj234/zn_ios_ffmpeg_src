@@ -59,7 +59,7 @@ fail:
     av_log(s, AV_LOG_WARNING,
            "Unable to initialize hinting of stream %d\n", src_index);
     avcodec_parameters_free(&track->par);
-    /* Set a default timescale, to avoid crashes in av_dump_format */
+    /* Set a default timescale, to avoid crashes in zn_av_dump_format */
     track->timescale = 90000;
     return ret;
 }
@@ -72,7 +72,7 @@ static void sample_queue_pop(HintSampleQueue *queue)
     if (queue->len <= 0)
         return;
     if (queue->samples[0].own_data)
-        av_freep(&queue->samples[0].data);
+        zn_av_freep(&queue->samples[0].data);
     queue->len--;
     memmove(queue->samples, queue->samples + 1, sizeof(HintSample)*queue->len);
 }
@@ -85,8 +85,8 @@ static void sample_queue_free(HintSampleQueue *queue)
     int i;
     for (i = 0; i < queue->len; i++)
         if (queue->samples[i].own_data)
-            av_freep(&queue->samples[i].data);
-    av_freep(&queue->samples);
+            zn_av_freep(&queue->samples[i].data);
+    zn_av_freep(&queue->samples);
     queue->len  = 0;
     queue->size = 0;
 }
@@ -436,9 +436,9 @@ int ff_mov_add_hinted_packet(AVFormatContext *s, AVPacket *pkt,
     /* Open a buffer for writing the hint */
     if ((ret = avio_open_dyn_buf(&hintbuf)) < 0)
         goto done;
-    av_packet_unref(hint_pkt);
+    zn_av_packet_unref(hint_pkt);
     count = write_hint_packets(hintbuf, buf, size, trk, &hint_pkt->dts);
-    av_freep(&buf);
+    zn_av_freep(&buf);
 
     /* Write the hint data into the hint track */
     hint_pkt->size = size = avio_close_dyn_buf(hintbuf, &buf);
@@ -450,8 +450,8 @@ int ff_mov_add_hinted_packet(AVFormatContext *s, AVPacket *pkt,
     if (count > 0)
         ff_mov_write_packet(s, hint_pkt);
 done:
-    av_free(buf);
-    av_packet_unref(hint_pkt);
+    zn_av_free(buf);
+    zn_av_packet_unref(hint_pkt);
     sample_queue_retain(&trk->sample_queue);
     return ret;
 }
@@ -465,8 +465,8 @@ void ff_mov_close_hinting(MOVTrack *track)
     if (!rtp_ctx)
         return;
     if (rtp_ctx->pb) {
-        av_write_trailer(rtp_ctx);
+        zn_av_write_trailer(rtp_ctx);
         ffio_free_dyn_buf(&rtp_ctx->pb);
     }
-    avformat_free_context(rtp_ctx);
+    zn_avformat_free_context(rtp_ctx);
 }

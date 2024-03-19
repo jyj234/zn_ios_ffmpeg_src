@@ -73,14 +73,14 @@ static int activate(AVFilterContext *ctx)
 
         pad_frame = ff_get_audio_buffer(outlink, s->nb_out_samples);
         if (!pad_frame) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
 
         ret = av_frame_copy_props(pad_frame, frame);
         if (ret < 0) {
-            av_frame_free(&pad_frame);
-            av_frame_free(&frame);
+            zn_av_frame_free(&pad_frame);
+            zn_av_frame_free(&frame);
             return ret;
         }
 
@@ -89,7 +89,7 @@ static int activate(AVFilterContext *ctx)
         av_samples_set_silence(pad_frame->extended_data, frame->nb_samples,
                                s->nb_out_samples - frame->nb_samples, frame->ch_layout.nb_channels,
                                frame->format);
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         return ff_filter_frame(outlink, pad_frame);
     }
 

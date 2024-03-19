@@ -265,7 +265,7 @@ static av_cold int init(AVFilterContext *ctx)
 
     av_log(ctx, AV_LOG_VERBOSE, "rate:%d/%d duration:%f\n",
            test->frame_rate.num, test->frame_rate.den,
-           test->duration < 0 ? -1 : test->max_pts * av_q2d(av_inv_q(test->frame_rate)));
+           test->duration < 0 ? -1 : test->max_pts * zn_av_q2d(av_inv_q(test->frame_rate)));
     init_idct();
 
     return 0;

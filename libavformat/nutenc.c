@@ -537,7 +537,7 @@ static int write_globalinfo(NUTContext *nut, AVIOContext *bc)
 
     dyn_size = avio_close_dyn_buf(dyn_bc, &dyn_buf);
     avio_write(bc, dyn_buf, dyn_size);
-    av_free(dyn_buf);
+    zn_av_free(dyn_buf);
     return 0;
 }
 
@@ -579,7 +579,7 @@ static int write_streaminfo(NUTContext *nut, AVIOContext *bc, int stream_id) {
         avio_write(bc, dyn_buf, dyn_size);
     }
 
-    av_free(dyn_buf);
+    zn_av_free(dyn_buf);
     return count;
 }
 
@@ -607,7 +607,7 @@ static int write_chapter(NUTContext *nut, AVIOContext *bc, int id)
 
     dyn_size = avio_close_dyn_buf(dyn_bc, &dyn_buf);
     avio_write(bc, dyn_buf, dyn_size);
-    av_freep(&dyn_buf);
+    zn_av_freep(&dyn_buf);
     return 0;
 }
 
@@ -733,9 +733,9 @@ static int nut_write_header(AVFormatContext *s)
         return AVERROR_EXPERIMENTAL;
     }
 
-    nut->stream   = av_calloc(s->nb_streams,  sizeof(*nut->stream ));
-    nut->chapter  = av_calloc(s->nb_chapters, sizeof(*nut->chapter));
-    nut->time_base= av_calloc(s->nb_streams +
+    nut->stream   = zn_av_calloc(s->nb_streams,  sizeof(*nut->stream ));
+    nut->chapter  = zn_av_calloc(s->nb_chapters, sizeof(*nut->chapter));
+    nut->time_base= zn_av_calloc(s->nb_streams +
                               s->nb_chapters, sizeof(*nut->time_base));
     if (!nut->stream || !nut->chapter || !nut->time_base)
         return AVERROR(ENOMEM);
@@ -969,7 +969,7 @@ fail:
     put_v(bc, sm_data_count);
     dyn_size = avio_close_dyn_buf(dyn_bc, &dyn_buf);
     avio_write(bc, dyn_buf, dyn_size);
-    av_freep(&dyn_buf);
+    zn_av_freep(&dyn_buf);
 
     return ret;
 }
@@ -1192,7 +1192,7 @@ static int nut_write_packet(AVFormatContext *s, AVPacket *pkt)
     }
 
 fail:
-    av_freep(&sm_buf);
+    zn_av_freep(&sm_buf);
 
     return ret;
 }
@@ -1228,11 +1228,11 @@ static void nut_write_deinit(AVFormatContext *s)
     ff_nut_free_sp(nut);
     if (nut->stream)
         for (i=0; i<s->nb_streams; i++)
-            av_freep(&nut->stream[i].keyframe_pts);
+            zn_av_freep(&nut->stream[i].keyframe_pts);
 
-    av_freep(&nut->stream);
-    av_freep(&nut->chapter);
-    av_freep(&nut->time_base);
+    zn_av_freep(&nut->stream);
+    zn_av_freep(&nut->chapter);
+    zn_av_freep(&nut->time_base);
 }
 
 #define OFFSET(x) offsetof(NUTContext, x)

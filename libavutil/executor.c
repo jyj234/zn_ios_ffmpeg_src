@@ -126,10 +126,10 @@ static void executor_free(AVExecutor *e, const int has_lock, const int has_cond)
     if (has_lock)
         ff_mutex_destroy(&e->lock);
 
-    av_free(e->threads);
-    av_free(e->local_contexts);
+    zn_av_free(e->threads);
+    zn_av_free(e->local_contexts);
 
-    av_free(e);
+    zn_av_free(e);
 }
 
 AVExecutor* av_executor_alloc(const AVTaskCallbacks *cb, int thread_count)
@@ -144,11 +144,11 @@ AVExecutor* av_executor_alloc(const AVTaskCallbacks *cb, int thread_count)
         return NULL;
     e->cb = *cb;
 
-    e->local_contexts = av_calloc(thread_count, e->cb.local_context_size);
+    e->local_contexts = zn_av_calloc(thread_count, e->cb.local_context_size);
     if (!e->local_contexts)
         goto free_executor;
 
-    e->threads = av_calloc(thread_count, sizeof(*e->threads));
+    e->threads = zn_av_calloc(thread_count, sizeof(*e->threads));
     if (!e->threads)
         goto free_executor;
 

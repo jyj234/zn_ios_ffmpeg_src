@@ -1578,7 +1578,7 @@ static int speex_decode_frame(AVCodecContext *avctx, AVFrame *frame,
 static av_cold int speex_decode_close(AVCodecContext *avctx)
 {
     SpeexContext *s = avctx->priv_data;
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
     return 0;
 }
 

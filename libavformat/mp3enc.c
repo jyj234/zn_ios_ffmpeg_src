@@ -392,7 +392,7 @@ static int mp3_queue_flush(AVFormatContext *s)
         avpriv_packet_list_get(&mp3->queue, pkt);
         if (write && (ret = mp3_write_audio_packet(s, pkt)) < 0)
             write = 0;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
     return ret;
 }
@@ -636,7 +636,7 @@ static void mp3_deinit(struct AVFormatContext *s)
     MP3Context *mp3 = s->priv_data;
 
     avpriv_packet_list_free(&mp3->queue);
-    av_freep(&mp3->xing_frame);
+    zn_av_freep(&mp3->xing_frame);
 }
 
 const FFOutputFormat ff_mp3_muxer = {

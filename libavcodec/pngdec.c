@@ -567,7 +567,7 @@ static int decode_text_chunk(PNGDecContext *s, GetByteContext *gb, int compresse
         return AVERROR(ENOMEM);
     kw_utf8  = iso88591_to_utf8(keyword, keyword_end - keyword);
     if (!kw_utf8) {
-        av_free(txt_utf8);
+        zn_av_free(txt_utf8);
         return AVERROR(ENOMEM);
     }
 
@@ -995,7 +995,7 @@ static int decode_iccp_chunk(PNGDecContext *s, GetByteContext *gb)
     if ((ret = decode_zbuf(&bp, gb->buffer, gb->buffer_end, s->avctx)) < 0)
         return ret;
 
-    av_freep(&s->iccp_data);
+    zn_av_freep(&s->iccp_data);
     ret = av_bprint_finalize(&bp, (char **)&s->iccp_data);
     if (ret < 0)
         return ret;
@@ -1622,7 +1622,7 @@ fail:
 
 static void clear_frame_metadata(PNGDecContext *s)
 {
-    av_freep(&s->iccp_data);
+    zn_av_freep(&s->iccp_data);
     s->iccp_data_len = 0;
     s->iccp_name[0]  = 0;
 
@@ -1817,8 +1817,8 @@ static av_cold int png_dec_init(AVCodecContext *avctx)
     avctx->color_range = AVCOL_RANGE_JPEG;
 
     s->avctx = avctx;
-    s->last_picture.f = av_frame_alloc();
-    s->picture.f = av_frame_alloc();
+    s->last_picture.f = zn_av_frame_alloc();
+    s->picture.f = zn_av_frame_alloc();
     if (!s->last_picture.f || !s->picture.f)
         return AVERROR(ENOMEM);
 
@@ -1832,17 +1832,17 @@ static av_cold int png_dec_end(AVCodecContext *avctx)
     PNGDecContext *s = avctx->priv_data;
 
     ff_thread_release_ext_buffer(&s->last_picture);
-    av_frame_free(&s->last_picture.f);
+    zn_av_frame_free(&s->last_picture.f);
     ff_thread_release_ext_buffer(&s->picture);
-    av_frame_free(&s->picture.f);
-    av_freep(&s->buffer);
+    zn_av_frame_free(&s->picture.f);
+    zn_av_freep(&s->buffer);
     s->buffer_size = 0;
-    av_freep(&s->last_row);
+    zn_av_freep(&s->last_row);
     s->last_row_size = 0;
-    av_freep(&s->tmp_row);
+    zn_av_freep(&s->tmp_row);
     s->tmp_row_size = 0;
 
-    av_freep(&s->iccp_data);
+    zn_av_freep(&s->iccp_data);
     av_dict_free(&s->frame_metadata);
     ff_inflate_end(&s->zstream);
 

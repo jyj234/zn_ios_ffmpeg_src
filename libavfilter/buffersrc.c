@@ -136,7 +136,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         } else
 #endif
         if (param->ch_layout.nb_channels) {
-            int ret = av_channel_layout_copy(&s->ch_layout, &param->ch_layout);
+            int ret = zn_av_channel_layout_copy(&s->ch_layout, &param->ch_layout);
             if (ret < 0)
                 return ret;
         }
@@ -217,7 +217,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
             if (frame->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC) {
-                ret = av_channel_layout_copy(&frame->ch_layout, &s->ch_layout);
+                ret = zn_av_channel_layout_copy(&frame->ch_layout, &s->ch_layout);
                 if (ret < 0)
                     return ret;
             }
@@ -231,7 +231,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     }
 
     if (refcounted && !(flags & AV_BUFFERSRC_FLAG_KEEP_REF)) {
-        if (!(copy = av_frame_alloc()))
+        if (!(copy = zn_av_frame_alloc()))
             return AVERROR(ENOMEM);
         av_frame_move_ref(copy, frame);
     } else {
@@ -297,7 +297,7 @@ static av_cold int init_video(AVFilterContext *ctx)
         av_log(ctx, AV_LOG_ERROR, "Invalid size %dx%d\n", c->w, c->h);
         return AVERROR(EINVAL);
     }
-    if (av_q2d(c->time_base) <= 0) {
+    if (zn_av_q2d(c->time_base) <= 0) {
         av_log(ctx, AV_LOG_ERROR, "Invalid time base %d/%d\n", c->time_base.num, c->time_base.den);
         return AVERROR(EINVAL);
     }
@@ -470,7 +470,7 @@ static int config_props(AVFilterLink *link)
         break;
     case AVMEDIA_TYPE_AUDIO:
         if (!c->ch_layout.nb_channels) {
-            int ret = av_channel_layout_copy(&c->ch_layout, &link->ch_layout);
+            int ret = zn_av_channel_layout_copy(&c->ch_layout, &link->ch_layout);
             if (ret < 0)
                 return ret;
         }

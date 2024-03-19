@@ -161,7 +161,7 @@ enum AVIODataMarkerType {
  * @note None of the function pointers in AVIOContext should be called
  *       directly, they should only be set by the client application
  *       when implementing custom I/O. Normally these are set to the
- *       function pointers specified in avio_alloc_context()
+ *       function pointers specified in zn_avio_alloc_context()
  */
 typedef struct AVIOContext {
     /**
@@ -389,13 +389,13 @@ void avio_free_directory_entry(AVIODirEntry **entry);
 
 /**
  * Allocate and initialize an AVIOContext for buffered I/O. It must be later
- * freed with avio_context_free().
+ * freed with zn_avio_context_free().
  *
  * @param buffer Memory block for input/output operations via AVIOContext.
  *        The buffer must be allocated with av_malloc() and friends.
  *        It may be freed and replaced with a new buffer by libavformat.
  *        AVIOContext.buffer holds the buffer currently in use,
- *        which must be later freed with av_free().
+ *        which must be later freed with zn_av_free().
  * @param buffer_size The buffer size is very important for performance.
  *        For protocols with fixed blocksize it should be set to this blocksize.
  *        For others a typical size is a cache page, e.g. 4kb.
@@ -410,7 +410,7 @@ void avio_free_directory_entry(AVIODirEntry **entry);
  *
  * @return Allocated AVIOContext or NULL on failure.
  */
-AVIOContext *avio_alloc_context(
+AVIOContext *zn_avio_alloc_context(
                   unsigned char *buffer,
                   int buffer_size,
                   int write_flag,
@@ -429,7 +429,7 @@ AVIOContext *avio_alloc_context(
  * @param s Double pointer to the IO context. This function will write NULL
  * into s.
  */
-void avio_context_free(AVIOContext **s);
+void zn_avio_context_free(AVIOContext **s);
 
 void avio_w8(AVIOContext *s, int b);
 void avio_write(AVIOContext *s, const unsigned char *buf, int size);
@@ -629,7 +629,7 @@ int avio_get_str16be(AVIOContext *pb, int maxlen, char *buf, int buflen);
 
 /**
  * @name URL open modes
- * The flags argument to avio_open must be one of the following
+ * The flags argument to zn_avio_open must be one of the following
  * constants, optionally ORed with other flags.
  * @{
  */
@@ -676,7 +676,7 @@ int avio_get_str16be(AVIOContext *pb, int maxlen, char *buf, int buflen);
  * @return >= 0 in case of success, a negative value corresponding to an
  * AVERROR code in case of failure
  */
-int avio_open(AVIOContext **s, const char *url, int flags);
+int zn_avio_open(AVIOContext **s, const char *url, int flags);
 
 /**
  * Create and initialize a AVIOContext for accessing the
@@ -701,20 +701,20 @@ int avio_open2(AVIOContext **s, const char *url, int flags,
 
 /**
  * Close the resource accessed by the AVIOContext s and free it.
- * This function can only be used if s was opened by avio_open().
+ * This function can only be used if s was opened by zn_avio_open().
  *
  * The internal buffer is automatically flushed before closing the
  * resource.
  *
  * @return 0 on success, an AVERROR < 0 on error.
- * @see avio_closep
+ * @see zn_avio_closep
  */
 int avio_close(AVIOContext *s);
 
 /**
  * Close the resource accessed by the AVIOContext *s, free it
  * and set the pointer pointing to it to NULL.
- * This function can only be used if s was opened by avio_open().
+ * This function can only be used if s was opened by zn_avio_open().
  *
  * The internal buffer is automatically flushed before closing the
  * resource.
@@ -722,7 +722,7 @@ int avio_close(AVIOContext *s);
  * @return 0 on success, an AVERROR < 0 on error.
  * @see avio_close
  */
-int avio_closep(AVIOContext **s);
+int zn_avio_closep(AVIOContext **s);
 
 
 /**
@@ -747,7 +747,7 @@ int avio_get_dyn_buf(AVIOContext *s, uint8_t **pbuffer);
 
 /**
  * Return the written size and a pointer to the buffer. The buffer
- * must be freed with av_free().
+ * must be freed with zn_av_free().
  * Padding of AV_INPUT_BUFFER_PADDING_SIZE is added to the buffer.
  *
  * @param s IO context

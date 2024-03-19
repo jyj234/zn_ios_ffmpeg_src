@@ -77,7 +77,7 @@ static int hnm_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     }
 
-    if (!(vst = avformat_new_stream(s, NULL)))
+    if (!(vst = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
     vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;

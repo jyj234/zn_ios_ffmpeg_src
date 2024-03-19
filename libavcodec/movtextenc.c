@@ -168,8 +168,8 @@ static int mov_text_encode_close(AVCodecContext *avctx)
     MovTextContext *s = avctx->priv_data;
 
     ff_ass_split_free(s->ass_ctx);
-    av_freep(&s->style_attributes);
-    av_freep(&s->fonts);
+    zn_av_freep(&s->style_attributes);
+    zn_av_freep(&s->fonts);
     av_bprint_finalize(&s->buffer, NULL);
     return 0;
 }

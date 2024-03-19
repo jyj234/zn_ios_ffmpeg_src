@@ -66,7 +66,7 @@ static int hca_read_header(AVFormatContext *s)
     if (data_offset <= 8)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

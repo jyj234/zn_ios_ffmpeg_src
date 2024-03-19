@@ -147,7 +147,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         in[i].after     = EXT_STOP;
     }
 
-    s->frames = av_calloc(ctx->nb_inputs, sizeof(*s->frames));
+    s->frames = zn_av_calloc(ctx->nb_inputs, sizeof(*s->frames));
     if (!s->frames)
         return AVERROR(ENOMEM);
 
@@ -194,7 +194,7 @@ static int parse_mapping(AVFilterContext *ctx, const char *map)
         return AVERROR(EINVAL);
     }
 
-    new_map = av_calloc(s->nb_inputs, sizeof(*new_map));
+    new_map = zn_av_calloc(s->nb_inputs, sizeof(*new_map));
     if (!new_map)
         return AVERROR(ENOMEM);
 
@@ -211,7 +211,7 @@ static int parse_mapping(AVFilterContext *ctx, const char *map)
         if (new_nb_map >= s->nb_inputs) {
             av_log(ctx, AV_LOG_ERROR, "Unable to map more than the %d "
                    "input pads available\n", s->nb_inputs);
-            av_free(new_map);
+            zn_av_free(new_map);
             return AVERROR(EINVAL);
         }
 
@@ -219,7 +219,7 @@ static int parse_mapping(AVFilterContext *ctx, const char *map)
             av_log(ctx, AV_LOG_ERROR, "Input stream index %d doesn't exist "
                    "(there is only %d input streams defined)\n",
                    n, s->nb_inputs);
-            av_free(new_map);
+            zn_av_free(new_map);
             return AVERROR(EINVAL);
         }
 
@@ -229,11 +229,11 @@ static int parse_mapping(AVFilterContext *ctx, const char *map)
 
     if (!new_nb_map) {
         av_log(ctx, AV_LOG_ERROR, "invalid mapping\n");
-        av_free(new_map);
+        zn_av_free(new_map);
         return AVERROR(EINVAL);
     }
 
-    av_freep(&s->map);
+    zn_av_freep(&s->map);
     s->map = new_map;
     s->nb_map = new_nb_map;
 
@@ -274,7 +274,7 @@ static av_cold int init(AVFilterContext *ctx)
         map = p;
     }
 
-    s->last_pts = av_calloc(s->nb_inputs, sizeof(*s->last_pts));
+    s->last_pts = zn_av_calloc(s->nb_inputs, sizeof(*s->last_pts));
     if (!s->last_pts)
         return AVERROR(ENOMEM);
 
@@ -292,9 +292,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     StreamSelectContext *s = ctx->priv;
 
-    av_freep(&s->last_pts);
-    av_freep(&s->map);
-    av_freep(&s->frames);
+    zn_av_freep(&s->last_pts);
+    zn_av_freep(&s->map);
+    zn_av_freep(&s->frames);
     ff_framesync_uninit(&s->fs);
 }
 

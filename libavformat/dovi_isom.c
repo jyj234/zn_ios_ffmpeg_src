@@ -65,7 +65,7 @@ int ff_isom_parse_dvcc_dvvc(void *logctx, AVStream *st,
 
     if (!av_packet_side_data_add(&st->codecpar->coded_side_data, &st->codecpar->nb_coded_side_data,
                                  AV_PKT_DATA_DOVI_CONF, (uint8_t *)dovi, dovi_size, 0)) {
-        av_free(dovi);
+        zn_av_free(dovi);
         return AVERROR(ENOMEM);
     }
 

@@ -304,16 +304,16 @@ static int alloc_sequence_buffers(DiracContext *s)
         w = FFALIGN(CALC_PADDING(w, MAX_DWT_LEVELS), 8); /* FIXME: Should this be 16 for SSE??? */
         h = top_padding + CALC_PADDING(h, MAX_DWT_LEVELS) + max_yblen/2;
 
-        s->plane[i].idwt.buf_base = av_calloc(w + max_xblen, h * (2 << s->pshift));
-        s->plane[i].idwt.tmp      = av_malloc_array((w+16), 2 << s->pshift);
+        s->plane[i].idwt.buf_base = zn_av_calloc(w + max_xblen, h * (2 << s->pshift));
+        s->plane[i].idwt.tmp      = zn_av_malloc_array((w+16), 2 << s->pshift);
         s->plane[i].idwt.buf      = s->plane[i].idwt.buf_base + (top_padding*w)*(2 << s->pshift);
         if (!s->plane[i].idwt.buf_base || !s->plane[i].idwt.tmp)
             return AVERROR(ENOMEM);
     }
 
     /* fixme: allocate using real stride here */
-    s->sbsplit  = av_malloc_array(sbwidth, sbheight);
-    s->blmotion = av_malloc_array(sbwidth, sbheight * 16 * sizeof(*s->blmotion));
+    s->sbsplit  = zn_av_malloc_array(sbwidth, sbheight);
+    s->blmotion = zn_av_malloc_array(sbwidth, sbheight * 16 * sizeof(*s->blmotion));
 
     if (!s->sbsplit || !s->blmotion)
         return AVERROR(ENOMEM);
@@ -332,15 +332,15 @@ static int alloc_buffers(DiracContext *s, int stride)
         return 0;
     s->buffer_stride = 0;
 
-    av_freep(&s->edge_emu_buffer_base);
+    zn_av_freep(&s->edge_emu_buffer_base);
     memset(s->edge_emu_buffer, 0, sizeof(s->edge_emu_buffer));
-    av_freep(&s->mctmp);
-    av_freep(&s->mcscratch);
+    zn_av_freep(&s->mctmp);
+    zn_av_freep(&s->mcscratch);
 
-    s->edge_emu_buffer_base = av_malloc_array(stride, MAX_BLOCKSIZE);
+    s->edge_emu_buffer_base = zn_av_malloc_array(stride, MAX_BLOCKSIZE);
 
-    s->mctmp     = av_malloc_array((stride+MAX_BLOCKSIZE), (h+MAX_BLOCKSIZE) * sizeof(*s->mctmp));
-    s->mcscratch = av_malloc_array(stride, MAX_BLOCKSIZE);
+    s->mctmp     = zn_av_malloc_array((stride+MAX_BLOCKSIZE), (h+MAX_BLOCKSIZE) * sizeof(*s->mctmp));
+    s->mcscratch = zn_av_malloc_array(stride, MAX_BLOCKSIZE);
 
     if (!s->edge_emu_buffer_base || !s->mctmp || !s->mcscratch)
         return AVERROR(ENOMEM);
@@ -361,24 +361,24 @@ static void free_sequence_buffers(DiracContext *s)
 
         for (j = 0; j < 3; j++)
             for (k = 1; k < 4; k++)
-                av_freep(&s->all_frames[i].hpel_base[j][k]);
+                zn_av_freep(&s->all_frames[i].hpel_base[j][k]);
     }
 
     memset(s->ref_frames, 0, sizeof(s->ref_frames));
     memset(s->delay_frames, 0, sizeof(s->delay_frames));
 
     for (i = 0; i < 3; i++) {
-        av_freep(&s->plane[i].idwt.buf_base);
-        av_freep(&s->plane[i].idwt.tmp);
+        zn_av_freep(&s->plane[i].idwt.buf_base);
+        zn_av_freep(&s->plane[i].idwt.tmp);
     }
 
     s->buffer_stride = 0;
-    av_freep(&s->sbsplit);
-    av_freep(&s->blmotion);
-    av_freep(&s->edge_emu_buffer_base);
+    zn_av_freep(&s->sbsplit);
+    zn_av_freep(&s->blmotion);
+    zn_av_freep(&s->edge_emu_buffer_base);
 
-    av_freep(&s->mctmp);
-    av_freep(&s->mcscratch);
+    zn_av_freep(&s->mctmp);
+    zn_av_freep(&s->mcscratch);
 }
 
 static AVOnce dirac_arith_init = AV_ONCE_INIT;
@@ -400,10 +400,10 @@ static av_cold int dirac_decode_init(AVCodecContext *avctx)
     ff_videodsp_init(&s->vdsp, 8);
 
     for (i = 0; i < MAX_FRAMES; i++) {
-        s->all_frames[i].avframe = av_frame_alloc();
+        s->all_frames[i].avframe = zn_av_frame_alloc();
         if (!s->all_frames[i].avframe) {
             while (i > 0)
-                av_frame_free(&s->all_frames[--i].avframe);
+                zn_av_frame_free(&s->all_frames[--i].avframe);
             return AVERROR(ENOMEM);
         }
     }
@@ -429,10 +429,10 @@ static av_cold int dirac_decode_end(AVCodecContext *avctx)
 
     dirac_decode_flush(avctx);
     for (i = 0; i < MAX_FRAMES; i++)
-        av_frame_free(&s->all_frames[i].avframe);
+        zn_av_frame_free(&s->all_frames[i].avframe);
 
-    av_freep(&s->thread_buf);
-    av_freep(&s->slice_params_buf);
+    zn_av_freep(&s->thread_buf);
+    zn_av_freep(&s->slice_params_buf);
 
     return 0;
 }
@@ -2155,7 +2155,7 @@ static int dirac_decode_data_unit(AVCodecContext *avctx, const uint8_t *buf, int
         if (ret >= 0)
             ret = ff_set_dimensions(avctx, dsh->width, dsh->height);
         if (ret < 0) {
-            av_freep(&dsh);
+            zn_av_freep(&dsh);
             return ret;
         }
 
@@ -2172,7 +2172,7 @@ static int dirac_decode_data_unit(AVCodecContext *avctx, const uint8_t *buf, int
         s->version.major       = dsh->version.major;
         s->version.minor       = dsh->version.minor;
         s->seq                 = *dsh;
-        av_freep(&dsh);
+        zn_av_freep(&dsh);
 
         s->pshift = s->bit_depth > 8;
 

@@ -112,7 +112,7 @@ static void dxva2_frames_uninit(AVHWFramesContext *ctx)
                 IDirect3DSurface9_Release(s->surfaces_internal[i]);
         }
     }
-    av_freep(&s->surfaces_internal);
+    zn_av_freep(&s->surfaces_internal);
 
     if (s->service) {
         IDirectXVideoAccelerationService_Release(s->service);
@@ -187,7 +187,7 @@ static int dxva2_init_pool(AVHWFramesContext *ctx)
         return AVERROR(EINVAL);
     }
 
-    s->surfaces_internal = av_calloc(ctx->initial_pool_size,
+    s->surfaces_internal = zn_av_calloc(ctx->initial_pool_size,
                                      sizeof(*s->surfaces_internal));
     if (!s->surfaces_internal)
         return AVERROR(ENOMEM);
@@ -261,7 +261,7 @@ static int dxva2_transfer_get_formats(AVHWFramesContext *ctx,
 {
     enum AVPixelFormat *fmts;
 
-    fmts = av_malloc_array(2, sizeof(*fmts));
+    fmts = zn_av_malloc_array(2, sizeof(*fmts));
     if (!fmts)
         return AVERROR(ENOMEM);
 
@@ -277,7 +277,7 @@ static void dxva2_unmap_frame(AVHWFramesContext *ctx, HWMapDescriptor *hwmap)
 {
     IDirect3DSurface9 *surface = (IDirect3DSurface9*)hwmap->source->data[3];
     IDirect3DSurface9_UnlockRect(surface);
-    av_freep(&hwmap->priv);
+    zn_av_freep(&hwmap->priv);
 }
 
 static int dxva2_map_frame(AVHWFramesContext *ctx, AVFrame *dst, const AVFrame *src,
@@ -319,7 +319,7 @@ static int dxva2_map_frame(AVHWFramesContext *ctx, AVFrame *dst, const AVFrame *
     err = ff_hwframe_map_create(src->hw_frames_ctx, dst, src,
                                 dxva2_unmap_frame, map);
     if (err < 0) {
-        av_freep(&map);
+        zn_av_freep(&map);
         goto fail;
     }
 
@@ -347,7 +347,7 @@ static int dxva2_transfer_data_to(AVHWFramesContext *ctx, AVFrame *dst,
     if (src->format != ctx->sw_format)
         return AVERROR(ENOSYS);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = dst->format;
@@ -360,7 +360,7 @@ static int dxva2_transfer_data_to(AVHWFramesContext *ctx, AVFrame *dst,
                    ctx->sw_format, src->width, src->height);
 
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return ret;
 }
 
@@ -374,7 +374,7 @@ static int dxva2_transfer_data_from(AVHWFramesContext *ctx, AVFrame *dst,
     if (dst->format != ctx->sw_format)
         return AVERROR(ENOSYS);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = dst->format;
@@ -390,7 +390,7 @@ static int dxva2_transfer_data_from(AVHWFramesContext *ctx, AVFrame *dst,
     av_image_copy_uc_from(dst->data, dst_linesize, (const uint8_t **)map->data, src_linesize,
                           ctx->sw_format, src->width, src->height);
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return ret;
 }
 
@@ -437,7 +437,7 @@ static void dxva2_device_free(AVHWDeviceContext *ctx)
     if (priv->dxva2lib)
         dlclose(priv->dxva2lib);
 
-    av_freep(&ctx->user_opaque);
+    zn_av_freep(&ctx->user_opaque);
 }
 
 static int dxva2_device_create9(AVHWDeviceContext *ctx, UINT adapter)

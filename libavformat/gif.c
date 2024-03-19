@@ -101,7 +101,7 @@ static int gif_write_packet(AVFormatContext *s, AVPacket *new_pkt)
     AVPacket *pkt = gif->prev_pkt;
 
     if (!gif->prev_pkt) {
-        gif->prev_pkt = av_packet_alloc();
+        gif->prev_pkt = zn_av_packet_alloc();
         if (!gif->prev_pkt)
             return AVERROR(ENOMEM);
         return av_packet_ref(gif->prev_pkt, new_pkt);
@@ -164,7 +164,7 @@ static int gif_write_packet(AVFormatContext *s, AVPacket *new_pkt)
         }
     }
 
-    av_packet_unref(gif->prev_pkt);
+    zn_av_packet_unref(gif->prev_pkt);
     if (new_pkt)
         return av_packet_ref(gif->prev_pkt, new_pkt);
 
@@ -183,7 +183,7 @@ static int gif_write_trailer(AVFormatContext *s)
 
     if (!gif->have_end)
         avio_w8(pb, GIF_TRAILER);
-    av_packet_free(&gif->prev_pkt);
+    zn_av_packet_free(&gif->prev_pkt);
 
     return 0;
 }

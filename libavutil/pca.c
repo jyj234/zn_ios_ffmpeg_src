@@ -45,10 +45,10 @@ PCA *ff_pca_init(int n){
         return NULL;
 
     pca->n= n;
-    pca->z = av_malloc_array(n, sizeof(*pca->z));
+    pca->z = zn_av_malloc_array(n, sizeof(*pca->z));
     pca->count=0;
-    pca->covariance= av_calloc(n*n, sizeof(double));
-    pca->mean= av_calloc(n, sizeof(double));
+    pca->covariance= zn_av_calloc(n*n, sizeof(double));
+    pca->mean= zn_av_calloc(n, sizeof(double));
 
     if (!pca->z || !pca->covariance || !pca->mean) {
         ff_pca_free(pca);
@@ -59,10 +59,10 @@ PCA *ff_pca_init(int n){
 }
 
 void ff_pca_free(PCA *pca){
-    av_freep(&pca->covariance);
-    av_freep(&pca->mean);
-    av_freep(&pca->z);
-    av_free(pca);
+    zn_av_freep(&pca->covariance);
+    zn_av_freep(&pca->mean);
+    zn_av_freep(&pca->z);
+    zn_av_free(pca);
 }
 
 void ff_pca_add(PCA *pca, const double *v){

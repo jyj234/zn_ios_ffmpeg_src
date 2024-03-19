@@ -58,7 +58,7 @@ static av_cold int read_header(AVFormatContext *ctx)
     int ret, i;
     char *err = NULL;
 
-    if (!(st = avformat_new_stream(ctx, NULL)))
+    if (!(st = zn_avformat_new_stream(ctx, NULL)))
         return AVERROR(ENOMEM);
     s->drive = cdio_cddap_identify(ctx->url, CDDA_MESSAGE_LOGIT, &err);
     if (!s->drive) {

@@ -87,7 +87,7 @@ static int dat_read_packet(AVFormatContext *s, AVPacket *pkt)
     }
 
     if (stream_index == s->nb_streams) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
 
         if (!st)
             return AVERROR(ENOMEM);

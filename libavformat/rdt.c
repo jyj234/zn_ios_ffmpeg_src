@@ -77,7 +77,7 @@ ff_rdt_parse_open(AVFormatContext *ic, int first_stream_of_set_idx,
 void
 ff_rdt_parse_close(RDTDemuxContext *s)
 {
-    av_free(s);
+    zn_av_free(s);
 }
 
 struct PayloadContext {
@@ -311,7 +311,7 @@ rdt_parse_packet (AVFormatContext *ctx, PayloadContext *rdt, AVStream *st,
         if (res > 0) {
             if (st->codecpar->codec_id == AV_CODEC_ID_AAC) {
                 memcpy (rdt->buffer, buf + pos, len - pos);
-                rdt->rmctx->pb = avio_alloc_context (rdt->buffer, len - pos, 0,
+                rdt->rmctx->pb = zn_avio_alloc_context (rdt->buffer, len - pos, 0,
                                                     NULL, NULL, NULL, NULL);
             }
             goto get_cache;
@@ -323,7 +323,7 @@ get_cache:
                                   st, rdt->rmst[st->index], pkt);
         if (rdt->audio_pkt_cnt == 0 &&
             st->codecpar->codec_id == AV_CODEC_ID_AAC)
-            avio_context_free(&rdt->rmctx->pb);
+            zn_avio_context_free(&rdt->rmctx->pb);
     }
     pkt->stream_index = st->index;
     pkt->pts = *timestamp;
@@ -461,7 +461,7 @@ add_dstream(AVFormatContext *s, AVStream *orig_st)
 {
     AVStream *st;
 
-    if (!(st = avformat_new_stream(s, NULL)))
+    if (!(st = zn_avformat_new_stream(s, NULL)))
         return NULL;
     st->id = orig_st->id;
     st->codecpar->codec_type = orig_st->codecpar->codec_type;
@@ -527,14 +527,14 @@ static av_cold int rdt_init(AVFormatContext *s, int st_index, PayloadContext *rd
 {
     int ret;
 
-    rdt->rmctx = avformat_alloc_context();
+    rdt->rmctx = zn_avformat_alloc_context();
     if (!rdt->rmctx)
         return AVERROR(ENOMEM);
 
     if ((ret = ff_copy_whiteblacklists(rdt->rmctx, s)) < 0)
         return ret;
 
-    return avformat_open_input(&rdt->rmctx, "", &ff_rdt_demuxer, NULL);
+    return zn_avformat_open_input(&rdt->rmctx, "", &ff_rdt_demuxer, NULL);
 }
 
 static void
@@ -545,12 +545,12 @@ rdt_close_context (PayloadContext *rdt)
     for (i = 0; i < rdt->nb_rmst; i++)
         if (rdt->rmst[i]) {
             ff_rm_free_rmstream(rdt->rmst[i]);
-            av_freep(&rdt->rmst[i]);
+            zn_av_freep(&rdt->rmst[i]);
         }
     if (rdt->rmctx)
-        avformat_close_input(&rdt->rmctx);
-    av_freep(&rdt->mlti_data);
-    av_freep(&rdt->rmst);
+        zn_avformat_close_input(&rdt->rmctx);
+    zn_av_freep(&rdt->mlti_data);
+    zn_av_freep(&rdt->rmst);
 }
 
 #define RDT_HANDLER(n, s, t) \

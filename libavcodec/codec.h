@@ -254,7 +254,7 @@ const AVCodec *av_codec_iterate(void **opaque);
  * @param id AVCodecID of the requested decoder
  * @return A decoder if one was found, NULL otherwise.
  */
-const AVCodec *avcodec_find_decoder(enum AVCodecID id);
+const AVCodec *zn_avcodec_find_decoder(enum AVCodecID id);
 
 /**
  * Find a registered decoder with the specified name.
@@ -270,7 +270,7 @@ const AVCodec *avcodec_find_decoder_by_name(const char *name);
  * @param id AVCodecID of the requested encoder
  * @return An encoder if one was found, NULL otherwise.
  */
-const AVCodec *avcodec_find_encoder(enum AVCodecID id);
+const AVCodec *zn_avcodec_find_encoder(enum AVCodecID id);
 
 /**
  * Find a registered encoder with the specified name.
@@ -304,7 +304,7 @@ enum {
      *
      * When selecting this format, AVCodecContext.hw_device_ctx should
      * have been set to a device of the specified type before calling
-     * avcodec_open2().
+     * zn_avcodec_open2().
      */
     AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX = 0x01,
     /**
@@ -317,7 +317,7 @@ enum {
      *
      * When selecting this format for an encoder,
      * AVCodecContext.hw_frames_ctx should be set to the context which
-     * will be used for the input frames before calling avcodec_open2().
+     * will be used for the input frames before calling zn_avcodec_open2().
      */
     AV_CODEC_HW_CONFIG_METHOD_HW_FRAMES_CTX = 0x02,
     /**

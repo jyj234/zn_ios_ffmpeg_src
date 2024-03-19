@@ -76,7 +76,7 @@ int ff_match_url_ext(const char *url, const char *extensions)
     return av_match_name(scratchpad, extensions);
 }
 
-const AVOutputFormat *av_guess_format(const char *short_name, const char *filename,
+const AVOutputFormat *zn_av_guess_format(const char *short_name, const char *filename,
                                       const char *mime_type)
 {
     const AVOutputFormat *fmt = NULL;
@@ -89,7 +89,7 @@ const AVOutputFormat *av_guess_format(const char *short_name, const char *filena
     if (!short_name && filename &&
         av_filename_number_test(filename) &&
         ff_guess_image2_codec(filename) != AV_CODEC_ID_NONE) {
-        return av_guess_format("image2", NULL, NULL);
+        return zn_av_guess_format("image2", NULL, NULL);
     }
 #endif
     /* Find the proper file type. */
@@ -117,7 +117,7 @@ enum AVCodecID av_guess_codec(const AVOutputFormat *fmt, const char *short_name,
                               enum FFMAVMediaType type)
 {
     if (av_match_name("segment", fmt->name) || av_match_name("ssegment", fmt->name)) {
-        const AVOutputFormat *fmt2 = av_guess_format(NULL, filename, NULL);
+        const AVOutputFormat *fmt2 = zn_av_guess_format(NULL, filename, NULL);
         if (fmt2)
             fmt = fmt2;
     }
@@ -336,7 +336,7 @@ fail:
     if (ret >= 0)
         ret = ret2;
 
-    av_freep(&pd.mime_type);
+    zn_av_freep(&pd.mime_type);
     return ret < 0 ? ret : score;
 }
 

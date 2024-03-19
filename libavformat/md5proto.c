@@ -80,7 +80,7 @@ static int md5_close(URLContext *h)
             err = AVERROR(errno);
     }
 
-    av_freep(&c->md5);
+    zn_av_freep(&c->md5);
 
     return err;
 }

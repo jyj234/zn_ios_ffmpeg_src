@@ -44,7 +44,7 @@ static void process_client(AVIOContext *client, const char *in_uri)
         // may return empty string.
         if (resource && strlen(resource))
             break;
-        av_freep(&resource);
+        zn_av_freep(&resource);
     }
     if (ret < 0)
         goto end;
@@ -55,7 +55,7 @@ static void process_client(AVIOContext *client, const char *in_uri)
         reply_code = AVERROR_HTTP_NOT_FOUND;
     }
     if ((ret = av_opt_set_int(client, "reply_code", reply_code, AV_OPT_SEARCH_CHILDREN)) < 0) {
-        av_log(client, AV_LOG_ERROR, "Failed to set reply_code: %s.\n", av_err2str(ret));
+        av_log(client, AV_LOG_ERROR, "Failed to set reply_code: %s.\n", zn_av_err2str(ret));
         goto end;
     }
     av_log(client, AV_LOG_TRACE, "Set reply code to %d\n", reply_code);
@@ -71,7 +71,7 @@ static void process_client(AVIOContext *client, const char *in_uri)
     fprintf(stderr, "Opening input file.\n");
     if ((ret = avio_open2(&input, in_uri, AVIO_FLAG_READ, NULL, NULL)) < 0) {
         av_log(input, AV_LOG_ERROR, "Failed to open input: %s: %s.\n", in_uri,
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto end;
     }
     for(;;) {
@@ -80,7 +80,7 @@ static void process_client(AVIOContext *client, const char *in_uri)
             if (n == AVERROR_EOF)
                 break;
             av_log(input, AV_LOG_ERROR, "Error reading from input: %s.\n",
-                   av_err2str(n));
+                   zn_av_err2str(n));
             break;
         }
         avio_write(client, buf, n);
@@ -93,7 +93,7 @@ end:
     avio_close(client);
     fprintf(stderr, "Closing input\n");
     avio_close(input);
-    av_freep(&resource);
+    zn_av_freep(&resource);
 }
 
 int main(int argc, char **argv)
@@ -116,11 +116,11 @@ int main(int argc, char **argv)
     avformat_network_init();
 
     if ((ret = av_dict_set(&options, "listen", "2", 0)) < 0) {
-        fprintf(stderr, "Failed to set listen mode for server: %s\n", av_err2str(ret));
+        fprintf(stderr, "Failed to set listen mode for server: %s\n", zn_av_err2str(ret));
         return ret;
     }
     if ((ret = avio_open2(&server, out_uri, AVIO_FLAG_WRITE, NULL, &options)) < 0) {
-        fprintf(stderr, "Failed to open server: %s\n", av_err2str(ret));
+        fprintf(stderr, "Failed to open server: %s\n", zn_av_err2str(ret));
         return ret;
     }
     fprintf(stderr, "Entering main loop.\n");
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 end:
     avio_close(server);
     if (ret < 0 && ret != AVERROR_EOF) {
-        fprintf(stderr, "Some errors occurred: %s\n", av_err2str(ret));
+        fprintf(stderr, "Some errors occurred: %s\n", zn_av_err2str(ret));
         return 1;
     }
     return 0;

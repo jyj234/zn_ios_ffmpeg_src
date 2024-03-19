@@ -120,8 +120,8 @@ int avpriv_slicethread_create(AVSliceThread **pctx, void *priv,
     if (!ctx)
         return AVERROR(ENOMEM);
 
-    if (nb_workers && !(ctx->workers = av_calloc(nb_workers, sizeof(*ctx->workers)))) {
-        av_freep(pctx);
+    if (nb_workers && !(ctx->workers = zn_av_calloc(nb_workers, sizeof(*ctx->workers)))) {
+        zn_av_freep(pctx);
         return AVERROR(ENOMEM);
     }
 
@@ -231,8 +231,8 @@ void avpriv_slicethread_free(AVSliceThread **pctx)
 
     pthread_cond_destroy(&ctx->done_cond);
     pthread_mutex_destroy(&ctx->done_mutex);
-    av_freep(&ctx->workers);
-    av_freep(pctx);
+    zn_av_freep(&ctx->workers);
+    zn_av_freep(pctx);
 }
 
 #else /* HAVE_PTHREADS || HAVE_W32THREADS || HAVE_OS32THREADS */

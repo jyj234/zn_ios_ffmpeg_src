@@ -78,7 +78,7 @@ static av_cold int init(AVFilterContext *ctx)
     s->hint = avpriv_fopen_utf8(s->hint_file_str, "r");
     if (!s->hint) {
         ret = AVERROR(errno);
-        av_log(ctx, AV_LOG_ERROR, "%s: %s\n", s->hint_file_str, av_err2str(ret));
+        av_log(ctx, AV_LOG_ERROR, "%s: %s\n", s->hint_file_str, zn_av_err2str(ret));
         return ret;
     }
 
@@ -123,7 +123,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     char hint = '=', field = '=';
     int p;
 
-    av_frame_free(&s->frame[0]);
+    zn_av_frame_free(&s->frame[0]);
     s->frame[0] = s->frame[1];
     s->frame[1] = s->frame[2];
     s->frame[2] = in;
@@ -212,7 +212,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         break;
     default:
         av_log(ctx, AV_LOG_ERROR, "Invalid field: %c.\n", field);
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return AVERROR(EINVAL);
     }
 
@@ -245,7 +245,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         break;
     default:
         av_log(ctx, AV_LOG_ERROR, "Invalid hint: %c.\n", hint);
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return AVERROR(EINVAL);
     }
 
@@ -296,9 +296,9 @@ static av_cold void uninit(AVFilterContext *ctx)
         fclose(s->hint);
     s->hint = NULL;
 
-    av_frame_free(&s->frame[0]);
-    av_frame_free(&s->frame[1]);
-    av_frame_free(&s->frame[2]);
+    zn_av_frame_free(&s->frame[0]);
+    zn_av_frame_free(&s->frame[1]);
+    zn_av_frame_free(&s->frame[2]);
 }
 
 static const AVFilterPad inputs[] = {

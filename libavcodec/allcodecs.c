@@ -967,12 +967,12 @@ static const AVCodec *find_codec(enum AVCodecID id, int (*x)(const AVCodec *))
     return experimental;
 }
 
-const AVCodec *avcodec_find_encoder(enum AVCodecID id)
+const AVCodec *zn_avcodec_find_encoder(enum AVCodecID id)
 {
     return find_codec(id, av_codec_is_encoder);
 }
 
-const AVCodec *avcodec_find_decoder(enum AVCodecID id)
+const AVCodec *zn_avcodec_find_decoder(enum AVCodecID id)
 {
     return find_codec(id, av_codec_is_decoder);
 }

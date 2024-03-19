@@ -208,7 +208,7 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *req,
 
 static mfxStatus frame_free(mfxHDL pthis, mfxFrameAllocResponse *resp)
 {
-    av_freep(&resp->mids);
+    zn_av_freep(&resp->mids);
     return MFX_ERR_NONE;
 }
 
@@ -355,7 +355,7 @@ static void clear_unused_frames(QSVFrame *list)
         /* list->queued==1 means the frame is not cached in VPP
          * process any more, it can be released to pool. */
         if ((list->queued == 1) && !list->surface.Data.Locked) {
-            av_frame_free(&list->frame);
+            zn_av_frame_free(&list->frame);
             list->queued = 0;
         }
         list = list->next;
@@ -369,8 +369,8 @@ static void clear_frame_list(QSVFrame **list)
 
         frame = *list;
         *list = (*list)->next;
-        av_frame_free(&frame->frame);
-        av_freep(&frame);
+        zn_av_frame_free(&frame->frame);
+        zn_av_freep(&frame);
     }
 }
 
@@ -437,12 +437,12 @@ static QSVFrame *submit_frame(QSVVPPContext *s, AVFilterLink *inlink, AVFrame *p
             qsv_frame->frame->height  = picref->height;
 
             if (av_frame_copy(qsv_frame->frame, picref) < 0) {
-                av_frame_free(&qsv_frame->frame);
+                zn_av_frame_free(&qsv_frame->frame);
                 return NULL;
             }
 
             if (av_frame_copy_props(qsv_frame->frame, picref) < 0) {
-                av_frame_free(&qsv_frame->frame);
+                zn_av_frame_free(&qsv_frame->frame);
                 return NULL;
             }
         } else
@@ -489,7 +489,7 @@ static QSVFrame *query_frame(QSVVPPContext *s, AVFilterLink *outlink, const AVFr
     /* For video memory, get a hw frame;
      * For system memory, get a sw frame and map it into a mfx_surface. */
     if (!IS_SYSTEM_MEMORY(s->out_mem_mode)) {
-        out_frame->frame = av_frame_alloc();
+        out_frame->frame = zn_av_frame_alloc();
         if (!out_frame->frame)
             return NULL;
 
@@ -583,7 +583,7 @@ static int init_vpp_session(AVFilterContext *avctx, QSVVPPContext *s)
 
         s->in_mem_mode = in_frames_hwctx->frame_type;
 
-        s->surface_ptrs_in = av_calloc(in_frames_hwctx->nb_surfaces,
+        s->surface_ptrs_in = zn_av_calloc(in_frames_hwctx->nb_surfaces,
                                        sizeof(*s->surface_ptrs_in));
         if (!s->surface_ptrs_in)
             return AVERROR(ENOMEM);
@@ -636,7 +636,7 @@ static int init_vpp_session(AVFilterContext *avctx, QSVVPPContext *s)
             return ret;
         }
 
-        s->surface_ptrs_out = av_calloc(out_frames_hwctx->nb_surfaces,
+        s->surface_ptrs_out = zn_av_calloc(out_frames_hwctx->nb_surfaces,
                                         sizeof(*s->surface_ptrs_out));
         if (!s->surface_ptrs_out) {
             av_buffer_unref(&out_frames_ref);
@@ -761,7 +761,7 @@ int ff_qsvvpp_init(AVFilterContext *avctx, QSVVPPParam *param)
     if (ret < 0)
         goto failed;
 
-    s->frame_infos = av_calloc(avctx->nb_inputs, sizeof(*s->frame_infos));
+    s->frame_infos = zn_av_calloc(avctx->nb_inputs, sizeof(*s->frame_infos));
     if (!s->frame_infos) {
         ret = AVERROR(ENOMEM);
         goto failed;
@@ -802,7 +802,7 @@ int ff_qsvvpp_init(AVFilterContext *avctx, QSVVPPParam *param)
 #endif
 
     if (s->nb_seq_buffers) {
-        s->seq_buffers = av_calloc(s->nb_seq_buffers, sizeof(*s->seq_buffers));
+        s->seq_buffers = zn_av_calloc(s->nb_seq_buffers, sizeof(*s->seq_buffers));
         if (!s->seq_buffers) {
             ret = AVERROR(ENOMEM);
             goto failed;
@@ -817,7 +817,7 @@ int ff_qsvvpp_init(AVFilterContext *avctx, QSVVPPParam *param)
 #endif
 
         s->nb_ext_buffers = s->nb_seq_buffers;
-        s->ext_buffers = av_calloc(s->nb_ext_buffers, sizeof(*s->ext_buffers));
+        s->ext_buffers = zn_av_calloc(s->nb_ext_buffers, sizeof(*s->ext_buffers));
         if (!s->ext_buffers) {
             ret = AVERROR(ENOMEM);
             goto failed;
@@ -890,10 +890,10 @@ static int qsvvpp_init_vpp_session(AVFilterContext *avctx, QSVVPPContext *s, con
         return ret;
 
     if (fp.num_ext_buf) {
-        av_freep(&s->ext_buffers);
+        zn_av_freep(&s->ext_buffers);
         s->nb_ext_buffers = s->nb_seq_buffers + fp.num_ext_buf;
 
-        s->ext_buffers = av_calloc(s->nb_ext_buffers, sizeof(*s->ext_buffers));
+        s->ext_buffers = zn_av_calloc(s->nb_ext_buffers, sizeof(*s->ext_buffers));
         if (!s->ext_buffers)
             return AVERROR(ENOMEM);
 
@@ -947,11 +947,11 @@ int ff_qsvvpp_close(AVFilterContext *avctx)
     /* release all the resources */
     clear_frame_list(&s->in_frame_list);
     clear_frame_list(&s->out_frame_list);
-    av_freep(&s->surface_ptrs_in);
-    av_freep(&s->surface_ptrs_out);
-    av_freep(&s->seq_buffers);
-    av_freep(&s->ext_buffers);
-    av_freep(&s->frame_infos);
+    zn_av_freep(&s->surface_ptrs_in);
+    zn_av_freep(&s->surface_ptrs_out);
+    zn_av_freep(&s->seq_buffers);
+    zn_av_freep(&s->ext_buffers);
+    zn_av_freep(&s->frame_infos);
     av_fifo_freep2(&s->async_fifo);
 
     return 0;
@@ -972,7 +972,7 @@ int ff_qsvvpp_filter_frame(QSVVPPContext *s, AVFilterLink *inlink, AVFrame *picr
 
         filter_ret = s->filter_frame(outlink, aframe.frame->frame);
         if (filter_ret < 0) {
-            av_frame_free(&aframe.frame->frame);
+            zn_av_frame_free(&aframe.frame->frame);
             return filter_ret;
         }
         aframe.frame->queued--;
@@ -1035,7 +1035,7 @@ int ff_qsvvpp_filter_frame(QSVVPPContext *s, AVFilterLink *inlink, AVFrame *picr
 
             filter_ret = s->filter_frame(outlink, aframe.frame->frame);
             if (filter_ret < 0) {
-                av_frame_free(&aframe.frame->frame);
+                zn_av_frame_free(&aframe.frame->frame);
                 return filter_ret;
             }
 

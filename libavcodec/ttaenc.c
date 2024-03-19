@@ -56,7 +56,7 @@ static av_cold int tta_encode_init(AVCodecContext *avctx)
     s->bps = avctx->bits_per_raw_sample >> 3;
     avctx->frame_size = 256 * avctx->sample_rate / 245;
 
-    s->ch_ctx = av_malloc_array(avctx->ch_layout.nb_channels, sizeof(*s->ch_ctx));
+    s->ch_ctx = zn_av_malloc_array(avctx->ch_layout.nb_channels, sizeof(*s->ch_ctx));
     if (!s->ch_ctx)
         return AVERROR(ENOMEM);
 
@@ -155,7 +155,7 @@ pkt_alloc:
             if (unary + 100LL > put_bits_left(&pb)) {
                 if (pkt_size < INT_MAX/2) {
                     pkt_size *= 2;
-                    av_packet_unref(avpkt);
+                    zn_av_packet_unref(avpkt);
                     goto pkt_alloc;
                 } else
                     return AVERROR(ENOMEM);
@@ -195,7 +195,7 @@ pkt_alloc:
 static av_cold int tta_encode_close(AVCodecContext *avctx)
 {
     TTAEncContext *s = avctx->priv_data;
-    av_freep(&s->ch_ctx);
+    zn_av_freep(&s->ch_ctx);
     return 0;
 }
 

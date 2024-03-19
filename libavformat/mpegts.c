@@ -311,7 +311,7 @@ static void clear_program(struct Program *p)
 
 static void clear_programs(MpegTSContext *ts)
 {
-    av_freep(&ts->prg);
+    zn_av_freep(&ts->prg);
     ts->nb_prg = 0;
 }
 
@@ -522,7 +522,7 @@ static MpegTSFilter *mpegts_open_section_filter(MpegTSContext *ts,
         return NULL;
 
     if (!(filter = mpegts_open_filter(ts, pid, MPEGTS_SECTION))) {
-        av_free(section_buf);
+        zn_av_free(section_buf);
         return NULL;
     }
     sec = &filter->u.section_filter;
@@ -562,18 +562,18 @@ static void mpegts_close_filter(MpegTSContext *ts, MpegTSFilter *filter)
 
     pid = filter->pid;
     if (filter->type == MPEGTS_SECTION)
-        av_freep(&filter->u.section_filter.section_buf);
+        zn_av_freep(&filter->u.section_filter.section_buf);
     else if (filter->type == MPEGTS_PES) {
         PESContext *pes = filter->u.pes_filter.opaque;
         av_buffer_unref(&pes->buffer);
         /* referenced private data will be freed later in
-         * avformat_close_input (pes->st->priv_data == pes) */
+         * zn_avformat_close_input (pes->st->priv_data == pes) */
         if (!pes->st || pes->merged_st) {
-            av_freep(&filter->u.pes_filter.opaque);
+            zn_av_freep(&filter->u.pes_filter.opaque);
         }
     }
 
-    av_free(filter);
+    zn_av_free(filter);
     ts->pids[pid] = NULL;
 }
 
@@ -739,7 +739,7 @@ static char *getstr8(const uint8_t **pp, const uint8_t *p_end)
         }
         if (iconv(cd, &in, &inlen, &out, &outlen) == -1) {
             iconv_close(cd);
-            av_freep(&str);
+            zn_av_freep(&str);
             goto no_iconv;
         }
         iconv_close(cd);
@@ -952,9 +952,9 @@ static int mpegts_set_stream_info(AVStream *st, PESContext *pes,
             if (!sub_pes)
                 return AVERROR(ENOMEM);
 
-            sub_st = avformat_new_stream(pes->stream, NULL);
+            sub_st = zn_avformat_new_stream(pes->stream, NULL);
             if (!sub_st) {
-                av_free(sub_pes);
+                zn_av_free(sub_pes);
                 return AVERROR(ENOMEM);
             }
 
@@ -1004,7 +1004,7 @@ static void reset_pes_packet_state(PESContext *pes)
 
 static void new_data_packet(const uint8_t *buffer, int len, AVPacket *pkt)
 {
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     pkt->data = (uint8_t *)buffer;
     pkt->size = len;
 }
@@ -1013,7 +1013,7 @@ static int new_pes_packet(PESContext *pes, AVPacket *pkt)
 {
     uint8_t *sd;
 
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
 
     pkt->buf  = pes->buffer;
     pkt->data = pes->buffer->data;
@@ -1197,7 +1197,7 @@ static int mpegts_push_data(MpegTSFilter *filter,
                         if (ts->merge_pmt_versions)
                             goto skip; /* wait for PMT to merge new stream */
 
-                        pes->st = avformat_new_stream(ts->stream, NULL);
+                        pes->st = zn_avformat_new_stream(ts->stream, NULL);
                         if (!pes->st)
                             return AVERROR(ENOMEM);
                         pes->st->id = pes->pid;
@@ -1446,7 +1446,7 @@ static PESContext *add_pes_stream(MpegTSContext *ts, int pid, int pcr_pid)
     pes->dts     = AV_NOPTS_VALUE;
     tss          = mpegts_open_pes_filter(ts, pid, mpegts_push_data, pes);
     if (!tss) {
-        av_free(pes);
+        zn_av_free(pes);
         return 0;
     }
     return pes;
@@ -1757,7 +1757,7 @@ static void m4sl_cb(MpegTSFilter *filter, const uint8_t *section,
         }
     }
     for (i = 0; i < mp4_descr_count; i++)
-        av_free(mp4_descr[i].dec_config_descr);
+        zn_av_free(mp4_descr[i].dec_config_descr);
 }
 
 static void scte_data_cb(MpegTSFilter *filter, const uint8_t *section,
@@ -2221,7 +2221,7 @@ int ff_parse_mpeg2_descriptor(AVFormatContext *fc, AVStream *st, int stream_type
                                          &st->codecpar->nb_coded_side_data,
                                          AV_PKT_DATA_DOVI_CONF,
                                          (uint8_t *)dovi, dovi_size, 0)) {
-                av_free(dovi);
+                zn_av_free(dovi);
                 return AVERROR(ENOMEM);
             }
 
@@ -2440,7 +2440,7 @@ static void pmt_cb(MpegTSFilter *filter, const uint8_t *section, int section_len
                 }
             }
             if (!pes->st) {
-                pes->st = avformat_new_stream(pes->stream, NULL);
+                pes->st = zn_avformat_new_stream(pes->stream, NULL);
                 if (!pes->st)
                     goto out;
                 pes->st->id = pes->pid;
@@ -2459,7 +2459,7 @@ static void pmt_cb(MpegTSFilter *filter, const uint8_t *section, int section_len
                 }
             }
             if (pes && !pes->st) {
-                st = avformat_new_stream(pes->stream, NULL);
+                st = zn_avformat_new_stream(pes->stream, NULL);
                 if (!st)
                     goto out;
                 st->id = pes->pid;
@@ -2473,7 +2473,7 @@ static void pmt_cb(MpegTSFilter *filter, const uint8_t *section, int section_len
                 st = find_matching_stream(ts, pid, h->id, stream_identifier, i, &old_program);
             }
             if (!st) {
-                st = avformat_new_stream(ts->stream, NULL);
+                st = zn_avformat_new_stream(ts->stream, NULL);
                 if (!st)
                     goto out;
                 st->id = pid;
@@ -2528,7 +2528,7 @@ static void pmt_cb(MpegTSFilter *filter, const uint8_t *section, int section_len
 
 out:
     for (i = 0; i < mp4_descr_count; i++)
-        av_free(mp4_descr[i].dec_config_descr);
+        zn_av_free(mp4_descr[i].dec_config_descr);
 }
 
 static void pat_cb(MpegTSFilter *filter, const uint8_t *section, int section_len)
@@ -2630,7 +2630,7 @@ static void eit_cb(MpegTSFilter *filter, const uint8_t *section, int section_len
      * stream directly here.
      */
     if (!ts->epg_stream) {
-        ts->epg_stream = avformat_new_stream(ts->stream, NULL);
+        ts->epg_stream = zn_avformat_new_stream(ts->stream, NULL);
         if (!ts->epg_stream)
             return;
         ts->epg_stream->id = EIT_PID;
@@ -2746,8 +2746,8 @@ static void sdt_cb(MpegTSFilter *filter, const uint8_t *section, int section_len
                                     provider_name, 0);
                     }
                 }
-                av_free(name);
-                av_free(provider_name);
+                zn_av_free(name);
+                zn_av_free(provider_name);
                 break;
             default:
                 break;
@@ -3147,7 +3147,7 @@ static int mpegts_read_header(AVFormatContext *s)
 
         /* only read packets */
 
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         avpriv_set_pts_info(st, 60, 1, 27000000);
@@ -3258,7 +3258,7 @@ static int mpegts_read_packet(AVFormatContext *s, AVPacket *pkt)
     ts->pkt = pkt;
     ret = handle_packets(ts, 0);
     if (ret < 0) {
-        av_packet_unref(ts->pkt);
+        zn_av_packet_unref(ts->pkt);
         /* flush pes data left */
         for (i = 0; i < NB_PID_MAX; i++)
             if (ts->pids[i] && ts->pids[i]->type == MPEGTS_PES) {
@@ -3345,13 +3345,13 @@ static int64_t mpegts_get_dts(AVFormatContext *s, int stream_index,
     ff_read_frame_flush(s);
     if (avio_seek(s->pb, pos, SEEK_SET) < 0)
         return AV_NOPTS_VALUE;
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt)
         return AV_NOPTS_VALUE;
     while(pos < pos_limit) {
-        int ret = av_read_frame(s, pkt);
+        int ret = zn_av_read_frame(s, pkt);
         if (ret < 0) {
-            av_packet_free(&pkt);
+            zn_av_packet_free(&pkt);
             return AV_NOPTS_VALUE;
         }
         if (pkt->dts != AV_NOPTS_VALUE && pkt->pos >= 0) {
@@ -3360,15 +3360,15 @@ static int64_t mpegts_get_dts(AVFormatContext *s, int stream_index,
             if (pkt->stream_index == stream_index && pkt->pos >= *ppos) {
                 int64_t dts = pkt->dts;
                 *ppos = pkt->pos;
-                av_packet_free(&pkt);
+                zn_av_packet_free(&pkt);
                 return dts;
             }
         }
         pos = pkt->pos;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
     return AV_NOPTS_VALUE;
 }
 
@@ -3425,7 +3425,7 @@ int avpriv_mpegts_parse_packet(MpegTSContext *ts, AVPacket *pkt,
 void avpriv_mpegts_parse_close(MpegTSContext *ts)
 {
     mpegts_free(ts);
-    av_free(ts);
+    zn_av_free(ts);
 }
 
 const AVInputFormat ff_mpegts_demuxer = {

@@ -147,12 +147,12 @@ static int cudaupload_filter_frame(AVFilterLink *link, AVFrame *in)
     if (ret < 0)
         goto fail;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(ctx->outputs[0], out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

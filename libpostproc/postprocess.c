@@ -783,18 +783,18 @@ pp_mode *pp_get_mode_by_name_and_quality(const char *name, int quality)
     av_log(NULL, AV_LOG_DEBUG, "pp: lumMode=%X, chromMode=%X\n", ppMode->lumMode, ppMode->chromMode);
     if(ppMode->error){
         av_log(NULL, AV_LOG_ERROR, "%d errors in postprocess string \"%s\"\n", ppMode->error, name);
-        av_free(ppMode);
+        zn_av_free(ppMode);
         return NULL;
     }
     return ppMode;
 }
 
 void pp_free_mode(pp_mode *mode){
-    av_free(mode);
+    zn_av_free(mode);
 }
 
 static void reallocAlign(void **p, int size){
-    av_free(*p);
+    zn_av_free(*p);
     *p= av_mallocz(size);
 }
 
@@ -866,22 +866,22 @@ av_cold void pp_free_context(void *vc){
     int i;
 
     for(i=0; i<FF_ARRAY_ELEMS(c->tempBlurred); i++)
-        av_free(c->tempBlurred[i]);
+        zn_av_free(c->tempBlurred[i]);
     for(i=0; i<FF_ARRAY_ELEMS(c->tempBlurredPast); i++)
-        av_free(c->tempBlurredPast[i]);
+        zn_av_free(c->tempBlurredPast[i]);
 
-    av_free(c->tempBlocks);
-    av_free(c->yHistogram);
-    av_free(c->tempDst);
-    av_free(c->tempSrc);
-    av_free(c->deintTemp);
-    av_free(c->stdQPTable);
-    av_free(c->nonBQPTable);
-    av_free(c->forcedQPTable);
+    zn_av_free(c->tempBlocks);
+    zn_av_free(c->yHistogram);
+    zn_av_free(c->tempDst);
+    zn_av_free(c->tempSrc);
+    zn_av_free(c->deintTemp);
+    zn_av_free(c->stdQPTable);
+    zn_av_free(c->nonBQPTable);
+    zn_av_free(c->forcedQPTable);
 
     memset(c, 0, sizeof(PPContext));
 
-    av_free(c);
+    zn_av_free(c);
 }
 
 void  pp_postprocess(const uint8_t * src[3], const int srcStride[3],

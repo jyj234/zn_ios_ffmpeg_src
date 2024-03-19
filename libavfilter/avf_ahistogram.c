@@ -128,11 +128,11 @@ static int config_input(AVFilterLink *inlink)
 
     s->nb_samples = FFMAX(1, av_rescale(inlink->sample_rate, s->frame_rate.den, s->frame_rate.num));
     s->dchannels = s->dmode == SINGLE ? 1 : inlink->ch_layout.nb_channels;
-    s->shistogram = av_calloc(s->w, s->dchannels * sizeof(*s->shistogram));
+    s->shistogram = zn_av_calloc(s->w, s->dchannels * sizeof(*s->shistogram));
     if (!s->shistogram)
         return AVERROR(ENOMEM);
 
-    s->achistogram = av_calloc(s->w, s->dchannels * sizeof(*s->achistogram));
+    s->achistogram = zn_av_calloc(s->w, s->dchannels * sizeof(*s->achistogram));
     if (!s->achistogram)
         return AVERROR(ENOMEM);
 
@@ -194,7 +194,7 @@ static int config_output(AVFilterLink *outlink)
     }
 
     if (s->dmode == SEPARATE) {
-        s->combine_buffer = av_malloc_array(outlink->w * 3, sizeof(*s->combine_buffer));
+        s->combine_buffer = zn_av_malloc_array(outlink->w * 3, sizeof(*s->combine_buffer));
         if (!s->combine_buffer)
             return AVERROR(ENOMEM);
     }
@@ -216,10 +216,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     if (!s->out || s->out->width  != outlink->w ||
                    s->out->height != outlink->h) {
-        av_frame_free(&s->out);
+        zn_av_frame_free(&s->out);
         s->out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!s->out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         for (n = H; n < s->h; n++) {
@@ -232,7 +232,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     ret = ff_inlink_make_frame_writable(outlink, &s->out);
     if (ret < 0) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return ret;
     }
 
@@ -304,7 +304,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         break;
     }
 
-    av_frame_free(&s->in[s->frame_count]);
+    zn_av_frame_free(&s->in[s->frame_count]);
     s->in[s->frame_count] = in;
     s->frame_count++;
     if (s->frame_count > s->count)
@@ -478,12 +478,12 @@ static av_cold void uninit(AVFilterContext *ctx)
     AudioHistogramContext *s = ctx->priv;
     int i;
 
-    av_frame_free(&s->out);
-    av_freep(&s->shistogram);
-    av_freep(&s->achistogram);
-    av_freep(&s->combine_buffer);
+    zn_av_frame_free(&s->out);
+    zn_av_freep(&s->shistogram);
+    zn_av_freep(&s->achistogram);
+    zn_av_freep(&s->combine_buffer);
     for (i = 0; i < 101; i++)
-        av_frame_free(&s->in[i]);
+        zn_av_frame_free(&s->in[i]);
 }
 
 static const AVFilterPad ahistogram_inputs[] = {

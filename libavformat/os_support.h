@@ -187,7 +187,7 @@ static inline int win32_##name(const char *filename_utf8) \
         goto fallback;                                    \
                                                           \
     ret = wfunc(filename_w);                              \
-    av_free(filename_w);                                  \
+    zn_av_free(filename_w);                                  \
     return ret;                                           \
                                                           \
 fallback:                                                 \
@@ -208,7 +208,7 @@ static inline int win32_access(const char *filename_utf8, int mode)
     if (!filename_w)
         goto fallback;
     ret = _waccess(filename_w, mode);
-    av_free(filename_w);
+    zn_av_free(filename_w);
     return ret;
 fallback:
     return _access(filename_utf8, mode);
@@ -240,7 +240,7 @@ static inline int win32_stat(const char *filename_utf8, struct win32_stat *buf)
 
     if (filename_w) {
         ret = _wstat64(filename_w, &crtstat);
-        av_free(filename_w);
+        zn_av_free(filename_w);
     } else
         ret = _stat64(filename_utf8, &crtstat);
 
@@ -269,18 +269,18 @@ static inline int win32_rename(const char *src_utf8, const char *dest_utf8)
     if (get_extended_win32_path(src_utf8, &src_w))
         return -1;
     if (get_extended_win32_path(dest_utf8, &dest_w)) {
-        av_free(src_w);
+        zn_av_free(src_w);
         return -1;
     }
     if (!src_w || !dest_w) {
-        av_free(src_w);
-        av_free(dest_w);
+        zn_av_free(src_w);
+        zn_av_free(dest_w);
         goto fallback;
     }
 
     ret = MoveFileExW(src_w, dest_w, MOVEFILE_REPLACE_EXISTING);
-    av_free(src_w);
-    av_free(dest_w);
+    zn_av_free(src_w);
+    zn_av_free(dest_w);
     // Lacking proper mapping from GetLastError() error codes to errno codes
     if (ret)
         errno = EPERM;

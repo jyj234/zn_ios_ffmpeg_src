@@ -336,5 +336,5 @@ void checkasm_check_float_dsp(void)
         test_scalarproduct_float(src3, src4);
     report("scalarproduct_float");
 
-    av_freep(&fdsp);
+    zn_av_freep(&fdsp);
 }

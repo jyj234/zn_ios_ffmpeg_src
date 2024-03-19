@@ -247,10 +247,10 @@ static av_cold int decode_init(AVCodecContext *avctx)
 
     avctx->pix_fmt = AV_PIX_FMT_YUV444P;
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
-    s->skip = av_calloc(avctx->width >> 1, avctx->height >> 1);
+    s->skip = zn_av_calloc(avctx->width >> 1, avctx->height >> 1);
     if (!s->skip)
         return AVERROR(ENOMEM);
 
@@ -268,9 +268,9 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     MidiVidContext *s = avctx->priv_data;
 
-    av_frame_free(&s->frame);
-    av_freep(&s->uncompressed);
-    av_freep(&s->skip);
+    zn_av_frame_free(&s->frame);
+    zn_av_freep(&s->uncompressed);
+    zn_av_freep(&s->skip);
 
     return 0;
 }

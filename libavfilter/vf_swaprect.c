@@ -95,10 +95,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     var_values[VAR_W]   = inlink->w;
     var_values[VAR_H]   = inlink->h;
     var_values[VAR_A]   = (float) inlink->w / inlink->h;
-    var_values[VAR_SAR] = inlink->sample_aspect_ratio.num ? av_q2d(inlink->sample_aspect_ratio) : 1;
+    var_values[VAR_SAR] = inlink->sample_aspect_ratio.num ? zn_av_q2d(inlink->sample_aspect_ratio) : 1;
     var_values[VAR_DAR] = var_values[VAR_A] * var_values[VAR_SAR];
     var_values[VAR_N]   = inlink->frame_count_out;
-    var_values[VAR_T]   = in->pts == AV_NOPTS_VALUE ? NAN : in->pts * av_q2d(inlink->time_base);
+    var_values[VAR_T]   = in->pts == AV_NOPTS_VALUE ? NAN : in->pts * zn_av_q2d(inlink->time_base);
 #if FF_API_FRAME_PKT
 FF_DISABLE_DEPRECATION_WARNINGS
     var_values[VAR_POS] = in->pkt_pos == -1 ? NAN : in->pkt_pos;
@@ -219,7 +219,7 @@ static int config_input(AVFilterLink *inlink)
     av_image_fill_max_pixsteps(s->pixsteps, NULL, s->desc);
     s->nb_planes = av_pix_fmt_count_planes(inlink->format);
 
-    s->temp = av_malloc_array(inlink->w, s->pixsteps[0]);
+    s->temp = zn_av_malloc_array(inlink->w, s->pixsteps[0]);
     if (!s->temp)
         return AVERROR(ENOMEM);
 
@@ -229,7 +229,7 @@ static int config_input(AVFilterLink *inlink)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     SwapRectContext *s = ctx->priv;
-    av_freep(&s->temp);
+    zn_av_freep(&s->temp);
 }
 
 static const AVFilterPad inputs[] = {

@@ -381,50 +381,50 @@ static void mxf_free_metadataset(MXFMetadataSet **ctx, int freectx)
     switch ((*ctx)->type) {
     case Descriptor:
     case MultipleDescriptor:
-        av_freep(&((MXFDescriptor *)*ctx)->extradata);
-        av_freep(&((MXFDescriptor *)*ctx)->mastering);
-        av_freep(&((MXFDescriptor *)*ctx)->coll);
-        av_freep(&((MXFDescriptor *)*ctx)->file_descriptors_refs);
-        av_freep(&((MXFDescriptor *)*ctx)->sub_descriptors_refs);
+        zn_av_freep(&((MXFDescriptor *)*ctx)->extradata);
+        zn_av_freep(&((MXFDescriptor *)*ctx)->mastering);
+        zn_av_freep(&((MXFDescriptor *)*ctx)->coll);
+        zn_av_freep(&((MXFDescriptor *)*ctx)->file_descriptors_refs);
+        zn_av_freep(&((MXFDescriptor *)*ctx)->sub_descriptors_refs);
         break;
     case FFV1SubDescriptor:
-        av_freep(&((MXFFFV1SubDescriptor *)*ctx)->extradata);
+        zn_av_freep(&((MXFFFV1SubDescriptor *)*ctx)->extradata);
         break;
     case AudioChannelLabelSubDescriptor:
     case SoundfieldGroupLabelSubDescriptor:
     case GroupOfSoundfieldGroupsLabelSubDescriptor:
-        av_freep(&((MXFMCASubDescriptor *)*ctx)->language);
-        av_freep(&((MXFMCASubDescriptor *)*ctx)->group_of_soundfield_groups_link_id_refs);
+        zn_av_freep(&((MXFMCASubDescriptor *)*ctx)->language);
+        zn_av_freep(&((MXFMCASubDescriptor *)*ctx)->group_of_soundfield_groups_link_id_refs);
         break;
     case Sequence:
-        av_freep(&((MXFSequence *)*ctx)->structural_components_refs);
+        zn_av_freep(&((MXFSequence *)*ctx)->structural_components_refs);
         break;
     case EssenceGroup:
-        av_freep(&((MXFEssenceGroup *)*ctx)->structural_components_refs);
+        zn_av_freep(&((MXFEssenceGroup *)*ctx)->structural_components_refs);
         break;
     case SourcePackage:
     case MaterialPackage:
-        av_freep(&((MXFPackage *)*ctx)->tracks_refs);
-        av_freep(&((MXFPackage *)*ctx)->name);
-        av_freep(&((MXFPackage *)*ctx)->comment_refs);
+        zn_av_freep(&((MXFPackage *)*ctx)->tracks_refs);
+        zn_av_freep(&((MXFPackage *)*ctx)->name);
+        zn_av_freep(&((MXFPackage *)*ctx)->comment_refs);
         break;
     case TaggedValue:
-        av_freep(&((MXFTaggedValue *)*ctx)->name);
-        av_freep(&((MXFTaggedValue *)*ctx)->value);
+        zn_av_freep(&((MXFTaggedValue *)*ctx)->name);
+        zn_av_freep(&((MXFTaggedValue *)*ctx)->value);
         break;
     case Track:
-        av_freep(&((MXFTrack *)*ctx)->name);
+        zn_av_freep(&((MXFTrack *)*ctx)->name);
         break;
     case IndexTableSegment:
         seg = (MXFIndexTableSegment *)*ctx;
-        av_freep(&seg->temporal_offset_entries);
-        av_freep(&seg->flag_entries);
-        av_freep(&seg->stream_offset_entries);
+        zn_av_freep(&seg->temporal_offset_entries);
+        zn_av_freep(&seg->flag_entries);
+        zn_av_freep(&seg->stream_offset_entries);
     default:
         break;
     }
     if (freectx) {
-        av_freep(ctx);
+        zn_av_freep(ctx);
     }
 }
 
@@ -711,9 +711,9 @@ static int mxf_read_primer_pack(void *arg, AVIOContext *pb, int tag, int size, U
     }
     if (mxf->local_tags)
         av_log(mxf->fc, AV_LOG_VERBOSE, "Multiple primer packs\n");
-    av_free(mxf->local_tags);
+    zn_av_free(mxf->local_tags);
     mxf->local_tags_count = 0;
-    mxf->local_tags = av_calloc(item_num, item_len);
+    mxf->local_tags = zn_av_calloc(item_num, item_len);
     if (!mxf->local_tags)
         return AVERROR(ENOMEM);
     mxf->local_tags_count = item_num;
@@ -967,8 +967,8 @@ static int mxf_read_strong_ref_array(AVIOContext *pb, UID **refs, int *count)
         return AVERROR_PATCHWELCOME;
     *count = c;
 
-    av_free(*refs);
-    *refs = av_malloc_array(*count, sizeof(UID));
+    zn_av_free(*refs);
+    *refs = zn_av_malloc_array(*count, sizeof(UID));
     if (!*refs) {
         *count = 0;
         return AVERROR(ENOMEM);
@@ -992,7 +992,7 @@ static inline int mxf_read_us_ascii_string(AVIOContext *pb, int size, char** str
         return AVERROR(EINVAL);
 
     buf_size = size + 1;
-    av_free(*str);
+    zn_av_free(*str);
     *str = av_malloc(buf_size);
     if (!*str)
         return AVERROR(ENOMEM);
@@ -1000,7 +1000,7 @@ static inline int mxf_read_us_ascii_string(AVIOContext *pb, int size, char** str
     ret = avio_get_str(pb, size, *str, buf_size);
 
     if (ret < 0) {
-        av_freep(str);
+        zn_av_freep(str);
         return ret;
     }
 
@@ -1016,7 +1016,7 @@ static inline int mxf_read_utf16_string(AVIOContext *pb, int size, char** str, i
         return AVERROR(EINVAL);
 
     buf_size = size + size / 2 + 1;
-    av_free(*str);
+    zn_av_free(*str);
     *str = av_malloc(buf_size);
     if (!*str)
         return AVERROR(ENOMEM);
@@ -1027,7 +1027,7 @@ static inline int mxf_read_utf16_string(AVIOContext *pb, int size, char** str, i
         ret = avio_get_str16le(pb, size, *str, buf_size);
 
     if (ret < 0) {
-        av_freep(str);
+        zn_av_freep(str);
         return ret;
     }
 
@@ -1228,8 +1228,8 @@ static int mxf_read_index_entry_array(AVIOContext *pb, MXFIndexTableSegment *seg
     if (!FF_ALLOC_TYPED_ARRAY(segment->temporal_offset_entries, segment->nb_index_entries) ||
         !FF_ALLOC_TYPED_ARRAY(segment->flag_entries           , segment->nb_index_entries) ||
         !FF_ALLOC_TYPED_ARRAY(segment->stream_offset_entries  , segment->nb_index_entries)) {
-        av_freep(&segment->temporal_offset_entries);
-        av_freep(&segment->flag_entries);
+        zn_av_freep(&segment->temporal_offset_entries);
+        zn_av_freep(&segment->flag_entries);
         return AVERROR(ENOMEM);
     }
 
@@ -1405,7 +1405,7 @@ static int mxf_read_generic_descriptor(void *arg, AVIOContext *pb, int tag, int 
         if (IS_KLV_KEY(uid, mxf_sony_mpeg4_extradata)) {
             if (descriptor->extradata)
                 av_log(NULL, AV_LOG_WARNING, "Duplicate sony_mpeg4_extradata\n");
-            av_free(descriptor->extradata);
+            zn_av_free(descriptor->extradata);
             descriptor->extradata_size = 0;
             descriptor->extradata = av_malloc(size);
             if (!descriptor->extradata)
@@ -1509,7 +1509,7 @@ static int mxf_read_ffv1_sub_descriptor(void *arg, AVIOContext *pb, int tag, int
     if (IS_KLV_KEY(uid, mxf_ffv1_extradata) && size <= INT_MAX - AV_INPUT_BUFFER_PADDING_SIZE ) {
         if (ffv1_sub_descriptor->extradata)
             av_log(NULL, AV_LOG_WARNING, "Duplicate ffv1_extradata\n");
-        av_free(ffv1_sub_descriptor->extradata);
+        zn_av_free(ffv1_sub_descriptor->extradata);
         ffv1_sub_descriptor->extradata_size = 0;
         ffv1_sub_descriptor->extradata = av_mallocz(size + AV_INPUT_BUFFER_PADDING_SIZE);
         if (!ffv1_sub_descriptor->extradata)
@@ -1752,10 +1752,10 @@ static int mxf_get_sorted_table_segments(MXFContext *mxf, int *nb_sorted_segment
     if (!nb_segments)
         return AVERROR_INVALIDDATA;
 
-    if (!(unsorted_segments = av_calloc(nb_segments, sizeof(*unsorted_segments))) ||
-        !(*sorted_segments  = av_calloc(nb_segments, sizeof(**sorted_segments)))) {
-        av_freep(sorted_segments);
-        av_free(unsorted_segments);
+    if (!(unsorted_segments = zn_av_calloc(nb_segments, sizeof(*unsorted_segments))) ||
+        !(*sorted_segments  = zn_av_calloc(nb_segments, sizeof(**sorted_segments)))) {
+        zn_av_freep(sorted_segments);
+        zn_av_free(unsorted_segments);
         return AVERROR(ENOMEM);
     }
 
@@ -1771,8 +1771,8 @@ static int mxf_get_sorted_table_segments(MXFContext *mxf, int *nb_sorted_segment
     }
 
     if (!nb_segments) {
-        av_freep(sorted_segments);
-        av_free(unsorted_segments);
+        zn_av_freep(sorted_segments);
+        zn_av_free(unsorted_segments);
         return AVERROR_INVALIDDATA;
     }
 
@@ -1817,7 +1817,7 @@ static int mxf_get_sorted_table_segments(MXFContext *mxf, int *nb_sorted_segment
         last_index_start = best_index_start;
     }
 
-    av_free(unsorted_segments);
+    zn_av_free(unsorted_segments);
 
     return 0;
 }
@@ -1968,13 +1968,13 @@ static int mxf_compute_ptses_fake_index(MXFContext *mxf, MXFIndexTable *index_ta
     if (index_table->nb_ptses <= 0)
         return 0;
 
-    if (!(index_table->ptses      = av_malloc_array(index_table->nb_ptses, sizeof(int64_t))) ||
-        !(index_table->fake_index = av_calloc(index_table->nb_ptses, sizeof(AVIndexEntry))) ||
-        !(index_table->offsets    = av_malloc_array(index_table->nb_ptses, sizeof(int8_t))) ||
-        !(flags                   = av_malloc_array(index_table->nb_ptses, sizeof(uint8_t)))) {
-        av_freep(&index_table->ptses);
-        av_freep(&index_table->fake_index);
-        av_freep(&index_table->offsets);
+    if (!(index_table->ptses      = zn_av_malloc_array(index_table->nb_ptses, sizeof(int64_t))) ||
+        !(index_table->fake_index = zn_av_calloc(index_table->nb_ptses, sizeof(AVIndexEntry))) ||
+        !(index_table->offsets    = zn_av_malloc_array(index_table->nb_ptses, sizeof(int8_t))) ||
+        !(flags                   = zn_av_malloc_array(index_table->nb_ptses, sizeof(uint8_t)))) {
+        zn_av_freep(&index_table->ptses);
+        zn_av_freep(&index_table->fake_index);
+        zn_av_freep(&index_table->offsets);
         return AVERROR(ENOMEM);
     }
 
@@ -2053,7 +2053,7 @@ static int mxf_compute_ptses_fake_index(MXFContext *mxf, MXFIndexTable *index_ta
         if (index_table->ptses[x] != AV_NOPTS_VALUE)
             index_table->fake_index[index_table->ptses[x]].flags = flags[x];
     }
-    av_freep(&flags);
+    zn_av_freep(&flags);
 
     index_table->first_dts = -max_temporal_offset;
 
@@ -2086,7 +2086,7 @@ static int mxf_compute_index_tables(MXFContext *mxf)
         }
     }
 
-    mxf->index_tables = av_calloc(mxf->nb_index_tables,
+    mxf->index_tables = zn_av_calloc(mxf->nb_index_tables,
                                   sizeof(*mxf->index_tables));
     if (!mxf->index_tables) {
         av_log(mxf->fc, AV_LOG_ERROR, "failed to allocate index tables\n");
@@ -2108,7 +2108,7 @@ static int mxf_compute_index_tables(MXFContext *mxf)
         MXFIndexTable *t = &mxf->index_tables[j];
         MXFTrack *mxf_track = NULL;
 
-        t->segments = av_calloc(t->nb_segments, sizeof(*t->segments));
+        t->segments = zn_av_calloc(t->nb_segments, sizeof(*t->segments));
         if (!t->segments) {
             av_log(mxf->fc, AV_LOG_ERROR, "failed to allocate IndexTableSegment"
                    " pointer array\n");
@@ -2166,7 +2166,7 @@ static int mxf_compute_index_tables(MXFContext *mxf)
 
     ret = 0;
 finish_decoding_index:
-    av_free(sorted_segments);
+    zn_av_free(sorted_segments);
     return ret;
 }
 
@@ -2435,7 +2435,7 @@ static int mxf_add_metadata_stream(MXFContext *mxf, MXFTrack *track)
     if (!component)
         return 0;
 
-    st = avformat_new_stream(mxf->fc, NULL);
+    st = zn_avformat_new_stream(mxf->fc, NULL);
     if (!st) {
         av_log(mxf->fc, AV_LOG_ERROR, "could not allocate metadata stream\n");
         return AVERROR(ENOMEM);
@@ -2772,7 +2772,7 @@ static int mxf_parse_structural_metadata(MXFContext *mxf)
             continue;
         }
 
-        st = avformat_new_stream(mxf->fc, NULL);
+        st = zn_avformat_new_stream(mxf->fc, NULL);
         if (!st) {
             av_log(mxf->fc, AV_LOG_ERROR, "could not allocate stream\n");
             ret = AVERROR(ENOMEM);
@@ -4134,8 +4134,8 @@ static int mxf_read_close(AVFormatContext *s)
     MXFContext *mxf = s->priv_data;
     int i;
 
-    av_freep(&mxf->packages_refs);
-    av_freep(&mxf->essence_container_data_refs);
+    zn_av_freep(&mxf->packages_refs);
+    zn_av_freep(&mxf->essence_container_data_refs);
 
     for (i = 0; i < s->nb_streams; i++)
         s->streams[i]->priv_data = NULL;
@@ -4144,20 +4144,20 @@ static int mxf_read_close(AVFormatContext *s)
         mxf_free_metadataset(mxf->metadata_sets + i, 1);
     }
     mxf->metadata_sets_count = 0;
-    av_freep(&mxf->partitions);
-    av_freep(&mxf->metadata_sets);
-    av_freep(&mxf->aesc);
-    av_freep(&mxf->local_tags);
+    zn_av_freep(&mxf->partitions);
+    zn_av_freep(&mxf->metadata_sets);
+    zn_av_freep(&mxf->aesc);
+    zn_av_freep(&mxf->local_tags);
 
     if (mxf->index_tables) {
         for (i = 0; i < mxf->nb_index_tables; i++) {
-            av_freep(&mxf->index_tables[i].segments);
-            av_freep(&mxf->index_tables[i].ptses);
-            av_freep(&mxf->index_tables[i].fake_index);
-            av_freep(&mxf->index_tables[i].offsets);
+            zn_av_freep(&mxf->index_tables[i].segments);
+            zn_av_freep(&mxf->index_tables[i].ptses);
+            zn_av_freep(&mxf->index_tables[i].fake_index);
+            zn_av_freep(&mxf->index_tables[i].offsets);
         }
     }
-    av_freep(&mxf->index_tables);
+    zn_av_freep(&mxf->index_tables);
 
     return 0;
 }

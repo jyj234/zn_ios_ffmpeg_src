@@ -128,7 +128,7 @@ static int jpegxl_anim_read_header(AVFormatContext *s)
     if (ret < 0 || meta.animation_offset <= 0)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

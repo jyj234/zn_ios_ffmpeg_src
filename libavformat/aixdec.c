@@ -58,7 +58,7 @@ static int aix_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     avio_skip(s->pb, 7);
     for (i = 0; i < nb_streams; i++) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
 
         if (!st)
             return AVERROR(ENOMEM);

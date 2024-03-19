@@ -86,7 +86,7 @@ int main(void)
                 printf("  %s\n", pix_fmts[j]);
             printf("\n");
 
-            av_free(pix_fmts);
+            zn_av_free(pix_fmts);
         }
     }
     return 0;

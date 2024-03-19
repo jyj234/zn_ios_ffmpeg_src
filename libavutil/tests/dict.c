@@ -64,7 +64,7 @@ static void test_separators(const AVDictionary *m, const char pair, const char v
     av_dict_free(&dict);
     ret = av_dict_parse_string(&dict, buffer, vals, pairs, 0);
     printf("ret %d\n", ret);
-    av_freep(&buffer);
+    zn_av_freep(&buffer);
     print_dict(dict);
     av_dict_free(&dict);
 }
@@ -78,7 +78,7 @@ int main(void)
     printf("Testing av_dict_get_string() and av_dict_parse_string()\n");
     av_dict_get_string(dict, &buffer, '=', ',');
     printf("%s\n", buffer);
-    av_freep(&buffer);
+    zn_av_freep(&buffer);
     av_dict_set(&dict, "aaa", "aaa", 0);
     av_dict_set(&dict, "b,b", "bbb", 0);
     av_dict_set(&dict, "c=c", "ccc", 0);

@@ -572,16 +572,16 @@ av_cold int ff_opus_psy_init(OpusPsyContext *s, AVCodecContext *avctx,
     return 0;
 
 fail:
-    av_freep(&s->inflection_points);
-    av_freep(&s->dsp);
+    zn_av_freep(&s->inflection_points);
+    zn_av_freep(&s->dsp);
 
     for (i = 0; i < CELT_BLOCK_NB; i++) {
         av_tx_uninit(&s->mdct[i]);
-        av_freep(&s->window[i]);
+        zn_av_freep(&s->window[i]);
     }
 
     for (i = 0; i < s->max_steps; i++)
-        av_freep(&s->steps[i]);
+        zn_av_freep(&s->steps[i]);
 
     return ret;
 }
@@ -595,16 +595,16 @@ av_cold int ff_opus_psy_end(OpusPsyContext *s)
 {
     int i;
 
-    av_freep(&s->inflection_points);
-    av_freep(&s->dsp);
+    zn_av_freep(&s->inflection_points);
+    zn_av_freep(&s->dsp);
 
     for (i = 0; i < CELT_BLOCK_NB; i++) {
         av_tx_uninit(&s->mdct[i]);
-        av_freep(&s->window[i]);
+        zn_av_freep(&s->window[i]);
     }
 
     for (i = 0; i < s->max_steps; i++)
-        av_freep(&s->steps[i]);
+        zn_av_freep(&s->steps[i]);
 
     av_log(s->avctx, AV_LOG_INFO, "Average Intensity Stereo band: %0.1f\n", s->avg_is_band);
     av_log(s->avctx, AV_LOG_INFO, "Dual Stereo used: %0.2f%%\n", ((float)s->dual_stereo_used/s->total_packets_out)*100.0f);

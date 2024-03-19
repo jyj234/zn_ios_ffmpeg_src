@@ -26,7 +26,7 @@
 int swri_get_dither(SwrContext *s, void *dst, int len, unsigned seed, enum AVSampleFormat noise_fmt) {
     double scale = s->dither.noise_scale;
 #define TMP_EXTRA 2
-    double *tmp = av_malloc_array(len + TMP_EXTRA, sizeof(double));
+    double *tmp = zn_av_malloc_array(len + TMP_EXTRA, sizeof(double));
     int i;
 
     if (!tmp)
@@ -72,7 +72,7 @@ int swri_get_dither(SwrContext *s, void *dst, int len, unsigned seed, enum AVSam
         }
     }
 
-    av_free(tmp);
+    zn_av_free(tmp);
     return 0;
 }
 

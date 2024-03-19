@@ -179,8 +179,8 @@ static av_cold int roq_decode_init(AVCodecContext *avctx)
     s->width = avctx->width;
     s->height = avctx->height;
 
-    s->last_frame    = av_frame_alloc();
-    s->current_frame = av_frame_alloc();
+    s->last_frame    = zn_av_frame_alloc();
+    s->current_frame = zn_av_frame_alloc();
     if (!s->current_frame || !s->last_frame)
         return AVERROR(ENOMEM);
 
@@ -226,8 +226,8 @@ static av_cold int roq_decode_end(AVCodecContext *avctx)
 {
     RoqContext *s = avctx->priv_data;
 
-    av_frame_free(&s->current_frame);
-    av_frame_free(&s->last_frame);
+    zn_av_frame_free(&s->current_frame);
+    zn_av_frame_free(&s->last_frame);
 
     return 0;
 }

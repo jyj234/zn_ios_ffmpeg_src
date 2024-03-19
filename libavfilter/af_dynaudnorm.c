@@ -191,9 +191,9 @@ static cqueue *cqueue_create(int size, int max_size)
     q->size = size;
     q->nb_elements = 0;
 
-    q->elements = av_malloc_array(max_size, sizeof(double));
+    q->elements = zn_av_malloc_array(max_size, sizeof(double));
     if (!q->elements) {
-        av_free(q);
+        zn_av_free(q);
         return NULL;
     }
 
@@ -203,8 +203,8 @@ static cqueue *cqueue_create(int size, int max_size)
 static void cqueue_free(cqueue *q)
 {
     if (q)
-        av_free(q->elements);
-    av_free(q);
+        zn_av_free(q->elements);
+    zn_av_free(q);
 }
 
 static int cqueue_size(cqueue *q)
@@ -306,9 +306,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     DynamicAudioNormalizerContext *s = ctx->priv;
 
-    av_freep(&s->prev_amplification_factor);
-    av_freep(&s->dc_correction_value);
-    av_freep(&s->compress_threshold);
+    zn_av_freep(&s->prev_amplification_factor);
+    zn_av_freep(&s->dc_correction_value);
+    zn_av_freep(&s->compress_threshold);
 
     for (int c = 0; c < s->channels; c++) {
         if (s->gain_history_original)
@@ -321,21 +321,21 @@ static av_cold void uninit(AVFilterContext *ctx)
             cqueue_free(s->threshold_history[c]);
     }
 
-    av_freep(&s->gain_history_original);
-    av_freep(&s->gain_history_minimum);
-    av_freep(&s->gain_history_smoothed);
-    av_freep(&s->threshold_history);
+    zn_av_freep(&s->gain_history_original);
+    zn_av_freep(&s->gain_history_minimum);
+    zn_av_freep(&s->gain_history_smoothed);
+    zn_av_freep(&s->threshold_history);
 
     cqueue_free(s->is_enabled);
     s->is_enabled = NULL;
 
-    av_freep(&s->weights);
+    zn_av_freep(&s->weights);
 
     av_channel_layout_uninit(&s->ch_layout);
 
     ff_bufqueue_discard_all(&s->queue);
 
-    av_frame_free(&s->window);
+    zn_av_frame_free(&s->window);
     av_expr_free(s->expr);
     s->expr = NULL;
 }
@@ -352,14 +352,14 @@ static int config_input(AVFilterLink *inlink)
     s->frame_len = frame_size(inlink->sample_rate, s->frame_len_msec);
     av_log(ctx, AV_LOG_DEBUG, "frame len %d\n", s->frame_len);
 
-    s->prev_amplification_factor = av_malloc_array(inlink->ch_layout.nb_channels, sizeof(*s->prev_amplification_factor));
-    s->dc_correction_value = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->dc_correction_value));
-    s->compress_threshold = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->compress_threshold));
-    s->gain_history_original = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->gain_history_original));
-    s->gain_history_minimum = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->gain_history_minimum));
-    s->gain_history_smoothed = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->gain_history_smoothed));
-    s->threshold_history = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->threshold_history));
-    s->weights = av_malloc_array(MAX_FILTER_SIZE, sizeof(*s->weights));
+    s->prev_amplification_factor = zn_av_malloc_array(inlink->ch_layout.nb_channels, sizeof(*s->prev_amplification_factor));
+    s->dc_correction_value = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->dc_correction_value));
+    s->compress_threshold = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->compress_threshold));
+    s->gain_history_original = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->gain_history_original));
+    s->gain_history_minimum = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->gain_history_minimum));
+    s->gain_history_smoothed = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->gain_history_smoothed));
+    s->threshold_history = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->threshold_history));
+    s->weights = zn_av_malloc_array(MAX_FILTER_SIZE, sizeof(*s->weights));
     s->is_enabled = cqueue_create(s->filter_size, MAX_FILTER_SIZE);
     if (!s->prev_amplification_factor || !s->dc_correction_value ||
         !s->compress_threshold ||
@@ -734,23 +734,23 @@ static int analyze_frame(AVFilterContext *ctx, AVFilterLink *outlink, AVFrame **
             AVFrame *out = ff_get_audio_buffer(outlink, (*frame)->nb_samples);
 
             if (!out) {
-                av_frame_free(frame);
+                zn_av_frame_free(frame);
                 return AVERROR(ENOMEM);
             }
             ret = av_frame_copy_props(out, *frame);
             if (ret < 0) {
-                av_frame_free(frame);
-                av_frame_free(&out);
+                zn_av_frame_free(frame);
+                zn_av_frame_free(&out);
                 return ret;
             }
             ret = av_frame_copy(out, *frame);
             if (ret < 0) {
-                av_frame_free(frame);
-                av_frame_free(&out);
+                zn_av_frame_free(frame);
+                zn_av_frame_free(&out);
                 return ret;
             }
 
-            av_frame_free(frame);
+            zn_av_frame_free(frame);
             *frame = out;
         }
     }
@@ -854,7 +854,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         } else {
             out = ff_get_audio_buffer(outlink, in->nb_samples);
             if (!out) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return AVERROR(ENOMEM);
             }
             av_frame_copy_props(out, in);
@@ -869,7 +869,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         s->pts = out->pts + av_rescale_q(out->nb_samples, av_make_q(1, outlink->sample_rate),
                                          outlink->time_base);
         if (out != in)
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
         ret = ff_filter_frame(outlink, out);
         if (ret < 0)
             return ret;
@@ -882,7 +882,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         ff_bufqueue_add(ctx, &s->queue, in);
         cqueue_enqueue(s->is_enabled, !ctx->is_disabled);
     } else {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
 
     return 1;
@@ -934,7 +934,7 @@ static int activate(AVFilterContext *ctx)
     int ret = 0, status;
     int64_t pts;
 
-    ret = av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
+    ret = zn_av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
     if (ret < 0)
         return ret;
     if (strcmp(s->channels_to_filter, "all"))

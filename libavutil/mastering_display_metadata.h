@@ -70,7 +70,7 @@ typedef struct AVMasteringDisplayMetadata {
 
 /**
  * Allocate an AVMasteringDisplayMetadata structure and set its fields to
- * default values. The resulting struct can be freed using av_freep().
+ * default values. The resulting struct can be freed using zn_av_freep().
  *
  * @return An AVMasteringDisplayMetadata filled with default values or NULL
  *         on failure.
@@ -109,7 +109,7 @@ typedef struct AVContentLightMetadata {
 
 /**
  * Allocate an AVContentLightMetadata structure and set its fields to
- * default values. The resulting struct can be freed using av_freep().
+ * default values. The resulting struct can be freed using zn_av_freep().
  *
  * @return An AVContentLightMetadata filled with default values or NULL
  *         on failure.

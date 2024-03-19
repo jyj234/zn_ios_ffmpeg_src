@@ -83,8 +83,8 @@ static av_cold void framepack_uninit(AVFilterContext *ctx)
     FramepackContext *s = ctx->priv;
 
     // clean any leftover frame
-    av_frame_free(&s->input_views[LEFT]);
-    av_frame_free(&s->input_views[RIGHT]);
+    zn_av_frame_free(&s->input_views[LEFT]);
+    zn_av_frame_free(&s->input_views[RIGHT]);
 }
 
 static int config_output(AVFilterLink *outlink)
@@ -352,17 +352,17 @@ static int try_push_frame(AVFilterContext *ctx)
         // get any property from the original frame
         ret = av_frame_copy_props(dst, s->input_views[LEFT]);
         if (ret < 0) {
-            av_frame_free(&dst);
+            zn_av_frame_free(&dst);
             return ret;
         }
 
         for (i = 0; i < 2; i++)
-            av_frame_free(&s->input_views[i]);
+            zn_av_frame_free(&s->input_views[i]);
 
         // set stereo3d side data
         stereo = av_stereo3d_create_side_data(dst);
         if (!stereo) {
-            av_frame_free(&dst);
+            zn_av_frame_free(&dst);
             return AVERROR(ENOMEM);
         }
         stereo->type = s->format;

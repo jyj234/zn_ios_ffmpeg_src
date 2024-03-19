@@ -292,9 +292,9 @@ static int config_input_ref(AVFilterLink *inlink)
 
 double ff_vmafmotion_uninit(VMAFMotionData *s)
 {
-    av_free(s->blur_data[0]);
-    av_free(s->blur_data[1]);
-    av_free(s->temp_data);
+    zn_av_free(s->blur_data[0]);
+    zn_av_free(s->blur_data[1]);
+    zn_av_free(s->temp_data);
 
     return s->nb_frames > 0 ? s->motion_sum / s->nb_frames : 0.0;
 }

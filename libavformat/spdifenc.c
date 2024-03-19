@@ -608,9 +608,9 @@ static int spdif_write_header(AVFormatContext *s)
 static void spdif_deinit(AVFormatContext *s)
 {
     IEC61937Context *ctx = s->priv_data;
-    av_freep(&ctx->buffer);
+    zn_av_freep(&ctx->buffer);
     for (int i = 0; i < FF_ARRAY_ELEMS(ctx->hd_buf); i++)
-        av_freep(&ctx->hd_buf[i]);
+        zn_av_freep(&ctx->hd_buf[i]);
 }
 
 static av_always_inline void spdif_put_16(IEC61937Context *ctx,

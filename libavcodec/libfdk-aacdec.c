@@ -233,8 +233,8 @@ static av_cold int fdk_aac_decode_close(AVCodecContext *avctx)
 
     if (s->handle)
         aacDecoder_Close(s->handle);
-    av_freep(&s->decoder_buffer);
-    av_freep(&s->anc_buffer);
+    zn_av_freep(&s->decoder_buffer);
+    zn_av_freep(&s->anc_buffer);
 
     return 0;
 }

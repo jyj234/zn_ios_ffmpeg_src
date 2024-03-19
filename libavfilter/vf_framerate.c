@@ -212,8 +212,8 @@ static av_cold int init(AVFilterContext *ctx)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     FrameRateContext *s = ctx->priv;
-    av_frame_free(&s->f0);
-    av_frame_free(&s->f1);
+    zn_av_frame_free(&s->f0);
+    zn_av_frame_free(&s->f1);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -322,7 +322,7 @@ retry:
 
         if (inpicref->pts == AV_NOPTS_VALUE) {
             av_log(ctx, AV_LOG_WARNING, "Ignoring frame without PTS.\n");
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
         }
     }
 
@@ -331,12 +331,12 @@ retry:
 
         if (s->f1 && pts == s->pts1) {
             av_log(ctx, AV_LOG_WARNING, "Ignoring frame with same PTS.\n");
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
         }
     }
 
     if (inpicref) {
-        av_frame_free(&s->f0);
+        zn_av_frame_free(&s->f0);
         s->f0 = s->f1;
         s->pts0 = s->pts1;
         s->f1 = inpicref;
@@ -348,7 +348,7 @@ retry:
             av_log(ctx, AV_LOG_WARNING, "PTS discontinuity.\n");
             s->start_pts = s->pts1;
             s->n = 0;
-            av_frame_free(&s->f0);
+            zn_av_frame_free(&s->f0);
         }
 
         if (s->start_pts == AV_NOPTS_VALUE)
@@ -382,7 +382,7 @@ static int config_output(AVFilterLink *outlink)
     ff_dlog(ctx,
            "config_output() input time base:%u/%u (%f)\n",
            ctx->inputs[0]->time_base.num,ctx->inputs[0]->time_base.den,
-           av_q2d(ctx->inputs[0]->time_base));
+           zn_av_q2d(ctx->inputs[0]->time_base));
 
     // make sure timebase is small enough to hold the framerate
 
@@ -405,7 +405,7 @@ static int config_output(AVFilterLink *outlink)
     ff_dlog(ctx,
            "config_output() output time base:%u/%u (%f) w:%d h:%d\n",
            outlink->time_base.num, outlink->time_base.den,
-           av_q2d(outlink->time_base),
+           zn_av_q2d(outlink->time_base),
            outlink->w, outlink->h);
 
 

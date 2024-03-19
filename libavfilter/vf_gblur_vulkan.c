@@ -191,7 +191,7 @@ static int init_gblur_pipeline(GBlurVulkanContext *s, FFVulkanPipeline *pl,
                                     VK_FORMAT_UNDEFINED));
 
 fail:
-    av_free(kernel_def);
+    zn_av_free(kernel_def);
     if (spv_opaque)
         spv->free_shader(spv, &spv_opaque);
     return err;
@@ -327,15 +327,15 @@ static int gblur_vulkan_filter_frame(AVFilterLink *link, AVFrame *in)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&in);
-    av_frame_free(&tmp);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&tmp);
 
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&in);
-    av_frame_free(&tmp);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&tmp);
+    zn_av_frame_free(&out);
     return err;
 }
 

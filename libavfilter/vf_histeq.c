@@ -135,7 +135,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
 
     outpic = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!outpic) {
-        av_frame_free(&inpic);
+        zn_av_frame_free(&inpic);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(outpic, inpic);
@@ -240,7 +240,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
         ff_dlog(ctx, "out[%d]: %u\n", x, histeq->out_histogram[x]);
 #endif
 
-    av_frame_free(&inpic);
+    zn_av_frame_free(&inpic);
     return ff_filter_frame(outlink, outpic);
 }
 

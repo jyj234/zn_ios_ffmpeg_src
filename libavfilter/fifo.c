@@ -62,11 +62,11 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     for (buf = s->root.next; buf; buf = tmp) {
         tmp = buf->next;
-        av_frame_free(&buf->frame);
-        av_free(buf);
+        zn_av_frame_free(&buf->frame);
+        zn_av_free(buf);
     }
 
-    av_frame_free(&s->out);
+    zn_av_frame_free(&s->out);
 }
 
 static int add_to_queue(AVFilterLink *inlink, AVFrame *frame)
@@ -75,7 +75,7 @@ static int add_to_queue(AVFilterLink *inlink, AVFrame *frame)
 
     s->last->next = av_mallocz(sizeof(Buf));
     if (!s->last->next) {
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         return AVERROR(ENOMEM);
     }
 
@@ -90,7 +90,7 @@ static void queue_pop(FifoContext *s)
     Buf *tmp = s->root.next->next;
     if (s->last == s->root.next)
         s->last = &s->root;
-    av_freep(&s->root.next);
+    zn_av_freep(&s->root.next);
     s->root.next = tmp;
 }
 

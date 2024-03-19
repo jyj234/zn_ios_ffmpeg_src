@@ -154,7 +154,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
         av_log(avctx, AV_LOG_ERROR, "Can't allocate decompression buffer.\n");
         return AVERROR(ENOMEM);
     }
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
     return 0;
@@ -163,8 +163,8 @@ static av_cold int decode_init(AVCodecContext *avctx)
 static av_cold int decode_end(AVCodecContext *avctx)
 {
     CamStudioContext *c = avctx->priv_data;
-    av_freep(&c->decomp_buf);
-    av_frame_free(&c->pic);
+    zn_av_freep(&c->decomp_buf);
+    zn_av_frame_free(&c->pic);
     return 0;
 }
 

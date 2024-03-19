@@ -222,8 +222,8 @@ static void free_tracked_methods(RTMPContext *rt)
     int i;
 
     for (i = 0; i < rt->nb_tracked_methods; i ++)
-        av_freep(&rt->tracked_methods[i].name);
-    av_freep(&rt->tracked_methods);
+        zn_av_freep(&rt->tracked_methods[i].name);
+    zn_av_freep(&rt->tracked_methods);
     rt->tracked_methods_size = 0;
     rt->nb_tracked_methods   = 0;
 }
@@ -1218,8 +1218,8 @@ static int rtmp_calc_swfhash(URLContext *s)
     rt->swfsize = swfsize;
 
 fail:
-    av_freep(&in_data);
-    av_freep(&out_data);
+    zn_av_freep(&in_data);
+    zn_av_freep(&out_data);
     ffurl_close(stream);
     return ret;
 }
@@ -1672,7 +1672,7 @@ static int do_adobe_auth(RTMPContext *rt, const char *user, const char *salt,
         av_strlcatf(rt->auth_params, sizeof(rt->auth_params),
                     "&opaque=%s", opaque);
 
-    av_free(md5);
+    zn_av_free(md5);
     return 0;
 }
 
@@ -1729,7 +1729,7 @@ static int do_llnw_auth(RTMPContext *rt, const char *user, const char *nonce)
              "?authmod=%s&user=%s&nonce=%s&cnonce=%s&nc=%s&response=%s",
              "llnw", user, nonce, cnonce, nc, hashstr1);
 
-    av_free(md5);
+    zn_av_free(md5);
     return 0;
 }
 
@@ -1859,7 +1859,7 @@ static int handle_invoke_error(URLContext *s, RTMPPacket *pkt)
         av_log(s, level, "Server error: %s\n", tmpstr);
     }
 
-    av_free(tracked_method);
+    zn_av_free(tracked_method);
     return ret;
 }
 
@@ -2147,7 +2147,7 @@ static int handle_invoke_result(URLContext *s, RTMPPacket *pkt)
     }
 
 fail:
-    av_free(tracked_method);
+    zn_av_free(tracked_method);
     return ret;
 }
 
@@ -2542,11 +2542,11 @@ static int rtmp_close(URLContext *h)
     for (i = 0; i < 2; i++) {
         for (j = 0; j < rt->nb_prev_pkt[i]; j++)
             ff_rtmp_packet_destroy(&rt->prev_pkt[i][j]);
-        av_freep(&rt->prev_pkt[i]);
+        zn_av_freep(&rt->prev_pkt[i]);
     }
 
     free_tracked_methods(rt);
-    av_freep(&rt->flv_data);
+    zn_av_freep(&rt->flv_data);
     ffurl_closep(&rt->stream);
     return ret;
 }
@@ -2583,7 +2583,7 @@ static int inject_fake_duration_metadata(RTMPContext *rt)
     // Increase the size by the injected packet
     rt->flv_size += 55;
     // Delete the old FLV data
-    av_freep(&old_flv_data);
+    zn_av_freep(&old_flv_data);
 
     p = rt->flv_data + 13;
     bytestream_put_byte(&p, FLV_TAG_TYPE_META);
@@ -2776,7 +2776,7 @@ reconnect:
             ret = AVERROR(EINVAL);
             goto fail;
         }
-        av_free(rt->app);
+        zn_av_free(rt->app);
         rt->app = old_app;
     }
 
@@ -2917,9 +2917,9 @@ reconnect:
     return 0;
 
 fail:
-    av_freep(&rt->playpath);
-    av_freep(&rt->tcurl);
-    av_freep(&rt->flashver);
+    zn_av_freep(&rt->playpath);
+    zn_av_freep(&rt->tcurl);
+    zn_av_freep(&rt->flashver);
     av_dict_free(opts);
     rtmp_close(s);
     return ret;

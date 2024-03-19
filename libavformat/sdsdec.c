@@ -82,7 +82,7 @@ static int sds_read_header(AVFormatContext *ctx)
     AVIOContext *pb = ctx->pb;
     AVStream *st;
 
-    st = avformat_new_stream(ctx, NULL);
+    st = zn_avformat_new_stream(ctx, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

@@ -38,7 +38,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
 
     avctx->pix_fmt = AV_PIX_FMT_MONOBLACK;
 
-    s->previous_frame = av_frame_alloc();
+    s->previous_frame = zn_av_frame_alloc();
     if (!s->previous_frame)
         return AVERROR(ENOMEM);
 
@@ -49,7 +49,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     PDVContext *s = avctx->priv_data;
 
-    av_frame_free(&s->previous_frame);
+    zn_av_frame_free(&s->previous_frame);
     ff_inflate_end(&s->zstream);
 
     return 0;

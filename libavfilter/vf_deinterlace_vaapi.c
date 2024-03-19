@@ -70,7 +70,7 @@ static void deint_vaapi_pipeline_uninit(AVFilterContext *avctx)
     int i;
 
     for (i = 0; i < ctx->queue_count; i++)
-        av_frame_free(&ctx->frame_queue[i]);
+        zn_av_frame_free(&ctx->frame_queue[i]);
     ctx->queue_count = 0;
 
     ff_vaapi_vpp_pipeline_uninit(avctx);
@@ -203,7 +203,7 @@ static int deint_vaapi_filter_frame(AVFilterLink *inlink, AVFrame *input_frame)
             return 0;
         }
     } else {
-        av_frame_free(&ctx->frame_queue[0]);
+        zn_av_frame_free(&ctx->frame_queue[0]);
         for (i = 0; i + 1 < ctx->queue_count; i++)
             ctx->frame_queue[i] = ctx->frame_queue[i + 1];
         ctx->frame_queue[i] = input_frame;
@@ -325,7 +325,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 fail:
     if (filter_params_addr)
         vaUnmapBuffer(vpp_ctx->hwctx->display, vpp_ctx->filter_buffers[0]);
-    av_frame_free(&output_frame);
+    zn_av_frame_free(&output_frame);
     return err;
 }
 

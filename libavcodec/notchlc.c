@@ -526,9 +526,9 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     NotchLCContext *s = avctx->priv_data;
 
-    av_freep(&s->uncompressed_buffer);
+    zn_av_freep(&s->uncompressed_buffer);
     s->uncompressed_size = 0;
-    av_freep(&s->lzf_buffer);
+    zn_av_freep(&s->lzf_buffer);
     s->lzf_size = 0;
 
     return 0;

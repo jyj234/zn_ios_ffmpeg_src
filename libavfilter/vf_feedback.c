@@ -143,19 +143,19 @@ static int activate(AVFilterContext *ctx)
             AVFrame *tmp = ff_get_video_buffer(ctx->outputs[0], ctx->outputs[0]->w, ctx->outputs[0]->h);
 
             if (!tmp) {
-                av_frame_free(&dst);
+                zn_av_frame_free(&dst);
                 return AVERROR(ENOMEM);
             }
 
             ret = av_frame_copy(tmp, dst);
             if (ret < 0) {
-                av_frame_free(&dst);
-                av_frame_free(&tmp);
+                zn_av_frame_free(&dst);
+                zn_av_frame_free(&tmp);
                 return ret;
             }
 
             av_frame_copy_props(tmp, dst);
-            av_frame_free(&dst);
+            zn_av_frame_free(&dst);
             dst = tmp;
         }
 
@@ -181,7 +181,7 @@ static int activate(AVFilterContext *ctx)
         }
 
         ret = ff_filter_frame(ctx->outputs[0], dst);
-        av_frame_free(&s->feed);
+        zn_av_frame_free(&s->feed);
         return ret;
     }
 
@@ -197,7 +197,7 @@ static int activate(AVFilterContext *ctx)
 
             ret = av_fifo_write(s->fifo, &in, 1);
             if (ret < 0) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return ret;
             }
 
@@ -272,7 +272,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 
             av_fifo_read(s->fifo, &frame, 1);
 
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
         }
 
         av_fifo_freep2(&s->fifo);

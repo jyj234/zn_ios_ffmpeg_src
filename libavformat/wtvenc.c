@@ -232,7 +232,7 @@ static void put_videoinfoheader2(AVIOContext *pb, AVStream *st)
 
     avio_wl32(pb, st->codecpar->bit_rate);
     avio_wl32(pb, 0);
-    avio_wl64(pb, st->avg_frame_rate.num && st->avg_frame_rate.den ? INT64_C(10000000) / av_q2d(st->avg_frame_rate) : 0);
+    avio_wl64(pb, st->avg_frame_rate.num && st->avg_frame_rate.den ? INT64_C(10000000) / zn_av_q2d(st->avg_frame_rate) : 0);
     avio_wl32(pb, 0);
     avio_wl32(pb, 0);
 
@@ -823,9 +823,9 @@ static int write_trailer(AVFormatContext *s)
     avio_seek(pb, 0x5c, SEEK_SET);
     avio_wl32(pb, file_end_pos >> WTV_SECTOR_BITS);
 
-    av_free(wctx->sp_pairs);
-    av_free(wctx->st_pairs);
-    av_packet_unref(&wctx->thumbnail);
+    zn_av_free(wctx->sp_pairs);
+    zn_av_free(wctx->st_pairs);
+    zn_av_packet_unref(&wctx->thumbnail);
     return 0;
 }
 

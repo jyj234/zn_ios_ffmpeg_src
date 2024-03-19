@@ -580,7 +580,7 @@ int ff_http_match_no_proxy(const char *no_proxy, const char *hostname)
         }
         start = next;
     }
-    av_free(buf);
+    zn_av_free(buf);
     return ret;
 }
 

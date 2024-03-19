@@ -250,9 +250,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     GrayWorldContext *s = ctx->priv;
 
-    av_freep(&s->tmpplab);
-    av_freep(&s->line_count_pels);
-    av_freep(&s->line_sum);
+    zn_av_freep(&s->tmpplab);
+    zn_av_freep(&s->line_count_pels);
+    zn_av_freep(&s->line_sum);
 }
 
 static int filter_frame(AVFilterLink *inlink, AVFrame *in)
@@ -268,7 +268,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -291,7 +291,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (in != out) {
         av_image_copy_plane(out->data[3], out->linesize[3],
             in->data[3], in->linesize[3], outlink->w * 4, outlink->h);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
 
     return ff_filter_frame(outlink, out);

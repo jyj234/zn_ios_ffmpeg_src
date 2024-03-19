@@ -53,7 +53,7 @@ typedef struct AShowInfoContext {
 static av_cold void uninit(AVFilterContext *ctx)
 {
     AShowInfoContext *s = ctx->priv;
-    av_freep(&s->plane_checksums);
+    zn_av_freep(&s->plane_checksums);
 }
 
 static void dump_matrixenc(AVFilterContext *ctx, AVFrameSideData *sd)

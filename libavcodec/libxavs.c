@@ -212,8 +212,8 @@ static av_cold int XAVS_close(AVCodecContext *avctx)
 {
     XavsContext *x4 = avctx->priv_data;
 
-    av_freep(&x4->sei);
-    av_freep(&x4->pts_buffer);
+    zn_av_freep(&x4->sei);
+    zn_av_freep(&x4->pts_buffer);
 
     if (x4->enc)
         xavs_encoder_close(x4->enc);

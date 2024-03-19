@@ -318,7 +318,7 @@ static int ist_dts_update(DemuxStream *ds, AVPacket *pkt)
 
     if (!ds->saw_first_ts) {
         ds->first_dts =
-        ds->dts = ist->st->avg_frame_rate.num ? - ist->par->video_delay * AV_TIME_BASE / av_q2d(ist->st->avg_frame_rate) : 0;
+        ds->dts = ist->st->avg_frame_rate.num ? - ist->par->video_delay * AV_TIME_BASE / zn_av_q2d(ist->st->avg_frame_rate) : 0;
         if (pkt->pts != AV_NOPTS_VALUE) {
             ds->first_dts =
             ds->dts += av_rescale_q(pkt->pts, pkt->time_base, AV_TIME_BASE_Q);
@@ -466,9 +466,9 @@ static int input_packet_process(Demuxer *d, DemuxMsg *msg, AVPacket *src)
     AVPacket *pkt;
     int ret = 0;
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
-        av_packet_unref(src);
+        zn_av_packet_unref(src);
         return AVERROR(ENOMEM);
     }
     av_packet_move_ref(pkt, src);
@@ -495,7 +495,7 @@ static int input_packet_process(Demuxer *d, DemuxMsg *msg, AVPacket *src)
     pkt      = NULL;
 
 fail:
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
 
     return ret;
 }
@@ -550,7 +550,7 @@ static void *input_thread(void *arg)
     unsigned flags = d->non_blocking ? AV_THREAD_MESSAGE_NONBLOCK : 0;
     int ret = 0;
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         ret = AVERROR(ENOMEM);
         goto finish;
@@ -565,7 +565,7 @@ static void *input_thread(void *arg)
     while (1) {
         DemuxMsg msg = { NULL };
 
-        ret = av_read_frame(f->ctx, pkt);
+        ret = zn_av_read_frame(f->ctx, pkt);
 
         if (ret == AVERROR(EAGAIN)) {
             av_usleep(10000);
@@ -588,7 +588,7 @@ static void *input_thread(void *arg)
                 av_log(d, AV_LOG_VERBOSE, "EOF while reading input\n");
             else
                 av_log(d, AV_LOG_ERROR, "Error during demuxing: %s\n",
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
 
             break;
         }
@@ -603,7 +603,7 @@ static void *input_thread(void *arg)
         if (pkt->stream_index >= f->nb_streams ||
             f->streams[pkt->stream_index]->discard) {
             report_new_stream(d, pkt);
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             continue;
         }
 
@@ -612,7 +612,7 @@ static void *input_thread(void *arg)
                    "corrupt input packet in stream %d\n",
                    pkt->stream_index);
             if (exit_on_error) {
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
                 ret = AVERROR_INVALIDDATA;
                 break;
             }
@@ -638,8 +638,8 @@ static void *input_thread(void *arg)
             if (ret != AVERROR_EOF)
                 av_log(f, AV_LOG_ERROR,
                        "Unable to send packet to main thread: %s\n",
-                       av_err2str(ret));
-            av_packet_free(&msg.pkt);
+                       zn_av_err2str(ret));
+            zn_av_packet_free(&msg.pkt);
             break;
         }
     }
@@ -648,7 +648,7 @@ finish:
     av_assert0(ret < 0);
     av_thread_message_queue_set_err_recv(d->in_thread_queue, ret);
 
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
 
     av_log(d, AV_LOG_VERBOSE, "Terminating demuxer thread\n");
 
@@ -664,7 +664,7 @@ static void thread_stop(Demuxer *d)
         return;
     av_thread_message_queue_set_err_send(d->in_thread_queue, AVERROR_EOF);
     while (av_thread_message_queue_recv(d->in_thread_queue, &msg, 0) >= 0)
-        av_packet_free(&msg.pkt);
+        zn_av_packet_free(&msg.pkt);
 
     pthread_join(d->thread, NULL);
     av_thread_message_queue_free(&d->in_thread_queue);
@@ -794,14 +794,14 @@ static void ist_free(InputStream **pist)
     dec_free(&ist->decoder);
 
     av_dict_free(&ist->decoder_opts);
-    av_freep(&ist->filters);
-    av_freep(&ist->outputs);
-    av_freep(&ist->hwaccel_device);
+    zn_av_freep(&ist->filters);
+    zn_av_freep(&ist->outputs);
+    zn_av_freep(&ist->hwaccel_device);
 
     avcodec_free_context(&ist->dec_ctx);
     avcodec_parameters_free(&ist->par);
 
-    av_freep(pist);
+    zn_av_freep(pist);
 }
 
 void ifile_close(InputFile **pf)
@@ -819,11 +819,11 @@ void ifile_close(InputFile **pf)
 
     for (int i = 0; i < f->nb_streams; i++)
         ist_free(&f->streams[i]);
-    av_freep(&f->streams);
+    zn_av_freep(&f->streams);
 
-    avformat_close_input(&f->ctx);
+    zn_avformat_close_input(&f->ctx);
 
-    av_freep(pf);
+    zn_av_freep(pf);
 }
 
 static int ist_use(InputStream *ist, int decoding_needed)
@@ -930,7 +930,7 @@ static int choose_decoder(const OptionsContext *o, AVFormatContext *s, AVStream 
             }
         }
 
-        *pcodec = avcodec_find_decoder(st->codecpar->codec_id);
+        *pcodec = zn_avcodec_find_decoder(st->codecpar->codec_id);
         return 0;
     }
 }
@@ -944,7 +944,7 @@ static int guess_input_channel_layout(InputStream *ist, int guess_layout_max)
 
         if (dec->ch_layout.nb_channels > guess_layout_max)
             return 0;
-        av_channel_layout_default(&dec->ch_layout, dec->ch_layout.nb_channels);
+        zn_av_channel_layout_default(&dec->ch_layout, dec->ch_layout.nb_channels);
         if (dec->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
             return 0;
         av_channel_layout_describe(&dec->ch_layout, layout_name, sizeof(layout_name));
@@ -1173,7 +1173,7 @@ static int ist_add(const OptionsContext *o, Demuxer *d, AVStream *st)
         (o->data_disable && ist->st->codecpar->codec_type == AVMEDIA_TYPE_DATA))
             ist->user_set_discard = AVDISCARD_ALL;
 
-    ist->dec_ctx = avcodec_alloc_context3(ist->dec);
+    ist->dec_ctx = zn_avcodec_alloc_context3(ist->dec);
     if (!ist->dec_ctx)
         return AVERROR(ENOMEM);
 
@@ -1187,7 +1187,7 @@ static int ist_add(const OptionsContext *o, Demuxer *d, AVStream *st)
         }
     }
 
-    ret = avcodec_parameters_to_context(ist->dec_ctx, par);
+    ret = zn_avcodec_parameters_to_context(ist->dec_ctx, par);
     if (ret < 0) {
         av_log(ist, AV_LOG_ERROR, "Error initializing the decoder context.\n");
         return ret;
@@ -1404,7 +1404,7 @@ int ifile_open(const OptionsContext *o, const char *filename)
                          strcmp(filename, "/dev/stdin");
 
     /* get default parameters from command line */
-    ic = avformat_alloc_context();
+    ic = zn_avformat_alloc_context();
     if (!ic)
         return AVERROR(ENOMEM);
     if (o->nb_audio_sample_rate) {
@@ -1463,7 +1463,7 @@ int ifile_open(const OptionsContext *o, const char *filename)
         ret = err_merge(ret, find_codec(NULL, data_codec_name    , AVMEDIA_TYPE_DATA,     0,
                                         &ic->data_codec));
     if (ret < 0) {
-        avformat_free_context(ic);
+        zn_avformat_free_context(ic);
         return ret;
     }
 
@@ -1482,10 +1482,10 @@ int ifile_open(const OptionsContext *o, const char *filename)
         scan_all_pmts_set = 1;
     }
     /* open the input file with generic avformat function */
-    err = avformat_open_input(&ic, filename, file_iformat, &o->g->format_opts);
+    err = zn_avformat_open_input(&ic, filename, file_iformat, &o->g->format_opts);
     if (err < 0) {
         av_log(d, AV_LOG_ERROR,
-               "Error opening input: %s\n", av_err2str(err));
+               "Error opening input: %s\n", zn_av_err2str(err));
         if (err == AVERROR_PROTOCOL_NOT_FOUND)
             av_log(d, AV_LOG_ERROR, "Did you mean file:%s?\n", filename);
         return err;
@@ -1522,11 +1522,11 @@ int ifile_open(const OptionsContext *o, const char *filename)
 
         /* If not enough info to get the stream parameters, we decode the
            first frames to get it. (used in mpeg case for example) */
-        ret = avformat_find_stream_info(ic, opts);
+        ret = zn_avformat_find_stream_info(ic, opts);
 
         for (i = 0; i < orig_nb_streams; i++)
             av_dict_free(&opts[i]);
-        av_freep(&opts);
+        zn_av_freep(&opts);
 
         if (ret < 0) {
             av_log(d, AV_LOG_FATAL, "could not find codec parameters\n");
@@ -1631,7 +1631,7 @@ int ifile_open(const OptionsContext *o, const char *filename)
     }
 
     /* dump the file content */
-    av_dump_format(ic, f->index, filename, 0);
+    zn_av_dump_format(ic, f->index, filename, 0);
 
     /* check if all codec options have been used */
     unused_opts = strip_specifiers(o->g->codec_opts);

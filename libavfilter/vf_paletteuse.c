@@ -491,7 +491,7 @@ static int disp_tree(const struct color_node *node, const char *fname)
     if (!f) {
         int ret = AVERROR(errno);
         av_log(NULL, AV_LOG_ERROR, "Cannot open file '%s' for writing: %s\n",
-               fname, av_err2str(ret));
+               fname, zn_av_err2str(ret));
         return ret;
     }
 
@@ -785,7 +785,7 @@ static int apply_palette(AVFilterLink *inlink, AVFrame *in, AVFrame **outf)
     if ((ret = av_frame_replace(s->last_in, in))   < 0 ||
         (ret = av_frame_ref(s->last_out, out))     < 0 ||
         (ret = ff_inlink_make_frame_writable(inlink, &s->last_in)) < 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         *outf = NULL;
         return ret;
     }
@@ -795,7 +795,7 @@ static int apply_palette(AVFilterLink *inlink, AVFrame *in, AVFrame **outf)
 
     ret = s->set_frame(s, out, in, x, y, w, h);
     if (ret < 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         *outf = NULL;
         return ret;
     }
@@ -853,7 +853,7 @@ static void load_palette(PaletteUseContext *s, const AVFrame *palette_frame)
         memset(s->palette, 0, sizeof(s->palette));
         memset(s->map, 0, sizeof(s->map));
         for (i = 0; i < CACHE_SIZE; i++)
-            av_freep(&s->cache[i].entries);
+            zn_av_freep(&s->cache[i].entries);
         memset(s->cache, 0, sizeof(s->cache));
     }
 
@@ -888,14 +888,14 @@ static int load_apply_palette(FFFrameSync *fs)
     if (ret < 0)
         return ret;
     if (!master || !second) {
-        av_frame_free(&master);
+        zn_av_frame_free(&master);
         return AVERROR_BUG;
     }
     if (!s->palette_loaded) {
         load_palette(s, second);
     }
     ret = apply_palette(inlink, master, &out);
-    av_frame_free(&master);
+    zn_av_frame_free(&master);
     if (ret < 0)
         return ret;
     return ff_filter_frame(ctx->outputs[0], out);
@@ -942,8 +942,8 @@ static av_cold int init(AVFilterContext *ctx)
 {
     PaletteUseContext *s = ctx->priv;
 
-    s->last_in  = av_frame_alloc();
-    s->last_out = av_frame_alloc();
+    s->last_in  = zn_av_frame_alloc();
+    s->last_out = zn_av_frame_alloc();
     if (!s->last_in || !s->last_out)
         return AVERROR(ENOMEM);
 
@@ -971,9 +971,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     ff_framesync_uninit(&s->fs);
     for (int i = 0; i < CACHE_SIZE; i++)
-        av_freep(&s->cache[i].entries);
-    av_frame_free(&s->last_in);
-    av_frame_free(&s->last_out);
+        zn_av_freep(&s->cache[i].entries);
+    zn_av_frame_free(&s->last_in);
+    zn_av_frame_free(&s->last_out);
 }
 
 static const AVFilterPad paletteuse_inputs[] = {

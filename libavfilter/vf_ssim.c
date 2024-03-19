@@ -470,12 +470,12 @@ static int config_input_ref(AVFilterLink *inlink)
     for (i = 0; i < s->nb_components; i++)
         s->coefs[i] = (double) s->planeheight[i] * s->planewidth[i] / sum;
 
-    s->temp = av_calloc(s->nb_threads, sizeof(*s->temp));
+    s->temp = zn_av_calloc(s->nb_threads, sizeof(*s->temp));
     if (!s->temp)
         return AVERROR(ENOMEM);
 
     for (int t = 0; t < s->nb_threads; t++) {
-        s->temp[t] = av_calloc(2 * SUM_LEN(inlink->w), (desc->comp[0].depth > 8) ? sizeof(int64_t[4]) : sizeof(int[4]));
+        s->temp[t] = zn_av_calloc(2 * SUM_LEN(inlink->w), (desc->comp[0].depth > 8) ? sizeof(int64_t[4]) : sizeof(int[4]));
         if (!s->temp[t])
             return AVERROR(ENOMEM);
     }
@@ -488,12 +488,12 @@ static int config_input_ref(AVFilterLink *inlink)
     ff_ssim_init_x86(&s->dsp);
 #endif
 
-    s->score = av_calloc(s->nb_threads, sizeof(*s->score));
+    s->score = zn_av_calloc(s->nb_threads, sizeof(*s->score));
     if (!s->score)
         return AVERROR(ENOMEM);
 
     for (int t = 0; t < s->nb_threads; t++) {
-        s->score[t] = av_calloc(s->nb_components, sizeof(*s->score[0]));
+        s->score[t] = zn_av_calloc(s->nb_components, sizeof(*s->score[0]));
         if (!s->score[t])
             return AVERROR(ENOMEM);
     }
@@ -560,12 +560,12 @@ static av_cold void uninit(AVFilterContext *ctx)
         fclose(s->stats_file);
 
     for (int t = 0; t < s->nb_threads && s->score; t++)
-        av_freep(&s->score[t]);
-    av_freep(&s->score);
+        zn_av_freep(&s->score[t]);
+    zn_av_freep(&s->score);
 
     for (int t = 0; t < s->nb_threads && s->temp; t++)
-        av_freep(&s->temp[t]);
-    av_freep(&s->temp);
+        zn_av_freep(&s->temp[t]);
+    zn_av_freep(&s->temp);
 }
 
 static const AVFilterPad ssim_inputs[] = {

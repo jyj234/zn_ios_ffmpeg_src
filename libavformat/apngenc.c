@@ -127,7 +127,7 @@ static int flush_packet(AVFormatContext *format_context, AVPacket *packet)
     side_data = av_packet_get_side_data(apng->prev_packet, AV_PKT_DATA_NEW_EXTRADATA, &side_data_size);
 
     if (side_data_size) {
-        av_freep(&apng->extra_data);
+        zn_av_freep(&apng->extra_data);
         apng->extra_data = av_mallocz(side_data_size + AV_INPUT_BUFFER_PADDING_SIZE);
         if (!apng->extra_data)
             return AVERROR(ENOMEM);
@@ -229,7 +229,7 @@ static int flush_packet(AVFormatContext *format_context, AVPacket *packet)
     }
     ++apng->frame_number;
 
-    av_packet_unref(apng->prev_packet);
+    zn_av_packet_unref(apng->prev_packet);
     if (packet)
         av_packet_ref(apng->prev_packet, packet);
     return 0;
@@ -241,7 +241,7 @@ static int apng_write_packet(AVFormatContext *format_context, AVPacket *packet)
     int ret;
 
     if (!apng->prev_packet) {
-        apng->prev_packet = av_packet_alloc();
+        apng->prev_packet = zn_av_packet_alloc();
         if (!apng->prev_packet)
             return AVERROR(ENOMEM);
 
@@ -285,8 +285,8 @@ static void apng_deinit(AVFormatContext *s)
 {
     APNGMuxContext *apng = s->priv_data;
 
-    av_packet_free(&apng->prev_packet);
-    av_freep(&apng->extra_data);
+    zn_av_packet_free(&apng->prev_packet);
+    zn_av_freep(&apng->extra_data);
     apng->extra_data_size = 0;
 }
 

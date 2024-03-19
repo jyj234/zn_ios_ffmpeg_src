@@ -236,7 +236,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     AVFrame *out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -246,7 +246,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, s->epx_slice, &td, NULL,
                       FFMIN(inlink->h, ff_filter_get_nb_threads(ctx)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

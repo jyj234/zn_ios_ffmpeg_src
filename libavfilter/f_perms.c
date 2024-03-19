@@ -109,7 +109,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     ret = ff_filter_frame(ctx->outputs[0], out);
 
     if (in_perm == RW && out_perm == RO)
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
     return ret;
 }
 

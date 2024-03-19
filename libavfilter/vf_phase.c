@@ -159,7 +159,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     AVFrame *out;
 
     if (ctx->is_disabled) {
-        av_frame_free(&s->frame);
+        zn_av_frame_free(&s->frame);
         /* we keep a reference to the previous frame so the filter can start
          * being useful as soon as it's not disabled, avoiding the 1-frame
          * delay. */
@@ -169,7 +169,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -196,7 +196,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (in != s->frame)
-        av_frame_free(&s->frame);
+        zn_av_frame_free(&s->frame);
     s->frame = in;
     return ff_filter_frame(outlink, out);
 }
@@ -205,7 +205,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     PhaseContext *s = ctx->priv;
 
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 }
 
 static const AVFilterPad phase_inputs[] = {

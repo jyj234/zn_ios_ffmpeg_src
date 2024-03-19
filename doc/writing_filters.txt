@@ -235,14 +235,14 @@ properties as the input one, and send that new frame to the next filter:
 
     AVFrame *out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
 
     // out->data[...] = foobar(in->data[...])
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 
 In-place processing
@@ -279,7 +279,7 @@ scheme:
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -288,7 +288,7 @@ scheme:
     // out->data[...] = foobar(in->data[...])
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 
 Of course, this will only work if you can do in-place processing. To test if

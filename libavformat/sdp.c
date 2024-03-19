@@ -184,7 +184,7 @@ static int extradata2psets(AVFormatContext *s, const AVCodecParameters *par,
     psets = av_mallocz(MAX_PSET_SIZE);
     if (!psets) {
         av_log(s, AV_LOG_ERROR, "Cannot allocate memory for the parameter sets.\n");
-        av_free(tmpbuf);
+        zn_av_free(tmpbuf);
         return AVERROR(ENOMEM);
     }
     memcpy(psets, pset_string, strlen(pset_string));
@@ -212,8 +212,8 @@ static int extradata2psets(AVFormatContext *s, const AVCodecParameters *par,
         if (!av_base64_encode(p, MAX_PSET_SIZE - (p - psets), r, r1 - r)) {
             av_log(s, AV_LOG_ERROR, "Cannot Base64-encode %"PTRDIFF_SPECIFIER" %"PTRDIFF_SPECIFIER"!\n",
                    MAX_PSET_SIZE - (p - psets), r1 - r);
-            av_free(psets);
-            av_free(tmpbuf);
+            zn_av_free(psets);
+            zn_av_free(tmpbuf);
 
             return AVERROR_INVALIDDATA;
         }
@@ -225,7 +225,7 @@ static int extradata2psets(AVFormatContext *s, const AVCodecParameters *par,
         p += strlen(p);
         ff_data_to_hex(p, sps + 1, 3, 0);
     }
-    av_free(tmpbuf);
+    zn_av_free(tmpbuf);
 
     *out = psets;
     return 0;
@@ -326,20 +326,20 @@ static int extradata2psets_hevc(const AVCodecParameters *par, char **out)
             strpos = strlen(psets);
             if (!av_base64_encode(psets + strpos, MAX_PSET_SIZE - strpos,
                                   &extradata[pos], len)) {
-                av_free(psets);
+                zn_av_free(psets);
                 goto err;
             }
             pos += len;
         }
     }
-    av_free(tmpbuf);
+    zn_av_free(tmpbuf);
 
     *out = psets;
     return 0;
 err:
     if (ret >= 0)
         ret = AVERROR_INVALIDDATA;
-    av_free(tmpbuf);
+    zn_av_free(tmpbuf);
     return ret;
 }
 
@@ -411,7 +411,7 @@ static int xiph_extradata2config(AVFormatContext *s, const AVCodecParameters *pa
 
     encoded_config = av_malloc(AV_BASE64_SIZE(config_len));
     if (!encoded_config) {
-        av_free(config);
+        zn_av_free(config);
         goto xiph_fail;
     }
 
@@ -430,7 +430,7 @@ static int xiph_extradata2config(AVFormatContext *s, const AVCodecParameters *pa
 
     av_base64_encode(encoded_config, AV_BASE64_SIZE(config_len),
                      config, config_len);
-    av_free(config);
+    zn_av_free(config);
 
     *out = encoded_config;
     return 0;
@@ -804,7 +804,7 @@ static int sdp_write_media_attributes(char *buff, int size, const AVStream *st,
         break;
     }
 
-    av_free(config);
+    zn_av_free(config);
 
     return 0;
 }
@@ -899,8 +899,8 @@ int av_sdp_create(AVFormatContext *ac[], int n_files, char *buf, int size)
                     av_strlcatf(buf, size,
                                 "a=crypto:1 %s inline:%s\r\n",
                                 crypto_suite, crypto_params);
-                av_free(crypto_suite);
-                av_free(crypto_params);
+                zn_av_free(crypto_suite);
+                zn_av_free(crypto_params);
             }
         }
     }

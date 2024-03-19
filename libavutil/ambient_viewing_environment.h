@@ -28,7 +28,7 @@
 /**
  * Ambient viewing environment metadata as defined by H.274. The values are
  * saved in AVRationals so that they keep their exactness, while allowing for
- * easy access to a double value with f.ex. av_q2d.
+ * easy access to a double value with f.ex. zn_av_q2d.
  *
  * @note sizeof(AVAmbientViewingEnvironment) is not part of the public ABI, and
  *       it must be allocated using av_ambient_viewing_environment_alloc.

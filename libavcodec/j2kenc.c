@@ -461,18 +461,18 @@ static int init_tiles(Jpeg2000EncoderContext *s)
     s->numXtiles = ff_jpeg2000_ceildiv(s->width, s->tile_width);
     s->numYtiles = ff_jpeg2000_ceildiv(s->height, s->tile_height);
 
-    s->tile = av_calloc(s->numXtiles, s->numYtiles * sizeof(Jpeg2000Tile));
+    s->tile = zn_av_calloc(s->numXtiles, s->numYtiles * sizeof(Jpeg2000Tile));
     if (!s->tile)
         return AVERROR(ENOMEM);
     for (tileno = 0, tiley = 0; tiley < s->numYtiles; tiley++)
         for (tilex = 0; tilex < s->numXtiles; tilex++, tileno++){
             Jpeg2000Tile *tile = s->tile + tileno;
 
-            tile->comp = av_calloc(s->ncomponents, sizeof(*tile->comp));
+            tile->comp = zn_av_calloc(s->ncomponents, sizeof(*tile->comp));
             if (!tile->comp)
                 return AVERROR(ENOMEM);
 
-            tile->layer_rates = av_calloc(s->nlayers, sizeof(*tile->layer_rates));
+            tile->layer_rates = zn_av_calloc(s->nlayers, sizeof(*tile->layer_rates));
             if (!tile->layer_rates)
                 return AVERROR(ENOMEM);
 
@@ -1463,7 +1463,7 @@ static int encode_tile(Jpeg2000EncoderContext *s, Jpeg2000Tile *tile, int tileno
                         if (!prec->cblk[cblkno].data)
                             prec->cblk[cblkno].data = av_malloc(1 + 8192);
                         if (!prec->cblk[cblkno].passes)
-                            prec->cblk[cblkno].passes = av_malloc_array(JPEG2000_MAX_PASSES, sizeof (*prec->cblk[cblkno].passes));
+                            prec->cblk[cblkno].passes = zn_av_malloc_array(JPEG2000_MAX_PASSES, sizeof (*prec->cblk[cblkno].passes));
                         if (!prec->cblk[cblkno].data || !prec->cblk[cblkno].passes)
                             return AVERROR(ENOMEM);
                         encode_cblk(s, &t1, prec->cblk + cblkno, tile, xx1 - xx0, yy1 - yy0,
@@ -1504,11 +1504,11 @@ static void cleanup(Jpeg2000EncoderContext *s)
                 Jpeg2000Component *comp = s->tile[tileno].comp + compno;
                 ff_jpeg2000_cleanup(comp, codsty);
             }
-            av_freep(&s->tile[tileno].comp);
+            zn_av_freep(&s->tile[tileno].comp);
         }
-        av_freep(&s->tile[tileno].layer_rates);
+        zn_av_freep(&s->tile[tileno].layer_rates);
     }
-    av_freep(&s->tile);
+    zn_av_freep(&s->tile);
 }
 
 static void reinit(Jpeg2000EncoderContext *s)

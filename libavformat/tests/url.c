@@ -30,7 +30,7 @@ static void test_decompose(const char *url)
     printf("%s =>\n", url);
     ret = ff_url_decompose(&uc, url, NULL);
     if (ret < 0) {
-        printf("  error: %s\n", av_err2str(ret));
+        printf("  error: %s\n", zn_av_err2str(ret));
         return;
     }
 #define PRINT_COMPONENT(comp) \
@@ -54,16 +54,16 @@ static void test(const char *base, const char *rel)
 
     ret = ff_make_absolute_url2(buf, sizeof(buf), base, rel, 0);
     if (ret < 0) {
-        printf("%50s %-20s => error %s\n", base, rel, av_err2str(ret));
+        printf("%50s %-20s => error %s\n", base, rel, zn_av_err2str(ret));
         return;
     }
     printf("%50s %-20s => %s\n", base, rel, buf);
     ret = ff_make_absolute_url2(buf_dos, sizeof(buf_dos), base, rel, 1);
     if (ret < 0)
-        snprintf(buf_dos, sizeof(buf_dos), "error %s", av_err2str(ret));
+        snprintf(buf_dos, sizeof(buf_dos), "error %s", zn_av_err2str(ret));
     ret = ff_make_absolute_url(buf_native, sizeof(buf_native), base, rel);
     if (ret < 0)
-        snprintf(buf_native, sizeof(buf_native), "error %s", av_err2str(ret));
+        snprintf(buf_native, sizeof(buf_native), "error %s", zn_av_err2str(ret));
     if (strcmp(buf, buf_dos))
         printf("%50s %-20sDOS %s\n", base, rel, buf_dos);
     if (HAVE_DOS_PATHS && strcmp(buf_dos, buf_native) ||

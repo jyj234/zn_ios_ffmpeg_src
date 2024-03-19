@@ -96,7 +96,7 @@ static float *make_lpf(int num_taps, float Fc, float beta, float rho,
                        float scale, int dc_norm)
 {
     int i, m = num_taps - 1;
-    float *h = av_calloc(num_taps, sizeof(*h)), sum = 0;
+    float *h = zn_av_calloc(num_taps, sizeof(*h)), sum = 0;
     float mult = scale / av_bessel_i0(beta), mult1 = 1.f / (.5f * m + rho);
 
     if (!h)
@@ -209,7 +209,7 @@ static int fir_to_phase(SincContext *s, float **h, int *len, int *post_len, floa
     for (i = *len, work_len = 2 * 2 * 8; i > 1; work_len <<= 1, i >>= 1);
 
     /* The first part is for work (+2 for (UN)PACK), the latter for pi_wraps. */
-    work = av_calloc((work_len + 2) + (work_len / 2 + 1), sizeof(float));
+    work = zn_av_calloc((work_len + 2) + (work_len / 2 + 1), sizeof(float));
     if (!work)
         return AVERROR(ENOMEM);
     pi_wraps = &work[work_len + 2];
@@ -301,7 +301,7 @@ static int fir_to_phase(SincContext *s, float **h, int *len, int *post_len, floa
         *len = end - begin;
         *h = av_realloc_f(*h, *len, sizeof(**h));
         if (!*h) {
-            av_free(work);
+            zn_av_free(work);
             return AVERROR(ENOMEM);
         }
     }
@@ -316,7 +316,7 @@ static int fir_to_phase(SincContext *s, float **h, int *len, int *post_len, floa
            work[imp_peak], *len, *post_len, 100.f - 100.f * *post_len / (*len - 1));
 
 fail:
-    av_free(work);
+    zn_av_free(work);
 
     return ret;
 }
@@ -354,7 +354,7 @@ static int config_output(AVFilterLink *outlink)
         if (s->Fc0 < s->Fc1)
             invert(h[longer], n);
 
-        av_free(h[!longer]);
+        zn_av_free(h[!longer]);
     }
 
     if (s->phase != 50.f) {
@@ -367,13 +367,13 @@ static int config_output(AVFilterLink *outlink)
 
     s->n = 1 << (av_log2(n) + 1);
     s->rdft_len = 1 << av_log2(n);
-    s->coeffs = av_calloc(s->n, sizeof(*s->coeffs));
+    s->coeffs = zn_av_calloc(s->n, sizeof(*s->coeffs));
     if (!s->coeffs)
         return AVERROR(ENOMEM);
 
     for (i = 0; i < n; i++)
         s->coeffs[i] = h[longer][i];
-    av_free(h[longer]);
+    zn_av_free(h[longer]);
 
     av_tx_uninit(&s->tx);
     av_tx_uninit(&s->itx);
@@ -385,7 +385,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     SincContext *s = ctx->priv;
 
-    av_freep(&s->coeffs);
+    zn_av_freep(&s->coeffs);
     av_tx_uninit(&s->tx);
     av_tx_uninit(&s->itx);
 }

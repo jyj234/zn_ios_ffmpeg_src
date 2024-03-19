@@ -85,12 +85,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
     disp_palette(out, in, s->size);
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

@@ -190,8 +190,8 @@ static int activate(AVFilterContext *ctx)
 
         out = ff_get_audio_buffer(ctx->outputs[0], s->frame[0]->nb_samples);
         if (!out) {
-            av_frame_free(&s->frame[0]);
-            av_frame_free(&s->frame[1]);
+            zn_av_frame_free(&s->frame[0]);
+            zn_av_frame_free(&s->frame[1]);
             return AVERROR(ENOMEM);
         }
 
@@ -200,8 +200,8 @@ static int activate(AVFilterContext *ctx)
 
         out->pts = s->frame[0]->pts;
 
-        av_frame_free(&s->frame[0]);
-        av_frame_free(&s->frame[1]);
+        zn_av_frame_free(&s->frame[0]);
+        zn_av_frame_free(&s->frame[1]);
 
         ret = ff_filter_frame(ctx->outputs[0], out);
         if (ret < 0)
@@ -265,11 +265,11 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioNLMSContext *s = ctx->priv;
 
-    av_freep(&s->fdsp);
-    av_frame_free(&s->delay);
-    av_frame_free(&s->coeffs);
-    av_frame_free(&s->offset);
-    av_frame_free(&s->tmp);
+    zn_av_freep(&s->fdsp);
+    zn_av_frame_free(&s->delay);
+    zn_av_frame_free(&s->coeffs);
+    zn_av_frame_free(&s->offset);
+    zn_av_frame_free(&s->tmp);
 }
 
 static const AVFilterPad inputs[] = {

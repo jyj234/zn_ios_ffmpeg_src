@@ -553,26 +553,26 @@ static int seek_frame_generic(AVFormatContext *s, int stream_index,
                 return ret;
             s->io_repositioned = 1;
         }
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         for (;;) {
             int read_status;
             do {
-                read_status = av_read_frame(s, pkt);
+                read_status = zn_av_read_frame(s, pkt);
             } while (read_status == AVERROR(EAGAIN));
             if (read_status < 0)
                 break;
             if (stream_index == pkt->stream_index && pkt->dts > timestamp) {
                 if (pkt->flags & AV_PKT_FLAG_KEY) {
-                    av_packet_unref(pkt);
+                    zn_av_packet_unref(pkt);
                     break;
                 }
                 if (nonkey++ > 1000 && st->codecpar->codec_id != AV_CODEC_ID_CDGRAPHICS) {
                     av_log(s, AV_LOG_ERROR,"seek_frame_generic failed as this stream seems to contain no keyframes after the target timestamp, %d non keyframes found\n", nonkey);
-                    av_packet_unref(pkt);
+                    zn_av_packet_unref(pkt);
                     break;
                 }
             }
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
         }
         index = av_index_search_timestamp(st, timestamp, flags);
     }

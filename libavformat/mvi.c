@@ -47,11 +47,11 @@ static int read_header(AVFormatContext *s)
     int ret;
     int audio_data_size;
 
-    ast = avformat_new_stream(s, NULL);
+    ast = zn_avformat_new_stream(s, NULL);
     if (!ast)
         return AVERROR(ENOMEM);
 
-    vst = avformat_new_stream(s, NULL);
+    vst = zn_avformat_new_stream(s, NULL);
     if (!vst)
         return AVERROR(ENOMEM);
 

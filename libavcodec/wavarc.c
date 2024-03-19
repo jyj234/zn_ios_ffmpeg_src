@@ -78,7 +78,7 @@ static av_cold int wavarc_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
 
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, AV_RL16(avctx->extradata + 38));
+    zn_av_channel_layout_default(&avctx->ch_layout, AV_RL16(avctx->extradata + 38));
     avctx->sample_rate = AV_RL32(avctx->extradata + 40);
 
     s->align = avctx->ch_layout.nb_channels;
@@ -111,7 +111,7 @@ static av_cold int wavarc_init(AVCodecContext *avctx)
     }
 
     s->max_framesize = s->nb_samples * 16;
-    s->bitstream = av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE, sizeof(*s->bitstream));
+    s->bitstream = zn_av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE, sizeof(*s->bitstream));
     if (!s->bitstream)
         return AVERROR(ENOMEM);
 
@@ -866,7 +866,7 @@ static av_cold int wavarc_close(AVCodecContext *avctx)
 {
     WavArcContext *s = avctx->priv_data;
 
-    av_freep(&s->bitstream);
+    zn_av_freep(&s->bitstream);
     s->bitstream_size = 0;
 
     return 0;

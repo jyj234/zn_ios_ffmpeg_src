@@ -174,17 +174,17 @@ static void common_uninit(FIREqualizerContext *s)
     s->cepstrum_rdft = NULL;
     s->cepstrum_irdft = NULL;
 
-    av_freep(&s->analysis_buf);
-    av_freep(&s->analysis_tbuf);
-    av_freep(&s->dump_buf);
-    av_freep(&s->kernel_tmp_buf);
-    av_freep(&s->kernel_tmp_tbuf);
-    av_freep(&s->kernel_buf);
-    av_freep(&s->tx_buf);
-    av_freep(&s->cepstrum_buf);
-    av_freep(&s->cepstrum_tbuf);
-    av_freep(&s->conv_buf);
-    av_freep(&s->conv_idx);
+    zn_av_freep(&s->analysis_buf);
+    zn_av_freep(&s->analysis_tbuf);
+    zn_av_freep(&s->dump_buf);
+    zn_av_freep(&s->kernel_tmp_buf);
+    zn_av_freep(&s->kernel_tmp_tbuf);
+    zn_av_freep(&s->kernel_buf);
+    zn_av_freep(&s->tx_buf);
+    zn_av_freep(&s->cepstrum_buf);
+    zn_av_freep(&s->cepstrum_tbuf);
+    zn_av_freep(&s->conv_buf);
+    zn_av_freep(&s->conv_idx);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
@@ -192,8 +192,8 @@ static av_cold void uninit(AVFilterContext *ctx)
     FIREqualizerContext *s = ctx->priv;
 
     common_uninit(s);
-    av_freep(&s->gain_cmd);
-    av_freep(&s->gain_entry_cmd);
+    zn_av_freep(&s->gain_cmd);
+    zn_av_freep(&s->gain_entry_cmd);
 }
 
 static void fast_convolute(FIREqualizerContext *av_restrict s, const float *av_restrict kernel_buf, float *av_restrict conv_buf,
@@ -778,10 +778,10 @@ static int config_input(AVFilterLink *inlink)
             return ret;
 
         s->cepstrum_len = 1 << cepstrum_bits;
-        s->cepstrum_buf = av_malloc_array(s->cepstrum_len, sizeof(*s->cepstrum_buf));
+        s->cepstrum_buf = zn_av_malloc_array(s->cepstrum_len, sizeof(*s->cepstrum_buf));
         if (!s->cepstrum_buf)
             return AVERROR(ENOMEM);
-        s->cepstrum_tbuf = av_malloc_array(s->cepstrum_len + 2, sizeof(*s->cepstrum_tbuf));
+        s->cepstrum_tbuf = zn_av_malloc_array(s->cepstrum_len + 2, sizeof(*s->cepstrum_tbuf));
         if (!s->cepstrum_tbuf)
             return AVERROR(ENOMEM);
     }
@@ -805,17 +805,17 @@ static int config_input(AVFilterLink *inlink)
         scale = 1.f;
         if ((ret = av_tx_init(&s->analysis_rdft, &s->analysis_rdft_fn, AV_TX_FLOAT_RDFT, 0, 1 << rdft_bits, &scale, 0)) < 0)
             return ret;
-        s->dump_buf = av_malloc_array(s->analysis_rdft_len + 2, sizeof(*s->dump_buf));
+        s->dump_buf = zn_av_malloc_array(s->analysis_rdft_len + 2, sizeof(*s->dump_buf));
     }
 
-    s->analysis_buf = av_malloc_array((s->analysis_rdft_len + 2), sizeof(*s->analysis_buf));
-    s->analysis_tbuf = av_malloc_array(s->analysis_rdft_len + 2, sizeof(*s->analysis_tbuf));
-    s->kernel_tmp_buf = av_malloc_array((s->rdft_len * 2) * (s->multi ? inlink->ch_layout.nb_channels : 1), sizeof(*s->kernel_tmp_buf));
-    s->kernel_tmp_tbuf = av_malloc_array(s->rdft_len, sizeof(*s->kernel_tmp_tbuf));
-    s->kernel_buf = av_malloc_array((s->rdft_len * 2) * (s->multi ? inlink->ch_layout.nb_channels : 1), sizeof(*s->kernel_buf));
-    s->tx_buf = av_malloc_array(2 * (s->rdft_len + 2), sizeof(*s->kernel_buf));
-    s->conv_buf   = av_calloc(2 * s->rdft_len * inlink->ch_layout.nb_channels, sizeof(*s->conv_buf));
-    s->conv_idx   = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->conv_idx));
+    s->analysis_buf = zn_av_malloc_array((s->analysis_rdft_len + 2), sizeof(*s->analysis_buf));
+    s->analysis_tbuf = zn_av_malloc_array(s->analysis_rdft_len + 2, sizeof(*s->analysis_tbuf));
+    s->kernel_tmp_buf = zn_av_malloc_array((s->rdft_len * 2) * (s->multi ? inlink->ch_layout.nb_channels : 1), sizeof(*s->kernel_tmp_buf));
+    s->kernel_tmp_tbuf = zn_av_malloc_array(s->rdft_len, sizeof(*s->kernel_tmp_tbuf));
+    s->kernel_buf = zn_av_malloc_array((s->rdft_len * 2) * (s->multi ? inlink->ch_layout.nb_channels : 1), sizeof(*s->kernel_buf));
+    s->tx_buf = zn_av_malloc_array(2 * (s->rdft_len + 2), sizeof(*s->kernel_buf));
+    s->conv_buf   = zn_av_calloc(2 * s->rdft_len * inlink->ch_layout.nb_channels, sizeof(*s->conv_buf));
+    s->conv_idx   = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->conv_idx));
     if (!s->analysis_buf || !s->analysis_tbuf || !s->kernel_tmp_buf || !s->kernel_buf || !s->conv_buf || !s->conv_idx || !s->kernel_tmp_tbuf || !s->tx_buf)
         return AVERROR(ENOMEM);
 
@@ -906,10 +906,10 @@ static int process_command(AVFilterContext *ctx, const char *cmd, const char *ar
 
         ret = generate_kernel(ctx, gain_cmd, SELECT_GAIN_ENTRY(s));
         if (ret >= 0) {
-            av_freep(&s->gain_cmd);
+            zn_av_freep(&s->gain_cmd);
             s->gain_cmd = gain_cmd;
         } else {
-            av_freep(&gain_cmd);
+            zn_av_freep(&gain_cmd);
         }
     } else if (!strcmp(cmd, "gain_entry")) {
         char *gain_entry_cmd;
@@ -925,10 +925,10 @@ static int process_command(AVFilterContext *ctx, const char *cmd, const char *ar
 
         ret = generate_kernel(ctx, SELECT_GAIN(s), gain_entry_cmd);
         if (ret >= 0) {
-            av_freep(&s->gain_entry_cmd);
+            zn_av_freep(&s->gain_entry_cmd);
             s->gain_entry_cmd = gain_entry_cmd;
         } else {
-            av_freep(&gain_entry_cmd);
+            zn_av_freep(&gain_entry_cmd);
         }
     }
 

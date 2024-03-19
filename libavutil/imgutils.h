@@ -108,7 +108,7 @@ int av_image_fill_pointers(uint8_t *data[4], enum AVPixelFormat pix_fmt, int hei
  * Allocate an image with size w and h and pixel format pix_fmt, and
  * fill pointers and linesizes accordingly.
  * The allocated image buffer has to be freed by using
- * av_freep(&pointers[0]).
+ * zn_av_freep(&pointers[0]).
  *
  * @param pointers array to be filled with the pointer for each image plane
  * @param linesizes the array filled with the linesize for each plane

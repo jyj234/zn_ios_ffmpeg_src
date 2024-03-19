@@ -147,7 +147,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&inpicref);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, inpicref);
@@ -172,7 +172,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
                    s->alpha_mode, s->alpha_swap);
     }
 
-    av_frame_free(&inpicref);
+    zn_av_frame_free(&inpicref);
     return ff_filter_frame(outlink, out);
 }
 

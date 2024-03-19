@@ -64,13 +64,13 @@ static av_cold void uninit(AVFilterContext *ctx)
     ReverseContext *s = ctx->priv;
 
     while (s->nb_frames > 0) {
-        av_frame_free(&s->frames[s->nb_frames - 1]);
+        zn_av_frame_free(&s->frames[s->nb_frames - 1]);
         s->nb_frames--;
     }
 
-    av_freep(&s->pts);
-    av_freep(&s->duration);
-    av_freep(&s->frames);
+    zn_av_freep(&s->pts);
+    zn_av_freep(&s->duration);
+    zn_av_freep(&s->frames);
 }
 
 static int filter_frame(AVFilterLink *inlink, AVFrame *in)

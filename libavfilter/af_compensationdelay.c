@@ -100,7 +100,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_audio_buffer(outlink, in->nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -125,11 +125,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     s->w_ptr = w_ptr;
 
     if (ctx->is_disabled) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ff_filter_frame(outlink, in);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -154,7 +154,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     CompensationDelayContext *s = ctx->priv;
 
-    av_frame_free(&s->delay_frame);
+    zn_av_frame_free(&s->delay_frame);
 }
 
 static const AVFilterPad compensationdelay_inputs[] = {

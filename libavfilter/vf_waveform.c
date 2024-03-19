@@ -3328,7 +3328,7 @@ static int config_output(AVFilterLink *outlink)
     s->odesc = av_pix_fmt_desc_get(outlink->format);
     s->dcomp = s->odesc->nb_components;
 
-    av_freep(&s->peak);
+    zn_av_freep(&s->peak);
 
     if (s->mode) {
         outlink->h = s->size * FFMAX(comp * (s->display == STACK), 1);
@@ -3340,7 +3340,7 @@ static int config_output(AVFilterLink *outlink)
         size = inlink->h;
     }
 
-    s->peak = av_malloc_array(size, 32 * sizeof(*s->peak));
+    s->peak = zn_av_malloc_array(size, 32 * sizeof(*s->peak));
     if (!s->peak)
         return AVERROR(ENOMEM);
 
@@ -3400,7 +3400,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -3488,7 +3488,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     av_frame_copy_props(out, in);
     out->color_range = AVCOL_RANGE_JPEG;
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     out->sample_aspect_ratio = outlink->sample_aspect_ratio;
     return ff_filter_frame(outlink, out);
 }
@@ -3497,7 +3497,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     WaveformContext *s = ctx->priv;
 
-    av_freep(&s->peak);
+    zn_av_freep(&s->peak);
 }
 
 static const AVFilterPad inputs[] = {

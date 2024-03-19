@@ -98,13 +98,13 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     ff_framesync_uninit(&s->fs);
-    av_frame_free(&s->prev_frame);
+    zn_av_frame_free(&s->prev_frame);
 
     for (i = 0; i < 4; i++) {
         av_expr_free(s->comp_expr[i]);
         s->comp_expr[i] = NULL;
-        av_freep(&s->comp_expr_str[i]);
-        av_freep(&s->lut[i]);
+        zn_av_freep(&s->comp_expr_str[i]);
+        zn_av_freep(&s->lut[i]);
     }
 }
 
@@ -358,7 +358,7 @@ static int config_output(AVFilterLink *outlink)
 
     for (p = 0; p < s->nb_planes; p++) {
         if (!s->lut[p])
-            s->lut[p] = av_malloc_array(1 << s->depth, sizeof(uint16_t));
+            s->lut[p] = zn_av_malloc_array(1 << s->depth, sizeof(uint16_t));
         if (!s->lut[p])
             return AVERROR(ENOMEM);
     }
@@ -604,7 +604,7 @@ static int tlut2_filter_frame(AVFilterLink *inlink, AVFrame *frame)
 
             out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
             if (!out) {
-                av_frame_free(&s->prev_frame);
+                zn_av_frame_free(&s->prev_frame);
                 s->prev_frame = frame;
                 return AVERROR(ENOMEM);
             }
@@ -617,7 +617,7 @@ static int tlut2_filter_frame(AVFilterLink *inlink, AVFrame *frame)
             ff_filter_execute(ctx, s->lut2, &td, NULL,
                               FFMIN(s->heightx[1], ff_filter_get_nb_threads(ctx)));
         }
-        av_frame_free(&s->prev_frame);
+        zn_av_frame_free(&s->prev_frame);
         s->prev_frame = frame;
         return ff_filter_frame(outlink, out);
     }

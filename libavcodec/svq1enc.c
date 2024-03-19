@@ -557,20 +557,20 @@ static av_cold int svq1_encode_end(AVCodecContext *avctx)
     s->m.mb_type = NULL;
     ff_mpv_common_end(&s->m);
 
-    av_freep(&s->m.me.scratchpad);
-    av_freep(&s->m.me.map);
-    av_freep(&s->mb_type);
-    av_freep(&s->dummy);
-    av_freep(&s->scratchbuf);
+    zn_av_freep(&s->m.me.scratchpad);
+    zn_av_freep(&s->m.me.map);
+    zn_av_freep(&s->mb_type);
+    zn_av_freep(&s->dummy);
+    zn_av_freep(&s->scratchbuf);
 
     for (i = 0; i < 3; i++) {
-        av_freep(&s->motion_val8[i]);
-        av_freep(&s->motion_val16[i]);
+        zn_av_freep(&s->motion_val8[i]);
+        zn_av_freep(&s->motion_val16[i]);
     }
 
-    av_frame_free(&s->current_picture);
-    av_frame_free(&s->last_picture);
-    av_frame_free(&s->m.new_picture);
+    zn_av_frame_free(&s->current_picture);
+    zn_av_frame_free(&s->last_picture);
+    zn_av_frame_free(&s->m.new_picture);
 
     return 0;
 }
@@ -602,8 +602,8 @@ static av_cold int svq1_encode_init(AVCodecContext *avctx)
     ff_me_cmp_init(&s->mecc, avctx);
     ff_mpegvideoencdsp_init(&s->m.mpvencdsp, avctx);
 
-    s->current_picture = av_frame_alloc();
-    s->last_picture    = av_frame_alloc();
+    s->current_picture = zn_av_frame_alloc();
+    s->last_picture    = zn_av_frame_alloc();
     if (!s->current_picture || !s->last_picture) {
         return AVERROR(ENOMEM);
     }
@@ -633,7 +633,7 @@ static av_cold int svq1_encode_init(AVCodecContext *avctx)
     s->dummy               = av_mallocz((s->y_block_width + 1) *
                                         s->y_block_height * sizeof(int32_t));
     s->m.me.map            = av_mallocz(2 * ME_MAP_SIZE * sizeof(*s->m.me.map));
-    s->m.new_picture       = av_frame_alloc();
+    s->m.new_picture       = zn_av_frame_alloc();
     s->svq1encdsp.ssd_int8_vs_int16 = ssd_int8_vs_int16_c;
 
     if (!s->m.me.scratchpad || !s->m.me.map ||
@@ -680,7 +680,7 @@ static int svq1_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
             return ret;
     }
     if (!s->scratchbuf) {
-        s->scratchbuf = av_malloc_array(s->current_picture->linesize[0], 16 * 3);
+        s->scratchbuf = zn_av_malloc_array(s->current_picture->linesize[0], 16 * 3);
         if (!s->scratchbuf)
             return AVERROR(ENOMEM);
     }
@@ -710,10 +710,10 @@ static int svq1_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
         if (ret < 0) {
             int j;
             for (j = 0; j < i; j++) {
-                av_freep(&s->motion_val8[j]);
-                av_freep(&s->motion_val16[j]);
+                zn_av_freep(&s->motion_val8[j]);
+                zn_av_freep(&s->motion_val16[j]);
             }
-            av_freep(&s->scratchbuf);
+            zn_av_freep(&s->scratchbuf);
             return -1;
         }
     }

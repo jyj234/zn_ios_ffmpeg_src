@@ -2170,37 +2170,37 @@ av_cold int ff_ac3_encode_close(AVCodecContext *avctx)
     int blk, ch;
     AC3EncodeContext *s = avctx->priv_data;
 
-    av_freep(&s->mdct_window);
-    av_freep(&s->windowed_samples);
+    zn_av_freep(&s->mdct_window);
+    zn_av_freep(&s->windowed_samples);
     if (s->planar_samples)
         for (ch = 0; ch < s->channels; ch++)
-            av_freep(&s->planar_samples[ch]);
-    av_freep(&s->planar_samples);
-    av_freep(&s->bap_buffer);
-    av_freep(&s->bap1_buffer);
-    av_freep(&s->mdct_coef_buffer);
-    av_freep(&s->fixed_coef_buffer);
-    av_freep(&s->exp_buffer);
-    av_freep(&s->grouped_exp_buffer);
-    av_freep(&s->psd_buffer);
-    av_freep(&s->band_psd_buffer);
-    av_freep(&s->mask_buffer);
-    av_freep(&s->qmant_buffer);
-    av_freep(&s->cpl_coord_exp_buffer);
-    av_freep(&s->cpl_coord_mant_buffer);
-    av_freep(&s->fdsp);
+            zn_av_freep(&s->planar_samples[ch]);
+    zn_av_freep(&s->planar_samples);
+    zn_av_freep(&s->bap_buffer);
+    zn_av_freep(&s->bap1_buffer);
+    zn_av_freep(&s->mdct_coef_buffer);
+    zn_av_freep(&s->fixed_coef_buffer);
+    zn_av_freep(&s->exp_buffer);
+    zn_av_freep(&s->grouped_exp_buffer);
+    zn_av_freep(&s->psd_buffer);
+    zn_av_freep(&s->band_psd_buffer);
+    zn_av_freep(&s->mask_buffer);
+    zn_av_freep(&s->qmant_buffer);
+    zn_av_freep(&s->cpl_coord_exp_buffer);
+    zn_av_freep(&s->cpl_coord_mant_buffer);
+    zn_av_freep(&s->fdsp);
     for (blk = 0; blk < s->num_blocks; blk++) {
         AC3Block *block = &s->blocks[blk];
-        av_freep(&block->mdct_coef);
-        av_freep(&block->fixed_coef);
-        av_freep(&block->exp);
-        av_freep(&block->grouped_exp);
-        av_freep(&block->psd);
-        av_freep(&block->band_psd);
-        av_freep(&block->mask);
-        av_freep(&block->qmant);
-        av_freep(&block->cpl_coord_exp);
-        av_freep(&block->cpl_coord_mant);
+        zn_av_freep(&block->mdct_coef);
+        zn_av_freep(&block->fixed_coef);
+        zn_av_freep(&block->exp);
+        zn_av_freep(&block->grouped_exp);
+        zn_av_freep(&block->psd);
+        zn_av_freep(&block->band_psd);
+        zn_av_freep(&block->mask);
+        zn_av_freep(&block->qmant);
+        zn_av_freep(&block->cpl_coord_exp);
+        zn_av_freep(&block->cpl_coord_mant);
     }
 
     av_tx_uninit(&s->tx);
@@ -2224,7 +2224,7 @@ static av_cold int set_channel_info(AVCodecContext *avctx)
         return AVERROR(EINVAL);
 
     if (!mask)
-        av_channel_layout_default(&avctx->ch_layout, channels);
+        zn_av_channel_layout_default(&avctx->ch_layout, channels);
     mask = avctx->ch_layout.u.mask;
 
     s->lfe_on       = !!(mask & AV_CH_LOW_FREQUENCY);

@@ -579,9 +579,9 @@ static av_cold int mss4_decode_end(AVCodecContext *avctx)
     MSS4Context * const c = avctx->priv_data;
     int i;
 
-    av_frame_free(&c->pic);
+    zn_av_frame_free(&c->pic);
     for (i = 0; i < 3; i++)
-        av_freep(&c->prev_dc[i]);
+        zn_av_freep(&c->prev_dc[i]);
 
     return 0;
 }
@@ -594,14 +594,14 @@ static av_cold int mss4_decode_init(AVCodecContext *avctx)
 
     for (i = 0; i < 3; i++) {
         c->dc_stride[i] = FFALIGN(avctx->width, 16) >> (2 + !!i);
-        c->prev_dc[i]   = av_malloc_array(c->dc_stride[i], sizeof(**c->prev_dc));
+        c->prev_dc[i]   = zn_av_malloc_array(c->dc_stride[i], sizeof(**c->prev_dc));
         if (!c->prev_dc[i]) {
             av_log(avctx, AV_LOG_ERROR, "Cannot allocate buffer\n");
             return AVERROR(ENOMEM);
         }
     }
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 

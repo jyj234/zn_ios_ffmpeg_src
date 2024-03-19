@@ -37,7 +37,7 @@ static void wrapped_avframe_release_buffer(void *unused, uint8_t *data)
 {
     AVFrame *frame = (AVFrame *)data;
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
 }
 
 static int wrapped_avframe_encode(AVCodecContext *avctx, AVPacket *pkt,
@@ -52,7 +52,7 @@ static int wrapped_avframe_encode(AVCodecContext *avctx, AVPacket *pkt,
 
     data = av_mallocz(size);
     if (!data) {
-        av_frame_free(&wrapped);
+        zn_av_frame_free(&wrapped);
         return AVERROR(ENOMEM);
     }
 
@@ -60,13 +60,13 @@ static int wrapped_avframe_encode(AVCodecContext *avctx, AVPacket *pkt,
                                 wrapped_avframe_release_buffer, NULL,
                                 AV_BUFFER_FLAG_READONLY);
     if (!pkt->buf) {
-        av_frame_free(&wrapped);
-        av_freep(&data);
+        zn_av_frame_free(&wrapped);
+        zn_av_freep(&data);
         return AVERROR(ENOMEM);
     }
 
     av_frame_move_ref((AVFrame*)data, wrapped);
-    av_frame_free(&wrapped);
+    zn_av_frame_free(&wrapped);
 
     pkt->data = data;
     pkt->size = sizeof(*wrapped);

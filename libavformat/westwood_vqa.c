@@ -98,7 +98,7 @@ static int wsvqa_read_header(AVFormatContext *s)
     int fps, ret;
 
     /* initialize the video decoder stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->start_time = 0;
@@ -216,7 +216,7 @@ static int wsvqa_read_packet(AVFormatContext *s,
             case SND1_TAG:
             case SND2_TAG:
                 if (wsvqa->audio_stream_index == -1) {
-                    AVStream *st = avformat_new_stream(s, NULL);
+                    AVStream *st = zn_avformat_new_stream(s, NULL);
                     if (!st)
                         return AVERROR(ENOMEM);
 
@@ -229,7 +229,7 @@ static int wsvqa_read_packet(AVFormatContext *s,
                         wsvqa->bps = 8;
                     st->codecpar->sample_rate = wsvqa->sample_rate;
                     st->codecpar->bits_per_coded_sample = wsvqa->bps;
-                    av_channel_layout_default(&st->codecpar->ch_layout, wsvqa->channels);
+                    zn_av_channel_layout_default(&st->codecpar->ch_layout, wsvqa->channels);
                     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
 
                     avpriv_set_pts_info(st, 64, 1, st->codecpar->sample_rate);

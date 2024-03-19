@@ -267,7 +267,7 @@ static void get_tag(AVFormatContext *s, const char *key, int type, int len, int 
         av_dict_set(&s->metadata, key, value, 0);
 
 finish:
-    av_freep(&value);
+    zn_av_freep(&value);
     avio_seek(s->pb, off + len, SEEK_SET);
 }
 
@@ -316,7 +316,7 @@ static int asf_read_stream_properties(AVFormatContext *s, int64_t size)
 
     pos1 = avio_tell(pb);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     sti = ffstream(st);
@@ -454,7 +454,7 @@ static int asf_read_stream_properties(AVFormatContext *s, int64_t size)
              * maximum lameness */
             st->codecpar->width      =
                 st->codecpar->height = 0;
-            av_freep(&st->codecpar->extradata);
+            zn_av_freep(&st->codecpar->extradata);
             st->codecpar->extradata_size = 0;
         }
         if (st->codecpar->codec_id == AV_CODEC_ID_H264)
@@ -645,7 +645,7 @@ static int asf_read_metadata(AVFormatContext *s)
         } else {
             get_tag(s, name, value_type, value_len, 16);
         }
-        av_freep(&name);
+        zn_av_freep(&name);
     }
 
     return 0;
@@ -770,7 +770,7 @@ static int asf_read_header(AVFormatContext *s)
                     if ((ret = av_get_packet(pb, pkt, len)) < 0)
                         return ret;
                     av_hex_dump_log(s, AV_LOG_DEBUG, pkt->data, pkt->size);
-                    av_packet_unref(pkt);
+                    zn_av_packet_unref(pkt);
 
                     len= avio_rl32(pb);
                     if (len > UINT16_MAX)
@@ -1215,7 +1215,7 @@ static int asf_parse_packet(AVFormatContext *s, AVIOContext *pb, AVPacket *pkt)
                        "freeing incomplete packet size %d, new %d\n",
                        asf_st->pkt.size, asf_st->packet_obj_size);
                 asf_st->frag_offset = 0;
-                av_packet_unref(&asf_st->pkt);
+                zn_av_packet_unref(&asf_st->pkt);
             }
             /* new packet */
             if ((ret = av_new_packet(&asf_st->pkt, asf_st->packet_obj_size)) < 0)
@@ -1308,7 +1308,7 @@ static int asf_parse_packet(AVFormatContext *s, AVIOContext *pb, AVPacket *pkt)
                 if (i == asf_st->pkt.size) {
                     av_log(s, AV_LOG_DEBUG, "discarding ms fart\n");
                     asf_st->frag_offset = 0;
-                    av_packet_unref(&asf_st->pkt);
+                    zn_av_packet_unref(&asf_st->pkt);
                     continue;
                 }
             }
@@ -1405,7 +1405,7 @@ static void asf_reset_header(AVFormatContext *s)
 
     for (i = 0; i < 128; i++) {
         asf_st = &asf->streams[i];
-        av_packet_unref(&asf_st->pkt);
+        zn_av_packet_unref(&asf_st->pkt);
         asf_st->packet_obj_size = 0;
         asf_st->frag_offset = 0;
         asf_st->seq         = 0;
@@ -1461,7 +1461,7 @@ static int64_t asf_read_pts(AVFormatContext *s, int stream_index,
     ff_read_frame_flush(s);
     asf_reset_header(s);
     for (;;) {
-        if (av_read_frame(s, pkt) < 0) {
+        if (zn_av_read_frame(s, pkt) < 0) {
             av_log(s, AV_LOG_INFO, "asf_read_pts failed\n");
             return AV_NOPTS_VALUE;
         }
@@ -1482,11 +1482,11 @@ static int64_t asf_read_pts(AVFormatContext *s, int stream_index,
             start_pos[i] = asf_st->packet_pos + 1;
 
             if (pkt->stream_index == stream_index) {
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
                 break;
             }
         }
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 
     *ppos = pos;

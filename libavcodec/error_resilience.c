@@ -138,8 +138,8 @@ static void guess_dc(ERContext *s, int16_t *dc, int w,
                      int h, ptrdiff_t stride, int is_luma)
 {
     int b_x, b_y;
-    int16_t  (*col )[4] = av_malloc_array(stride, h*sizeof( int16_t)*4);
-    uint32_t (*dist)[4] = av_malloc_array(stride, h*sizeof(uint32_t)*4);
+    int16_t  (*col )[4] = zn_av_malloc_array(stride, h*sizeof( int16_t)*4);
+    uint32_t (*dist)[4] = zn_av_malloc_array(stride, h*sizeof(uint32_t)*4);
 
     if(!col || !dist) {
         av_log(s->avctx, AV_LOG_ERROR, "guess_dc() is out of memory\n");
@@ -228,8 +228,8 @@ static void guess_dc(ERContext *s, int16_t *dc, int w,
     }
 
 fail:
-    av_freep(&col);
-    av_freep(&dist);
+    zn_av_freep(&col);
+    zn_av_freep(&dist);
 }
 
 /**
@@ -946,8 +946,8 @@ void ff_er_frame_end(ERContext *s, int *decode_error_flags)
         av_log(s->avctx, AV_LOG_ERROR, "Warning MVs not available\n");
 
         for (i = 0; i < 2; i++) {
-            s->ref_index[i]       = av_calloc(s->mb_stride * s->mb_height, 4 * sizeof(uint8_t));
-            s->motion_val_base[i] = av_calloc(size + 4, 2 * sizeof(uint16_t));
+            s->ref_index[i]       = zn_av_calloc(s->mb_stride * s->mb_height, 4 * sizeof(uint8_t));
+            s->motion_val_base[i] = zn_av_calloc(size + 4, 2 * sizeof(uint16_t));
             if (!s->ref_index[i] || !s->motion_val_base[i])
                 break;
             s->cur_pic.ref_index[i]  = s->ref_index[i];
@@ -955,8 +955,8 @@ void ff_er_frame_end(ERContext *s, int *decode_error_flags)
         }
         if (i < 2) {
             for (i = 0; i < 2; i++) {
-                av_freep(&s->ref_index[i]);
-                av_freep(&s->motion_val_base[i]);
+                zn_av_freep(&s->ref_index[i]);
+                zn_av_freep(&s->motion_val_base[i]);
                 s->cur_pic.ref_index[i]  = NULL;
                 s->cur_pic.motion_val[i] = NULL;
             }
@@ -1346,8 +1346,8 @@ void ff_er_frame_end(ERContext *s, int *decode_error_flags)
     }
 
     for (i = 0; i < 2; i++) {
-        av_freep(&s->ref_index[i]);
-        av_freep(&s->motion_val_base[i]);
+        zn_av_freep(&s->ref_index[i]);
+        zn_av_freep(&s->motion_val_base[i]);
         s->cur_pic.ref_index[i]  = NULL;
         s->cur_pic.motion_val[i] = NULL;
     }

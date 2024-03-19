@@ -102,7 +102,7 @@ static const uint64_t FUZZ_TAG = 0x4741542D5A5A5546ULL;
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     const uint64_t fuzz_tag = FUZZ_TAG;
     uint32_t it = 0;
-    AVFormatContext *avfmt = avformat_alloc_context();
+    AVFormatContext *avfmt = zn_avformat_alloc_context();
     AVPacket *pkt;
     char filename[1025] = {0};
     AVIOContext *fuzzed_pb = NULL;
@@ -127,7 +127,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     }
 
     if (!avfmt)
-        error("Failed avformat_alloc_context()");
+        error("Failed zn_avformat_alloc_context()");
 
     if (IO_FLAT) {
         seekable = 1;
@@ -179,7 +179,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (!io_buffer_size || size / io_buffer_size > maxblocks)
         io_buffer_size = size;
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt)
         error("Failed to allocate pkt");
 
@@ -191,34 +191,34 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     opaque.pos      = 0;
     opaque.fuzz     = data;
     opaque.fuzz_size= size;
-    fuzzed_pb = avio_alloc_context(io_buffer, io_buffer_size, 0, &opaque,
+    fuzzed_pb = zn_avio_alloc_context(io_buffer, io_buffer_size, 0, &opaque,
                                    io_read, NULL, seekable ? io_seek : NULL);
     if (!fuzzed_pb)
-        error("avio_alloc_context failed");
+        error("zn_avio_alloc_context failed");
 
     avfmt->pb = fuzzed_pb;
 
-    ret = avformat_open_input(&avfmt, filename, fmt, NULL);
+    ret = zn_avformat_open_input(&avfmt, filename, fmt, NULL);
     if (ret < 0) {
         goto fail;
     }
 
-    ret = avformat_find_stream_info(avfmt, NULL);
+    ret = zn_avformat_find_stream_info(avfmt, NULL);
 
     //TODO, test seeking
 
     for(it = 0; it < maxiteration; it++) {
-        ret = av_read_frame(avfmt, pkt);
+        ret = zn_av_read_frame(avfmt, pkt);
         if (ret < 0)
             break;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 
 fail:
-    av_packet_free(&pkt);
-    av_freep(&fuzzed_pb->buffer);
-    avio_context_free(&fuzzed_pb);
-    avformat_close_input(&avfmt);
+    zn_av_packet_free(&pkt);
+    zn_av_freep(&fuzzed_pb->buffer);
+    zn_avio_context_free(&fuzzed_pb);
+    zn_avformat_close_input(&avfmt);
 
     return 0;
 

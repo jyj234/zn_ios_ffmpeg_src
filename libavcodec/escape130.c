@@ -154,9 +154,9 @@ static av_cold int escape130_decode_close(AVCodecContext *avctx)
 {
     Escape130Context *s = avctx->priv_data;
 
-    av_freep(&s->old_y_avg);
-    av_freep(&s->buf1);
-    av_freep(&s->buf2);
+    zn_av_freep(&s->old_y_avg);
+    zn_av_freep(&s->buf1);
+    zn_av_freep(&s->buf2);
 
     return 0;
 }

@@ -82,7 +82,7 @@ static int ircam_read_header(AVFormatContext *s)
     if (!channels || !sample_rate)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

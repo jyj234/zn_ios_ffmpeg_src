@@ -326,7 +326,7 @@ static int process_frame(FFFrameSync *fs)
     ret = filter_frame(ctx, &out_frame, main_frame, ref_frame);
     if (ret < 0)
         return ret;
-    av_frame_free(&main_frame);
+    zn_av_frame_free(&main_frame);
 
     return ff_filter_frame(outlink, out_frame);
 }
@@ -353,19 +353,19 @@ static int config_output(AVFilterLink *outlink)
     outlink->sample_aspect_ratio = mainlink->sample_aspect_ratio;
     outlink->frame_rate = mainlink->frame_rate;
 
-    s->I      = av_calloc(w * h, sizeof(*s->I));
-    s->II     = av_calloc(w * h, sizeof(*s->II));
-    s->P      = av_calloc(w * h, sizeof(*s->P));
-    s->IP     = av_calloc(w * h, sizeof(*s->IP));
-    s->meanI  = av_calloc(w * h, sizeof(*s->meanI));
-    s->meanII = av_calloc(w * h, sizeof(*s->meanII));
-    s->meanP  = av_calloc(w * h, sizeof(*s->meanP));
-    s->meanIP = av_calloc(w * h, sizeof(*s->meanIP));
+    s->I      = zn_av_calloc(w * h, sizeof(*s->I));
+    s->II     = zn_av_calloc(w * h, sizeof(*s->II));
+    s->P      = zn_av_calloc(w * h, sizeof(*s->P));
+    s->IP     = zn_av_calloc(w * h, sizeof(*s->IP));
+    s->meanI  = zn_av_calloc(w * h, sizeof(*s->meanI));
+    s->meanII = zn_av_calloc(w * h, sizeof(*s->meanII));
+    s->meanP  = zn_av_calloc(w * h, sizeof(*s->meanP));
+    s->meanIP = zn_av_calloc(w * h, sizeof(*s->meanIP));
 
-    s->A      = av_calloc(w * h, sizeof(*s->A));
-    s->B      = av_calloc(w * h, sizeof(*s->B));
-    s->meanA  = av_calloc(w * h, sizeof(*s->meanA));
-    s->meanB  = av_calloc(w * h, sizeof(*s->meanA));
+    s->A      = zn_av_calloc(w * h, sizeof(*s->A));
+    s->B      = zn_av_calloc(w * h, sizeof(*s->B));
+    s->meanA  = zn_av_calloc(w * h, sizeof(*s->meanA));
+    s->meanB  = zn_av_calloc(w * h, sizeof(*s->meanA));
 
     if (!s->I || !s->II || !s->P || !s->IP || !s->meanI || !s->meanII || !s->meanP ||
         !s->meanIP || !s->A || !s->B || !s->meanA || !s->meanB)
@@ -413,7 +413,7 @@ static int activate(AVFilterContext *ctx)
             return ff_filter_frame(outlink, frame);
 
         ret = filter_frame(ctx, &out, frame, frame);
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         if (ret < 0)
             return ret;
         ret = ff_filter_frame(outlink, out);
@@ -460,18 +460,18 @@ static av_cold void uninit(AVFilterContext *ctx)
     if (s->guidance == ON)
         ff_framesync_uninit(&s->fs);
 
-    av_freep(&s->I);
-    av_freep(&s->II);
-    av_freep(&s->P);
-    av_freep(&s->IP);
-    av_freep(&s->meanI);
-    av_freep(&s->meanII);
-    av_freep(&s->meanP);
-    av_freep(&s->meanIP);
-    av_freep(&s->A);
-    av_freep(&s->B);
-    av_freep(&s->meanA);
-    av_freep(&s->meanB);
+    zn_av_freep(&s->I);
+    zn_av_freep(&s->II);
+    zn_av_freep(&s->P);
+    zn_av_freep(&s->IP);
+    zn_av_freep(&s->meanI);
+    zn_av_freep(&s->meanII);
+    zn_av_freep(&s->meanP);
+    zn_av_freep(&s->meanIP);
+    zn_av_freep(&s->A);
+    zn_av_freep(&s->B);
+    zn_av_freep(&s->meanA);
+    zn_av_freep(&s->meanB);
 
     return;
 }

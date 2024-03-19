@@ -110,9 +110,9 @@ static int blurdetect_config_input(AVFilterLink *inlink)
 
     s->tmpbuf     = av_malloc(bufsize);
     s->filterbuf  = av_malloc(bufsize);
-    s->gradients  = av_calloc(bufsize, sizeof(*s->gradients));
+    s->gradients  = zn_av_calloc(bufsize, sizeof(*s->gradients));
     s->directions = av_malloc(bufsize);
-    s->blks       = av_calloc((inlink->w / s->block_width) * (inlink->h / s->block_height),
+    s->blks       = zn_av_calloc((inlink->w / s->block_width) * (inlink->h / s->block_height),
                               sizeof(*s->blks));
 
     if (!s->tmpbuf || !s->filterbuf || !s->gradients || !s->directions || !s->blks)
@@ -329,11 +329,11 @@ static av_cold void blurdetect_uninit(AVFilterContext *ctx)
                s->blur_total / s->nb_frames);
     }
 
-    av_freep(&s->tmpbuf);
-    av_freep(&s->filterbuf);
-    av_freep(&s->gradients);
-    av_freep(&s->directions);
-    av_freep(&s->blks);
+    zn_av_freep(&s->tmpbuf);
+    zn_av_freep(&s->filterbuf);
+    zn_av_freep(&s->gradients);
+    zn_av_freep(&s->directions);
+    zn_av_freep(&s->blks);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {

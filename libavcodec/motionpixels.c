@@ -58,11 +58,11 @@ static av_cold int mp_decode_end(AVCodecContext *avctx)
 {
     MotionPixelsContext *mp = avctx->priv_data;
 
-    av_freep(&mp->changes_map);
-    av_freep(&mp->vpt);
-    av_freep(&mp->hpt);
-    av_freep(&mp->bswapbuf);
-    av_frame_free(&mp->frame);
+    zn_av_freep(&mp->changes_map);
+    zn_av_freep(&mp->vpt);
+    zn_av_freep(&mp->hpt);
+    zn_av_freep(&mp->bswapbuf);
+    zn_av_frame_free(&mp->frame);
 
     return 0;
 }
@@ -81,15 +81,15 @@ static av_cold int mp_decode_init(AVCodecContext *avctx)
 
     mp->avctx = avctx;
     ff_bswapdsp_init(&mp->bdsp);
-    mp->changes_map = av_calloc(avctx->width, h4);
+    mp->changes_map = zn_av_calloc(avctx->width, h4);
     mp->offset_bits_len = av_log2(avctx->width * avctx->height) + 1;
-    mp->vpt = av_calloc(avctx->height, sizeof(*mp->vpt));
-    mp->hpt = av_calloc(h4 / 4, w4 / 4 * sizeof(*mp->hpt));
+    mp->vpt = zn_av_calloc(avctx->height, sizeof(*mp->vpt));
+    mp->hpt = zn_av_calloc(h4 / 4, w4 / 4 * sizeof(*mp->hpt));
     if (!mp->changes_map || !mp->vpt || !mp->hpt)
         return AVERROR(ENOMEM);
     avctx->pix_fmt = AV_PIX_FMT_RGB555;
 
-    mp->frame = av_frame_alloc();
+    mp->frame = zn_av_frame_alloc();
     if (!mp->frame)
         return AVERROR(ENOMEM);
 

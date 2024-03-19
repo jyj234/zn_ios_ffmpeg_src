@@ -140,10 +140,10 @@ static av_cold int encode_end(AVCodecContext *avctx)
 
     av_tx_uninit(&s->mdct_ctx);
 
-    av_freep(&s->opt);
-    av_freep(&s->path);
+    zn_av_freep(&s->opt);
+    zn_av_freep(&s->path);
     ff_af_queue_close(&s->afq);
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
 
     return 0;
 }

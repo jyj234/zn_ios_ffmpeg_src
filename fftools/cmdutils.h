@@ -320,7 +320,7 @@ int filter_codec_opts(const AVDictionary *opts, enum AVCodecID codec_id,
                       AVDictionary **dst);
 
 /**
- * Setup AVCodecContext options for avformat_find_stream_info().
+ * Setup AVCodecContext options for zn_avformat_find_stream_info().
  *
  * Create an array of dictionaries, one dictionary for each stream
  * contained in s.

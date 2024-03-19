@@ -32,7 +32,7 @@ int ff_rtp_chain_mux_open(AVFormatContext **out, AVFormatContext *s,
 {
     AVFormatContext *rtpctx = NULL;
     int ret;
-    const AVOutputFormat *rtp_format = av_guess_format("rtp", NULL, NULL);
+    const AVOutputFormat *rtp_format = zn_av_guess_format("rtp", NULL, NULL);
     uint8_t *rtpflags;
     AVDictionary *opts = NULL;
 
@@ -42,14 +42,14 @@ int ff_rtp_chain_mux_open(AVFormatContext **out, AVFormatContext *s,
     }
 
     /* Allocate an AVFormatContext for each output stream */
-    rtpctx = avformat_alloc_context();
+    rtpctx = zn_avformat_alloc_context();
     if (!rtpctx) {
         ret = AVERROR(ENOMEM);
         goto fail;
     }
 
     rtpctx->oformat = rtp_format;
-    if (!avformat_new_stream(rtpctx, NULL)) {
+    if (!zn_avformat_new_stream(rtpctx, NULL)) {
         ret = AVERROR(ENOMEM);
         goto fail;
     }
@@ -76,7 +76,7 @@ int ff_rtp_chain_mux_open(AVFormatContext **out, AVFormatContext *s,
     /* Set the synchronized start time. */
     rtpctx->start_time_realtime = s->start_time_realtime;
 
-    avcodec_parameters_copy(rtpctx->streams[0]->codecpar, st->codecpar);
+    zn_avcodec_parameters_copy(rtpctx->streams[0]->codecpar, st->codecpar);
     rtpctx->streams[0]->time_base = st->time_base;
 
     if (handle) {
@@ -86,16 +86,16 @@ int ff_rtp_chain_mux_open(AVFormatContext **out, AVFormatContext *s,
     } else
         ret = ffio_open_dyn_packet_buf(&rtpctx->pb, packet_size);
     if (!ret)
-        ret = avformat_write_header(rtpctx, &opts);
+        ret = zn_avformat_write_header(rtpctx, &opts);
     av_dict_free(&opts);
 
     if (ret) {
         if (handle && rtpctx->pb) {
-            avio_closep(&rtpctx->pb);
+            zn_avio_closep(&rtpctx->pb);
         } else if (rtpctx->pb) {
             ffio_free_dyn_buf(&rtpctx->pb);
         }
-        avformat_free_context(rtpctx);
+        zn_avformat_free_context(rtpctx);
         return ret;
     }
 
@@ -103,7 +103,7 @@ int ff_rtp_chain_mux_open(AVFormatContext **out, AVFormatContext *s,
     return 0;
 
 fail:
-    avformat_free_context(rtpctx);
+    zn_avformat_free_context(rtpctx);
     if (handle)
         ffurl_close(handle);
     return ret;

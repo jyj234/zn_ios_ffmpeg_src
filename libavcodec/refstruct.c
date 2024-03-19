@@ -127,7 +127,7 @@ void ff_refstruct_unref(void *objp)
     if (atomic_fetch_sub_explicit(&ref->refcount, 1, memory_order_acq_rel) == 1) {
         if (ref->free_cb)
             ref->free_cb(ref->opaque, obj);
-        av_free(ref);
+        zn_av_free(ref);
     }
 
     return;

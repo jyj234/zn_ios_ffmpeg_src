@@ -251,7 +251,7 @@ static av_cold int init_cook_mlt(COOKContext *q)
     int mlt_size = q->samples_per_channel;
     const float scale = 1.0 / 32768.0;
 
-    if (!(q->mlt_window = av_malloc_array(mlt_size, sizeof(*q->mlt_window))))
+    if (!(q->mlt_window = zn_av_malloc_array(mlt_size, sizeof(*q->mlt_window))))
         return AVERROR(ENOMEM);
 
     /* Initialize the MLT window: simple sine window. */
@@ -333,8 +333,8 @@ static av_cold int cook_decode_close(AVCodecContext *avctx)
     av_log(avctx, AV_LOG_DEBUG, "Deallocating memory.\n");
 
     /* Free allocated memory buffers. */
-    av_freep(&q->mlt_window);
-    av_freep(&q->decoded_bytes_buffer);
+    zn_av_freep(&q->mlt_window);
+    zn_av_freep(&q->decoded_bytes_buffer);
 
     /* Free the transform. */
     av_tx_uninit(&q->mdct_ctx);
@@ -1289,7 +1289,7 @@ static av_cold int cook_decode_init(AVCodecContext *avctx)
     if (channel_mask)
         av_channel_layout_from_mask(&avctx->ch_layout, channel_mask);
     else
-        av_channel_layout_default(&avctx->ch_layout, channels);
+        zn_av_channel_layout_default(&avctx->ch_layout, channels);
 
 
     dump_cook_context(q);

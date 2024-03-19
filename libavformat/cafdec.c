@@ -72,7 +72,7 @@ static int read_desc_chunk(AVFormatContext *s)
     int flags;
 
     /* new audio stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -156,12 +156,12 @@ static int read_kuki_chunk(AVFormatContext *s, int64_t size)
         if (!memcmp(&preamble[4], "frmaalac", 8)) {
             if (size < ALAC_PREAMBLE + ALAC_HEADER) {
                 av_log(s, AV_LOG_ERROR, "invalid ALAC magic cookie\n");
-                av_freep(&st->codecpar->extradata);
+                zn_av_freep(&st->codecpar->extradata);
                 return AVERROR_INVALIDDATA;
             }
             if (avio_read(pb, st->codecpar->extradata, ALAC_HEADER) != ALAC_HEADER) {
                 av_log(s, AV_LOG_ERROR, "failed to read kuki header\n");
-                av_freep(&st->codecpar->extradata);
+                zn_av_freep(&st->codecpar->extradata);
                 return AVERROR_INVALIDDATA;
             }
             avio_skip(pb, size - ALAC_PREAMBLE - ALAC_HEADER);
@@ -172,7 +172,7 @@ static int read_kuki_chunk(AVFormatContext *s, int64_t size)
             memcpy(&st->codecpar->extradata[12], preamble, 12);
             if (avio_read(pb, &st->codecpar->extradata[24], ALAC_NEW_KUKI - 12) != ALAC_NEW_KUKI - 12) {
                 av_log(s, AV_LOG_ERROR, "failed to read new kuki header\n");
-                av_freep(&st->codecpar->extradata);
+                zn_av_freep(&st->codecpar->extradata);
                 return AVERROR_INVALIDDATA;
             }
             avio_skip(pb, size - ALAC_NEW_KUKI);

@@ -344,12 +344,12 @@ static void qsv_frames_uninit(AVHWFramesContext *ctx)
     pthread_mutex_destroy(&s->session_lock);
 #endif
 
-    av_freep(&s->mem_ids);
+    zn_av_freep(&s->mem_ids);
 #if QSV_HAVE_OPAQUE
-    av_freep(&s->surface_ptrs);
+    zn_av_freep(&s->surface_ptrs);
 #endif
-    av_freep(&s->surfaces_internal);
-    av_freep(&s->handle_pairs_internal);
+    zn_av_freep(&s->surfaces_internal);
+    zn_av_freep(&s->handle_pairs_internal);
     av_frame_unref(&s->realigned_upload_frame);
     av_frame_unref(&s->realigned_download_frame);
     av_buffer_unref(&s->child_frames_ref);
@@ -567,12 +567,12 @@ static int qsv_init_pool(AVHWFramesContext *ctx, uint32_t fourcc)
         return AVERROR(EINVAL);
     }
 
-    s->handle_pairs_internal = av_calloc(ctx->initial_pool_size,
+    s->handle_pairs_internal = zn_av_calloc(ctx->initial_pool_size,
                                          sizeof(*s->handle_pairs_internal));
     if (!s->handle_pairs_internal)
         return AVERROR(ENOMEM);
 
-    s->surfaces_internal = av_calloc(ctx->initial_pool_size,
+    s->surfaces_internal = zn_av_calloc(ctx->initial_pool_size,
                                      sizeof(*s->surfaces_internal));
     if (!s->surfaces_internal)
         return AVERROR(ENOMEM);
@@ -1232,7 +1232,7 @@ static int qsv_frames_init(AVHWFramesContext *ctx)
     }
 
     if (!opaque) {
-        s->mem_ids = av_calloc(frames_hwctx->nb_surfaces, sizeof(*s->mem_ids));
+        s->mem_ids = zn_av_calloc(frames_hwctx->nb_surfaces, sizeof(*s->mem_ids));
         if (!s->mem_ids)
             return AVERROR(ENOMEM);
 
@@ -1241,7 +1241,7 @@ static int qsv_frames_init(AVHWFramesContext *ctx)
     }
 #if QSV_HAVE_OPAQUE
     else {
-        s->surface_ptrs = av_calloc(frames_hwctx->nb_surfaces,
+        s->surface_ptrs = zn_av_calloc(frames_hwctx->nb_surfaces,
                                     sizeof(*s->surface_ptrs));
         if (!s->surface_ptrs)
             return AVERROR(ENOMEM);
@@ -1295,7 +1295,7 @@ static int qsv_transfer_get_formats(AVHWFramesContext *ctx,
 {
     enum AVPixelFormat *fmts;
 
-    fmts = av_malloc_array(2, sizeof(*fmts));
+    fmts = zn_av_malloc_array(2, sizeof(*fmts));
     if (!fmts)
         return AVERROR(ENOMEM);
 
@@ -1318,7 +1318,7 @@ static int qsv_frames_derive_from(AVHWFramesContext *dst_ctx,
     case AV_HWDEVICE_TYPE_VAAPI:
         {
             AVVAAPIFramesContext *dst_hwctx = dst_ctx->hwctx;
-            dst_hwctx->surface_ids = av_calloc(src_hwctx->nb_surfaces,
+            dst_hwctx->surface_ids = zn_av_calloc(src_hwctx->nb_surfaces,
                                                sizeof(*dst_hwctx->surface_ids));
             if (!dst_hwctx->surface_ids)
                 return AVERROR(ENOMEM);
@@ -1336,7 +1336,7 @@ static int qsv_frames_derive_from(AVHWFramesContext *dst_ctx,
             D3D11_TEXTURE2D_DESC texDesc;
             dst_ctx->initial_pool_size = src_ctx->initial_pool_size;
             AVD3D11VAFramesContext *dst_hwctx = dst_ctx->hwctx;
-            dst_hwctx->texture_infos = av_calloc(src_hwctx->nb_surfaces,
+            dst_hwctx->texture_infos = zn_av_calloc(src_hwctx->nb_surfaces,
                                                  sizeof(*dst_hwctx->texture_infos));
             if (!dst_hwctx->texture_infos)
                 return AVERROR(ENOMEM);
@@ -1356,7 +1356,7 @@ static int qsv_frames_derive_from(AVHWFramesContext *dst_ctx,
     case AV_HWDEVICE_TYPE_DXVA2:
         {
             AVDXVA2FramesContext *dst_hwctx = dst_ctx->hwctx;
-            dst_hwctx->surfaces = av_calloc(src_hwctx->nb_surfaces,
+            dst_hwctx->surfaces = zn_av_calloc(src_hwctx->nb_surfaces,
                                             sizeof(*dst_hwctx->surfaces));
             if (!dst_hwctx->surfaces)
                 return AVERROR(ENOMEM);
@@ -1453,7 +1453,7 @@ static int qsv_map_from(AVHWFramesContext *ctx,
         return AVERROR(ENOSYS);
     }
 
-    dummy = av_frame_alloc();
+    dummy = zn_av_frame_alloc();
     if (!dummy)
         return AVERROR(ENOMEM);
 
@@ -1477,7 +1477,7 @@ static int qsv_map_from(AVHWFramesContext *ctx,
     ret = av_hwframe_map(dst, dummy, flags);
 
 fail:
-    av_frame_free(&dummy);
+    zn_av_frame_free(&dummy);
 
     return ret;
 }
@@ -1493,7 +1493,7 @@ static int qsv_transfer_data_child(AVHWFramesContext *ctx, AVFrame *dst,
     AVFrame *dummy;
     int ret;
 
-    dummy = av_frame_alloc();
+    dummy = zn_av_frame_alloc();
     if (!dummy)
         return AVERROR(ENOMEM);
 
@@ -1511,7 +1511,7 @@ static int qsv_transfer_data_child(AVHWFramesContext *ctx, AVFrame *dst,
     dummy->data[3]       = NULL;
     dummy->hw_frames_ctx = NULL;
 
-    av_frame_free(&dummy);
+    zn_av_frame_free(&dummy);
 
     return ret;
 }
@@ -1643,7 +1643,7 @@ static int qsv_transfer_data_from(AVHWFramesContext *ctx, AVFrame *dst,
             tmp_frame->format = dst->format;
             tmp_frame->width  = FFALIGN(dst->linesize[0], 16);
             tmp_frame->height = FFALIGN(dst->height, 16);
-            ret = av_frame_get_buffer(tmp_frame, 0);
+            ret = zn_av_frame_get_buffer(tmp_frame, 0);
             if (ret < 0)
                 return ret;
         }
@@ -1727,7 +1727,7 @@ static int qsv_transfer_data_to(AVHWFramesContext *ctx, AVFrame *dst,
             tmp_frame->format = src->format;
             tmp_frame->width  = FFALIGN(src->width, 16);
             tmp_frame->height = FFALIGN(src->height, 16);
-            ret = av_frame_get_buffer(tmp_frame, 0);
+            ret = zn_av_frame_get_buffer(tmp_frame, 0);
             if (ret < 0)
                 return ret;
         }
@@ -1805,11 +1805,11 @@ static int qsv_frames_derive_to(AVHWFramesContext *dst_ctx,
     case AV_HWDEVICE_TYPE_VAAPI:
         {
             AVVAAPIFramesContext *src_hwctx = src_ctx->hwctx;
-            s->handle_pairs_internal = av_calloc(src_ctx->initial_pool_size,
+            s->handle_pairs_internal = zn_av_calloc(src_ctx->initial_pool_size,
                                                  sizeof(*s->handle_pairs_internal));
             if (!s->handle_pairs_internal)
                 return AVERROR(ENOMEM);
-            s->surfaces_internal = av_calloc(src_hwctx->nb_surfaces,
+            s->surfaces_internal = zn_av_calloc(src_hwctx->nb_surfaces,
                                              sizeof(*s->surfaces_internal));
             if (!s->surfaces_internal)
                 return AVERROR(ENOMEM);
@@ -1828,11 +1828,11 @@ static int qsv_frames_derive_to(AVHWFramesContext *dst_ctx,
     case AV_HWDEVICE_TYPE_D3D11VA:
         {
             AVD3D11VAFramesContext *src_hwctx = src_ctx->hwctx;
-            s->handle_pairs_internal = av_calloc(src_ctx->initial_pool_size,
+            s->handle_pairs_internal = zn_av_calloc(src_ctx->initial_pool_size,
                                                  sizeof(*s->handle_pairs_internal));
             if (!s->handle_pairs_internal)
                 return AVERROR(ENOMEM);
-            s->surfaces_internal = av_calloc(src_ctx->initial_pool_size,
+            s->surfaces_internal = zn_av_calloc(src_ctx->initial_pool_size,
                                              sizeof(*s->surfaces_internal));
             if (!s->surfaces_internal)
                 return AVERROR(ENOMEM);
@@ -1859,11 +1859,11 @@ static int qsv_frames_derive_to(AVHWFramesContext *dst_ctx,
     case AV_HWDEVICE_TYPE_DXVA2:
         {
             AVDXVA2FramesContext *src_hwctx = src_ctx->hwctx;
-            s->handle_pairs_internal = av_calloc(src_ctx->initial_pool_size,
+            s->handle_pairs_internal = zn_av_calloc(src_ctx->initial_pool_size,
                                                  sizeof(*s->handle_pairs_internal));
             if (!s->handle_pairs_internal)
                 return AVERROR(ENOMEM);
-            s->surfaces_internal = av_calloc(src_hwctx->nb_surfaces,
+            s->surfaces_internal = zn_av_calloc(src_hwctx->nb_surfaces,
                                              sizeof(*s->surfaces_internal));
             if (!s->surfaces_internal)
                 return AVERROR(ENOMEM);
@@ -1956,7 +1956,7 @@ static int qsv_frames_get_constraints(AVHWDeviceContext *ctx,
 {
     int i;
 
-    constraints->valid_sw_formats = av_malloc_array(FF_ARRAY_ELEMS(supported_pixel_formats) + 1,
+    constraints->valid_sw_formats = zn_av_malloc_array(FF_ARRAY_ELEMS(supported_pixel_formats) + 1,
                                                     sizeof(*constraints->valid_sw_formats));
     if (!constraints->valid_sw_formats)
         return AVERROR(ENOMEM);
@@ -1965,7 +1965,7 @@ static int qsv_frames_get_constraints(AVHWDeviceContext *ctx,
         constraints->valid_sw_formats[i] = supported_pixel_formats[i].pix_fmt;
     constraints->valid_sw_formats[FF_ARRAY_ELEMS(supported_pixel_formats)] = AV_PIX_FMT_NONE;
 
-    constraints->valid_hw_formats = av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
+    constraints->valid_hw_formats = zn_av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
     if (!constraints->valid_hw_formats)
         return AVERROR(ENOMEM);
 
@@ -1986,7 +1986,7 @@ static void qsv_device_free(AVHWDeviceContext *ctx)
     if (hwctx->loader)
         MFXUnload(hwctx->loader);
     av_buffer_unref(&priv->child_device_ctx);
-    av_freep(&priv);
+    zn_av_freep(&priv);
 }
 
 static mfxIMPL choose_implementation(const char *device, enum AVHWDeviceType child_device_type)

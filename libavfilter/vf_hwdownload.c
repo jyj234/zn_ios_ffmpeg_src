@@ -94,7 +94,7 @@ static int hwdownload_config_output(AVFilterLink *outlink)
             break;
         }
     }
-    av_freep(&formats);
+    zn_av_freep(&formats);
 
     if (!found) {
         av_log(ctx, AV_LOG_ERROR, "Invalid output format %s for hwframe "
@@ -148,13 +148,13 @@ static int hwdownload_filter_frame(AVFilterLink *link, AVFrame *input)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     return ff_filter_frame(avctx->outputs[0], output);
 
 fail:
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

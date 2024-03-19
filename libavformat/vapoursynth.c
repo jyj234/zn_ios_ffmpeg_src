@@ -189,7 +189,7 @@ static av_cold int read_header_vs(AVFormatContext *s)
     vs->vss_state = av_buffer_create(NULL, 0, free_vss_state, vss_state, 0);
     if (!vs->vss_state) {
         err = AVERROR(ENOMEM);
-        av_free(vss_state);
+        zn_av_free(vss_state);
         goto done;
     }
 
@@ -252,7 +252,7 @@ static av_cold int read_header_vs(AVFormatContext *s)
         goto done;
     }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st) {
         err = AVERROR(ENOMEM);
         goto done;
@@ -294,7 +294,7 @@ static av_cold int read_header_vs(AVFormatContext *s)
         st->codecpar->color_space = AVCOL_SPC_YCGCO;
 
 done:
-    av_free(buf);
+    zn_av_free(buf);
     return err;
 }
 
@@ -302,7 +302,7 @@ static void free_frame(void *opaque, uint8_t *data)
 {
     AVFrame *frame = (AVFrame *)data;
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
 }
 
 static int get_vs_prop_int(AVFormatContext *s, const VSMap *map, const char *name, int def)
@@ -330,7 +330,7 @@ static void free_vsframe_ref(void *opaque, uint8_t *data)
 
     av_buffer_unref(&d->vss_state);
 
-    av_free(d);
+    zn_av_free(d);
 }
 
 static int read_packet_vs(AVFormatContext *s, AVPacket *pkt)
@@ -361,7 +361,7 @@ static int read_packet_vs(AVFormatContext *s, AVPacket *pkt)
     vsframe_ref = av_buffer_create(NULL, 0, free_vsframe_ref, ref_data, AV_BUFFER_FLAG_READONLY);
     if (!vsframe_ref) {
         err = AVERROR(ENOMEM);
-        av_free(ref_data);
+        zn_av_free(ref_data);
         goto end;
     }
 
@@ -383,7 +383,7 @@ static int read_packet_vs(AVFormatContext *s, AVPacket *pkt)
 
     props = vs->vsapi->getFramePropsRO(vsframe);
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         err = AVERROR(ENOMEM);
         goto end;
@@ -452,7 +452,7 @@ static int read_packet_vs(AVFormatContext *s, AVPacket *pkt)
     vs->current_frame++;
 
 end:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     av_buffer_unref(&vsframe_ref);
     return err;
 }

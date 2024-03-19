@@ -112,7 +112,7 @@ static int vmd_read_header(AVFormatContext *s)
             vmd->is_indeo3 = 0;
         }
         /* start up the decoders */
-        vst = avformat_new_stream(s, NULL);
+        vst = zn_avformat_new_stream(s, NULL);
         if (!vst)
             return AVERROR(ENOMEM);
         avpriv_set_pts_info(vst, 33, 1, 10);
@@ -135,7 +135,7 @@ static int vmd_read_header(AVFormatContext *s)
     vmd->sample_rate = AV_RL16(&vmd->vmd_header[804]);
     if (vmd->sample_rate) {
         int channels;
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         vmd->audio_stream_index = st->index;
@@ -160,7 +160,7 @@ static int vmd_read_header(AVFormatContext *s)
         } else {
             channels = 1;
         }
-        av_channel_layout_default(&st->codecpar->ch_layout, channels);
+        zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
         st->codecpar->bit_rate = st->codecpar->sample_rate *
             st->codecpar->bits_per_coded_sample * channels;
 
@@ -185,7 +185,7 @@ static int vmd_read_header(AVFormatContext *s)
     sound_buffers = AV_RL16(&vmd->vmd_header[808]);
     raw_frame_table_size = vmd->frame_count * 6;
     raw_frame_table = av_malloc(raw_frame_table_size);
-    vmd->frame_table = av_malloc_array(vmd->frame_count * vmd->frames_per_block + sound_buffers, sizeof(vmd_frame));
+    vmd->frame_table = zn_av_malloc_array(vmd->frame_count * vmd->frames_per_block + sound_buffers, sizeof(vmd_frame));
     if (!raw_frame_table || !vmd->frame_table) {
         ret = AVERROR(ENOMEM);
         goto error;
@@ -257,7 +257,7 @@ static int vmd_read_header(AVFormatContext *s)
 
     ret = 0;
 error:
-    av_freep(&raw_frame_table);
+    zn_av_freep(&raw_frame_table);
     return ret;
 }
 
@@ -308,7 +308,7 @@ static int vmd_read_close(AVFormatContext *s)
 {
     VmdDemuxContext *vmd = s->priv_data;
 
-    av_freep(&vmd->frame_table);
+    zn_av_freep(&vmd->frame_table);
 
     return 0;
 }

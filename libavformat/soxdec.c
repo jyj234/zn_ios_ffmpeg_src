@@ -56,7 +56,7 @@ static int sox_read_header(AVFormatContext *s)
     int channels;
     AVStream *st;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -107,7 +107,7 @@ static int sox_read_header(AVFormatContext *s)
         if(!comment)
             return AVERROR(ENOMEM);
         if (avio_read(pb, comment, comment_size) != comment_size) {
-            av_freep(&comment);
+            zn_av_freep(&comment);
             return AVERROR(EIO);
         }
         comment[comment_size] = 0;

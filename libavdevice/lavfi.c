@@ -61,11 +61,11 @@ av_cold static int lavfi_read_close(AVFormatContext *avctx)
 {
     LavfiContext *lavfi = avctx->priv_data;
 
-    av_freep(&lavfi->sink_stream_map);
-    av_freep(&lavfi->sink_eof);
-    av_freep(&lavfi->stream_sink_map);
-    av_freep(&lavfi->sink_stream_subcc_map);
-    av_freep(&lavfi->sinks);
+    zn_av_freep(&lavfi->sink_stream_map);
+    zn_av_freep(&lavfi->sink_eof);
+    zn_av_freep(&lavfi->stream_sink_map);
+    zn_av_freep(&lavfi->sink_stream_subcc_map);
+    zn_av_freep(&lavfi->sinks);
     avfilter_graph_free(&lavfi->graph);
 
     return 0;
@@ -82,7 +82,7 @@ static int create_subcc_streams(AVFormatContext *avctx)
         sink_idx = lavfi->stream_sink_map[stream_idx];
         if (lavfi->sink_stream_subcc_map[sink_idx]) {
             lavfi->sink_stream_subcc_map[sink_idx] = avctx->nb_streams;
-            if (!(st = avformat_new_stream(avctx, NULL)))
+            if (!(st = zn_avformat_new_stream(avctx, NULL)))
                 return AVERROR(ENOMEM);
             st->codecpar->codec_id = AV_CODEC_ID_EIA_608;
             st->codecpar->codec_type = AVMEDIA_TYPE_SUBTITLE;
@@ -127,7 +127,7 @@ av_cold static int lavfi_read_header(AVFormatContext *avctx)
             goto end;
         av_bprint_init(&graph_file_pb, 0, AV_BPRINT_SIZE_UNLIMITED);
         ret = avio_read_to_bprint(avio, &graph_file_pb, INT_MAX);
-        avio_closep(&avio);
+        zn_avio_closep(&avio);
         if (ret) {
             av_bprint_finalize(&graph_file_pb, NULL);
             goto end;
@@ -215,13 +215,13 @@ av_cold static int lavfi_read_header(AVFormatContext *avctx)
     /* for each open output create a corresponding stream */
     for (i = 0, inout = output_links; inout; i++, inout = inout->next) {
         AVStream *st;
-        if (!(st = avformat_new_stream(avctx, NULL)))
+        if (!(st = zn_avformat_new_stream(avctx, NULL)))
             FAIL(AVERROR(ENOMEM));
         st->id = i;
     }
 
     /* create a sink for each output and connect them to the graph */
-    lavfi->sinks = av_malloc_array(lavfi->nb_sinks, sizeof(AVFilterContext *));
+    lavfi->sinks = zn_av_malloc_array(lavfi->nb_sinks, sizeof(AVFilterContext *));
     if (!lavfi->sinks)
         FAIL(AVERROR(ENOMEM));
 
@@ -280,7 +280,7 @@ av_cold static int lavfi_read_header(AVFormatContext *avctx)
         if (dump != NULL) {
             fputs(dump, stderr);
             fflush(stderr);
-            av_free(dump);
+            zn_av_free(dump);
         } else {
             FAIL(AVERROR(ENOMEM));
         }
@@ -357,7 +357,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 static void lavfi_free_frame(void *opaque, uint8_t *data)
 {
     AVFrame *frame = (AVFrame*)data;
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
 }
 
 static int lavfi_read_packet(AVFormatContext *avctx, AVPacket *pkt)
@@ -375,7 +375,7 @@ static int lavfi_read_packet(AVFormatContext *avctx, AVPacket *pkt)
         return pkt->size;
     }
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame)
         return AVERROR(ENOMEM);
     frame_to_free = frame;
@@ -448,7 +448,7 @@ static int lavfi_read_packet(AVFormatContext *avctx, AVPacket *pkt)
         }
         if ((ret = av_packet_add_side_data(pkt, AV_PKT_DATA_STRINGS_METADATA,
                                            metadata, size)) < 0) {
-            av_freep(&metadata);
+            zn_av_freep(&metadata);
             goto fail;
         }
     }
@@ -465,11 +465,11 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
 
-    av_frame_free(&frame_to_free);
+    zn_av_frame_free(&frame_to_free);
 
     return pkt->size;
 fail:
-    av_frame_free(&frame_to_free);
+    zn_av_frame_free(&frame_to_free);
     return ret;
 
 }

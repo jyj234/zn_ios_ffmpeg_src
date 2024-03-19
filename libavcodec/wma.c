@@ -46,13 +46,13 @@ static av_cold int init_coef_vlc(VLC *vlc, uint16_t **prun_table,
     if (ret < 0)
         return ret;
 
-    run_table    = av_malloc_array(n, sizeof(uint16_t));
-    flevel_table = av_malloc_array(n, sizeof(*flevel_table));
-    int_table    = av_malloc_array(n, sizeof(uint16_t));
+    run_table    = zn_av_malloc_array(n, sizeof(uint16_t));
+    flevel_table = zn_av_malloc_array(n, sizeof(*flevel_table));
+    int_table    = zn_av_malloc_array(n, sizeof(uint16_t));
     if (!run_table || !flevel_table || !int_table) {
-        av_freep(&run_table);
-        av_freep(&flevel_table);
-        av_freep(&int_table);
+        zn_av_freep(&run_table);
+        zn_av_freep(&flevel_table);
+        zn_av_freep(&int_table);
         return AVERROR(ENOMEM);
     }
     i            = 2;
@@ -377,11 +377,11 @@ int ff_wma_end(AVCodecContext *avctx)
         ff_vlc_free(&s->hgain_vlc);
     for (i = 0; i < 2; i++) {
         ff_vlc_free(&s->coef_vlc[i]);
-        av_freep(&s->run_table[i]);
-        av_freep(&s->level_table[i]);
-        av_freep(&s->int_table[i]);
+        zn_av_freep(&s->run_table[i]);
+        zn_av_freep(&s->level_table[i]);
+        zn_av_freep(&s->int_table[i]);
     }
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
 
     return 0;
 }

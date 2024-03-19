@@ -310,10 +310,10 @@ typedef struct AVRegionOfInterest {
 /**
  * This structure describes decoded (raw) audio or video data.
  *
- * AVFrame must be allocated using av_frame_alloc(). Note that this only
+ * AVFrame must be allocated using zn_av_frame_alloc(). Note that this only
  * allocates the AVFrame itself, the buffers for the data must be managed
  * through other means (see below).
- * AVFrame must be freed with av_frame_free().
+ * AVFrame must be freed with zn_av_frame_free().
  *
  * AVFrame is typically allocated once and then reused multiple times to hold
  * different data (e.g. a single AVFrame to hold frames received from a
@@ -810,15 +810,15 @@ typedef struct AVFrame {
 
 /**
  * Allocate an AVFrame and set its fields to default values.  The resulting
- * struct must be freed using av_frame_free().
+ * struct must be freed using zn_av_frame_free().
  *
  * @return An AVFrame filled with default values or NULL on failure.
  *
  * @note this only allocates the AVFrame itself, not the data buffers. Those
- * must be allocated through other means, e.g. with av_frame_get_buffer() or
+ * must be allocated through other means, e.g. with zn_av_frame_get_buffer() or
  * manually.
  */
-AVFrame *av_frame_alloc(void);
+AVFrame *zn_av_frame_alloc(void);
 
 /**
  * Free the frame and any dynamically allocated objects in it,
@@ -827,7 +827,7 @@ AVFrame *av_frame_alloc(void);
  *
  * @param frame frame to be freed. The pointer will be set to NULL.
  */
-void av_frame_free(AVFrame **frame);
+void zn_av_frame_free(AVFrame **frame);
 
 /**
  * Set up a new reference to the data described by the source frame.
@@ -839,7 +839,7 @@ void av_frame_free(AVFrame **frame);
  * copied.
  *
  * @warning: dst MUST have been either unreferenced with av_frame_unref(dst),
- *           or newly allocated with av_frame_alloc() before calling this
+ *           or newly allocated with zn_av_frame_alloc() before calling this
  *           function, or undefined behavior will occur.
  *
  * @return 0 on success, a negative AVERROR on error
@@ -862,7 +862,7 @@ int av_frame_replace(AVFrame *dst, const AVFrame *src);
 /**
  * Create a new frame that references the same data as src.
  *
- * This is a shortcut for av_frame_alloc()+av_frame_ref().
+ * This is a shortcut for zn_av_frame_alloc()+av_frame_ref().
  *
  * @return newly created AVFrame on success, NULL on error.
  */
@@ -905,7 +905,7 @@ void av_frame_move_ref(AVFrame *dst, AVFrame *src);
  *
  * @return 0 on success, a negative AVERROR on error.
  */
-int av_frame_get_buffer(AVFrame *frame, int align);
+int zn_av_frame_get_buffer(AVFrame *frame, int align);
 
 /**
  * Check if the frame data is writable.

@@ -52,9 +52,9 @@ static int sap_read_close(AVFormatContext *s)
 {
     struct SAPState *sap = s->priv_data;
     if (sap->sdp_ctx)
-        avformat_close_input(&sap->sdp_ctx);
+        zn_avformat_close_input(&sap->sdp_ctx);
     ffurl_closep(&sap->ann_fd);
-    av_freep(&sap->sdp);
+    zn_av_freep(&sap->sdp);
     ff_network_close();
     return 0;
 }
@@ -153,7 +153,7 @@ static int sap_read_header(AVFormatContext *s)
     infmt = av_find_input_format("sdp");
     if (!infmt)
         goto fail;
-    sap->sdp_ctx = avformat_alloc_context();
+    sap->sdp_ctx = zn_avformat_alloc_context();
     if (!sap->sdp_ctx) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -165,19 +165,19 @@ static int sap_read_header(AVFormatContext *s)
     if ((ret = ff_copy_whiteblacklists(sap->sdp_ctx, s)) < 0)
         goto fail;
 
-    ret = avformat_open_input(&sap->sdp_ctx, "temp.sdp", infmt, NULL);
+    ret = zn_avformat_open_input(&sap->sdp_ctx, "temp.sdp", infmt, NULL);
     if (ret < 0)
         goto fail;
     if (sap->sdp_ctx->ctx_flags & AVFMTCTX_NOHEADER)
         s->ctx_flags |= AVFMTCTX_NOHEADER;
     for (i = 0; i < sap->sdp_ctx->nb_streams; i++) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         if (!st) {
             ret = AVERROR(ENOMEM);
             goto fail;
         }
         st->id = i;
-        avcodec_parameters_copy(st->codecpar, sap->sdp_ctx->streams[i]->codecpar);
+        zn_avcodec_parameters_copy(st->codecpar, sap->sdp_ctx->streams[i]->codecpar);
         st->time_base = sap->sdp_ctx->streams[i]->time_base;
     }
 
@@ -214,18 +214,18 @@ static int sap_fetch_packet(AVFormatContext *s, AVPacket *pkt)
             }
         }
     }
-    ret = av_read_frame(sap->sdp_ctx, pkt);
+    ret = zn_av_read_frame(sap->sdp_ctx, pkt);
     if (ret < 0)
         return ret;
     if (s->ctx_flags & AVFMTCTX_NOHEADER) {
         while (sap->sdp_ctx->nb_streams > s->nb_streams) {
             int i = s->nb_streams;
-            AVStream *st = avformat_new_stream(s, NULL);
+            AVStream *st = zn_avformat_new_stream(s, NULL);
             if (!st) {
                 return AVERROR(ENOMEM);
             }
             st->id = i;
-            avcodec_parameters_copy(st->codecpar, sap->sdp_ctx->streams[i]->codecpar);
+            zn_avcodec_parameters_copy(st->codecpar, sap->sdp_ctx->streams[i]->codecpar);
             st->time_base = sap->sdp_ctx->streams[i]->time_base;
         }
     }

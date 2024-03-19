@@ -770,7 +770,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
     }
     if (avctx->stats_in) {
         char *p = avctx->stats_in;
-        uint8_t (*best_state)[256] = av_malloc_array(256, 256);
+        uint8_t (*best_state)[256] = zn_av_malloc_array(256, 256);
         int gob_count = 0;
         char *next;
         if (!best_state)
@@ -785,7 +785,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
                     if (next == p) {
                         av_log(avctx, AV_LOG_ERROR,
                                "2Pass file invalid at %d %d [%s]\n", j, i, p);
-                        av_freep(&best_state);
+                        zn_av_freep(&best_state);
                         return AVERROR_INVALIDDATA;
                     }
                     p = next;
@@ -799,7 +799,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
                                 av_log(avctx, AV_LOG_ERROR,
                                        "2Pass file invalid at %d %d %d %d [%s]\n",
                                        i, j, k, m, p);
-                                av_freep(&best_state);
+                                zn_av_freep(&best_state);
                                 return AVERROR_INVALIDDATA;
                             }
                             p = next;
@@ -808,7 +808,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
             gob_count = strtol(p, &next, 0);
             if (next == p || gob_count <= 0) {
                 av_log(avctx, AV_LOG_ERROR, "2Pass file invalid\n");
-                av_freep(&best_state);
+                zn_av_freep(&best_state);
                 return AVERROR_INVALIDDATA;
             }
             p = next;
@@ -847,7 +847,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
                 }
             }
         }
-        av_freep(&best_state);
+        zn_av_freep(&best_state);
     }
 
     if (s->version > 1) {

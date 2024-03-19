@@ -186,7 +186,7 @@ static av_cold int decode_end(AVCodecContext * avctx) {
     NellyMoserDecodeContext *s = avctx->priv_data;
 
     av_tx_uninit(&s->imdct_ctx);
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
 
     return 0;
 }

@@ -125,11 +125,11 @@ static av_cold int init(AVFilterContext *ctx)
 
     s->tmix = !strcmp(ctx->filter->name, "tmix");
 
-    s->frames = av_calloc(s->nb_inputs, sizeof(*s->frames));
+    s->frames = zn_av_calloc(s->nb_inputs, sizeof(*s->frames));
     if (!s->frames)
         return AVERROR(ENOMEM);
 
-    s->weights = av_calloc(s->nb_inputs, sizeof(*s->weights));
+    s->weights = zn_av_calloc(s->nb_inputs, sizeof(*s->weights));
     if (!s->weights)
         return AVERROR(ENOMEM);
 
@@ -347,17 +347,17 @@ static int config_output(AVFilterLink *outlink)
     s->height[1] = s->height[2] = AV_CEIL_RSHIFT(inlink->h, s->desc->log2_chroma_h);
     s->height[0] = s->height[3] = inlink->h;
 
-    s->data = av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->data));
+    s->data = zn_av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->data));
     if (!s->data)
         return AVERROR(ENOMEM);
 
-    s->linesize = av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->linesize));
+    s->linesize = zn_av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->linesize));
     if (!s->linesize)
         return AVERROR(ENOMEM);
 
     if (s->tmix) {
         for (int p = 0; p < s->nb_planes; p++) {
-            s->sum[p] = av_calloc(s->linesizes[p], s->height[p] * sizeof(*s->sum) * 2);
+            s->sum[p] = zn_av_calloc(s->linesizes[p], s->height[p] * sizeof(*s->sum) * 2);
             if (!s->sum[p])
                 return AVERROR(ENOMEM);
         }
@@ -397,17 +397,17 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     ff_framesync_uninit(&s->fs);
-    av_freep(&s->weights);
-    av_freep(&s->data);
-    av_freep(&s->linesize);
+    zn_av_freep(&s->weights);
+    zn_av_freep(&s->data);
+    zn_av_freep(&s->linesize);
 
     if (s->tmix) {
         for (i = 0; i < 4; i++)
-            av_freep(&s->sum[i]);
+            zn_av_freep(&s->sum[i]);
         for (i = 0; i < s->nb_frames && s->frames; i++)
-            av_frame_free(&s->frames[i]);
+            zn_av_frame_free(&s->frames[i]);
     }
-    av_freep(&s->frames);
+    zn_av_freep(&s->frames);
 }
 
 static int process_command(AVFilterContext *ctx, const char *cmd, const char *args,
@@ -496,7 +496,7 @@ static int tmix_filter_frame(AVFilterLink *inlink, AVFrame *in)
         }
     } else {
         s->nb_unique_frames = FFMIN(s->nb_unique_frames + 1, s->nb_inputs);
-        av_frame_free(&s->frames[0]);
+        zn_av_frame_free(&s->frames[0]);
         memmove(&s->frames[0], &s->frames[1], sizeof(*s->frames) * (s->nb_inputs - 1));
         s->frames[s->nb_inputs - 1] = in;
     }

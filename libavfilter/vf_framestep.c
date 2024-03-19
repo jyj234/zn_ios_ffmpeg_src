@@ -54,8 +54,8 @@ static int config_output_props(AVFilterLink *outlink)
 
     av_log(ctx, AV_LOG_VERBOSE, "step:%d frame_rate:%d/%d(%f) -> frame_rate:%d/%d(%f)\n",
            framestep->frame_step,
-           inlink->frame_rate.num, inlink->frame_rate.den, av_q2d(inlink->frame_rate),
-           outlink->frame_rate.num, outlink->frame_rate.den, av_q2d(outlink->frame_rate));
+           inlink->frame_rate.num, inlink->frame_rate.den, zn_av_q2d(inlink->frame_rate),
+           outlink->frame_rate.num, outlink->frame_rate.den, zn_av_q2d(outlink->frame_rate));
     return 0;
 }
 
@@ -66,7 +66,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *ref)
     if (!(inlink->frame_count_out % framestep->frame_step)) {
         return ff_filter_frame(inlink->dst->outputs[0], ref);
     } else {
-        av_frame_free(&ref);
+        zn_av_frame_free(&ref);
         return 0;
     }
 }

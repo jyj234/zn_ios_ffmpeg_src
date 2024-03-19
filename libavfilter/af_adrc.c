@@ -125,7 +125,7 @@ static int config_input(AVFilterLink *inlink)
     s->fx = inlink->sample_rate * 0.5f / (s->fft_size / 2 + 1);
     s->overlap = s->fft_size / 4;
 
-    s->window = av_calloc(s->fft_size, sizeof(*s->window));
+    s->window = zn_av_calloc(s->fft_size, sizeof(*s->window));
     if (!s->window)
         return AVERROR(ENOMEM);
 
@@ -148,8 +148,8 @@ static int config_input(AVFilterLink *inlink)
 
     s->channels = inlink->ch_layout.nb_channels;
 
-    s->tx_ctx = av_calloc(s->channels, sizeof(*s->tx_ctx));
-    s->itx_ctx = av_calloc(s->channels, sizeof(*s->itx_ctx));
+    s->tx_ctx = zn_av_calloc(s->channels, sizeof(*s->tx_ctx));
+    s->itx_ctx = zn_av_calloc(s->channels, sizeof(*s->itx_ctx));
     if (!s->tx_ctx || !s->itx_ctx)
         return AVERROR(ENOMEM);
 
@@ -384,7 +384,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     out->nb_samples = in->nb_samples;
     ret = ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     s->in = NULL;
     return ret < 0 ? ret : 0;
 }
@@ -398,7 +398,7 @@ static int activate(AVFilterContext *ctx)
     int ret = 0, status;
     int64_t pts;
 
-    ret = av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
+    ret = zn_av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
     if (ret < 0)
         return ret;
     if (strcmp(s->channels_to_filter, "all"))
@@ -437,18 +437,18 @@ static av_cold void uninit(AVFilterContext *ctx)
     av_expr_free(s->expr);
     s->expr = NULL;
 
-    av_freep(&s->window);
+    zn_av_freep(&s->window);
 
-    av_frame_free(&s->drc_frame);
-    av_frame_free(&s->energy);
-    av_frame_free(&s->envelope);
-    av_frame_free(&s->factors);
-    av_frame_free(&s->in_buffer);
-    av_frame_free(&s->in_frame);
-    av_frame_free(&s->out_dist_frame);
-    av_frame_free(&s->spectrum_buf);
-    av_frame_free(&s->target_gain);
-    av_frame_free(&s->windowed_frame);
+    zn_av_frame_free(&s->drc_frame);
+    zn_av_frame_free(&s->energy);
+    zn_av_frame_free(&s->envelope);
+    zn_av_frame_free(&s->factors);
+    zn_av_frame_free(&s->in_buffer);
+    zn_av_frame_free(&s->in_frame);
+    zn_av_frame_free(&s->out_dist_frame);
+    zn_av_frame_free(&s->spectrum_buf);
+    zn_av_frame_free(&s->target_gain);
+    zn_av_frame_free(&s->windowed_frame);
 
     for (int ch = 0; ch < s->channels; ch++) {
         if (s->tx_ctx)
@@ -457,8 +457,8 @@ static av_cold void uninit(AVFilterContext *ctx)
             av_tx_uninit(&s->itx_ctx[ch]);
     }
 
-    av_freep(&s->tx_ctx);
-    av_freep(&s->itx_ctx);
+    zn_av_freep(&s->tx_ctx);
+    zn_av_freep(&s->itx_ctx);
 }
 
 static int process_command(AVFilterContext *ctx, const char *cmd, const char *args,
@@ -473,7 +473,7 @@ static int process_command(AVFilterContext *ctx, const char *cmd, const char *ar
         ret = av_expr_parse(&s->expr, s->expr_str, var_names, NULL, NULL,
                             NULL, NULL, 0, ctx);
     }
-    av_free(old_expr_str);
+    zn_av_free(old_expr_str);
     return ret;
 }
 

@@ -78,7 +78,7 @@ av_cold void ff_huffyuv_common_end(uint8_t *temp[3], uint16_t *temp16[3])
     int i;
 
     for(i = 0; i < 3; i++) {
-        av_freep(&temp[i]);
+        zn_av_freep(&temp[i]);
         temp16[i] = NULL;
     }
 }

@@ -68,10 +68,10 @@ static av_cold int paf_video_close(AVCodecContext *avctx)
     PAFVideoDecContext *c = avctx->priv_data;
     int i;
 
-    av_frame_free(&c->pic);
+    zn_av_frame_free(&c->pic);
 
     for (i = 0; i < 4; i++)
-        av_freep(&c->frame[i]);
+        zn_av_freep(&c->frame[i]);
 
     return 0;
 }
@@ -97,7 +97,7 @@ static av_cold int paf_video_init(AVCodecContext *avctx)
     if (ret < 0)
         return ret;
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 

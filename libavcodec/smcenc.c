@@ -521,7 +521,7 @@ static int smc_encode_init(AVCodecContext *avctx)
 
     avctx->bits_per_coded_sample = 8;
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 
@@ -584,7 +584,7 @@ static int smc_encode_end(AVCodecContext *avctx)
 {
     SMCContext *s = avctx->priv_data;
 
-    av_frame_free(&s->prev_frame);
+    zn_av_frame_free(&s->prev_frame);
 
     return 0;
 }

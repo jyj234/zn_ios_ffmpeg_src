@@ -4430,7 +4430,7 @@ case "$toolchain" in
         target_exec_default="valgrind"
         case "$toolchain" in
             valgrind-massif)
-                target_exec_args="--tool=massif --alloc-fn=av_malloc --alloc-fn=av_mallocz --alloc-fn=av_calloc --alloc-fn=av_fast_padded_malloc --alloc-fn=av_fast_malloc --alloc-fn=av_realloc_f --alloc-fn=av_fast_realloc --alloc-fn=av_realloc"
+                target_exec_args="--tool=massif --alloc-fn=av_malloc --alloc-fn=av_mallocz --alloc-fn=zn_av_calloc --alloc-fn=av_fast_padded_malloc --alloc-fn=av_fast_malloc --alloc-fn=av_realloc_f --alloc-fn=av_fast_realloc --alloc-fn=av_realloc"
                 ;;
             valgrind-memcheck)
                 target_exec_args="--error-exitcode=1 --malloc-fill=0x2a --track-origins=yes --leak-check=full --gen-suppressions=all --suppressions=$source_path/tests/fate-valgrind.supp"
@@ -7268,25 +7268,25 @@ test_ldflags -Wl,-Bsymbolic && append SHFLAGS -Wl,-Bsymbolic
 check_stripflags -x
 
 enabled neon_clobber_test &&
-    check_ldflags -Wl,--wrap,avcodec_open2              \
+    check_ldflags -Wl,--wrap,zn_avcodec_open2              \
                   -Wl,--wrap,avcodec_decode_subtitle2   \
                   -Wl,--wrap,avcodec_encode_subtitle    \
-                  -Wl,--wrap,avcodec_send_packet        \
-                  -Wl,--wrap,avcodec_receive_packet     \
-                  -Wl,--wrap,avcodec_send_frame         \
-                  -Wl,--wrap,avcodec_receive_frame      \
-                  -Wl,--wrap,swr_convert        ||
+                  -Wl,--wrap,zn_avcodec_send_packet        \
+                  -Wl,--wrap,zn_avcodec_receive_packet     \
+                  -Wl,--wrap,zn_avcodec_send_frame         \
+                  -Wl,--wrap,zn_avcodec_receive_frame      \
+                  -Wl,--wrap,zn_swr_convert        ||
     disable neon_clobber_test
 
 enabled xmm_clobber_test &&
-    check_ldflags -Wl,--wrap,avcodec_open2              \
+    check_ldflags -Wl,--wrap,zn_avcodec_open2              \
                   -Wl,--wrap,avcodec_decode_subtitle2   \
                   -Wl,--wrap,avcodec_encode_subtitle    \
-                  -Wl,--wrap,avcodec_send_packet        \
-                  -Wl,--wrap,avcodec_receive_packet     \
-                  -Wl,--wrap,avcodec_send_frame         \
-                  -Wl,--wrap,avcodec_receive_frame      \
-                  -Wl,--wrap,swr_convert                \
+                  -Wl,--wrap,zn_avcodec_send_packet        \
+                  -Wl,--wrap,zn_avcodec_receive_packet     \
+                  -Wl,--wrap,zn_avcodec_send_frame         \
+                  -Wl,--wrap,zn_avcodec_receive_frame      \
+                  -Wl,--wrap,zn_swr_convert                \
                   -Wl,--wrap,sws_scale ||
     disable xmm_clobber_test
 

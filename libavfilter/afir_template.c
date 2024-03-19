@@ -61,9 +61,9 @@ static void fn(draw_response)(AVFilterContext *ctx, AVFrame *out)
     for (int y = 0; y < s->h; y++)
         memset(out->data[0] + y * out->linesize[0], 0, s->w * 4);
 
-    phase = av_malloc_array(s->w, sizeof(*phase));
-    mag = av_malloc_array(s->w, sizeof(*mag));
-    delay = av_malloc_array(s->w, sizeof(*delay));
+    phase = zn_av_malloc_array(s->w, sizeof(*phase));
+    mag = zn_av_malloc_array(s->w, sizeof(*mag));
+    delay = zn_av_malloc_array(s->w, sizeof(*delay));
     if (!mag || !phase || !delay)
         goto end;
 
@@ -134,9 +134,9 @@ static void fn(draw_response)(AVFilterContext *ctx, AVFrame *out)
     }
 
 end:
-    av_free(delay);
-    av_free(phase);
-    av_free(mag);
+    zn_av_free(delay);
+    zn_av_free(phase);
+    zn_av_free(mag);
 }
 
 static int fn(get_power)(AVFilterContext *ctx, AudioFIRContext *s,
@@ -185,19 +185,19 @@ static int fn(get_power)(AVFilterContext *ctx, AudioFIRContext *s,
             int ret, size;
 
             size = 1 << av_ceil_log2_c(cur_nb_taps);
-            inc = av_calloc(size + 2, sizeof(SAMPLE_FORMAT));
-            outc = av_calloc(size + 2, sizeof(SAMPLE_FORMAT));
+            inc = zn_av_calloc(size + 2, sizeof(SAMPLE_FORMAT));
+            outc = zn_av_calloc(size + 2, sizeof(SAMPLE_FORMAT));
             if (!inc || !outc) {
-                av_free(outc);
-                av_free(inc);
+                zn_av_free(outc);
+                zn_av_free(inc);
                 break;
             }
 
             scale = 1.;
             ret = av_tx_init(&tx, &tx_fn, TX_TYPE, 0, size, &scale, 0);
             if (ret < 0) {
-                av_free(outc);
-                av_free(inc);
+                zn_av_free(outc);
+                zn_av_free(inc);
                 break;
             }
 
@@ -220,8 +220,8 @@ static int fn(get_power)(AVFilterContext *ctx, AudioFIRContext *s,
             }
 
             av_tx_uninit(&tx);
-            av_free(outc);
-            av_free(inc);
+            zn_av_free(outc);
+            zn_av_free(inc);
         }
         break;
     default:

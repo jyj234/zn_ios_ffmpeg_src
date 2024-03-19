@@ -149,10 +149,10 @@ static int equ_init(SuperEqualizerContext *s, int wb)
     s->winlen = (1 << (wb-1))-1;
     s->tabsize  = 1 << wb;
 
-    s->ires     = av_calloc(s->tabsize + 2, sizeof(float));
-    s->irest    = av_calloc(s->tabsize, sizeof(float));
-    s->fsamples = av_calloc(s->tabsize, sizeof(float));
-    s->fsamples_out = av_calloc(s->tabsize + 2, sizeof(float));
+    s->ires     = zn_av_calloc(s->tabsize + 2, sizeof(float));
+    s->irest    = zn_av_calloc(s->tabsize, sizeof(float));
+    s->fsamples = zn_av_calloc(s->tabsize, sizeof(float));
+    s->fsamples_out = zn_av_calloc(s->tabsize + 2, sizeof(float));
     if (!s->ires || !s->irest || !s->fsamples || !s->fsamples_out)
         return AVERROR(ENOMEM);
 
@@ -199,7 +199,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     float *src, *dst, *ptr;
 
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -238,7 +238,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     out->pts = in->pts;
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -298,11 +298,11 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     SuperEqualizerContext *s = ctx->priv;
 
-    av_frame_free(&s->out);
-    av_freep(&s->irest);
-    av_freep(&s->ires);
-    av_freep(&s->fsamples);
-    av_freep(&s->fsamples_out);
+    zn_av_frame_free(&s->out);
+    zn_av_freep(&s->irest);
+    zn_av_freep(&s->ires);
+    zn_av_freep(&s->fsamples);
+    zn_av_freep(&s->fsamples_out);
     av_tx_uninit(&s->rdft);
     av_tx_uninit(&s->irdft);
 }

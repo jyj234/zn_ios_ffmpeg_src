@@ -1696,7 +1696,7 @@ static av_cold int qdm2_decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, s->channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, s->channels);
 
     avctx->sample_rate = bytestream2_get_be32(&gb);
     avctx->bit_rate = bytestream2_get_be32(&gb);

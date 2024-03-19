@@ -199,7 +199,7 @@ static av_cold void jpg_free_context(JPGContext *ctx)
         ff_vlc_free(&ctx->ac_vlc[i]);
     }
 
-    av_freep(&ctx->buf);
+    zn_av_freep(&ctx->buf);
 }
 
 static void jpg_unescape(const uint8_t *src, int src_size,
@@ -467,11 +467,11 @@ static void epic_free_pixel_cache(ePICPixHash *hash)
             ePICPixListElem *list_elem = hash->bucket[i][j].list;
             while (list_elem) {
                 ePICPixListElem *tmp = list_elem->next;
-                av_free(list_elem);
+                zn_av_free(list_elem);
                 list_elem = tmp;
             }
         }
-        av_freep(&hash->bucket[i]);
+        zn_av_freep(&hash->bucket[i]);
         hash->bucket_size[i] =
         hash->bucket_fill[i] = 0;
     }
@@ -1175,11 +1175,11 @@ static int g2m_init_buffers(G2MContext *c)
         c->tile_stride     = FFALIGN(c->tile_width, 16) * 3;
         c->epic_buf_stride = FFALIGN(c->tile_width * 4, 16);
         aligned_height     = FFALIGN(c->tile_height,    16);
-        av_freep(&c->synth_tile);
-        av_freep(&c->jpeg_tile);
-        av_freep(&c->kempf_buf);
-        av_freep(&c->kempf_flags);
-        av_freep(&c->epic_buf_base);
+        zn_av_freep(&c->synth_tile);
+        zn_av_freep(&c->jpeg_tile);
+        zn_av_freep(&c->kempf_buf);
+        zn_av_freep(&c->kempf_flags);
+        zn_av_freep(&c->epic_buf_base);
         c->epic_buf    = NULL;
         c->synth_tile  = av_mallocz(c->tile_stride      * aligned_height);
         c->jpeg_tile   = av_mallocz(c->tile_stride      * aligned_height);
@@ -1612,14 +1612,14 @@ static av_cold int g2m_decode_end(AVCodecContext *avctx)
 
     jpg_free_context(&c->jc);
 
-    av_freep(&c->epic_buf_base);
+    zn_av_freep(&c->epic_buf_base);
     c->epic_buf = NULL;
-    av_freep(&c->kempf_buf);
-    av_freep(&c->kempf_flags);
-    av_freep(&c->synth_tile);
-    av_freep(&c->jpeg_tile);
-    av_freep(&c->cursor);
-    av_freep(&c->framebuf);
+    zn_av_freep(&c->kempf_buf);
+    zn_av_freep(&c->kempf_flags);
+    zn_av_freep(&c->synth_tile);
+    zn_av_freep(&c->jpeg_tile);
+    zn_av_freep(&c->cursor);
+    zn_av_freep(&c->framebuf);
     c->framebuf_allocated = 0;
 
     return 0;

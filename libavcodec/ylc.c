@@ -439,7 +439,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 
     for (int i = 0; i < FF_ARRAY_ELEMS(s->vlc); i++)
         ff_vlc_free(&s->vlc[i]);
-    av_freep(&s->buffer);
+    zn_av_freep(&s->buffer);
     s->buffer_size = 0;
 
     return 0;

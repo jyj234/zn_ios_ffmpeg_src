@@ -122,7 +122,7 @@ typedef struct FFFormatContext {
      * to parse packets or for muxing, especially flushing.
      * For demuxers, it may also be used for other means
      * for short periods that are guaranteed not to overlap
-     * with calls to av_read_frame() (or ff_read_packet())
+     * with calls to zn_av_read_frame() (or ff_read_packet())
      * or with each other.
      * It may be used by demuxers as a replacement for
      * stack packets (unless they call one of the aforementioned
@@ -221,7 +221,7 @@ typedef struct FFStream {
     int bitstream_checked;
 
     /**
-     * The codec context used by avformat_find_stream_info, the parser, etc.
+     * The codec context used by zn_avformat_find_stream_info, the parser, etc.
      */
     struct AVCodecContext *avctx;
     /**
@@ -247,7 +247,7 @@ typedef struct FFStream {
     FFFrac *priv_pts;
 
     /**
-     * Stream information used internally by avformat_find_stream_info()
+     * Stream information used internally by zn_avformat_find_stream_info()
      */
     struct FFStreamInfo *info;
 
@@ -387,12 +387,12 @@ typedef struct FFStream {
      */
     int probe_packets;
 
-    /* av_read_frame() support */
+    /* zn_av_read_frame() support */
     enum AVStreamParseType need_parsing;
     struct AVCodecParserContext *parser;
 
     /**
-     * Number of frames that have been demuxed during avformat_find_stream_info()
+     * Number of frames that have been demuxed during zn_avformat_find_stream_info()
      */
     int codec_info_nb_frames;
 

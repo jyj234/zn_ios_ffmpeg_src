@@ -88,7 +88,7 @@ static av_cold int init(AVFilterContext *ctx)
 {
     ThumbnailCudaContext *s = ctx->priv;
 
-    s->frames = av_calloc(s->n_frames, sizeof(*s->frames));
+    s->frames = zn_av_calloc(s->n_frames, sizeof(*s->frames));
     if (!s->frames) {
         av_log(ctx, AV_LOG_ERROR,
                "Allocation failure, try to lower the number of frames\n");
@@ -142,7 +142,7 @@ static AVFrame *get_best_frame(AVFilterContext *ctx)
     for (i = 0; i < nb_frames; i++) {
         memset(s->frames[i].histogram, 0, sizeof(s->frames[i].histogram));
         if (i != best_frame_idx)
-            av_frame_free(&s->frames[i].buf);
+            zn_av_frame_free(&s->frames[i].buf);
     }
     s->n = 0;
 
@@ -150,7 +150,7 @@ static AVFrame *get_best_frame(AVFilterContext *ctx)
     picref = s->frames[best_frame_idx].buf;
     av_log(ctx, AV_LOG_INFO, "frame id #%d (pts_time=%f) selected "
            "from a set of %d images\n", best_frame_idx,
-           picref->pts * av_q2d(s->tb), nb_frames);
+           picref->pts * zn_av_q2d(s->tb), nb_frames);
     s->frames[best_frame_idx].buf = NULL;
 
     return picref;
@@ -322,8 +322,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     if (s->frames) {
         for (int i = 0; i < s->n_frames && s->frames[i].buf; i++)
-            av_frame_free(&s->frames[i].buf);
-        av_freep(&s->frames);
+            zn_av_frame_free(&s->frames[i].buf);
+        zn_av_freep(&s->frames);
     }
 }
 

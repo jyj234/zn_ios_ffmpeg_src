@@ -45,11 +45,11 @@ typedef struct CNGContext {
 static av_cold int cng_decode_close(AVCodecContext *avctx)
 {
     CNGContext *p = avctx->priv_data;
-    av_freep(&p->refl_coef);
-    av_freep(&p->target_refl_coef);
-    av_freep(&p->lpc_coef);
-    av_freep(&p->filter_out);
-    av_freep(&p->excitation);
+    zn_av_freep(&p->refl_coef);
+    zn_av_freep(&p->target_refl_coef);
+    zn_av_freep(&p->lpc_coef);
+    zn_av_freep(&p->filter_out);
+    zn_av_freep(&p->excitation);
     return 0;
 }
 
@@ -64,12 +64,12 @@ static av_cold int cng_decode_init(AVCodecContext *avctx)
 
     p->order            = 12;
     avctx->frame_size   = 640;
-    p->refl_coef        = av_calloc(p->order, sizeof(*p->refl_coef));
-    p->target_refl_coef = av_calloc(p->order, sizeof(*p->target_refl_coef));
-    p->lpc_coef         = av_calloc(p->order, sizeof(*p->lpc_coef));
-    p->filter_out       = av_calloc(avctx->frame_size + p->order,
+    p->refl_coef        = zn_av_calloc(p->order, sizeof(*p->refl_coef));
+    p->target_refl_coef = zn_av_calloc(p->order, sizeof(*p->target_refl_coef));
+    p->lpc_coef         = zn_av_calloc(p->order, sizeof(*p->lpc_coef));
+    p->filter_out       = zn_av_calloc(avctx->frame_size + p->order,
                                      sizeof(*p->filter_out));
-    p->excitation       = av_calloc(avctx->frame_size, sizeof(*p->excitation));
+    p->excitation       = zn_av_calloc(avctx->frame_size, sizeof(*p->excitation));
     if (!p->refl_coef || !p->target_refl_coef || !p->lpc_coef ||
         !p->filter_out || !p->excitation) {
         return AVERROR(ENOMEM);

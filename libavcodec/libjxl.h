@@ -51,7 +51,7 @@ size_t ff_libjxl_get_threadcount(int threads);
 
 /**
  * Initialize and populate a JxlMemoryManager
- * with av_malloc() and av_free() so libjxl will use these
+ * with av_malloc() and zn_av_free() so libjxl will use these
  * functions.
  * @param manager a pointer to a JxlMemoryManager struct
  */

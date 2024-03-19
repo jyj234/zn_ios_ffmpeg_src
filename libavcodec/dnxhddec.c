@@ -104,7 +104,7 @@ static av_cold int dnxhd_decode_init(AVCodecContext *avctx)
     avctx->coded_width  = FFALIGN(avctx->width,  16);
     avctx->coded_height = FFALIGN(avctx->height, 16);
 
-    ctx->rows = av_calloc(avctx->thread_count, sizeof(*ctx->rows));
+    ctx->rows = zn_av_calloc(avctx->thread_count, sizeof(*ctx->rows));
     if (!ctx->rows)
         return AVERROR(ENOMEM);
 
@@ -722,7 +722,7 @@ static av_cold int dnxhd_decode_close(AVCodecContext *avctx)
     ff_vlc_free(&ctx->dc_vlc);
     ff_vlc_free(&ctx->run_vlc);
 
-    av_freep(&ctx->rows);
+    zn_av_freep(&ctx->rows);
 
     return 0;
 }

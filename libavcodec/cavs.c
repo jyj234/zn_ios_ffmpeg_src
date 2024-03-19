@@ -758,15 +758,15 @@ int ff_cavs_init_top_lines(AVSContext *h)
 {
     /* alloc top line of predictors */
     h->top_qp       = av_mallocz(h->mb_width);
-    h->top_mv[0]    = av_calloc(h->mb_width * 2 + 1,  sizeof(cavs_vector));
-    h->top_mv[1]    = av_calloc(h->mb_width * 2 + 1,  sizeof(cavs_vector));
-    h->top_pred_Y   = av_calloc(h->mb_width * 2,  sizeof(*h->top_pred_Y));
-    h->top_border_y = av_calloc(h->mb_width + 1,  16);
-    h->top_border_u = av_calloc(h->mb_width,  10);
-    h->top_border_v = av_calloc(h->mb_width,  10);
+    h->top_mv[0]    = zn_av_calloc(h->mb_width * 2 + 1,  sizeof(cavs_vector));
+    h->top_mv[1]    = zn_av_calloc(h->mb_width * 2 + 1,  sizeof(cavs_vector));
+    h->top_pred_Y   = zn_av_calloc(h->mb_width * 2,  sizeof(*h->top_pred_Y));
+    h->top_border_y = zn_av_calloc(h->mb_width + 1,  16);
+    h->top_border_u = zn_av_calloc(h->mb_width,  10);
+    h->top_border_v = zn_av_calloc(h->mb_width,  10);
 
     /* alloc space for co-located MVs and types */
-    h->col_mv        = av_calloc(h->mb_width * h->mb_height,
+    h->col_mv        = zn_av_calloc(h->mb_width * h->mb_height,
                                  4 * sizeof(*h->col_mv));
     h->col_type_base = av_mallocz(h->mb_width * h->mb_height);
     h->block         = av_mallocz(64 * sizeof(int16_t));
@@ -774,16 +774,16 @@ int ff_cavs_init_top_lines(AVSContext *h)
     if (!h->top_qp || !h->top_mv[0] || !h->top_mv[1] || !h->top_pred_Y ||
         !h->top_border_y || !h->top_border_u || !h->top_border_v ||
         !h->col_mv || !h->col_type_base || !h->block) {
-        av_freep(&h->top_qp);
-        av_freep(&h->top_mv[0]);
-        av_freep(&h->top_mv[1]);
-        av_freep(&h->top_pred_Y);
-        av_freep(&h->top_border_y);
-        av_freep(&h->top_border_u);
-        av_freep(&h->top_border_v);
-        av_freep(&h->col_mv);
-        av_freep(&h->col_type_base);
-        av_freep(&h->block);
+        zn_av_freep(&h->top_qp);
+        zn_av_freep(&h->top_mv[0]);
+        zn_av_freep(&h->top_mv[1]);
+        zn_av_freep(&h->top_pred_Y);
+        zn_av_freep(&h->top_border_y);
+        zn_av_freep(&h->top_border_u);
+        zn_av_freep(&h->top_border_v);
+        zn_av_freep(&h->col_mv);
+        zn_av_freep(&h->col_type_base);
+        zn_av_freep(&h->block);
         return AVERROR(ENOMEM);
     }
     return 0;
@@ -804,9 +804,9 @@ av_cold int ff_cavs_init(AVCodecContext *avctx)
     h->avctx       = avctx;
     avctx->pix_fmt = AV_PIX_FMT_YUV420P;
 
-    h->cur.f    = av_frame_alloc();
-    h->DPB[0].f = av_frame_alloc();
-    h->DPB[1].f = av_frame_alloc();
+    h->cur.f    = zn_av_frame_alloc();
+    h->DPB[0].f = zn_av_frame_alloc();
+    h->DPB[1].f = zn_av_frame_alloc();
     if (!h->cur.f || !h->DPB[0].f || !h->DPB[1].f)
         return AVERROR(ENOMEM);
 
@@ -836,20 +836,20 @@ av_cold int ff_cavs_end(AVCodecContext *avctx)
 {
     AVSContext *h = avctx->priv_data;
 
-    av_frame_free(&h->cur.f);
-    av_frame_free(&h->DPB[0].f);
-    av_frame_free(&h->DPB[1].f);
+    zn_av_frame_free(&h->cur.f);
+    zn_av_frame_free(&h->DPB[0].f);
+    zn_av_frame_free(&h->DPB[1].f);
 
-    av_freep(&h->top_qp);
-    av_freep(&h->top_mv[0]);
-    av_freep(&h->top_mv[1]);
-    av_freep(&h->top_pred_Y);
-    av_freep(&h->top_border_y);
-    av_freep(&h->top_border_u);
-    av_freep(&h->top_border_v);
-    av_freep(&h->col_mv);
-    av_freep(&h->col_type_base);
-    av_freep(&h->block);
-    av_freep(&h->edge_emu_buffer);
+    zn_av_freep(&h->top_qp);
+    zn_av_freep(&h->top_mv[0]);
+    zn_av_freep(&h->top_mv[1]);
+    zn_av_freep(&h->top_pred_Y);
+    zn_av_freep(&h->top_border_y);
+    zn_av_freep(&h->top_border_u);
+    zn_av_freep(&h->top_border_v);
+    zn_av_freep(&h->col_mv);
+    zn_av_freep(&h->col_type_base);
+    zn_av_freep(&h->block);
+    zn_av_freep(&h->edge_emu_buffer);
     return 0;
 }

@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 
     printf("ffmpeg motion test\n");
 
-    ctx = avcodec_alloc_context3(NULL);
+    ctx = zn_avcodec_alloc_context3(NULL);
     ctx->flags |= AV_CODEC_FLAG_BITEXACT;
     av_force_cpu_flags(0);
     memset(&cctx, 0, sizeof(cctx));
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
             test_motion("mmx_xy2", mmxctx.pix_abs[x][3], cctx.pix_abs[x][3]);
         }
     }
-    av_free(ctx);
+    zn_av_free(ctx);
 
     return 0;
 }

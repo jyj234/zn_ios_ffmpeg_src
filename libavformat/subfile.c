@@ -58,7 +58,7 @@ static int slave_seek(URLContext *h)
         if (ret >= 0)
             ret = AVERROR_BUG;
         av_log(h, AV_LOG_ERROR, "Impossible to seek in file: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         return ret;
     }
     return 0;

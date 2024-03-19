@@ -65,26 +65,26 @@ static const uint8_t hevc_pel_weight[65] = { [2] = 0, [4] = 1, [6] = 2, [8] = 3,
 /* free everything allocated  by pic_arrays_init() */
 static void pic_arrays_free(HEVCContext *s)
 {
-    av_freep(&s->sao);
-    av_freep(&s->deblock);
+    zn_av_freep(&s->sao);
+    zn_av_freep(&s->deblock);
 
-    av_freep(&s->skip_flag);
-    av_freep(&s->tab_ct_depth);
+    zn_av_freep(&s->skip_flag);
+    zn_av_freep(&s->tab_ct_depth);
 
-    av_freep(&s->tab_ipm);
-    av_freep(&s->cbf_luma);
-    av_freep(&s->is_pcm);
+    zn_av_freep(&s->tab_ipm);
+    zn_av_freep(&s->cbf_luma);
+    zn_av_freep(&s->is_pcm);
 
-    av_freep(&s->qp_y_tab);
-    av_freep(&s->tab_slice_address);
-    av_freep(&s->filter_slice_edges);
+    zn_av_freep(&s->qp_y_tab);
+    zn_av_freep(&s->tab_slice_address);
+    zn_av_freep(&s->filter_slice_edges);
 
-    av_freep(&s->horizontal_bs);
-    av_freep(&s->vertical_bs);
+    zn_av_freep(&s->horizontal_bs);
+    zn_av_freep(&s->vertical_bs);
 
-    av_freep(&s->sh.entry_point_offset);
-    av_freep(&s->sh.size);
-    av_freep(&s->sh.offset);
+    zn_av_freep(&s->sh.entry_point_offset);
+    zn_av_freep(&s->sh.size);
+    zn_av_freep(&s->sh.offset);
 
     av_buffer_pool_uninit(&s->tab_mvf_pool);
     av_buffer_pool_uninit(&s->rpl_tab_pool);
@@ -104,32 +104,32 @@ static int pic_arrays_init(HEVCContext *s, const HEVCSPS *sps)
     s->bs_width  = (width  >> 2) + 1;
     s->bs_height = (height >> 2) + 1;
 
-    s->sao           = av_calloc(ctb_count, sizeof(*s->sao));
-    s->deblock       = av_calloc(ctb_count, sizeof(*s->deblock));
+    s->sao           = zn_av_calloc(ctb_count, sizeof(*s->sao));
+    s->deblock       = zn_av_calloc(ctb_count, sizeof(*s->deblock));
     if (!s->sao || !s->deblock)
         goto fail;
 
-    s->skip_flag    = av_malloc_array(sps->min_cb_height, sps->min_cb_width);
-    s->tab_ct_depth = av_malloc_array(sps->min_cb_height, sps->min_cb_width);
+    s->skip_flag    = zn_av_malloc_array(sps->min_cb_height, sps->min_cb_width);
+    s->tab_ct_depth = zn_av_malloc_array(sps->min_cb_height, sps->min_cb_width);
     if (!s->skip_flag || !s->tab_ct_depth)
         goto fail;
 
-    s->cbf_luma = av_malloc_array(sps->min_tb_width, sps->min_tb_height);
+    s->cbf_luma = zn_av_malloc_array(sps->min_tb_width, sps->min_tb_height);
     s->tab_ipm  = av_mallocz(min_pu_size);
-    s->is_pcm   = av_malloc_array(sps->min_pu_width + 1, sps->min_pu_height + 1);
+    s->is_pcm   = zn_av_malloc_array(sps->min_pu_width + 1, sps->min_pu_height + 1);
     if (!s->tab_ipm || !s->cbf_luma || !s->is_pcm)
         goto fail;
 
     s->filter_slice_edges = av_mallocz(ctb_count);
-    s->tab_slice_address  = av_malloc_array(pic_size_in_ctb,
+    s->tab_slice_address  = zn_av_malloc_array(pic_size_in_ctb,
                                       sizeof(*s->tab_slice_address));
-    s->qp_y_tab           = av_malloc_array(pic_size_in_ctb,
+    s->qp_y_tab           = zn_av_malloc_array(pic_size_in_ctb,
                                       sizeof(*s->qp_y_tab));
     if (!s->qp_y_tab || !s->filter_slice_edges || !s->tab_slice_address)
         goto fail;
 
-    s->horizontal_bs = av_calloc(s->bs_width, s->bs_height);
-    s->vertical_bs   = av_calloc(s->bs_width, s->bs_height);
+    s->horizontal_bs = zn_av_calloc(s->bs_width, s->bs_height);
+    s->vertical_bs   = zn_av_calloc(s->bs_width, s->bs_height);
     if (!s->horizontal_bs || !s->vertical_bs)
         goto fail;
 
@@ -547,8 +547,8 @@ static int set_sps(HEVCContext *s, const HEVCSPS *sps,
     ff_videodsp_init (&s->vdsp,    sps->bit_depth);
 
     for (i = 0; i < 3; i++) {
-        av_freep(&s->sao_pixel_buffer_h[i]);
-        av_freep(&s->sao_pixel_buffer_v[i]);
+        zn_av_freep(&s->sao_pixel_buffer_h[i]);
+        zn_av_freep(&s->sao_pixel_buffer_v[i]);
     }
 
     if (sps->sao_enabled && !s->avctx->hwaccel) {
@@ -578,8 +578,8 @@ static int set_sps(HEVCContext *s, const HEVCSPS *sps,
 fail:
     pic_arrays_free(s);
     for (i = 0; i < 3; i++) {
-        av_freep(&s->sao_pixel_buffer_h[i]);
-        av_freep(&s->sao_pixel_buffer_v[i]);
+        zn_av_freep(&s->sao_pixel_buffer_h[i]);
+        zn_av_freep(&s->sao_pixel_buffer_v[i]);
     }
     s->ps.sps = NULL;
     return ret;
@@ -963,12 +963,12 @@ static int hls_slice_header(HEVCContext *s)
                 return AVERROR_INVALIDDATA;
             }
 
-            av_freep(&sh->entry_point_offset);
-            av_freep(&sh->offset);
-            av_freep(&sh->size);
-            sh->entry_point_offset = av_malloc_array(sh->num_entry_point_offsets, sizeof(unsigned));
-            sh->offset = av_malloc_array(sh->num_entry_point_offsets, sizeof(int));
-            sh->size = av_malloc_array(sh->num_entry_point_offsets, sizeof(int));
+            zn_av_freep(&sh->entry_point_offset);
+            zn_av_freep(&sh->offset);
+            zn_av_freep(&sh->size);
+            sh->entry_point_offset = zn_av_malloc_array(sh->num_entry_point_offsets, sizeof(unsigned));
+            sh->offset = zn_av_malloc_array(sh->num_entry_point_offsets, sizeof(int));
+            sh->size = zn_av_malloc_array(sh->num_entry_point_offsets, sizeof(int));
             if (!sh->entry_point_offset || !sh->offset || !sh->size) {
                 sh->num_entry_point_offsets = 0;
                 av_log(s->avctx, AV_LOG_ERROR, "Failed to allocate memory\n");
@@ -2743,7 +2743,7 @@ static int hls_slice_data_wpp(HEVCContext *s, const H2645NAL *nal)
     if (res < 0)
         return res;
 
-    ret = av_calloc(s->sh.num_entry_point_offsets + 1, sizeof(*ret));
+    ret = zn_av_calloc(s->sh.num_entry_point_offsets + 1, sizeof(*ret));
     if (!ret)
         return AVERROR(ENOMEM);
 
@@ -2753,7 +2753,7 @@ static int hls_slice_data_wpp(HEVCContext *s, const H2645NAL *nal)
     for (i = 0; i <= s->sh.num_entry_point_offsets; i++)
         res += ret[i];
 
-    av_free(ret);
+    zn_av_free(ret);
     return res;
 }
 
@@ -3441,33 +3441,33 @@ static av_cold int hevc_decode_free(AVCodecContext *avctx)
     ff_dovi_ctx_unref(&s->dovi_ctx);
     av_buffer_unref(&s->rpu_buf);
 
-    av_freep(&s->md5_ctx);
+    zn_av_freep(&s->md5_ctx);
 
     for (i = 0; i < 3; i++) {
-        av_freep(&s->sao_pixel_buffer_h[i]);
-        av_freep(&s->sao_pixel_buffer_v[i]);
+        zn_av_freep(&s->sao_pixel_buffer_h[i]);
+        zn_av_freep(&s->sao_pixel_buffer_v[i]);
     }
-    av_frame_free(&s->output_frame);
+    zn_av_frame_free(&s->output_frame);
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->DPB); i++) {
         ff_hevc_unref_frame(&s->DPB[i], ~0);
-        av_frame_free(&s->DPB[i].frame);
-        av_frame_free(&s->DPB[i].frame_grain);
+        zn_av_frame_free(&s->DPB[i].frame);
+        zn_av_frame_free(&s->DPB[i].frame_grain);
     }
 
     ff_hevc_ps_uninit(&s->ps);
 
-    av_freep(&s->sh.entry_point_offset);
-    av_freep(&s->sh.offset);
-    av_freep(&s->sh.size);
+    zn_av_freep(&s->sh.entry_point_offset);
+    zn_av_freep(&s->sh.offset);
+    zn_av_freep(&s->sh.size);
 
     if (s->HEVClcList) {
         for (i = 1; i < s->threads_number; i++) {
-            av_freep(&s->HEVClcList[i]);
+            zn_av_freep(&s->HEVClcList[i]);
         }
     }
-    av_freep(&s->HEVClc);
-    av_freep(&s->HEVClcList);
+    zn_av_freep(&s->HEVClc);
+    zn_av_freep(&s->HEVClcList);
 
     ff_h2645_packet_uninit(&s->pkt);
 
@@ -3492,17 +3492,17 @@ static av_cold int hevc_init_context(AVCodecContext *avctx)
     s->HEVClc->common_cabac_state = &s->cabac;
     s->HEVClcList[0] = s->HEVClc;
 
-    s->output_frame = av_frame_alloc();
+    s->output_frame = zn_av_frame_alloc();
     if (!s->output_frame)
         return AVERROR(ENOMEM);
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->DPB); i++) {
-        s->DPB[i].frame = av_frame_alloc();
+        s->DPB[i].frame = zn_av_frame_alloc();
         if (!s->DPB[i].frame)
             return AVERROR(ENOMEM);
         s->DPB[i].tf.f = s->DPB[i].frame;
 
-        s->DPB[i].frame_grain = av_frame_alloc();
+        s->DPB[i].frame_grain = zn_av_frame_alloc();
         if (!s->DPB[i].frame_grain)
             return AVERROR(ENOMEM);
     }

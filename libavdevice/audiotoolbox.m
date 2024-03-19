@@ -95,7 +95,7 @@ static av_cold int at_write_header(AVFormatContext *avctx)
     devices = (AudioDeviceID*)(av_malloc(data_size));
     err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &prop, 0, NULL, &data_size, devices);
     if (check_status(avctx, &err, "AudioObjectGetPropertyData devices")) {
-        av_freep(&devices);
+        zn_av_freep(&devices);
         return AVERROR(EINVAL);
     }
 
@@ -139,7 +139,7 @@ static av_cold int at_write_header(AVFormatContext *avctx)
         prop.mSelector = kAudioDevicePropertyDeviceUID;
         err = AudioObjectGetPropertyData(devices[ctx->audio_device_index], &prop, 0, NULL, &data_size, &device_UID);
         if (check_status(avctx, &err, "AudioObjecTGetPropertyData UID")) {
-            av_freep(&devices);
+            zn_av_freep(&devices);
             return AVERROR(EINVAL);
         }
     } else {
@@ -157,7 +157,7 @@ static av_cold int at_write_header(AVFormatContext *avctx)
         return AVERROR(EINVAL);
     }
 
-    av_freep(&devices);
+    zn_av_freep(&devices);
     AVCodecParameters *codecpar = avctx->streams[0]->codecpar;
 
     // audio format

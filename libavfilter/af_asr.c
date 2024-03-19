@@ -109,7 +109,7 @@ static av_cold int asr_init(AVFilterContext *ctx)
                            NULL };
 
     s->config = cmd_ln_parse_r(NULL, ps_args(), 14, (char **)argv, 0);
-    av_free(rate);
+    zn_av_free(rate);
     if (!s->config)
         return AVERROR(ENOMEM);
 

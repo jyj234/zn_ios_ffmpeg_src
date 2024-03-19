@@ -273,7 +273,7 @@ void ff_els_decoder_init(ElsDecCtx *ctx, const uint8_t *in, size_t data_size)
 
 void ff_els_decoder_uninit(ElsUnsignedRung *rung)
 {
-    av_freep(&rung->rem_rung_list);
+    zn_av_freep(&rung->rem_rung_list);
 }
 
 static int els_import_byte(ElsDecCtx *ctx)

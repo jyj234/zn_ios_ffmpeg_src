@@ -152,7 +152,7 @@ static inline size_t av_strnlen(const char *s, size_t len)
  * @param fmt printf-compatible format string, specifying how the
  *            following parameters are used.
  * @return the allocated string
- * @note You have to free the string yourself with av_free().
+ * @note You have to free the string yourself with zn_av_free().
  */
 char *av_asprintf(const char *fmt, ...) av_printf_format(1, 2);
 
@@ -304,7 +304,7 @@ int av_match_name(const char *name, const char *names);
 /**
  * Append path component to the existing path.
  * Path separator '/' is placed between when needed.
- * Resulting string have to be freed with av_free().
+ * Resulting string have to be freed with zn_av_free().
  * @param path      base path
  * @param component component to be appended
  * @return new path or NULL on error.
@@ -350,7 +350,7 @@ enum AVEscapeMode {
 
 /**
  * Escape string in src, and put the escaped string in an allocated
- * string in *dst, which must be freed with av_free().
+ * string in *dst, which must be freed with zn_av_free().
  *
  * @param dst           pointer where an allocated string is put
  * @param src           string to escape, must be non-NULL

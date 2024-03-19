@@ -114,10 +114,10 @@ static int set_gauss(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i <= difford; ++i) {
-        s->gauss[i] = av_calloc(filtersize, sizeof(*s->gauss[i]));
+        s->gauss[i] = zn_av_calloc(filtersize, sizeof(*s->gauss[i]));
         if (!s->gauss[i]) {
             for (; i >= 0; --i) {
-                av_freep(&s->gauss[i]);
+                zn_av_freep(&s->gauss[i]);
             }
             return AVERROR(ENOMEM);
         }
@@ -189,12 +189,12 @@ static void cleanup_derivative_buffers(ThreadData *td, int nb_buff, int nb_plane
 
     for (b = 0; b < nb_buff; ++b) {
         for (p = 0; p < NUM_PLANES; ++p) {
-            av_freep(&td->data[b][p]);
+            zn_av_freep(&td->data[b][p]);
         }
     }
     // Final buffer may not be fully allocated at fail cases
     for (p = 0; p < nb_planes; ++p) {
-        av_freep(&td->data[b][p]);
+        zn_av_freep(&td->data[b][p]);
     }
 }
 
@@ -217,7 +217,7 @@ static int setup_derivative_buffers(AVFilterContext* ctx, ThreadData *td)
     av_log(ctx, AV_LOG_TRACE, "Allocating %d buffer(s) for grey edge.\n", nb_buff);
     for (b = 0; b <= nb_buff; ++b) { // We need difford + 1 buffers
         for (p = 0; p < NUM_PLANES; ++p) {
-            td->data[b][p] = av_calloc(s->planeheight[p] * s->planewidth[p],
+            td->data[b][p] = zn_av_calloc(s->planeheight[p] * s->planewidth[p],
                                        sizeof(*td->data[b][p]));
             if (!td->data[b][p]) {
                 cleanup_derivative_buffers(td, b + 1, p);
@@ -672,7 +672,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     ret = illumination_estimation(ctx, in);
     if (ret) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return ret;
     }
 
@@ -682,7 +682,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -690,7 +690,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     chromatic_adaptation(ctx, in, out);
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -702,7 +702,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i <= difford; ++i) {
-        av_freep(&s->gauss[i]);
+        zn_av_freep(&s->gauss[i]);
     }
 }
 

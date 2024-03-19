@@ -174,7 +174,7 @@ static int program_opencl_run(AVFilterContext *avctx)
 
 fail:
     clFinish(ctx->command_queue);
-    av_frame_free(&output);
+    zn_av_frame_free(&output);
     return err;
 }
 
@@ -273,7 +273,7 @@ static av_cold int program_opencl_init(AVFilterContext *avctx)
     } else {
         int i;
 
-        ctx->frames = av_calloc(ctx->nb_inputs, sizeof(*ctx->frames));
+        ctx->frames = zn_av_calloc(ctx->nb_inputs, sizeof(*ctx->frames));
         if (!ctx->frames)
             return AVERROR(ENOMEM);
 
@@ -305,7 +305,7 @@ static av_cold void program_opencl_uninit(AVFilterContext *avctx)
     if (ctx->nb_inputs > 0) {
         ff_framesync_uninit(&ctx->fs);
 
-        av_freep(&ctx->frames);
+        zn_av_freep(&ctx->frames);
     }
 
     if (ctx->kernel) {

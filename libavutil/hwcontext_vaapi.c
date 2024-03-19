@@ -291,7 +291,7 @@ static int vaapi_frames_get_constraints(AVHWDeviceContext *hwdev,
             // works, so leave the set null to indicate unknown.
             constraints->valid_sw_formats = NULL;
         } else {
-            constraints->valid_sw_formats = av_malloc_array(pix_fmt_count + 1,
+            constraints->valid_sw_formats = zn_av_malloc_array(pix_fmt_count + 1,
                                                             sizeof(pix_fmt));
             if (!constraints->valid_sw_formats) {
                 err = AVERROR(ENOMEM);
@@ -322,7 +322,7 @@ static int vaapi_frames_get_constraints(AVHWDeviceContext *hwdev,
     } else {
         // No configuration supplied.
         // Return the full set of image formats known by the implementation.
-        constraints->valid_sw_formats = av_malloc_array(ctx->nb_formats + 1,
+        constraints->valid_sw_formats = zn_av_malloc_array(ctx->nb_formats + 1,
                                                         sizeof(pix_fmt));
         if (!constraints->valid_sw_formats) {
             err = AVERROR(ENOMEM);
@@ -343,7 +343,7 @@ static int vaapi_frames_get_constraints(AVHWDeviceContext *hwdev,
         constraints->valid_sw_formats[j] = AV_PIX_FMT_NONE;
     }
 
-    constraints->valid_hw_formats = av_malloc_array(2, sizeof(pix_fmt));
+    constraints->valid_hw_formats = zn_av_malloc_array(2, sizeof(pix_fmt));
     if (!constraints->valid_hw_formats) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -353,7 +353,7 @@ static int vaapi_frames_get_constraints(AVHWDeviceContext *hwdev,
 
     err = 0;
 fail:
-    av_freep(&attr_list);
+    zn_av_freep(&attr_list);
     return err;
 }
 
@@ -464,11 +464,11 @@ static int vaapi_device_init(AVHWDeviceContext *hwdev)
         }
     }
 
-    av_free(image_list);
+    zn_av_free(image_list);
     return 0;
 fail:
-    av_freep(&ctx->formats);
-    av_free(image_list);
+    zn_av_freep(&ctx->formats);
+    zn_av_free(image_list);
     return err;
 }
 
@@ -476,7 +476,7 @@ static void vaapi_device_uninit(AVHWDeviceContext *hwdev)
 {
     VAAPIDeviceContext *ctx = hwdev->internal->priv;
 
-    av_freep(&ctx->formats);
+    zn_av_freep(&ctx->formats);
 }
 
 static void vaapi_buffer_free(void *opaque, uint8_t *data)
@@ -686,8 +686,8 @@ static int vaapi_frames_init(AVHWFramesContext *hwfc)
 
 fail:
     av_buffer_unref(&test_surface);
-    av_freep(&avfc->surface_ids);
-    av_freep(&ctx->attributes);
+    zn_av_freep(&avfc->surface_ids);
+    zn_av_freep(&ctx->attributes);
     return err;
 }
 
@@ -696,8 +696,8 @@ static void vaapi_frames_uninit(AVHWFramesContext *hwfc)
     AVVAAPIFramesContext *avfc = hwfc->hwctx;
     VAAPIFramesContext    *ctx = hwfc->internal->priv;
 
-    av_freep(&avfc->surface_ids);
-    av_freep(&ctx->attributes);
+    zn_av_freep(&avfc->surface_ids);
+    zn_av_freep(&ctx->attributes);
 }
 
 static int vaapi_get_buffer(AVHWFramesContext *hwfc, AVFrame *frame)
@@ -784,7 +784,7 @@ static void vaapi_unmap_frame(AVHWFramesContext *hwfc,
                "%#x: %d (%s).\n", surface_id, vas, vaErrorStr(vas));
     }
 
-    av_free(map);
+    zn_av_free(map);
 }
 
 static int vaapi_map_frame(AVHWFramesContext *hwfc,
@@ -917,7 +917,7 @@ fail:
             vaUnmapBuffer(hwctx->display, map->image.buf);
         if (map->image.image_id != VA_INVALID_ID)
             vaDestroyImage(hwctx->display, map->image.image_id);
-        av_free(map);
+        zn_av_free(map);
     }
     return err;
 }
@@ -931,7 +931,7 @@ static int vaapi_transfer_data_from(AVHWFramesContext *hwfc,
     if (dst->width > hwfc->width || dst->height > hwfc->height)
         return AVERROR(EINVAL);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = dst->format;
@@ -949,7 +949,7 @@ static int vaapi_transfer_data_from(AVHWFramesContext *hwfc,
 
     err = 0;
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return err;
 }
 
@@ -962,7 +962,7 @@ static int vaapi_transfer_data_to(AVHWFramesContext *hwfc,
     if (src->width > hwfc->width || src->height > hwfc->height)
         return AVERROR(EINVAL);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = src->format;
@@ -980,7 +980,7 @@ static int vaapi_transfer_data_to(AVHWFramesContext *hwfc,
 
     err = 0;
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return err;
 }
 
@@ -1314,7 +1314,7 @@ static void vaapi_unmap_to_drm_esh(AVHWFramesContext *hwfc,
     for (i = 0; i < drm_desc->nb_objects; i++)
         close(drm_desc->objects[i].fd);
 
-    av_freep(&drm_desc);
+    zn_av_freep(&drm_desc);
 }
 
 static int vaapi_map_to_drm_esh(AVHWFramesContext *hwfc, AVFrame *dst,
@@ -1398,7 +1398,7 @@ static int vaapi_map_to_drm_esh(AVHWFramesContext *hwfc, AVFrame *dst,
 fail:
     for (i = 0; i < va_desc.num_objects; i++)
         close(va_desc.objects[i].fd);
-    av_freep(&drm_desc);
+    zn_av_freep(&drm_desc);
     return err;
 }
 #endif
@@ -1441,7 +1441,7 @@ static void vaapi_unmap_to_drm_abh(AVHWFramesContext *hwfc,
                surface_id, vas, vaErrorStr(vas));
     }
 
-    av_free(mapping);
+    zn_av_free(mapping);
 }
 
 static int vaapi_map_to_drm_abh(AVHWFramesContext *hwfc, AVFrame *dst,
@@ -1560,7 +1560,7 @@ fail_mapped:
 fail_derived:
     vaDestroyImage(hwctx->display, mapping->image.image_id);
 fail:
-    av_freep(&mapping);
+    zn_av_freep(&mapping);
     return err;
 }
 #endif
@@ -1624,7 +1624,7 @@ static void vaapi_device_free(AVHWDeviceContext *ctx)
     if (priv->drm_fd >= 0)
         close(priv->drm_fd);
 
-    av_freep(&priv);
+    zn_av_freep(&priv);
 }
 
 #if CONFIG_VAAPI_1

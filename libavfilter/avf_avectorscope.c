@@ -301,10 +301,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
 
     if (!s->outpicref || s->outpicref->width  != outlink->w ||
                          s->outpicref->height != outlink->h) {
-        av_frame_free(&s->outpicref);
+        zn_av_frame_free(&s->outpicref);
         s->outpicref = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!s->outpicref) {
-            av_frame_free(&insamples);
+            zn_av_frame_free(&insamples);
             return AVERROR(ENOMEM);
         }
 
@@ -317,7 +317,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
 
     ret = ff_inlink_make_frame_writable(outlink, &s->outpicref);
     if (ret < 0) {
-        av_frame_free(&insamples);
+        zn_av_frame_free(&insamples);
         return ret;
     }
     ff_filter_execute(ctx, fade, NULL, NULL, FFMIN(outlink->h, ff_filter_get_nb_threads(ctx)));
@@ -426,7 +426,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
     }
 
     s->prev_x = x, s->prev_y = y;
-    av_frame_free(&insamples);
+    zn_av_frame_free(&insamples);
 
     clone = av_frame_clone(s->outpicref);
     if (!clone)
@@ -466,7 +466,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioVectorScopeContext *s = ctx->priv;
 
-    av_frame_free(&s->outpicref);
+    zn_av_frame_free(&s->outpicref);
 }
 
 static const AVFilterPad audiovectorscope_inputs[] = {

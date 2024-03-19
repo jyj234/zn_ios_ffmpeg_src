@@ -148,8 +148,8 @@ static int url_alloc_for_protocol(URLContext **puc, const URLProtocol *up,
 fail:
     *puc = NULL;
     if (uc)
-        av_freep(&uc->priv_data);
-    av_freep(&uc);
+        zn_av_freep(&uc->priv_data);
+    zn_av_freep(&uc);
 #if CONFIG_NETWORK
     if (up->flags & URL_PROTOCOL_FLAG_NETWORK)
         ff_network_close();
@@ -267,16 +267,16 @@ static const struct URLProtocol *url_find_protocol(const char *filename)
     for (i = 0; protocols[i]; i++) {
             const URLProtocol *up = protocols[i];
         if (!strcmp(proto_str, up->name)) {
-            av_freep(&protocols);
+            zn_av_freep(&protocols);
             return up;
         }
         if (up->flags & URL_PROTOCOL_FLAG_NESTED_SCHEME &&
             !strcmp(proto_nested, up->name)) {
-            av_freep(&protocols);
+            zn_av_freep(&protocols);
             return up;
         }
     }
-    av_freep(&protocols);
+    zn_av_freep(&protocols);
     if (av_strstart(filename, "https:", NULL) || av_strstart(filename, "tls:", NULL))
         av_log(NULL, AV_LOG_WARNING, "https protocol not found, recompile FFmpeg with "
                                      "openssl, gnutls or securetransport enabled.\n");
@@ -452,10 +452,10 @@ int ffurl_closep(URLContext **hh)
     if (h->prot->priv_data_size) {
         if (h->prot->priv_data_class)
             av_opt_free(h->priv_data);
-        av_freep(&h->priv_data);
+        zn_av_freep(&h->priv_data);
     }
     av_opt_free(h);
-    av_freep(hh);
+    zn_av_freep(hh);
     return ret;
 }
 
@@ -567,7 +567,7 @@ int avio_open_dir(AVIODirContext **s, const char *url, AVDictionary **options)
     return 0;
 
   fail:
-    av_free(ctx);
+    zn_av_free(ctx);
     *s = NULL;
     ffurl_close(h);
     return ret;
@@ -596,7 +596,7 @@ int avio_close_dir(AVIODirContext **s)
     h = (*s)->url_context;
     h->prot->url_close_dir(h);
     ffurl_close(h);
-    av_freep(s);
+    zn_av_freep(s);
     *s = NULL;
     return 0;
 }
@@ -605,8 +605,8 @@ void avio_free_directory_entry(AVIODirEntry **entry)
 {
     if (!entry || !*entry)
         return;
-    av_free((*entry)->name);
-    av_freep(entry);
+    zn_av_free((*entry)->name);
+    zn_av_freep(entry);
 }
 
 int64_t ffurl_size(URLContext *h)
@@ -675,6 +675,6 @@ int ff_rename(const char *url_src, const char *url_dst, void *logctx)
 {
     int ret = ffurl_move(url_src, url_dst);
     if (ret < 0)
-        av_log(logctx, AV_LOG_ERROR, "failed to rename file %s to %s: %s\n", url_src, url_dst, av_err2str(ret));
+        av_log(logctx, AV_LOG_ERROR, "failed to rename file %s to %s: %s\n", url_src, url_dst, zn_av_err2str(ret));
     return ret;
 }

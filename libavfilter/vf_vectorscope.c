@@ -276,11 +276,11 @@ static int config_output(AVFilterLink *outlink)
     outlink->h = outlink->w = s->size;
     outlink->sample_aspect_ratio = (AVRational){1,1};
 
-    s->peak_memory = av_calloc(s->size, s->size);
+    s->peak_memory = zn_av_calloc(s->size, s->size);
     if (!s->peak_memory)
         return AVERROR(ENOMEM);
 
-    s->peak = av_calloc(s->size, sizeof(*s->peak));
+    s->peak = zn_av_calloc(s->size, sizeof(*s->peak));
     if (!s->peak)
         return AVERROR(ENOMEM);
 
@@ -1465,7 +1465,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -1480,7 +1480,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         }
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -1566,8 +1566,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     VectorscopeContext *s = ctx->priv;
 
-    av_freep(&s->peak);
-    av_freep(&s->peak_memory);
+    zn_av_freep(&s->peak);
+    zn_av_freep(&s->peak_memory);
 }
 
 static const AVFilterPad inputs[] = {

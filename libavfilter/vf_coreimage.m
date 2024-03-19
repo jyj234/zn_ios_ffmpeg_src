@@ -458,7 +458,7 @@ static av_cold int init(AVFilterContext *fctx)
         av_log(ctx, AV_LOG_DEBUG, "Filter count: %i\n", ctx->num_filters);
 
         // allocate CIFilter array
-        ctx->filters = av_calloc(ctx->num_filters, sizeof(CIFilter*));
+        ctx->filters = zn_av_calloc(ctx->num_filters, sizeof(CIFilter*));
         if (!ctx->filters) {
             av_log(ctx, AV_LOG_ERROR, "Could not allocate filter array.\n");
             return AVERROR(ENOMEM);
@@ -559,10 +559,10 @@ static av_cold void uninit(AVFilterContext *fctx)
         for (int i = 0; i < ctx->num_filters; i++) {
             SafeCFRelease(ctx->filters[i]);
         }
-        av_freep(&ctx->filters);
+        zn_av_freep(&ctx->filters);
     }
 
-    av_frame_free(&ctx->picref);
+    zn_av_frame_free(&ctx->picref);
 }
 
 static const AVFilterPad vf_coreimage_inputs[] = {

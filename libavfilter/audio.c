@@ -93,8 +93,8 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
     if (link->ch_layout.order != AV_CHANNEL_ORDER_UNSPEC &&
-        av_channel_layout_copy(&frame->ch_layout, &link->ch_layout) < 0) {
-        av_frame_free(&frame);
+        zn_av_channel_layout_copy(&frame->ch_layout, &link->ch_layout) < 0) {
+        zn_av_frame_free(&frame);
         return NULL;
     }
     frame->sample_rate = link->sample_rate;

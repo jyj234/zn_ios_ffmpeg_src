@@ -97,10 +97,10 @@ static av_cold int decode_init(AVCodecContext *avctx)
     s->block_len = s->rows * s->cols;
     s->max_framesize = s->block_len;
 
-    s->block   = av_calloc(s->block_len, sizeof(int));
-    s->wrapbuf = av_calloc(s->wrapbuf_len, sizeof(int));
-    s->ampbuf  = av_calloc(0x10000, sizeof(int));
-    s->bitstream = av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE / sizeof(*s->bitstream) + 1, sizeof(*s->bitstream));
+    s->block   = zn_av_calloc(s->block_len, sizeof(int));
+    s->wrapbuf = zn_av_calloc(s->wrapbuf_len, sizeof(int));
+    s->ampbuf  = zn_av_calloc(0x10000, sizeof(int));
+    s->bitstream = zn_av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE / sizeof(*s->bitstream) + 1, sizeof(*s->bitstream));
     if (!s->block || !s->wrapbuf || !s->ampbuf || !s->bitstream)
         return AVERROR(ENOMEM);
 
@@ -625,10 +625,10 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     InterplayACMContext *s = avctx->priv_data;
 
-    av_freep(&s->block);
-    av_freep(&s->wrapbuf);
-    av_freep(&s->ampbuf);
-    av_freep(&s->bitstream);
+    zn_av_freep(&s->block);
+    zn_av_freep(&s->wrapbuf);
+    zn_av_freep(&s->ampbuf);
+    zn_av_freep(&s->bitstream);
     s->bitstream_size = 0;
 
     return 0;

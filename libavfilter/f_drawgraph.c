@@ -198,11 +198,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (s->slide != 4 || s->nb_values == 0) {
         if (!s->out || s->out->width  != outlink->w ||
                        s->out->height != outlink->h) {
-            av_frame_free(&s->out);
+            zn_av_frame_free(&s->out);
             s->out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
             out = s->out;
             if (!s->out) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return AVERROR(ENOMEM);
             }
 
@@ -322,7 +322,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     in_pts = in->pts;
     in_duration = in->duration;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     if (s->slide == 4)
         return 0;
@@ -446,12 +446,12 @@ static av_cold void uninit(AVFilterContext *ctx)
         av_expr_free(s->fg_expr[i]);
 
     if (s->slide != 4)
-        av_frame_free(&s->out);
+        zn_av_frame_free(&s->out);
 
-    av_freep(&s->values[0]);
-    av_freep(&s->values[1]);
-    av_freep(&s->values[2]);
-    av_freep(&s->values[3]);
+    zn_av_freep(&s->values[0]);
+    zn_av_freep(&s->values[1]);
+    zn_av_freep(&s->values[2]);
+    zn_av_freep(&s->values[3]);
 }
 
 #if CONFIG_DRAWGRAPH_FILTER

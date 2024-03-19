@@ -59,7 +59,7 @@ static char *parse_link_name(const char **buf, void *log_ctx)
         av_log(log_ctx, AV_LOG_ERROR,
                "Mismatched '[' found in the following: \"%s\".\n", start);
     fail:
-        av_freep(&name);
+        zn_av_freep(&name);
         return NULL;
     }
     (*buf)++;
@@ -76,8 +76,8 @@ void avfilter_inout_free(AVFilterInOut **inout)
 {
     while (*inout) {
         AVFilterInOut *next = (*inout)->next;
-        av_freep(&(*inout)->name);
-        av_freep(inout);
+        zn_av_freep(&(*inout)->name);
+        zn_av_freep(inout);
         *inout = next;
     }
 }
@@ -125,7 +125,7 @@ static int parse_sws_flags(const char **buf, char **dst, void *log_ctx)
 
     *buf += 4;  // keep the 'flags=' part
 
-    av_freep(dst);
+    zn_av_freep(dst);
     if (!(*dst = av_mallocz(p - *buf + 1)))
         return AVERROR(ENOMEM);
     av_strlcpy(*dst, *buf, p - *buf + 1);
@@ -155,7 +155,7 @@ int avfilter_graph_parse2(AVFilterGraph *graph, const char *filters,
 end:
     while (graph->nb_filters)
         avfilter_free(graph->filters[0]);
-    av_freep(&graph->filters);
+    zn_av_freep(&graph->filters);
 
     return ret;
 }
@@ -214,7 +214,7 @@ int avfilter_graph_parse(AVFilterGraph *graph, const char *filters,
     if (ret < 0) {
         while (graph->nb_filters)
             avfilter_free(graph->filters[0]);
-        av_freep(&graph->filters);
+        zn_av_freep(&graph->filters);
     }
     avfilter_inout_free(&inputs);
     avfilter_inout_free(&outputs);
@@ -230,9 +230,9 @@ static void pad_params_free(AVFilterPadParams **pfpp)
     if (!fpp)
         return;
 
-    av_freep(&fpp->label);
+    zn_av_freep(&fpp->label);
 
-    av_freep(pfpp);
+    zn_av_freep(pfpp);
 }
 
 static void filter_params_free(AVFilterParams **pp)
@@ -244,18 +244,18 @@ static void filter_params_free(AVFilterParams **pp)
 
     for (unsigned i = 0; i < p->nb_inputs; i++)
         pad_params_free(&p->inputs[i]);
-    av_freep(&p->inputs);
+    zn_av_freep(&p->inputs);
 
     for (unsigned i = 0; i < p->nb_outputs; i++)
         pad_params_free(&p->outputs[i]);
-    av_freep(&p->outputs);
+    zn_av_freep(&p->outputs);
 
     av_dict_free(&p->opts);
 
-    av_freep(&p->filter_name);
-    av_freep(&p->instance_name);
+    zn_av_freep(&p->filter_name);
+    zn_av_freep(&p->instance_name);
 
-    av_freep(pp);
+    zn_av_freep(pp);
 }
 
 static void chain_free(AVFilterChain **pch)
@@ -267,9 +267,9 @@ static void chain_free(AVFilterChain **pch)
 
     for (size_t i = 0; i < ch->nb_filters; i++)
         filter_params_free(&ch->filters[i]);
-    av_freep(&ch->filters);
+    zn_av_freep(&ch->filters);
 
-    av_freep(pch);
+    zn_av_freep(pch);
 }
 
 void avfilter_graph_segment_free(AVFilterGraphSegment **pseg)
@@ -281,11 +281,11 @@ void avfilter_graph_segment_free(AVFilterGraphSegment **pseg)
 
     for (size_t i = 0; i < seg->nb_chains; i++)
         chain_free(&seg->chains[i]);
-    av_freep(&seg->chains);
+    zn_av_freep(&seg->chains);
 
-    av_freep(&seg->scale_sws_opts);
+    zn_av_freep(&seg->scale_sws_opts);
 
-    av_freep(pseg);
+    zn_av_freep(pseg);
 }
 
 static int linklabels_parse(void *logctx, const char **linklabels,
@@ -307,7 +307,7 @@ static int linklabels_parse(void *logctx, const char **linklabels,
 
         par = av_mallocz(sizeof(*par));
         if (!par) {
-            av_freep(&label);
+            zn_av_freep(&label);
             ret = AVERROR(ENOMEM);
             goto fail;
         }
@@ -330,7 +330,7 @@ static int linklabels_parse(void *logctx, const char **linklabels,
 fail:
     for (unsigned i = 0; i < nb; i++)
         pad_params_free(&pp[i]);
-    av_freep(&pp);
+    zn_av_freep(&pp);
     return ret;
 }
 
@@ -379,7 +379,7 @@ static int filter_parse(void *logctx, const char **filter,
 
         ret = ff_filter_opt_parse(logctx, f ? f->priv_class : NULL,
                                   &p->opts, opts);
-        av_freep(&opts);
+        zn_av_freep(&opts);
         if (ret < 0)
             goto fail;
     }
@@ -520,7 +520,7 @@ int avfilter_graph_segment_create_filters(AVFilterGraphSegment *seg, int flags)
         return AVERROR(ENOSYS);
 
     if (seg->scale_sws_opts) {
-        av_freep(&seg->graph->scale_sws_opts);
+        zn_av_freep(&seg->graph->scale_sws_opts);
         seg->graph->scale_sws_opts = av_strdup(seg->scale_sws_opts);
         if (!seg->graph->scale_sws_opts)
             return AVERROR(ENOMEM);
@@ -563,8 +563,8 @@ int avfilter_graph_segment_create_filters(AVFilterGraphSegment *seg, int flags)
                 }
             }
 
-            av_freep(&p->filter_name);
-            av_freep(&p->instance_name);
+            zn_av_freep(&p->filter_name);
+            zn_av_freep(&p->instance_name);
 
             idx++;
         }
@@ -1020,11 +1020,11 @@ end:
 
     if (ret < 0) {
         av_log(graph, AV_LOG_ERROR, "Error processing filtergraph: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
 
         while (graph->nb_filters)
             avfilter_free(graph->filters[0]);
-        av_freep(&graph->filters);
+        zn_av_freep(&graph->filters);
     }
 
     /* clear open_in/outputs only if not passed as parameters */

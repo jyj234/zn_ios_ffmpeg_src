@@ -144,10 +144,10 @@ static int config_input(AVFilterLink *inlink)
     s->planewidth[1]  = s->planewidth[2]  = AV_CEIL_RSHIFT(inlink->w, desc->log2_chroma_w);
     s->planewidth[0]  = s->planewidth[3]  = inlink->w;
 
-    s->block = av_malloc_array(inlink->w * inlink->h, sizeof(*s->block));
-    s->in    = av_malloc_array(32 + FFMAX(inlink->w, inlink->h), sizeof(*s->in));
-    s->out   = av_malloc_array(32 + FFMAX(inlink->w, inlink->h), sizeof(*s->out));
-    s->tmp   = av_malloc_array(32 + FFMAX(inlink->w, inlink->h), sizeof(*s->tmp));
+    s->block = zn_av_malloc_array(inlink->w * inlink->h, sizeof(*s->block));
+    s->in    = zn_av_malloc_array(32 + FFMAX(inlink->w, inlink->h), sizeof(*s->in));
+    s->out   = zn_av_malloc_array(32 + FFMAX(inlink->w, inlink->h), sizeof(*s->out));
+    s->tmp   = zn_av_malloc_array(32 + FFMAX(inlink->w, inlink->h), sizeof(*s->tmp));
 
     if (!s->block || !s->in || !s->out || !s->tmp)
         return AVERROR(ENOMEM);
@@ -538,7 +538,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
 
@@ -548,7 +548,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     filter(s, in, out);
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -576,10 +576,10 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     VagueDenoiserContext *s = ctx->priv;
 
-    av_freep(&s->block);
-    av_freep(&s->in);
-    av_freep(&s->out);
-    av_freep(&s->tmp);
+    zn_av_freep(&s->block);
+    zn_av_freep(&s->in);
+    zn_av_freep(&s->out);
+    zn_av_freep(&s->tmp);
 }
 
 static const AVFilterPad vaguedenoiser_inputs[] = {

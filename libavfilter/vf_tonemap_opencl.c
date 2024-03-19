@@ -224,9 +224,9 @@ static int tonemap_opencl_init(AVFilterContext *avctx)
     ff_opencl_print_const_matrix_3x3(&header, "rgb_matrix", yuv2rgb);
 
     av_bprintf(&header, "constant float3 luma_src = {%.4ff, %.4ff, %.4ff};\n",
-               av_q2d(luma_src->cr), av_q2d(luma_src->cg), av_q2d(luma_src->cb));
+               zn_av_q2d(luma_src->cr), zn_av_q2d(luma_src->cg), zn_av_q2d(luma_src->cb));
     av_bprintf(&header, "constant float3 luma_dst = {%.4ff, %.4ff, %.4ff};\n",
-               av_q2d(luma_dst->cr), av_q2d(luma_dst->cg), av_q2d(luma_dst->cb));
+               zn_av_q2d(luma_dst->cr), zn_av_q2d(luma_dst->cg), zn_av_q2d(luma_dst->cb));
 
     av_bprintf(&header, "#define linearize %s\n", linearize_funcs[ctx->trc_in]);
     av_bprintf(&header, "#define delinearize %s\n",
@@ -417,7 +417,7 @@ static int tonemap_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
     cle = clFinish(ctx->command_queue);
     CL_FAIL_ON_ERROR(AVERROR(EIO), "Failed to finish command queue: %d.\n", cle);
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     ff_update_hdr_metadata(output, ctx->target_peak);
 
@@ -451,8 +451,8 @@ static int tonemap_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
 
 fail:
     clFinish(ctx->command_queue);
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

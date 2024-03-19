@@ -289,7 +289,7 @@ static int rtp_open(URLContext *h, const char *uri, int flags)
             block = s->block;
         }
         if (av_find_info_tag(buf, sizeof(buf), "localaddr", p)) {
-            av_freep(&s->localaddr);
+            zn_av_freep(&s->localaddr);
             s->localaddr = av_strdup(buf);
             if (!s->localaddr)
                 goto fail;
@@ -373,7 +373,7 @@ static int rtp_open(URLContext *h, const char *uri, int flags)
     h->max_packet_size = s->rtp_hd->max_packet_size;
     h->is_streamed = 1;
 
-    av_free(fec_protocol);
+    zn_av_free(fec_protocol);
     av_dict_free(&fec_opts);
 
     return 0;
@@ -382,7 +382,7 @@ static int rtp_open(URLContext *h, const char *uri, int flags)
     ffurl_closep(&s->rtp_hd);
     ffurl_closep(&s->rtcp_hd);
     ffurl_closep(&s->fec_hd);
-    av_free(fec_protocol);
+    zn_av_free(fec_protocol);
     av_dict_free(&fec_opts);
     return AVERROR(EIO);
 }

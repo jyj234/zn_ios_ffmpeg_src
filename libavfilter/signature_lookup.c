@@ -195,11 +195,11 @@ static MatchingInfo* get_matching_parameters(AVFilterContext *ctx, SignatureCont
     } hspace_elem;
 
     /* houghspace */
-    hspace_elem** hspace = av_malloc_array(MAX_FRAMERATE, sizeof(hspace_elem *));
+    hspace_elem** hspace = zn_av_malloc_array(MAX_FRAMERATE, sizeof(hspace_elem *));
 
     /* initialize houghspace */
     for (i = 0; i < MAX_FRAMERATE; i++) {
-        hspace[i] = av_malloc_array(2 * HOUGH_MAX_OFFSET + 1, sizeof(hspace_elem));
+        hspace[i] = zn_av_malloc_array(2 * HOUGH_MAX_OFFSET + 1, sizeof(hspace_elem));
         for (j = 0; j < 2 * HOUGH_MAX_OFFSET + 1; j++) {
             hspace[i][j].score = 0;
             hspace[i][j].dist = 99999;
@@ -306,9 +306,9 @@ static MatchingInfo* get_matching_parameters(AVFilterContext *ctx, SignatureCont
         }
     }
     for (i = 0; i < MAX_FRAMERATE; i++) {
-        av_freep(&hspace[i]);
+        zn_av_freep(&hspace[i]);
     }
-    av_freep(&hspace);
+    zn_av_freep(&hspace);
     return cands;
 }
 
@@ -526,7 +526,7 @@ static void sll_free(MatchingInfo *sll)
     while (sll) {
         tmp = sll;
         sll = sll->next;
-        av_freep(&tmp);
+        zn_av_freep(&tmp);
     }
 }
 

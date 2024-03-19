@@ -258,12 +258,12 @@ int ff_nvdec_decode_uninit(AVCodecContext *avctx)
 {
     NVDECContext *ctx = avctx->internal->hwaccel_priv_data;
 
-    av_freep(&ctx->bitstream);
-    av_freep(&ctx->bitstream_internal);
+    zn_av_freep(&ctx->bitstream);
+    zn_av_freep(&ctx->bitstream_internal);
     ctx->bitstream_len       = 0;
     ctx->bitstream_allocated = 0;
 
-    av_freep(&ctx->slice_offsets);
+    zn_av_freep(&ctx->slice_offsets);
     ctx->nb_slices               = 0;
     ctx->slice_offsets_allocated = 0;
 
@@ -425,7 +425,7 @@ int ff_nvdec_decode_init(AVCodecContext *avctx)
     pool->dpb_size = frames_ctx->initial_pool_size;
 
     ctx->decoder_pool = av_buffer_pool_init2(sizeof(int), pool,
-                                             nvdec_decoder_frame_alloc, av_free);
+                                             nvdec_decoder_frame_alloc, zn_av_free);
     if (!ctx->decoder_pool) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -448,7 +448,7 @@ static void nvdec_fdd_priv_free(void *priv)
     av_buffer_unref(&cf->ref_idx_ref);
     ff_refstruct_unref(&cf->decoder);
 
-    av_freep(&priv);
+    zn_av_freep(&priv);
 }
 
 static void nvdec_unmap_mapped_frame(void *opaque, uint8_t *data)
@@ -472,7 +472,7 @@ finish:
     av_buffer_unref(&unmap_data->idx_ref);
     av_buffer_unref(&unmap_data->ref_idx_ref);
     ff_refstruct_unref(&unmap_data->decoder);
-    av_free(unmap_data);
+    zn_av_free(unmap_data);
 }
 
 static int nvdec_retrieve_data(void *logctx, AVFrame *frame)
@@ -544,7 +544,7 @@ static int nvdec_retrieve_data(void *logctx, AVFrame *frame)
 copy_fail:
     if (!frame->buf[1]) {
         CHECK_CU(decoder->cvdl->cuvidUnmapVideoFrame(decoder->decoder, devptr));
-        av_freep(&unmap_data);
+        zn_av_freep(&unmap_data);
     } else {
         av_buffer_unref(&frame->buf[1]);
     }

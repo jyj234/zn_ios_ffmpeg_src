@@ -143,7 +143,7 @@ static av_cold int init(AVFilterContext *ctx)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     GradFunContext *s = ctx->priv;
-    av_freep(&s->buf);
+    zn_av_freep(&s->buf);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -162,8 +162,8 @@ static int config_input(AVFilterLink *inlink)
     int hsub = desc->log2_chroma_w;
     int vsub = desc->log2_chroma_h;
 
-    av_freep(&s->buf);
-    s->buf = av_calloc((FFALIGN(inlink->w, 16) * (s->radius + 1) / 2 + 32), sizeof(*s->buf));
+    zn_av_freep(&s->buf);
+    s->buf = zn_av_calloc((FFALIGN(inlink->w, 16) * (s->radius + 1) / 2 + 32), sizeof(*s->buf));
     if (!s->buf)
         return AVERROR(ENOMEM);
 
@@ -188,7 +188,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         direct = 0;
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -211,7 +211,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

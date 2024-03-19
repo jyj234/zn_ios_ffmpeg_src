@@ -79,7 +79,7 @@ static int dv_error_marker_filter(AVBSFContext *ctx, AVPacket *pkt)
             if (!writable) {
                 ret = av_packet_make_writable(pkt);
                 if (ret < 0) {
-                    av_packet_unref(pkt);
+                    zn_av_packet_unref(pkt);
                     return ret;
                 }
                 writable = 1;

@@ -490,9 +490,9 @@ static av_cold int hnm_decode_end(AVCodecContext *avctx)
 {
     Hnm4VideoContext *hnm = avctx->priv_data;
 
-    av_freep(&hnm->buffer1);
-    av_freep(&hnm->buffer2);
-    av_freep(&hnm->processed);
+    zn_av_freep(&hnm->buffer1);
+    zn_av_freep(&hnm->buffer2);
+    zn_av_freep(&hnm->processed);
 
     return 0;
 }

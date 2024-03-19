@@ -454,15 +454,15 @@ static av_cold int config_input(AVFilterLink *inlink)
     s->imax = 1.f / s->max;
     s->do_slice = s->depth <= 8 ? colorcorrect_slice8 : colorcorrect_slice16;
 
-    s->uhistogram = av_calloc(s->max == 255 ? 256 : 65536, sizeof(*s->uhistogram));
+    s->uhistogram = zn_av_calloc(s->max == 255 ? 256 : 65536, sizeof(*s->uhistogram));
     if (!s->uhistogram)
         return AVERROR(ENOMEM);
 
-    s->vhistogram = av_calloc(s->max == 255 ? 256 : 65536, sizeof(*s->vhistogram));
+    s->vhistogram = zn_av_calloc(s->max == 255 ? 256 : 65536, sizeof(*s->vhistogram));
     if (!s->vhistogram)
         return AVERROR(ENOMEM);
 
-    s->analyzeret = av_calloc(inlink->h, sizeof(*s->analyzeret));
+    s->analyzeret = zn_av_calloc(inlink->h, sizeof(*s->analyzeret));
     if (!s->analyzeret)
         return AVERROR(ENOMEM);
 
@@ -496,7 +496,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ColorCorrectContext *s = ctx->priv;
 
-    av_freep(&s->analyzeret);
+    zn_av_freep(&s->analyzeret);
 }
 
 static const AVFilterPad colorcorrect_inputs[] = {

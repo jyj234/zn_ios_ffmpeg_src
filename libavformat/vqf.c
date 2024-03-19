@@ -92,7 +92,7 @@ static const AVMetadataConv vqf_metadata_conv[] = {
 static int vqf_read_header(AVFormatContext *s)
 {
     VqfContext *c = s->priv_data;
-    AVStream *st  = avformat_new_stream(s, NULL);
+    AVStream *st  = zn_avformat_new_stream(s, NULL);
     int chunk_tag;
     int rate_flag = -1;
     int header_size;

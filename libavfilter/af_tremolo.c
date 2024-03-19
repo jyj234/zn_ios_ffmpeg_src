@@ -60,7 +60,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -78,7 +78,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -86,7 +86,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     TremoloContext *s = ctx->priv;
-    av_freep(&s->table);
+    zn_av_freep(&s->table);
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -97,7 +97,7 @@ static int config_input(AVFilterLink *inlink)
     int i;
 
     s->table_size = lrint(inlink->sample_rate / s->freq + 0.5);
-    s->table = av_malloc_array(s->table_size, sizeof(*s->table));
+    s->table = zn_av_malloc_array(s->table_size, sizeof(*s->table));
     if (!s->table)
         return AVERROR(ENOMEM);
 

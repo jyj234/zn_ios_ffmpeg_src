@@ -40,7 +40,7 @@ static av_cold int msrle_encode_init(AVCodecContext *avctx)
     MSRLEContext *s = avctx->priv_data;
 
     avctx->bits_per_coded_sample = 8;
-    s->last_frame = av_frame_alloc();
+    s->last_frame = zn_av_frame_alloc();
     if (!s->last_frame)
         return AVERROR(ENOMEM);
 
@@ -279,7 +279,7 @@ static int msrle_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
 static int msrle_encode_close(AVCodecContext *avctx)
 {
     MSRLEContext *s = avctx->priv_data;
-    av_frame_free(&s->last_frame);
+    zn_av_frame_free(&s->last_frame);
     return 0;
 }
 

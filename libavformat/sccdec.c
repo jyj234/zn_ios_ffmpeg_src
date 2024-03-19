@@ -62,7 +62,7 @@ static int convert(uint8_t x)
 static int scc_read_header(AVFormatContext *s)
 {
     SCCContext *scc = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     AVPacket *sub = NULL;
     ptrdiff_t len;
     uint8_t out[4096];

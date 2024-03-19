@@ -169,7 +169,7 @@ int ff_libwebp_get_frame(AVCodecContext *avctx, LibWebPContextCommon *s,
                        "Copying frame due to differing chroma linesizes.\n");
                 s->chroma_warning = 1;
             }
-            *alt_frame_ptr = av_frame_alloc();
+            *alt_frame_ptr = zn_av_frame_alloc();
             alt_frame = *alt_frame_ptr;
             if (!alt_frame) {
                 ret = AVERROR(ENOMEM);
@@ -180,7 +180,7 @@ int ff_libwebp_get_frame(AVCodecContext *avctx, LibWebPContextCommon *s,
             alt_frame->format = frame->format;
             if (s->cr_threshold)
                 alt_frame->format = AV_PIX_FMT_YUVA420P;
-            ret = av_frame_get_buffer(alt_frame, 0);
+            ret = zn_av_frame_get_buffer(alt_frame, 0);
             if (ret < 0)
                 goto end;
             alt_frame->format = frame->format;

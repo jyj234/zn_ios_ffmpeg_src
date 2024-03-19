@@ -410,7 +410,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (!s->thistogram || !out) {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         s->out = out;
@@ -594,7 +594,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     av_frame_copy_props(out, in);
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     s->x_pos++;
     if (s->x_pos >= s->width) {
         s->x_pos = 0;
@@ -654,7 +654,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     HistogramContext *s = ctx->priv;
 
-    av_frame_free(&s->out);
+    zn_av_frame_free(&s->out);
 }
 
 static const AVOption thistogram_options[] = {

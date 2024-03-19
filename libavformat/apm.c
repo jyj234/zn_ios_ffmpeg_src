@@ -110,7 +110,7 @@ static int apm_read_header(AVFormatContext *s)
     uint8_t buf[APM_FILE_EXTRADATA_SIZE];
     int channels;
 
-    if (!(st = avformat_new_stream(s, NULL)))
+    if (!(st = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
     /*
@@ -144,7 +144,7 @@ static int apm_read_header(AVFormatContext *s)
     if (channels > 2 || channels == 0)
         return AVERROR_INVALIDDATA;
 
-    av_channel_layout_default(&par->ch_layout, channels);
+    zn_av_channel_layout_default(&par->ch_layout, channels);
     par->codec_type            = AVMEDIA_TYPE_AUDIO;
     par->codec_id              = AV_CODEC_ID_ADPCM_IMA_APM;
     par->format                = AV_SAMPLE_FMT_S16;

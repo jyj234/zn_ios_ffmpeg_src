@@ -110,7 +110,7 @@ static int thp_read_header(AVFormatContext *s)
                 break;
 
             /* Video component.  */
-            st = avformat_new_stream(s, NULL);
+            st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 return AVERROR(ENOMEM);
 
@@ -122,7 +122,7 @@ static int thp_read_header(AVFormatContext *s)
             st->codecpar->codec_tag = 0;  /* no fourcc */
             st->codecpar->width = avio_rb32(pb);
             st->codecpar->height = avio_rb32(pb);
-            st->codecpar->sample_rate = av_q2d(thp->fps);
+            st->codecpar->sample_rate = zn_av_q2d(thp->fps);
             st->nb_frames =
             st->duration = thp->framecnt;
             thp->vst = st;
@@ -135,7 +135,7 @@ static int thp_read_header(AVFormatContext *s)
                 break;
 
             /* Audio component.  */
-            st = avformat_new_stream(s, NULL);
+            st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 return AVERROR(ENOMEM);
 

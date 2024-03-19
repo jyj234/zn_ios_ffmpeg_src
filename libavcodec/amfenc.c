@@ -114,7 +114,7 @@ static int amf_load_library(AVCodecContext *avctx)
     AMFQueryVersion_Fn version_fun;
     AMF_RESULT         res;
 
-    ctx->delayed_frame = av_frame_alloc();
+    ctx->delayed_frame = zn_av_frame_alloc();
     if (!ctx->delayed_frame) {
         return AVERROR(ENOMEM);
     }
@@ -407,7 +407,7 @@ int av_cold ff_amf_encode_close(AVCodecContext *avctx)
     ctx->factory = NULL;
     ctx->version = 0;
     ctx->delayed_drain = 0;
-    av_frame_free(&ctx->delayed_frame);
+    zn_av_frame_free(&ctx->delayed_frame);
     av_fifo_freep2(&ctx->timestamp_list);
 
     return 0;
@@ -579,7 +579,7 @@ static void amf_release_buffer_with_frame_ref(AMFBuffer *frame_ref_storage_buffe
 {
     AVFrame *frame_ref;
     memcpy(&frame_ref, frame_ref_storage_buffer->pVtbl->GetNative(frame_ref_storage_buffer), sizeof(frame_ref));
-    av_frame_free(&frame_ref);
+    zn_av_frame_free(&frame_ref);
     frame_ref_storage_buffer->pVtbl->Release(frame_ref_storage_buffer);
 }
 

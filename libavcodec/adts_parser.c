@@ -63,14 +63,14 @@ int avpriv_adts_header_parse(AACADTSHeaderInfo **phdr, const uint8_t *buf, size_
     ret = init_get_bits8(&gb, buf, AV_AAC_ADTS_HEADER_SIZE);
     if (ret < 0) {
         if (allocated)
-            av_freep(phdr);
+            zn_av_freep(phdr);
         return ret;
     }
 
     ret = ff_adts_header_parse(&gb, *phdr);
     if (ret < 0) {
         if (allocated)
-            av_freep(phdr);
+            zn_av_freep(phdr);
         return ret;
     }
 

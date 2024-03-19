@@ -88,7 +88,7 @@ static int cache_open(URLContext *h, const char *arg, int flags, AVDictionary **
     ret = unlink(buffername);
 
     if (ret >= 0)
-        av_freep(&buffername);
+        zn_av_freep(&buffername);
     else
         c->filename = buffername;
 
@@ -154,8 +154,8 @@ static int add_entry(URLContext *h, const unsigned char *buf, int size)
 fail:
     //we could truncate the file to pos here if pos >=0 but ftruncate isn't available in VS so
     //for simplicty we just leave the file a bit larger
-    av_free(entry);
-    av_free(node);
+    zn_av_free(entry);
+    zn_av_free(node);
     return ret;
 }
 
@@ -291,7 +291,7 @@ resolve_eof:
 
 static int enu_free(void *opaque, void *elem)
 {
-    av_free(elem);
+    zn_av_free(elem);
     return 0;
 }
 
@@ -308,7 +308,7 @@ static int cache_close(URLContext *h)
         ret = unlink(c->filename);
         if (ret < 0)
             av_log(h, AV_LOG_ERROR, "Could not delete %s.\n", c->filename);
-        av_freep(&c->filename);
+        zn_av_freep(&c->filename);
     }
     ffurl_closep(&c->inner);
     av_tree_enumerate(c->root, NULL, NULL, enu_free);

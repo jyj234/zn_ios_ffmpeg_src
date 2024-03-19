@@ -406,7 +406,7 @@ int ff_rtp_check_and_send_back_rr(RTPDemuxContext *s, URLContext *fd,
         av_log(s->ic, AV_LOG_TRACE, "sending %d bytes of RR\n", len);
         result = ffurl_write(fd, buf, len);
         av_log(s->ic, AV_LOG_TRACE, "result from ffurl_write: %d\n", result);
-        av_free(buf);
+        zn_av_free(buf);
     }
     return 0;
 }
@@ -524,7 +524,7 @@ int ff_rtp_send_rtcp_feedback(RTPDemuxContext *s, URLContext *fd,
     len = avio_close_dyn_buf(pb, &buf);
     if (len > 0 && buf) {
         ffurl_write(fd, buf, len);
-        av_free(buf);
+        zn_av_free(buf);
     }
     return 0;
 }
@@ -603,8 +603,8 @@ RTPDemuxContext *ff_rtp_parse_open(AVFormatContext *s1, AVStream *st,
             if (ret < 0) {
                 av_log(s1, AV_LOG_ERROR,
                        "Error creating opus extradata: %s\n",
-                       av_err2str(ret));
-                av_free(s);
+                       zn_av_err2str(ret));
+                zn_av_free(s);
                 return NULL;
             }
             break;
@@ -781,8 +781,8 @@ void ff_rtp_reset_packet_queue(RTPDemuxContext *s)
 {
     while (s->queue) {
         RTPPacket *next = s->queue->next;
-        av_freep(&s->queue->buf);
-        av_freep(&s->queue);
+        zn_av_freep(&s->queue->buf);
+        zn_av_freep(&s->queue);
         s->queue = next;
     }
     s->seq       = 0;
@@ -847,8 +847,8 @@ static int rtp_parse_queued_packet(RTPDemuxContext *s, AVPacket *pkt)
     /* Parse the first packet in the queue, and dequeue it */
     rv   = rtp_parse_packet_internal(s, pkt, s->queue->buf, s->queue->len);
     next = s->queue->next;
-    av_freep(&s->queue->buf);
-    av_freep(&s->queue);
+    zn_av_freep(&s->queue->buf);
+    zn_av_freep(&s->queue);
     s->queue = next;
     s->queue_len--;
     return rv;
@@ -958,7 +958,7 @@ void ff_rtp_parse_close(RTPDemuxContext *s)
 {
     ff_rtp_reset_packet_queue(s);
     ff_srtp_free(&s->srtp);
-    av_free(s);
+    zn_av_free(s);
 }
 
 int ff_parse_fmtp(AVFormatContext *s,
@@ -991,24 +991,24 @@ int ff_parse_fmtp(AVFormatContext *s,
                                        value, value_size)) {
         res = parse_fmtp(s, stream, data, attr, value);
         if (res < 0 && res != AVERROR_PATCHWELCOME) {
-            av_free(value);
+            zn_av_free(value);
             return res;
         }
     }
-    av_free(value);
+    zn_av_free(value);
     return 0;
 }
 
 int ff_rtp_finalize_packet(AVPacket *pkt, AVIOContext **dyn_buf, int stream_idx)
 {
     int ret;
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
 
     pkt->size         = avio_close_dyn_buf(*dyn_buf, &pkt->data);
     pkt->stream_index = stream_idx;
     *dyn_buf = NULL;
     if ((ret = av_packet_from_data(pkt, pkt->data, pkt->size)) < 0) {
-        av_freep(&pkt->data);
+        zn_av_freep(&pkt->data);
         return ret;
     }
     return pkt->size;

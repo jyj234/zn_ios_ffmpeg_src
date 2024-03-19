@@ -45,7 +45,7 @@ static int derf_read_header(AVFormatContext *s)
 
     avio_skip(pb, 4);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -56,7 +56,7 @@ static int derf_read_header(AVFormatContext *s)
     channels         = avio_rl32(pb);
     if (channels != 1 && channels != 2)
         return AVERROR_INVALIDDATA;
-    av_channel_layout_default(&par->ch_layout, channels);
+    zn_av_channel_layout_default(&par->ch_layout, channels);
     data_size = avio_rl32(pb);
     st->duration = data_size / channels;
     par->sample_rate = 22050;

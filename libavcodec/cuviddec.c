@@ -511,7 +511,7 @@ static int cuvid_output_frame(AVCodecContext *avctx, AVFrame *frame)
         if (ret < 0 && ret != AVERROR_EOF)
             return ret;
         ret = cuvid_decode_packet(avctx, pkt);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         // cuvid_is_buffer_full() should avoid this.
         if (ret == AVERROR(EAGAIN))
             ret = AVERROR_EXTERNAL;
@@ -580,9 +580,9 @@ static int cuvid_output_frame(AVCodecContext *avctx, AVFrame *frame)
                    avctx->pix_fmt == AV_PIX_FMT_YUV444P   ||
                    avctx->pix_fmt == AV_PIX_FMT_YUV444P16) {
             unsigned int offset = 0;
-            AVFrame *tmp_frame = av_frame_alloc();
+            AVFrame *tmp_frame = zn_av_frame_alloc();
             if (!tmp_frame) {
-                av_log(avctx, AV_LOG_ERROR, "av_frame_alloc failed\n");
+                av_log(avctx, AV_LOG_ERROR, "zn_av_frame_alloc failed\n");
                 ret = AVERROR(ENOMEM);
                 goto error;
             }
@@ -593,7 +593,7 @@ static int cuvid_output_frame(AVCodecContext *avctx, AVFrame *frame)
             tmp_frame->hw_frames_ctx = av_buffer_ref(ctx->hwframe);
             if (!tmp_frame->hw_frames_ctx) {
                 ret = AVERROR(ENOMEM);
-                av_frame_free(&tmp_frame);
+                zn_av_frame_free(&tmp_frame);
                 goto error;
             }
 
@@ -614,17 +614,17 @@ static int cuvid_output_frame(AVCodecContext *avctx, AVFrame *frame)
             ret = ff_get_buffer(avctx, frame, 0);
             if (ret < 0) {
                 av_log(avctx, AV_LOG_ERROR, "ff_get_buffer failed\n");
-                av_frame_free(&tmp_frame);
+                zn_av_frame_free(&tmp_frame);
                 goto error;
             }
 
             ret = av_hwframe_transfer_data(frame, tmp_frame, 0);
             if (ret) {
                 av_log(avctx, AV_LOG_ERROR, "av_hwframe_transfer_data failed\n");
-                av_frame_free(&tmp_frame);
+                zn_av_frame_free(&tmp_frame);
                 goto error;
             }
-            av_frame_free(&tmp_frame);
+            zn_av_frame_free(&tmp_frame);
         } else {
             ret = AVERROR_BUG;
             goto error;
@@ -717,8 +717,8 @@ static av_cold int cuvid_decode_end(AVCodecContext *avctx)
     av_buffer_unref(&ctx->hwframe);
     av_buffer_unref(&ctx->hwdevice);
 
-    av_freep(&ctx->key_frame);
-    av_freep(&ctx->cuparse_ext);
+    zn_av_freep(&ctx->key_frame);
+    zn_av_freep(&ctx->cuparse_ext);
 
     cuvid_free_functions(&ctx->cvdl);
 

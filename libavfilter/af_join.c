@@ -177,9 +177,9 @@ FF_ENABLE_DEPRECATION_WARNINGS
 #endif
     }
 
-    s->channels     = av_calloc(s->ch_layout.nb_channels, sizeof(*s->channels));
-    s->buffers      = av_calloc(s->ch_layout.nb_channels, sizeof(*s->buffers));
-    s->input_frames = av_calloc(s->inputs, sizeof(*s->input_frames));
+    s->channels     = zn_av_calloc(s->ch_layout.nb_channels, sizeof(*s->channels));
+    s->buffers      = zn_av_calloc(s->ch_layout.nb_channels, sizeof(*s->buffers));
+    s->input_frames = zn_av_calloc(s->inputs, sizeof(*s->input_frames));
     if (!s->channels || !s->buffers|| !s->input_frames)
         return AVERROR(ENOMEM);
 
@@ -214,12 +214,12 @@ static av_cold void join_uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < s->inputs && s->input_frames; i++) {
-        av_frame_free(&s->input_frames[i]);
+        zn_av_frame_free(&s->input_frames[i]);
     }
 
-    av_freep(&s->channels);
-    av_freep(&s->buffers);
-    av_freep(&s->input_frames);
+    zn_av_freep(&s->channels);
+    zn_av_freep(&s->buffers);
+    zn_av_freep(&s->input_frames);
 }
 
 static int join_query_formats(AVFilterContext *ctx)
@@ -309,7 +309,7 @@ static int join_config_output(AVFilterLink *outlink)
     int i, ret = 0;
 
     /* initialize unused channel list for each input */
-    inputs_unused = av_calloc(ctx->nb_inputs, sizeof(*inputs_unused));
+    inputs_unused = zn_av_calloc(ctx->nb_inputs, sizeof(*inputs_unused));
     if (!inputs_unused)
         return AVERROR(ENOMEM);
     for (i = 0; i < ctx->nb_inputs; i++) {
@@ -318,7 +318,7 @@ static int join_config_output(AVFilterLink *outlink)
         ChannelList      *iu = &inputs_unused[i];
 
         iu->nb_ch = chl->nb_channels;
-        iu->ch    = av_malloc_array(iu->nb_ch, sizeof(*iu->ch));
+        iu->ch    = zn_av_malloc_array(iu->nb_ch, sizeof(*iu->ch));
         if (!iu->ch) {
             ret = AVERROR(ENOMEM);
             goto fail;
@@ -431,8 +431,8 @@ static int join_config_output(AVFilterLink *outlink)
 
 fail:
     for (i = 0; i < ctx->nb_inputs; i++)
-        av_freep(&inputs_unused[i].ch);
-    av_freep(&inputs_unused);
+        zn_av_freep(&inputs_unused[i].ch);
+    zn_av_freep(&inputs_unused);
     return ret;
 }
 
@@ -458,11 +458,11 @@ static int try_push_frame(AVFilterContext *ctx)
         goto eof;
 
     /* setup the output frame */
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame)
         return AVERROR(ENOMEM);
     if (s->ch_layout.nb_channels > FF_ARRAY_ELEMS(frame->data)) {
-        frame->extended_data = av_calloc(s->ch_layout.nb_channels,
+        frame->extended_data = zn_av_calloc(s->ch_layout.nb_channels,
                                           sizeof(*frame->extended_data));
         if (!frame->extended_data) {
             ret = AVERROR(ENOMEM);
@@ -496,7 +496,7 @@ static int try_push_frame(AVFilterContext *ctx)
     /* create references to the buffers we copied to output */
     if (nb_buffers > FF_ARRAY_ELEMS(frame->buf)) {
         frame->nb_extended_buf = nb_buffers - FF_ARRAY_ELEMS(frame->buf);
-        frame->extended_buf = av_calloc(frame->nb_extended_buf,
+        frame->extended_buf = zn_av_calloc(frame->nb_extended_buf,
                                         sizeof(*frame->extended_buf));
         if (!frame->extended_buf) {
             frame->nb_extended_buf = 0;
@@ -531,7 +531,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
     frame->channels       = outlink->ch_layout.nb_channels;
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
-    if ((ret = av_channel_layout_copy(&frame->ch_layout, &outlink->ch_layout)) < 0)
+    if ((ret = zn_av_channel_layout_copy(&frame->ch_layout, &outlink->ch_layout)) < 0)
         goto fail;
     frame->sample_rate    = outlink->sample_rate;
     frame->format         = outlink->format;
@@ -548,12 +548,12 @@ FF_ENABLE_DEPRECATION_WARNINGS
     ret = ff_filter_frame(outlink, frame);
 
     for (i = 0; i < ctx->nb_inputs; i++)
-        av_frame_free(&s->input_frames[i]);
+        zn_av_frame_free(&s->input_frames[i]);
 
     return ret;
 
 fail:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     return ret;
 eof:
     for (i = 0; i < ctx->nb_inputs; i++) {

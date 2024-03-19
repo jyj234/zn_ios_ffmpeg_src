@@ -138,7 +138,7 @@ static inline int dc1394_read_common(AVFormatContext *c,
     }
 
     /* create a video stream */
-    vst = avformat_new_stream(c, NULL);
+    vst = zn_avformat_new_stream(c, NULL);
     if (!vst) {
         ret = AVERROR(ENOMEM);
         goto out;

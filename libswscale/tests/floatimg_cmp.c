@@ -193,7 +193,7 @@ bad_option:
 
         // setup intermediate image
         for (p = 0; p < 4; p++) {
-            av_freep(&dst[p]);
+            zn_av_freep(&dst[p]);
         }
 
         res = av_image_fill_linesizes(dstStride, dstFormat, w);
@@ -285,9 +285,9 @@ bad_option:
 end:
     sws_freeContext(sws);
     for (p = 0; p < 4; p++) {
-        av_freep(&rgbIn[p]);
-        av_freep(&rgbOut[p]);
-        av_freep(&dst[p]);
+        zn_av_freep(&rgbIn[p]);
+        zn_av_freep(&rgbOut[p]);
+        zn_av_freep(&dst[p]);
     }
     if (fp)
         fclose(fp);

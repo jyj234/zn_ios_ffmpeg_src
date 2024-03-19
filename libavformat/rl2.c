@@ -112,7 +112,7 @@ static av_cold int rl2_read_header(AVFormatContext *s)
     def_sound_size = avio_rl16(pb);
 
     /** setup video stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if(!st)
          return AVERROR(ENOMEM);
 
@@ -142,7 +142,7 @@ static av_cold int rl2_read_header(AVFormatContext *s)
         pts_num = def_sound_size;
         pts_den = rate;
 
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -165,9 +165,9 @@ static av_cold int rl2_read_header(AVFormatContext *s)
     chunk_offset = av_malloc(frame_count * sizeof(uint32_t));
 
     if(!chunk_size || !audio_size || !chunk_offset){
-        av_free(chunk_size);
-        av_free(audio_size);
-        av_free(chunk_offset);
+        zn_av_free(chunk_size);
+        zn_av_free(audio_size);
+        zn_av_free(chunk_offset);
         return AVERROR(ENOMEM);
     }
 
@@ -212,9 +212,9 @@ static av_cold int rl2_read_header(AVFormatContext *s)
     }
 
 end:
-    av_free(chunk_size);
-    av_free(audio_size);
-    av_free(chunk_offset);
+    zn_av_free(chunk_size);
+    zn_av_free(audio_size);
+    zn_av_free(chunk_offset);
 
     return ret;
 }

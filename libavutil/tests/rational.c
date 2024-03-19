@@ -36,8 +36,8 @@ int main(void)
             for (b.num = -2; b.num <= 2; b.num++) {
                 for (b.den = -2; b.den <= 2; b.den++) {
                     int c = av_cmp_q(a,b);
-                    double d = av_q2d(a) == av_q2d(b) ?
-                               0 : (av_q2d(a) - av_q2d(b));
+                    double d = zn_av_q2d(a) == zn_av_q2d(b) ?
+                               0 : (zn_av_q2d(a) - zn_av_q2d(b));
                     if (d > 0)       d = 1;
                     else if (d < 0)  d = -1;
                     else if (d != d) d = INT_MIN;
@@ -120,7 +120,7 @@ int main(void)
     for (a.den = 1; a.den < 0x100000000U/3; a.den*=3) {
         for (a.num = -1; a.num < (1<<27); a.num += 1 + a.num/100) {
             float f  = av_int2float(av_q2intfloat(a));
-            float f2 = av_q2d(a);
+            float f2 = zn_av_q2d(a);
             if (fabs(f - f2) > fabs(f)/5000000) {
                 av_log(NULL, AV_LOG_ERROR, "%d/%d %f %f\n", a.num,
                        a.den, f, f2);

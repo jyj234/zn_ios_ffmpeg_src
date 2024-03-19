@@ -171,7 +171,7 @@ static int av1_frame_split_filter(AVBSFContext *ctx, AVPacket *out)
             out->pts = AV_NOPTS_VALUE;
 
         if (s->cur_frame == s->nb_frames) {
-            av_packet_unref(s->buffer_pkt);
+            zn_av_packet_unref(s->buffer_pkt);
             ff_cbs_fragment_reset(td);
         }
 
@@ -184,8 +184,8 @@ passthrough:
     ret = 0;
 fail:
     if (ret < 0) {
-        av_packet_unref(out);
-        av_packet_unref(s->buffer_pkt);
+        zn_av_packet_unref(out);
+        zn_av_packet_unref(s->buffer_pkt);
     }
     ff_cbs_fragment_reset(td);
 
@@ -206,7 +206,7 @@ static int av1_frame_split_init(AVBSFContext *ctx)
     CodedBitstreamFragment *td = &s->temporal_unit;
     int ret;
 
-    s->buffer_pkt = av_packet_alloc();
+    s->buffer_pkt = zn_av_packet_alloc();
     if (!s->buffer_pkt)
         return AVERROR(ENOMEM);
 
@@ -233,7 +233,7 @@ static void av1_frame_split_flush(AVBSFContext *ctx)
 {
     AV1FSplitContext *s = ctx->priv_data;
 
-    av_packet_unref(s->buffer_pkt);
+    zn_av_packet_unref(s->buffer_pkt);
     ff_cbs_fragment_reset(&s->temporal_unit);
 }
 
@@ -241,7 +241,7 @@ static void av1_frame_split_close(AVBSFContext *ctx)
 {
     AV1FSplitContext *s = ctx->priv_data;
 
-    av_packet_free(&s->buffer_pkt);
+    zn_av_packet_free(&s->buffer_pkt);
     ff_cbs_fragment_free(&s->temporal_unit);
     ff_cbs_close(&s->cbc);
 }

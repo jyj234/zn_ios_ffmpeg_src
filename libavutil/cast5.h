@@ -39,7 +39,7 @@ struct AVCAST5;
 
 /**
   * Allocate an AVCAST5 context
-  * To free the struct: av_free(ptr)
+  * To free the struct: zn_av_free(ptr)
   */
 struct AVCAST5 *av_cast5_alloc(void);
 /**

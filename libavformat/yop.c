@@ -64,8 +64,8 @@ static int yop_read_header(AVFormatContext *s)
 
     int frame_rate, ret;
 
-    audio_stream = avformat_new_stream(s, NULL);
-    video_stream = avformat_new_stream(s, NULL);
+    audio_stream = zn_avformat_new_stream(s, NULL);
+    video_stream = zn_avformat_new_stream(s, NULL);
     if (!audio_stream || !video_stream)
         return AVERROR(ENOMEM);
 
@@ -166,14 +166,14 @@ static int yop_read_packet(AVFormatContext *s, AVPacket *pkt)
     return 0;
 
 err_out:
-    av_packet_unref(&yop->video_packet);
+    zn_av_packet_unref(&yop->video_packet);
     return ret;
 }
 
 static int yop_read_close(AVFormatContext *s)
 {
     YopDecContext *yop = s->priv_data;
-    av_packet_unref(&yop->video_packet);
+    zn_av_packet_unref(&yop->video_packet);
     return 0;
 }
 
@@ -198,7 +198,7 @@ static int yop_read_seek(AVFormatContext *s, int stream_index,
     if (avio_seek(s->pb, frame_pos, SEEK_SET) < 0)
         return -1;
 
-    av_packet_unref(&yop->video_packet);
+    zn_av_packet_unref(&yop->video_packet);
     yop->odd_frame = timestamp & 1;
 
     return 0;

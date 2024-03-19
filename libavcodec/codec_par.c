@@ -31,7 +31,7 @@
 
 static void codec_parameters_reset(AVCodecParameters *par)
 {
-    av_freep(&par->extradata);
+    zn_av_freep(&par->extradata);
     av_channel_layout_uninit(&par->ch_layout);
     av_packet_side_data_free(&par->coded_side_data, &par->nb_coded_side_data);
 
@@ -71,7 +71,7 @@ void avcodec_parameters_free(AVCodecParameters **ppar)
         return;
     codec_parameters_reset(par);
 
-    av_freep(ppar);
+    zn_av_freep(ppar);
 }
 
 static int codec_parameters_copy_side_data(AVPacketSideData **pdst, int *pnb_dst,
@@ -83,7 +83,7 @@ static int codec_parameters_copy_side_data(AVPacketSideData **pdst, int *pnb_dst
     if (!src)
         return 0;
 
-    *pdst = dst = av_calloc(nb_src, sizeof(*dst));
+    *pdst = dst = zn_av_calloc(nb_src, sizeof(*dst));
     if (!dst)
         return AVERROR(ENOMEM);
 
@@ -103,7 +103,7 @@ static int codec_parameters_copy_side_data(AVPacketSideData **pdst, int *pnb_dst
     return 0;
 }
 
-int avcodec_parameters_copy(AVCodecParameters *dst, const AVCodecParameters *src)
+int zn_avcodec_parameters_copy(AVCodecParameters *dst, const AVCodecParameters *src)
 {
     int ret;
 
@@ -127,7 +127,7 @@ int avcodec_parameters_copy(AVCodecParameters *dst, const AVCodecParameters *src
     if (ret < 0)
         return ret;
 
-    ret = av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
+    ret = zn_av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
     if (ret < 0)
         return ret;
 
@@ -183,7 +183,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
         } else {
 #endif
-        ret = av_channel_layout_copy(&par->ch_layout, &codec->ch_layout);
+        ret = zn_av_channel_layout_copy(&par->ch_layout, &codec->ch_layout);
         if (ret < 0)
             return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT
@@ -223,7 +223,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     return 0;
 }
 
-int avcodec_parameters_to_context(AVCodecContext *codec,
+int zn_avcodec_parameters_to_context(AVCodecContext *codec,
                                   const AVCodecParameters *par)
 {
     int ret;
@@ -270,7 +270,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
         } else {
 #endif
-        ret = av_channel_layout_copy(&codec->ch_layout, &par->ch_layout);
+        ret = zn_av_channel_layout_copy(&codec->ch_layout, &par->ch_layout);
         if (ret < 0)
             return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT
@@ -295,7 +295,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         break;
     }
 
-    av_freep(&codec->extradata);
+    zn_av_freep(&codec->extradata);
     if (par->extradata) {
         codec->extradata = av_mallocz(par->extradata_size + AV_INPUT_BUFFER_PADDING_SIZE);
         if (!codec->extradata)

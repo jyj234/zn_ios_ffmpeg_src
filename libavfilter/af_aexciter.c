@@ -187,7 +187,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(inlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -213,7 +213,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -222,7 +222,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AExciterContext *s = ctx->priv;
 
-    av_freep(&s->cp);
+    zn_av_freep(&s->cp);
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -231,7 +231,7 @@ static int config_input(AVFilterLink *inlink)
     AExciterContext *s = ctx->priv;
 
     if (!s->cp)
-        s->cp = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->cp));
+        s->cp = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->cp));
     if (!s->cp)
         return AVERROR(ENOMEM);
 

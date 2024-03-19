@@ -201,7 +201,7 @@ static int neighbor_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     av_log(ctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(output->format),
@@ -211,8 +211,8 @@ static int neighbor_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
 
 fail:
     clFinish(ctx->command_queue);
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

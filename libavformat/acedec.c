@@ -68,7 +68,7 @@ static int ace_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     avio_skip(pb, 16);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->start_time = 0;

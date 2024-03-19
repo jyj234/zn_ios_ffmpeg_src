@@ -57,7 +57,7 @@ static int rsd_read_header(AVFormatContext *s)
     AVIOContext *pb = s->pb;
     int i, ret, version, start = 0x800;
     AVCodecParameters *par;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

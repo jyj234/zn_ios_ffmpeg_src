@@ -183,42 +183,42 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ShowCWTContext *s = ctx->priv;
 
-    av_freep(&s->frequency_band);
-    av_freep(&s->kernel_start);
-    av_freep(&s->kernel_stop);
-    av_freep(&s->index);
+    zn_av_freep(&s->frequency_band);
+    zn_av_freep(&s->kernel_start);
+    zn_av_freep(&s->kernel_stop);
+    zn_av_freep(&s->index);
 
-    av_frame_free(&s->cache);
-    av_frame_free(&s->outpicref);
-    av_frame_free(&s->fft_in);
-    av_frame_free(&s->fft_out);
-    av_frame_free(&s->dst_x);
-    av_frame_free(&s->src_x);
-    av_frame_free(&s->ifft_in);
-    av_frame_free(&s->ifft_out);
-    av_frame_free(&s->ch_out);
-    av_frame_free(&s->over);
-    av_frame_free(&s->bh_out);
+    zn_av_frame_free(&s->cache);
+    zn_av_frame_free(&s->outpicref);
+    zn_av_frame_free(&s->fft_in);
+    zn_av_frame_free(&s->fft_out);
+    zn_av_frame_free(&s->dst_x);
+    zn_av_frame_free(&s->src_x);
+    zn_av_frame_free(&s->ifft_in);
+    zn_av_frame_free(&s->ifft_out);
+    zn_av_frame_free(&s->ch_out);
+    zn_av_frame_free(&s->over);
+    zn_av_frame_free(&s->bh_out);
 
     if (s->fft) {
         for (int n = 0; n < s->nb_threads; n++)
             av_tx_uninit(&s->fft[n]);
-        av_freep(&s->fft);
+        zn_av_freep(&s->fft);
     }
 
     if (s->ifft) {
         for (int n = 0; n < s->nb_threads; n++)
             av_tx_uninit(&s->ifft[n]);
-        av_freep(&s->ifft);
+        zn_av_freep(&s->ifft);
     }
 
     if (s->kernel) {
         for (int n = 0; n < s->frequency_band_count; n++)
-            av_freep(&s->kernel[n]);
+            zn_av_freep(&s->kernel[n]);
     }
-    av_freep(&s->kernel);
+    zn_av_freep(&s->kernel);
 
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
 }
 
 static int query_formats(AVFilterContext *ctx)
@@ -707,7 +707,7 @@ static int compute_kernel(AVFilterContext *ctx)
     int range_max = 0, ret = 0;
     float *tkernel;
 
-    tkernel = av_malloc_array(size, sizeof(*tkernel));
+    tkernel = zn_av_malloc_array(size, sizeof(*tkernel));
     if (!tkernel)
         return AVERROR(ENOMEM);
 
@@ -755,7 +755,7 @@ static int compute_kernel(AVFilterContext *ctx)
         kernel_start[y] = start;
         kernel_stop[y] = stop;
 
-        kernel = av_calloc(FFALIGN(stop-start+1, 16), sizeof(*kernel));
+        kernel = zn_av_calloc(FFALIGN(stop-start+1, 16), sizeof(*kernel));
         if (!kernel) {
             ret = AVERROR(ENOMEM);
             break;
@@ -778,7 +778,7 @@ static int compute_kernel(AVFilterContext *ctx)
     av_log(ctx, AV_LOG_DEBUG, "range_min: %d\n", range_min);
     av_log(ctx, AV_LOG_DEBUG, "range_max: %d\n", range_max);
 
-    av_freep(&tkernel);
+    zn_av_freep(&tkernel);
 
     return ret;
 }
@@ -849,7 +849,7 @@ static int config_output(AVFilterLink *outlink)
         break;
     }
 
-    s->frequency_band = av_calloc(s->frequency_band_count,
+    s->frequency_band = zn_av_calloc(s->frequency_band_count,
                                   sizeof(*s->frequency_band) * 2);
     if (!s->frequency_band)
         return AVERROR(ENOMEM);
@@ -880,7 +880,7 @@ static int config_output(AVFilterLink *outlink)
     s->fft_size = FFALIGN(s->input_padding_size, av_cpu_max_align());
     s->ifft_size = FFALIGN(s->output_padding_size, av_cpu_max_align());
 
-    s->fft = av_calloc(s->nb_threads, sizeof(*s->fft));
+    s->fft = zn_av_calloc(s->nb_threads, sizeof(*s->fft));
     if (!s->fft)
         return AVERROR(ENOMEM);
 
@@ -890,7 +890,7 @@ static int config_output(AVFilterLink *outlink)
             return ret;
     }
 
-    s->ifft = av_calloc(s->nb_threads, sizeof(*s->ifft));
+    s->ifft = zn_av_calloc(s->nb_threads, sizeof(*s->ifft));
     if (!s->ifft)
         return AVERROR(ENOMEM);
 
@@ -903,18 +903,18 @@ static int config_output(AVFilterLink *outlink)
     s->outpicref = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     s->fft_in = ff_get_audio_buffer(inlink, s->fft_size * 2);
     s->fft_out = ff_get_audio_buffer(inlink, s->fft_size * 2);
-    s->dst_x = av_frame_alloc();
-    s->src_x = av_frame_alloc();
-    s->kernel = av_calloc(s->frequency_band_count, sizeof(*s->kernel));
+    s->dst_x = zn_av_frame_alloc();
+    s->src_x = zn_av_frame_alloc();
+    s->kernel = zn_av_calloc(s->frequency_band_count, sizeof(*s->kernel));
     s->cache = ff_get_audio_buffer(inlink, s->hop_size);
     s->over = ff_get_audio_buffer(inlink, s->frequency_band_count * 2 * s->ihop_size);
     s->bh_out = ff_get_audio_buffer(inlink, s->frequency_band_count);
-    s->ifft_in = av_frame_alloc();
-    s->ifft_out = av_frame_alloc();
-    s->ch_out = av_frame_alloc();
-    s->index = av_calloc(s->input_padding_size, sizeof(*s->index));
-    s->kernel_start = av_calloc(s->frequency_band_count, sizeof(*s->kernel_start));
-    s->kernel_stop = av_calloc(s->frequency_band_count, sizeof(*s->kernel_stop));
+    s->ifft_in = zn_av_frame_alloc();
+    s->ifft_out = zn_av_frame_alloc();
+    s->ch_out = zn_av_frame_alloc();
+    s->index = zn_av_calloc(s->input_padding_size, sizeof(*s->index));
+    s->kernel_start = zn_av_calloc(s->frequency_band_count, sizeof(*s->kernel_start));
+    s->kernel_stop = zn_av_calloc(s->frequency_band_count, sizeof(*s->kernel_stop));
     if (!s->outpicref || !s->fft_in || !s->fft_out || !s->src_x || !s->dst_x || !s->over ||
         !s->ifft_in || !s->ifft_out || !s->kernel_start || !s->kernel_stop || !s->ch_out ||
         !s->cache || !s->index || !s->bh_out || !s->kernel)
@@ -923,35 +923,35 @@ static int config_output(AVFilterLink *outlink)
     s->ch_out->format     = inlink->format;
     s->ch_out->nb_samples = 2 * s->ihop_size * inlink->ch_layout.nb_channels;
     s->ch_out->ch_layout.nb_channels = s->frequency_band_count;
-    ret = av_frame_get_buffer(s->ch_out, 0);
+    ret = zn_av_frame_get_buffer(s->ch_out, 0);
     if (ret < 0)
         return ret;
 
     s->ifft_in->format     = inlink->format;
     s->ifft_in->nb_samples = s->ifft_size * 2;
     s->ifft_in->ch_layout.nb_channels = s->nb_threads;
-    ret = av_frame_get_buffer(s->ifft_in, 0);
+    ret = zn_av_frame_get_buffer(s->ifft_in, 0);
     if (ret < 0)
         return ret;
 
     s->ifft_out->format     = inlink->format;
     s->ifft_out->nb_samples = s->ifft_size * 2;
     s->ifft_out->ch_layout.nb_channels = s->nb_threads;
-    ret = av_frame_get_buffer(s->ifft_out, 0);
+    ret = zn_av_frame_get_buffer(s->ifft_out, 0);
     if (ret < 0)
         return ret;
 
     s->src_x->format     = inlink->format;
     s->src_x->nb_samples = s->fft_size * 2;
     s->src_x->ch_layout.nb_channels = s->nb_threads;
-    ret = av_frame_get_buffer(s->src_x, 0);
+    ret = zn_av_frame_get_buffer(s->src_x, 0);
     if (ret < 0)
         return ret;
 
     s->dst_x->format     = inlink->format;
     s->dst_x->nb_samples = s->fft_size * 2;
     s->dst_x->ch_layout.nb_channels = s->nb_threads;
-    ret = av_frame_get_buffer(s->dst_x, 0);
+    ret = zn_av_frame_get_buffer(s->dst_x, 0);
     if (ret < 0)
         return ret;
 
@@ -1192,7 +1192,7 @@ static int output_frame(AVFilterContext *ctx)
         if (ret <= 0)
             return ret;
 fail:
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ret;
     }
 
@@ -1239,7 +1239,7 @@ static int activate(AVFilterContext *ctx)
                     if (s->hop_index == 0)
                         s->in_pts = fin->pts;
                     s->hop_index += fin->nb_samples;
-                    av_frame_free(&fin);
+                    zn_av_frame_free(&fin);
                 } else {
                     s->hop_index = s->hop_size;
                 }

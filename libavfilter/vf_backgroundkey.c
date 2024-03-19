@@ -162,7 +162,7 @@ static int filter_frame(AVFilterLink *link, AVFrame *frame)
 
     return ff_filter_frame(avctx->outputs[0], frame);
 fail:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     return ret;
 }
 
@@ -183,7 +183,7 @@ static av_cold int config_output(AVFilterLink *outlink)
     s->max_sum  = (int64_t)(inlink->w) * inlink->h * s->max;
     s->max_sum += 2LL * (inlink->w >> s->hsub_log2) * (inlink->h >> s->vsub_log2) * s->max;
 
-    s->sums = av_calloc(s->nb_threads, sizeof(*s->sums));
+    s->sums = zn_av_calloc(s->nb_threads, sizeof(*s->sums));
     if (!s->sums)
         return AVERROR(ENOMEM);
 
@@ -194,8 +194,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     BackgroundkeyContext *s = ctx->priv;
 
-    av_frame_free(&s->background);
-    av_freep(&s->sums);
+    zn_av_frame_free(&s->background);
+    zn_av_freep(&s->sums);
 }
 
 static const AVFilterPad backgroundkey_inputs[] = {

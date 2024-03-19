@@ -482,8 +482,8 @@ static void dist_bundle_close(JXLDistributionBundle *bundle)
     if (bundle->use_prefix_code && bundle->dists)
         for (int i = 0; i < bundle->num_clusters; i++)
             ff_vlc_free(&bundle->dists[i].vlc);
-    av_freep(&bundle->dists);
-    av_freep(&bundle->cluster_map);
+    zn_av_freep(&bundle->dists);
+    zn_av_freep(&bundle->cluster_map);
 }
 
 
@@ -819,7 +819,7 @@ static int read_vlc_prefix(GetBitContext *gb, JXLEntropyDecoder *dec, JXLSymbolD
                                     1, level2_syms, 2, 2, 0, VLC_INIT_LE, dec->logctx);
 
 end:
-    av_freep(&buf);
+    zn_av_freep(&buf);
     ff_vlc_free(&level1_vlc);
 
     return ret;
@@ -847,7 +847,7 @@ static int read_distribution_bundle(GetBitContext *gb, JXLEntropyDecoder *dec,
     }
 
     if (bundle->lz77_enabled && !dec->window) {
-        dec->window = av_malloc_array(1 << 20, sizeof(uint32_t));
+        dec->window = zn_av_malloc_array(1 << 20, sizeof(uint32_t));
         if (!dec->window)
             return AVERROR(ENOMEM);
     }
@@ -858,7 +858,7 @@ static int read_distribution_bundle(GetBitContext *gb, JXLEntropyDecoder *dec,
     if (get_bits_left(gb) < 0)
         return AVERROR_BUFFER_TOO_SMALL;
 
-    bundle->dists = av_calloc(bundle->num_clusters, sizeof(JXLSymbolDistribution));
+    bundle->dists = zn_av_calloc(bundle->num_clusters, sizeof(JXLSymbolDistribution));
     if (!bundle->dists)
         return AVERROR(ENOMEM);
 
@@ -915,7 +915,7 @@ static void entropy_decoder_close(JXLEntropyDecoder *dec)
 {
     if (!dec)
         return;
-    av_freep(&dec->window);
+    zn_av_freep(&dec->window);
     dist_bundle_close(&dec->bundle);
 }
 

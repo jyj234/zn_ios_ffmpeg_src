@@ -52,7 +52,7 @@ static int win32_open(const char *filename_utf8, int oflag, int pmode)
         goto fallback;
 
     fd = _wsopen(filename_w, oflag, SH_DENYNO, pmode);
-    av_freep(&filename_w);
+    zn_av_freep(&filename_w);
 
     if (fd != -1 || (oflag & O_CREAT))
         return fd;
@@ -150,7 +150,7 @@ int avpriv_tempfile(const char *prefix, char **filename, int log_offset, void *l
     if (fd < 0) {
         int err = AVERROR(errno);
         av_log(&file_log_ctx, AV_LOG_ERROR, "ff_tempfile: Cannot open temporary file %s\n", *filename);
-        av_freep(filename);
+        zn_av_freep(filename);
         return err;
     }
     return fd; /* success */

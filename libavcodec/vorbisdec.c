@@ -194,46 +194,46 @@ static void vorbis_free(vorbis_context *vc)
 {
     int i;
 
-    av_freep(&vc->channel_residues);
-    av_freep(&vc->saved);
-    av_freep(&vc->fdsp);
+    zn_av_freep(&vc->channel_residues);
+    zn_av_freep(&vc->saved);
+    zn_av_freep(&vc->fdsp);
 
     if (vc->residues)
         for (i = 0; i < vc->residue_count; i++)
-            av_freep(&vc->residues[i].classifs);
-    av_freep(&vc->residues);
-    av_freep(&vc->modes);
+            zn_av_freep(&vc->residues[i].classifs);
+    zn_av_freep(&vc->residues);
+    zn_av_freep(&vc->modes);
 
     av_tx_uninit(&vc->mdct[0]);
     av_tx_uninit(&vc->mdct[1]);
 
     if (vc->codebooks)
         for (i = 0; i < vc->codebook_count; ++i) {
-            av_freep(&vc->codebooks[i].codevectors);
+            zn_av_freep(&vc->codebooks[i].codevectors);
             ff_vlc_free(&vc->codebooks[i].vlc);
         }
-    av_freep(&vc->codebooks);
+    zn_av_freep(&vc->codebooks);
 
     if (vc->floors)
         for (i = 0; i < vc->floor_count; ++i) {
             if (vc->floors[i].floor_type == 0) {
-                av_freep(&vc->floors[i].data.t0.map[0]);
-                av_freep(&vc->floors[i].data.t0.map[1]);
-                av_freep(&vc->floors[i].data.t0.book_list);
-                av_freep(&vc->floors[i].data.t0.lsp);
+                zn_av_freep(&vc->floors[i].data.t0.map[0]);
+                zn_av_freep(&vc->floors[i].data.t0.map[1]);
+                zn_av_freep(&vc->floors[i].data.t0.book_list);
+                zn_av_freep(&vc->floors[i].data.t0.lsp);
             } else {
-                av_freep(&vc->floors[i].data.t1.list);
+                zn_av_freep(&vc->floors[i].data.t1.list);
             }
         }
-    av_freep(&vc->floors);
+    zn_av_freep(&vc->floors);
 
     if (vc->mappings)
         for (i = 0; i < vc->mapping_count; ++i) {
-            av_freep(&vc->mappings[i].magnitude);
-            av_freep(&vc->mappings[i].angle);
-            av_freep(&vc->mappings[i].mux);
+            zn_av_freep(&vc->mappings[i].magnitude);
+            zn_av_freep(&vc->mappings[i].angle);
+            zn_av_freep(&vc->mappings[i].mux);
         }
-    av_freep(&vc->mappings);
+    zn_av_freep(&vc->mappings);
 }
 
 // Parse setup header -------------------------------------------------
@@ -388,7 +388,7 @@ static int vorbis_parse_setup_hdr_codebooks(vorbis_context *vc)
 // Weed out unused vlcs and build codevector vector
             if (used_entries) {
                 codebook_setup->codevectors =
-                    av_calloc(used_entries, codebook_setup->dimensions *
+                    zn_av_calloc(used_entries, codebook_setup->dimensions *
                                sizeof(*codebook_setup->codevectors));
                 if (!codebook_setup->codevectors) {
                     ret = AVERROR(ENOMEM);
@@ -464,16 +464,16 @@ static int vorbis_parse_setup_hdr_codebooks(vorbis_context *vc)
         }
     }
 
-    av_free(tmp_vlc_bits);
-    av_free(tmp_vlc_codes);
-    av_free(codebook_multiplicands);
+    zn_av_free(tmp_vlc_bits);
+    zn_av_free(tmp_vlc_codes);
+    zn_av_free(codebook_multiplicands);
     return 0;
 
 // Error:
 error:
-    av_free(tmp_vlc_bits);
-    av_free(tmp_vlc_codes);
-    av_free(codebook_multiplicands);
+    zn_av_free(tmp_vlc_bits);
+    zn_av_free(tmp_vlc_codes);
+    zn_av_free(codebook_multiplicands);
     return ret;
 }
 
@@ -576,7 +576,7 @@ static int vorbis_parse_setup_hdr_floors(vorbis_context *vc)
             for (j = 0; j < floor_setup->data.t1.partitions; ++j)
                 floor_setup->data.t1.x_list_dim+=floor_setup->data.t1.class_dimensions[floor_setup->data.t1.partition_class[j]];
 
-            floor_setup->data.t1.list = av_calloc(floor_setup->data.t1.x_list_dim,
+            floor_setup->data.t1.list = zn_av_calloc(floor_setup->data.t1.x_list_dim,
                                                    sizeof(*floor_setup->data.t1.list));
             if (!floor_setup->data.t1.list)
                 return AVERROR(ENOMEM);
@@ -660,7 +660,7 @@ static int vorbis_parse_setup_hdr_floors(vorbis_context *vc)
             /* codebook dim is for padding if codebook dim doesn't *
              * divide order+1 then we need to read more data       */
             floor_setup->data.t0.lsp =
-                av_malloc_array((floor_setup->data.t0.order + 1 + max_codebook_dim),
+                zn_av_malloc_array((floor_setup->data.t0.order + 1 + max_codebook_dim),
                                 sizeof(*floor_setup->data.t0.lsp));
             if (!floor_setup->data.t0.lsp)
                 return AVERROR(ENOMEM);
@@ -734,7 +734,7 @@ static int vorbis_parse_setup_hdr_residues(vorbis_context *vc)
 
         res_setup->ptns_to_read =
             (res_setup->end - res_setup->begin) / res_setup->partition_size;
-        res_setup->classifs = av_malloc_array(res_setup->ptns_to_read,
+        res_setup->classifs = zn_av_malloc_array(res_setup->ptns_to_read,
                                         vc->audio_channels *
                                         sizeof(*res_setup->classifs));
         if (!res_setup->classifs)
@@ -832,7 +832,7 @@ static int vorbis_parse_setup_hdr_mappings(vorbis_context *vc)
         }
 
         if (mapping_setup->submaps>1) {
-            mapping_setup->mux = av_calloc(vc->audio_channels,
+            mapping_setup->mux = zn_av_calloc(vc->audio_channels,
                                             sizeof(*mapping_setup->mux));
             if (!mapping_setup->mux)
                 return AVERROR(ENOMEM);
@@ -867,7 +867,7 @@ static int create_map(vorbis_context *vc, unsigned floor_number)
     for (blockflag = 0; blockflag < 2; ++blockflag) {
         n = vc->blocksize[blockflag] / 2;
         floors[floor_number].data.t0.map[blockflag] =
-            av_malloc_array(n + 1, sizeof(int32_t)); // n + sentinel
+            zn_av_malloc_array(n + 1, sizeof(int32_t)); // n + sentinel
         if (!floors[floor_number].data.t0.map[blockflag])
             return AVERROR(ENOMEM);
 
@@ -1010,8 +1010,8 @@ static int vorbis_parse_id_hdr(vorbis_context *vc)
         return AVERROR_INVALIDDATA;
     }
 
-    vc->channel_residues =  av_malloc_array(vc->blocksize[1]  / 2, vc->audio_channels * sizeof(*vc->channel_residues));
-    vc->saved            =  av_calloc(vc->blocksize[1] / 4, vc->audio_channels * sizeof(*vc->saved));
+    vc->channel_residues =  zn_av_malloc_array(vc->blocksize[1]  / 2, vc->audio_channels * sizeof(*vc->channel_residues));
+    vc->saved            =  zn_av_calloc(vc->blocksize[1] / 4, vc->audio_channels * sizeof(*vc->saved));
     if (!vc->channel_residues || !vc->saved)
         return AVERROR(ENOMEM);
 
@@ -1101,7 +1101,7 @@ static av_cold int vorbis_decode_init(AVCodecContext *avctx)
         avctx->ch_layout.order       = AV_CHANNEL_ORDER_UNSPEC;
         avctx->ch_layout.nb_channels = vc->audio_channels;
     } else {
-        av_channel_layout_copy(&avctx->ch_layout, &ff_vorbis_ch_layouts[vc->audio_channels - 1]);
+        zn_av_channel_layout_copy(&avctx->ch_layout, &ff_vorbis_ch_layouts[vc->audio_channels - 1]);
     }
 
     avctx->sample_rate = vc->audio_samplerate;
@@ -1791,7 +1791,7 @@ static int vorbis_decode_frame(AVCodecContext *avctx, AVFrame *frame,
             avctx->ch_layout.order       = AV_CHANNEL_ORDER_UNSPEC;
             avctx->ch_layout.nb_channels = vc->audio_channels;
         } else {
-            av_channel_layout_copy(&avctx->ch_layout, &ff_vorbis_ch_layouts[vc->audio_channels - 1]);
+            zn_av_channel_layout_copy(&avctx->ch_layout, &ff_vorbis_ch_layouts[vc->audio_channels - 1]);
         }
 
         avctx->sample_rate = vc->audio_samplerate;

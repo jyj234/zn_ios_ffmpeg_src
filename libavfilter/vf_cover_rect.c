@@ -174,7 +174,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     ret = ff_inlink_make_frame_writable(inlink, &in);
     if (ret < 0) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return ret;
     }
 
@@ -191,8 +191,8 @@ static av_cold void uninit(AVFilterContext *ctx)
     CoverContext *cover = ctx->priv;
 
     if (cover->cover_frame)
-        av_freep(&cover->cover_frame->data[0]);
-    av_frame_free(&cover->cover_frame);
+        zn_av_freep(&cover->cover_frame->data[0]);
+    zn_av_frame_free(&cover->cover_frame);
 }
 
 static av_cold int init(AVFilterContext *ctx)
@@ -206,7 +206,7 @@ static av_cold int init(AVFilterContext *ctx)
             return AVERROR(EINVAL);
         }
 
-        cover->cover_frame = av_frame_alloc();
+        cover->cover_frame = zn_av_frame_alloc();
         if (!cover->cover_frame)
             return AVERROR(ENOMEM);
 

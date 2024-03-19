@@ -52,7 +52,7 @@
  * This struct holds all the information that needs to be passed
  * between the caller and libavcodec for initializing Videotoolbox decoding.
  * Its size is not a part of the public ABI, it must be allocated with
- * av_videotoolbox_alloc_context() and freed with av_free().
+ * av_videotoolbox_alloc_context() and freed with zn_av_free().
  */
 typedef struct AVVideotoolboxContext {
     /**
@@ -98,7 +98,7 @@ typedef struct AVVideotoolboxContext {
  * will be used for Videotoolbox-accelerated decoding.
  *
  * When decoding with Videotoolbox is finished, the caller must destroy the decoder
- * object and free the Videotoolbox context using av_free().
+ * object and free the Videotoolbox context using zn_av_free().
  *
  * @return the newly allocated context or NULL on failure
  * @deprecated Use AVCodecContext.hw_frames_ctx or hw_device_ctx instead.

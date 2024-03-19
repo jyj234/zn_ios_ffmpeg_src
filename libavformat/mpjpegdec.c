@@ -100,8 +100,8 @@ static int parse_multipart_header(AVIOContext *pb,
 static int mpjpeg_read_close(AVFormatContext *s)
 {
     MPJPEGDemuxContext *mpjpeg = s->priv_data;
-    av_freep(&mpjpeg->boundary);
-    av_freep(&mpjpeg->searchstr);
+    zn_av_freep(&mpjpeg->boundary);
+    zn_av_freep(&mpjpeg->searchstr);
     return 0;
 }
 
@@ -137,7 +137,7 @@ static int mpjpeg_read_header(AVFormatContext *s)
     if (strncmp(boundary, "--", 2))
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -278,7 +278,7 @@ static char* mpjpeg_get_boundary(AVIOContext* pb)
         }
     }
 
-    av_freep(&mime_type);
+    zn_av_freep(&mime_type);
     return res;
 }
 
@@ -296,14 +296,14 @@ static int mpjpeg_read_packet(AVFormatContext *s, AVPacket *pkt)
         if (boundary != NULL) {
             mpjpeg->boundary = av_asprintf("--%s", boundary);
             mpjpeg->searchstr = av_asprintf("\r\n--%s\r\n", boundary);
-            av_freep(&boundary);
+            zn_av_freep(&boundary);
         } else {
             mpjpeg->boundary = av_strdup("--");
             mpjpeg->searchstr = av_strdup("\r\n--");
         }
         if (!mpjpeg->boundary || !mpjpeg->searchstr) {
-            av_freep(&mpjpeg->boundary);
-            av_freep(&mpjpeg->searchstr);
+            zn_av_freep(&mpjpeg->boundary);
+            zn_av_freep(&mpjpeg->searchstr);
             return AVERROR(ENOMEM);
         }
         mpjpeg->searchstr_len = strlen(mpjpeg->searchstr);

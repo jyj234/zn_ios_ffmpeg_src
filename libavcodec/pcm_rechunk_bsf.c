@@ -57,8 +57,8 @@ static int init(AVBSFContext *ctx)
     if (min_samples <= 0 || min_samples > INT_MAX / s->sample_size - 1)
         return AVERROR(EINVAL);
 
-    s->in_pkt  = av_packet_alloc();
-    s->out_pkt = av_packet_alloc();
+    s->in_pkt  = zn_av_packet_alloc();
+    s->out_pkt = zn_av_packet_alloc();
     if (!s->in_pkt || !s->out_pkt)
         return AVERROR(ENOMEM);
 
@@ -68,15 +68,15 @@ static int init(AVBSFContext *ctx)
 static void uninit(AVBSFContext *ctx)
 {
     PCMContext *s = ctx->priv_data;
-    av_packet_free(&s->in_pkt);
-    av_packet_free(&s->out_pkt);
+    zn_av_packet_free(&s->in_pkt);
+    zn_av_packet_free(&s->out_pkt);
 }
 
 static void flush(AVBSFContext *ctx)
 {
     PCMContext *s = ctx->priv_data;
-    av_packet_unref(s->in_pkt);
-    av_packet_unref(s->out_pkt);
+    zn_av_packet_unref(s->in_pkt);
+    zn_av_packet_unref(s->out_pkt);
     s->n = 0;
 }
 
@@ -125,7 +125,7 @@ static int rechunk_filter(AVBSFContext *ctx, AVPacket *pkt)
                         return ret;
                     ret = av_packet_copy_props(s->out_pkt, s->in_pkt);
                     if (ret < 0) {
-                        av_packet_unref(s->out_pkt);
+                        zn_av_packet_unref(s->out_pkt);
                         return ret;
                     }
                     s->out_pkt->size = 0;
@@ -134,7 +134,7 @@ static int rechunk_filter(AVBSFContext *ctx, AVPacket *pkt)
                 s->out_pkt->size += drain;
                 drain_packet(s->in_pkt, drain, drain / s->sample_size);
                 if (!s->in_pkt->size)
-                    av_packet_unref(s->in_pkt);
+                    zn_av_packet_unref(s->in_pkt);
                 if (s->out_pkt->size == data_size) {
                     av_packet_move_ref(pkt, s->out_pkt);
                     return send_packet(s, nb_samples, pkt);
@@ -153,7 +153,7 @@ static int rechunk_filter(AVBSFContext *ctx, AVPacket *pkt)
                 return send_packet(s, nb_samples, pkt);
             }
         } else
-            av_packet_unref(s->in_pkt);
+            zn_av_packet_unref(s->in_pkt);
 
         ret = ff_bsf_get_packet_ref(ctx, s->in_pkt);
         if (ret == AVERROR_EOF && s->out_pkt->size) {

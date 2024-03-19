@@ -37,7 +37,7 @@ void ff_af_queue_close(AudioFrameQueue *afq)
 {
     if(afq->frame_count)
         av_log(afq->avctx, AV_LOG_WARNING, "%d frames left in the queue on closing\n", afq->frame_count);
-    av_freep(&afq->frames);
+    zn_av_freep(&afq->frames);
     memset(afq, 0, sizeof(*afq));
 }
 

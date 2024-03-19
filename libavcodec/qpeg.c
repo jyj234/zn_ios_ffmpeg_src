@@ -339,7 +339,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     QpegContext * const a = avctx->priv_data;
 
-    av_frame_free(&a->ref);
+    zn_av_frame_free(&a->ref);
 
     return 0;
 }
@@ -350,7 +350,7 @@ static av_cold int decode_init(AVCodecContext *avctx){
     a->avctx = avctx;
     avctx->pix_fmt= AV_PIX_FMT_PAL8;
 
-    a->ref = av_frame_alloc();
+    a->ref = zn_av_frame_alloc();
     if (!a->ref)
         return AVERROR(ENOMEM);
 

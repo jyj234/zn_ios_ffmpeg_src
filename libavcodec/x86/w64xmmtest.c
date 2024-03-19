@@ -22,11 +22,11 @@
 #include "libavcodec/avcodec.h"
 #include "libavutil/x86/w64xmmtest.h"
 
-wrap(avcodec_open2(AVCodecContext *avctx,
+wrap(zn_avcodec_open2(AVCodecContext *avctx,
                    const AVCodec *codec,
                    AVDictionary **options))
 {
-    testxmmclobbers(avcodec_open2, avctx, codec, options);
+    testxmmclobbers(zn_avcodec_open2, avctx, codec, options);
 }
 
 wrap(avcodec_decode_subtitle2(AVCodecContext *avctx,
@@ -45,22 +45,22 @@ wrap(avcodec_encode_subtitle(AVCodecContext *avctx,
     testxmmclobbers(avcodec_encode_subtitle, avctx, buf, buf_size, sub);
 }
 
-wrap(avcodec_send_packet(AVCodecContext *avctx, const AVPacket *avpkt))
+wrap(zn_avcodec_send_packet(AVCodecContext *avctx, const AVPacket *avpkt))
 {
-    testxmmclobbers(avcodec_send_packet, avctx, avpkt);
+    testxmmclobbers(zn_avcodec_send_packet, avctx, avpkt);
 }
 
-wrap(avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt))
+wrap(zn_avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt))
 {
-    testxmmclobbers(avcodec_receive_packet, avctx, avpkt);
+    testxmmclobbers(zn_avcodec_receive_packet, avctx, avpkt);
 }
 
-wrap(avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame))
+wrap(zn_avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame))
 {
-    testxmmclobbers(avcodec_send_frame, avctx, frame);
+    testxmmclobbers(zn_avcodec_send_frame, avctx, frame);
 }
 
-wrap(avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame))
+wrap(zn_avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame))
 {
-    testxmmclobbers(avcodec_receive_frame, avctx, frame);
+    testxmmclobbers(zn_avcodec_receive_frame, avctx, frame);
 }

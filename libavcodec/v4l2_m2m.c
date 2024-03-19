@@ -124,7 +124,7 @@ static int v4l2_probe_driver(V4L2m2mContext *s)
 done:
     if (close(s->fd) < 0) {
         ret = AVERROR(errno);
-        av_log(log_ctx, AV_LOG_ERROR, "failure closing %s (%s)\n", s->devname, av_err2str(AVERROR(errno)));
+        av_log(log_ctx, AV_LOG_ERROR, "failure closing %s (%s)\n", s->devname, zn_av_err2str(AVERROR(errno)));
     }
 
     s->fd = -1;
@@ -191,7 +191,7 @@ error:
     if (close(s->fd) < 0) {
         ret = AVERROR(errno);
         av_log(log_ctx, AV_LOG_ERROR, "error closing %s (%s)\n",
-            s->devname, av_err2str(AVERROR(errno)));
+            s->devname, zn_av_err2str(AVERROR(errno)));
     }
     s->fd = -1;
 
@@ -256,10 +256,10 @@ static void v4l2_m2m_destroy_context(void *opaque, uint8_t *context)
     if (s->fd >= 0)
         close(s->fd);
     av_frame_unref(s->frame);
-    av_frame_free(&s->frame);
-    av_packet_unref(&s->buf_pkt);
+    zn_av_frame_free(&s->frame);
+    zn_av_packet_unref(&s->buf_pkt);
 
-    av_free(s);
+    zn_av_free(s);
 }
 
 int ff_v4l2_m2m_codec_end(V4L2m2mPriv *priv)
@@ -335,7 +335,7 @@ int ff_v4l2_m2m_create_context(V4L2m2mPriv *priv, V4L2m2mContext **s)
     priv->context_ref = av_buffer_create((uint8_t *) *s, sizeof(V4L2m2mContext),
                                          &v4l2_m2m_destroy_context, NULL, 0);
     if (!priv->context_ref) {
-        av_freep(s);
+        zn_av_freep(s);
         return AVERROR(ENOMEM);
     }
 
@@ -349,7 +349,7 @@ int ff_v4l2_m2m_create_context(V4L2m2mPriv *priv, V4L2m2mContext **s)
     priv->context->self_ref = priv->context_ref;
     priv->context->fd = -1;
 
-    priv->context->frame = av_frame_alloc();
+    priv->context->frame = zn_av_frame_alloc();
     if (!priv->context->frame) {
         av_buffer_unref(&priv->context_ref);
         *s = NULL; /* freed when unreferencing context_ref */

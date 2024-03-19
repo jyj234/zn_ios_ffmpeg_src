@@ -125,7 +125,7 @@ static int config_input(AVFilterLink *inlink)
     s->nb_burst_samples = s->window_size * s->burst / 1000.;
     s->hop_size = FFMAX(1, s->window_size * (1. - (s->overlap / 100.)));
 
-    s->window_func_lut = av_calloc(s->window_size, sizeof(*s->window_func_lut));
+    s->window_func_lut = zn_av_calloc(s->window_size, sizeof(*s->window_func_lut));
     if (!s->window_func_lut)
         return AVERROR(ENOMEM);
 
@@ -148,10 +148,10 @@ static int config_input(AVFilterLink *inlink)
         if (ret < 0)
             return ret;
 
-        tx_in[0]  = av_calloc(tx_size + 2, sizeof(*tx_in[0]));
-        tx_in[1]  = av_calloc(tx_size + 2, sizeof(*tx_in[1]));
-        tx_out[0] = av_calloc(tx_size + 2, sizeof(*tx_out[0]));
-        tx_out[1] = av_calloc(tx_size + 2, sizeof(*tx_out[1]));
+        tx_in[0]  = zn_av_calloc(tx_size + 2, sizeof(*tx_in[0]));
+        tx_in[1]  = zn_av_calloc(tx_size + 2, sizeof(*tx_in[1]));
+        tx_out[0] = zn_av_calloc(tx_size + 2, sizeof(*tx_out[0]));
+        tx_out[1] = zn_av_calloc(tx_size + 2, sizeof(*tx_out[1]));
         if (!tx_in[0] || !tx_in[1] || !tx_out[0] || !tx_out[1])
             return AVERROR(ENOMEM);
 
@@ -183,16 +183,16 @@ static int config_input(AVFilterLink *inlink)
         av_tx_uninit(&tx);
         av_tx_uninit(&itx);
 
-        av_freep(&tx_in[0]);
-        av_freep(&tx_in[1]);
-        av_freep(&tx_out[0]);
-        av_freep(&tx_out[1]);
+        zn_av_freep(&tx_in[0]);
+        zn_av_freep(&tx_in[1]);
+        zn_av_freep(&tx_out[0]);
+        zn_av_freep(&tx_out[1]);
     }
 
-    av_frame_free(&s->in);
-    av_frame_free(&s->out);
-    av_frame_free(&s->buffer);
-    av_frame_free(&s->is);
+    zn_av_frame_free(&s->in);
+    zn_av_frame_free(&s->out);
+    zn_av_frame_free(&s->buffer);
+    zn_av_frame_free(&s->is);
     s->enabled = ff_get_audio_buffer(inlink, s->window_size);
     s->in = ff_get_audio_buffer(inlink, s->window_size);
     s->out = ff_get_audio_buffer(inlink, s->window_size);
@@ -201,34 +201,34 @@ static int config_input(AVFilterLink *inlink)
     if (!s->in || !s->out || !s->buffer || !s->is || !s->enabled)
         return AVERROR(ENOMEM);
 
-    s->efifo = av_audio_fifo_alloc(inlink->format, 1, s->window_size);
+    s->efifo = zn_av_audio_fifo_alloc(inlink->format, 1, s->window_size);
     if (!s->efifo)
         return AVERROR(ENOMEM);
-    s->fifo = av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, s->window_size);
+    s->fifo = zn_av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, s->window_size);
     if (!s->fifo)
         return AVERROR(ENOMEM);
     s->overlap_skip = s->method ? (s->window_size - s->hop_size) / 2 : 0;
     if (s->overlap_skip > 0) {
-        av_audio_fifo_write(s->fifo, (void **)s->in->extended_data,
+        zn_av_audio_fifo_write(s->fifo, (void **)s->in->extended_data,
                             s->overlap_skip);
     }
 
     s->nb_channels = inlink->ch_layout.nb_channels;
-    s->chan = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->chan));
+    s->chan = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->chan));
     if (!s->chan)
         return AVERROR(ENOMEM);
 
     for (i = 0; i < inlink->ch_layout.nb_channels; i++) {
         DeclickChannel *c = &s->chan[i];
 
-        c->detection = av_calloc(s->window_size, sizeof(*c->detection));
-        c->auxiliary = av_calloc(s->ar_order + 1, sizeof(*c->auxiliary));
-        c->acoefficients = av_calloc(s->ar_order + 1, sizeof(*c->acoefficients));
-        c->acorrelation = av_calloc(s->ar_order + 1, sizeof(*c->acorrelation));
-        c->tmp = av_calloc(s->ar_order, sizeof(*c->tmp));
-        c->click = av_calloc(s->window_size, sizeof(*c->click));
-        c->index = av_calloc(s->window_size, sizeof(*c->index));
-        c->interpolated = av_calloc(s->window_size, sizeof(*c->interpolated));
+        c->detection = zn_av_calloc(s->window_size, sizeof(*c->detection));
+        c->auxiliary = zn_av_calloc(s->ar_order + 1, sizeof(*c->auxiliary));
+        c->acoefficients = zn_av_calloc(s->ar_order + 1, sizeof(*c->acoefficients));
+        c->acorrelation = zn_av_calloc(s->ar_order + 1, sizeof(*c->acorrelation));
+        c->tmp = zn_av_calloc(s->ar_order, sizeof(*c->tmp));
+        c->click = zn_av_calloc(s->window_size, sizeof(*c->click));
+        c->index = zn_av_calloc(s->window_size, sizeof(*c->index));
+        c->interpolated = zn_av_calloc(s->window_size, sizeof(*c->interpolated));
         if (!c->auxiliary || !c->acoefficients || !c->detection || !c->click ||
             !c->index || !c->interpolated || !c->acorrelation || !c->tmp)
             return AVERROR(ENOMEM);
@@ -642,12 +642,12 @@ static int filter_frame(AVFilterLink *inlink)
     if (s->samples_left > 0) {
         s->samples_left -= s->hop_size;
         if (s->samples_left <= 0)
-            av_audio_fifo_drain(s->fifo, av_audio_fifo_size(s->fifo));
+            av_audio_fifo_drain(s->fifo, zn_av_audio_fifo_size(s->fifo));
     }
 
 fail:
     if (ret < 0)
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
     return ret;
 }
 
@@ -671,22 +671,22 @@ static int activate(AVFilterContext *ctx)
         if (s->pts == AV_NOPTS_VALUE)
             s->pts = in->pts;
 
-        ret = av_audio_fifo_write(s->fifo, (void **)in->extended_data,
+        ret = zn_av_audio_fifo_write(s->fifo, (void **)in->extended_data,
                                   in->nb_samples);
         for (int i = 0; i < in->nb_samples; i++)
             e[i] = !ctx->is_disabled;
 
-        av_audio_fifo_write(s->efifo, (void**)s->enabled->extended_data, in->nb_samples);
-        av_frame_free(&in);
+        zn_av_audio_fifo_write(s->efifo, (void**)s->enabled->extended_data, in->nb_samples);
+        zn_av_frame_free(&in);
         if (ret < 0)
             return ret;
     }
 
-    if (av_audio_fifo_size(s->fifo) >= s->window_size ||
+    if (zn_av_audio_fifo_size(s->fifo) >= s->window_size ||
         s->samples_left > 0)
         return filter_frame(inlink);
 
-    if (av_audio_fifo_size(s->fifo) >= s->window_size) {
+    if (zn_av_audio_fifo_size(s->fifo) >= s->window_size) {
         ff_filter_set_ready(ctx, 100);
         return 0;
     }
@@ -694,7 +694,7 @@ static int activate(AVFilterContext *ctx)
     if (!s->eof && ff_inlink_acknowledge_status(inlink, &status, &pts)) {
         if (status == AVERROR_EOF) {
             s->eof = 1;
-            s->samples_left = av_audio_fifo_size(s->fifo) - s->overlap_skip;
+            s->samples_left = zn_av_audio_fifo_size(s->fifo) - s->overlap_skip;
             ff_filter_set_ready(ctx, 100);
             return 0;
         }
@@ -737,36 +737,36 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     av_audio_fifo_free(s->fifo);
     av_audio_fifo_free(s->efifo);
-    av_freep(&s->window_func_lut);
-    av_frame_free(&s->enabled);
-    av_frame_free(&s->in);
-    av_frame_free(&s->out);
-    av_frame_free(&s->buffer);
-    av_frame_free(&s->is);
+    zn_av_freep(&s->window_func_lut);
+    zn_av_frame_free(&s->enabled);
+    zn_av_frame_free(&s->in);
+    zn_av_frame_free(&s->out);
+    zn_av_frame_free(&s->buffer);
+    zn_av_frame_free(&s->is);
 
     if (s->chan) {
         for (i = 0; i < s->nb_channels; i++) {
             DeclickChannel *c = &s->chan[i];
 
-            av_freep(&c->detection);
-            av_freep(&c->auxiliary);
-            av_freep(&c->acoefficients);
-            av_freep(&c->acorrelation);
-            av_freep(&c->tmp);
-            av_freep(&c->click);
-            av_freep(&c->index);
-            av_freep(&c->interpolated);
-            av_freep(&c->matrix);
+            zn_av_freep(&c->detection);
+            zn_av_freep(&c->auxiliary);
+            zn_av_freep(&c->acoefficients);
+            zn_av_freep(&c->acorrelation);
+            zn_av_freep(&c->tmp);
+            zn_av_freep(&c->click);
+            zn_av_freep(&c->index);
+            zn_av_freep(&c->interpolated);
+            zn_av_freep(&c->matrix);
             c->matrix_size = 0;
-            av_freep(&c->histogram);
+            zn_av_freep(&c->histogram);
             c->histogram_size = 0;
-            av_freep(&c->vector);
+            zn_av_freep(&c->vector);
             c->vector_size = 0;
-            av_freep(&c->y);
+            zn_av_freep(&c->y);
             c->y_size = 0;
         }
     }
-    av_freep(&s->chan);
+    zn_av_freep(&s->chan);
     s->nb_channels = 0;
 }
 

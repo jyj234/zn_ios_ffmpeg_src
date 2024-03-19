@@ -360,7 +360,7 @@ static int vaapi_encode_mpeg2_init_sequence_params(AVCodecContext *avctx)
         .picture_height = avctx->height,
 
         .bits_per_second          = ctx->va_bit_rate,
-        .frame_rate               = av_q2d(priv->frame_rate),
+        .frame_rate               = zn_av_q2d(priv->frame_rate),
         .aspect_ratio_information = sh->aspect_ratio_information,
         .vbv_buffer_size          = priv->vbv_buffer_size,
 

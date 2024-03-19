@@ -283,7 +283,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
         ret = av_frame_copy_props(out, in);
         if (ret < 0) {
-            av_frame_free(&out);
+            zn_av_frame_free(&out);
             goto fail;
         }
     }
@@ -295,10 +295,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                             ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ret;
 }
 

@@ -76,7 +76,7 @@ static int list_devices_for_context(AVFormatContext *s, AVDictionary *options,
     ret = avdevice_list_devices(s, device_list);
   fail:
     av_dict_free(&tmp);
-    avformat_free_context(s);
+    zn_avformat_free_context(s);
     return ret;
 }
 
@@ -97,7 +97,7 @@ int avdevice_list_output_sinks(const AVOutputFormat *device, const char *device_
     AVFormatContext *s = NULL;
     int ret;
 
-    if ((ret = avformat_alloc_output_context2(&s, device, device_name, NULL)) < 0)
+    if ((ret = zn_avformat_alloc_output_context2(&s, device, device_name, NULL)) < 0)
         return ret;
     return list_devices_for_context(s, device_options, device_list);
 }
@@ -116,12 +116,12 @@ void avdevice_free_list_devices(AVDeviceInfoList **device_list)
     for (i = 0; i < list->nb_devices; i++) {
         dev = list->devices[i];
         if (dev) {
-            av_freep(&dev->device_name);
-            av_freep(&dev->device_description);
-            av_freep(&dev->media_types);
-            av_free(dev);
+            zn_av_freep(&dev->device_name);
+            zn_av_freep(&dev->device_description);
+            zn_av_freep(&dev->media_types);
+            zn_av_free(dev);
         }
     }
-    av_freep(&list->devices);
-    av_freep(device_list);
+    zn_av_freep(&list->devices);
+    zn_av_freep(device_list);
 }

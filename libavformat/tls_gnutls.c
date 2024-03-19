@@ -91,7 +91,7 @@ static int print_tls_error(URLContext *h, int ret)
         break;
     }
     if (c->io_err) {
-        av_log(h, AV_LOG_ERROR, "IO error: %s\n", av_err2str(c->io_err));
+        av_log(h, AV_LOG_ERROR, "IO error: %s\n", zn_av_err2str(c->io_err));
         ret = c->io_err;
         c->io_err = 0;
         return ret;

@@ -83,7 +83,7 @@ static int var_read_int(AVIOContext *pb, int size)
     if (!s)
         return 0;
     v = strtol(s, NULL, 10);
-    av_free(s);
+    zn_av_free(s);
     return v;
 }
 
@@ -94,7 +94,7 @@ static AVRational var_read_float(AVIOContext *pb, int size)
     if (!s)
         return (AVRational) { 0, 0 };
     v = av_d2q(av_strtod(s, NULL), INT_MAX);
-    av_free(s);
+    zn_av_free(s);
     return v;
 }
 
@@ -111,7 +111,7 @@ static int set_channels(AVFormatContext *avctx, AVStream *st, int channels)
         av_log(avctx, AV_LOG_ERROR, "Channel count %d invalid.\n", channels);
         return AVERROR_INVALIDDATA;
     }
-    av_channel_layout_default(&st->codecpar->ch_layout, channels);
+    zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
     return 0;
 }
 
@@ -203,7 +203,7 @@ static int parse_video_var(AVFormatContext *avctx, AVStream *st,
         } else {
             avpriv_request_sample(avctx, "Video compression %s", str);
         }
-        av_free(str);
+        zn_av_free(str);
     } else if (!strcmp(name, "FPS")) {
         AVRational fps = var_read_float(pb, size);
         avpriv_set_pts_info(st, 64, fps.den, fps.num);
@@ -314,7 +314,7 @@ static int mv_read_header(AVFormatContext *avctx)
         v = avio_rb16(pb);
         if (v == MOVIE_SOUND) {
             /* movie has sound so allocate an audio stream */
-            ast = avformat_new_stream(avctx, NULL);
+            ast = zn_avformat_new_stream(avctx, NULL);
             if (!ast)
                 return AVERROR(ENOMEM);
         } else if (v != MOVIE_SILENT)
@@ -322,7 +322,7 @@ static int mv_read_header(AVFormatContext *avctx)
 
         avio_skip(pb, 2);
 
-        vst = avformat_new_stream(avctx, NULL);
+        vst = zn_avformat_new_stream(avctx, NULL);
         if (!vst)
             return AVERROR(ENOMEM);
         avpriv_set_pts_info(vst, 64, fps.den, fps.num);
@@ -420,7 +420,7 @@ static int mv_read_header(AVFormatContext *avctx)
             avpriv_request_sample(avctx, "Multiple audio streams support");
             return AVERROR_PATCHWELCOME;
         } else if (mv->nb_audio_tracks) {
-            ast = avformat_new_stream(avctx, NULL);
+            ast = zn_avformat_new_stream(avctx, NULL);
             if (!ast)
                 return AVERROR(ENOMEM);
             ast->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -447,7 +447,7 @@ static int mv_read_header(AVFormatContext *avctx)
             avpriv_request_sample(avctx, "Multiple video streams support");
             return AVERROR_PATCHWELCOME;
         } else if (mv->nb_video_tracks) {
-            vst = avformat_new_stream(avctx, NULL);
+            vst = zn_avformat_new_stream(avctx, NULL);
             if (!vst)
                 return AVERROR(ENOMEM);
             vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;

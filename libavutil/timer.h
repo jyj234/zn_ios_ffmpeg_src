@@ -121,7 +121,7 @@
     }                                                                       \
     if (linux_perf_fd == -1) {                                              \
         av_log(NULL, AV_LOG_ERROR, "perf_event_open failed: %s\n",          \
-               av_err2str(AVERROR(errno)));                                 \
+               zn_av_err2str(AVERROR(errno)));                                 \
     } else {                                                                \
         ioctl(linux_perf_fd, PERF_EVENT_IOC_RESET, 0);                      \
         ioctl(linux_perf_fd, PERF_EVENT_IOC_ENABLE, 0);                     \

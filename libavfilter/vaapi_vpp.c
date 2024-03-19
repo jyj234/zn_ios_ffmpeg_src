@@ -232,13 +232,13 @@ int ff_vaapi_vpp_config_output(AVFilterLink *outlink)
             goto fail;
     }
 
-    av_freep(&hwconfig);
+    zn_av_freep(&hwconfig);
     av_hwframe_constraints_free(&constraints);
     return 0;
 
 fail:
     av_buffer_unref(&outlink->hw_frames_ctx);
-    av_freep(&hwconfig);
+    zn_av_freep(&hwconfig);
     av_hwframe_constraints_free(&constraints);
     return err;
 }
@@ -637,7 +637,7 @@ int ff_vaapi_vpp_render_pictures(AVFilterContext *avctx,
     VAStatus vas;
     int err;
 
-    params_ids = (VABufferID *)av_malloc_array(cout, sizeof(VABufferID));
+    params_ids = (VABufferID *)zn_av_malloc_array(cout, sizeof(VABufferID));
     if (!params_ids)
         return AVERROR(ENOMEM);
 
@@ -679,7 +679,7 @@ int ff_vaapi_vpp_render_pictures(AVFilterContext *avctx,
         }
     }
 
-    av_freep(&params_ids);
+    zn_av_freep(&params_ids);
     return 0;
 
     // We want to make sure that if vaBeginPicture has been called, we also
@@ -691,7 +691,7 @@ fail_after_begin:
 fail_after_render:
     vaEndPicture(ctx->hwctx->display, ctx->va_context);
 fail:
-    av_freep(&params_ids);
+    zn_av_freep(&params_ids);
     return err;
 }
 

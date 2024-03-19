@@ -714,7 +714,7 @@ int main(int argc, char **argv)
     for (impl = 0; impl < FF_ARRAY_ELEMS(implementations); impl++)
         run_implementation(input, output, &implementations[impl], size);
 
-    av_free(input);
+    zn_av_free(input);
 
     return 0;
 }

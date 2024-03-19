@@ -189,7 +189,7 @@ AudioConvert *swri_audio_convert_alloc(enum AVSampleFormat out_fmt,
 
 void swri_audio_convert_free(AudioConvert **ctx)
 {
-    av_freep(ctx);
+    zn_av_freep(ctx);
 }
 
 int swri_audio_convert(AudioConvert *ctx, AudioData *out, AudioData *in, int len)

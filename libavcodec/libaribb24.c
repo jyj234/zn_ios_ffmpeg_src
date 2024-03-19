@@ -355,7 +355,7 @@ static int libaribb24_decode(AVCodecContext *avctx, AVSubtitle *sub,
 
     *got_sub_ptr = sub->num_rects > 0;
 
-    av_free(decoded_subtitle);
+    zn_av_free(decoded_subtitle);
 
     // flush the region buffers, otherwise the linked list keeps getting
     // longer and longer...

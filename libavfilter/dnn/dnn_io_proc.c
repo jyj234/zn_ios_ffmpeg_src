@@ -174,7 +174,7 @@ int ff_proc_from_dnn_to_frame(AVFrame *frame, DNNData *output, void *log_ctx)
     }
 
 err:
-    av_free(middle_data);
+    zn_av_free(middle_data);
     return ret;
 }
 
@@ -314,7 +314,7 @@ int ff_proc_from_frame_to_dnn(AVFrame *frame, DNNData *input, void *log_ctx)
         goto err;
     }
 err:
-    av_free(middle_data);
+    zn_av_free(middle_data);
     return ret;
 }
 

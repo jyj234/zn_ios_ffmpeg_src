@@ -96,7 +96,7 @@ static int scd_read_table(AVFormatContext *s, SCDOffsetTable *table)
     if ((ret = avio_seek(s->pb, table->offset, SEEK_SET)) < 0)
         return ret;
 
-    if ((table->entries = av_calloc(table->count, sizeof(uint32_t))) == NULL)
+    if ((table->entries = zn_av_calloc(table->count, sizeof(uint32_t))) == NULL)
         return ret;
 
     if ((ret = avio_read(s->pb, (unsigned char*)table->entries, table->count * sizeof(uint32_t))) < 0)
@@ -189,7 +189,7 @@ static int scd_read_track(AVFormatContext *s, SCDTrackHeader *track, int index)
     if (track->aux_count != 0)
         av_log(s, AV_LOG_DEBUG, "[%d] Track has %u auxillary chunk(s).\n", index, track->aux_count);
 
-    if ((st = avformat_new_stream(s, NULL)) == NULL)
+    if ((st = zn_avformat_new_stream(s, NULL)) == NULL)
         return AVERROR(ENOMEM);
 
     par               = st->codecpar;
@@ -266,7 +266,7 @@ static int scd_read_header(AVFormatContext *s)
     if ((ret = scd_read_offsets(s)) < 0)
         return ret;
 
-    ctx->tracks = av_calloc(ctx->hdr.table1.count, sizeof(SCDTrackHeader));
+    ctx->tracks = zn_av_calloc(ctx->hdr.table1.count, sizeof(SCDTrackHeader));
     if (ctx->tracks == NULL)
         return AVERROR(ENOMEM);
 
@@ -358,10 +358,10 @@ static int scd_read_close(AVFormatContext *s)
 {
     SCDDemuxContext *ctx = s->priv_data;
 
-    av_freep(&ctx->hdr.table0.entries);
-    av_freep(&ctx->hdr.table1.entries);
-    av_freep(&ctx->hdr.table2.entries);
-    av_freep(&ctx->tracks);
+    zn_av_freep(&ctx->hdr.table0.entries);
+    zn_av_freep(&ctx->hdr.table1.entries);
+    zn_av_freep(&ctx->hdr.table2.entries);
+    zn_av_freep(&ctx->tracks);
     return 0;
 }
 

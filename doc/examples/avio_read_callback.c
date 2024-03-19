@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     bd.ptr  = buffer;
     bd.size = buffer_size;
 
-    if (!(fmt_ctx = avformat_alloc_context())) {
+    if (!(fmt_ctx = zn_avformat_alloc_context())) {
         ret = AVERROR(ENOMEM);
         goto end;
     }
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
         ret = AVERROR(ENOMEM);
         goto end;
     }
-    avio_ctx = avio_alloc_context(avio_ctx_buffer, avio_ctx_buffer_size,
+    avio_ctx = zn_avio_alloc_context(avio_ctx_buffer, avio_ctx_buffer_size,
                                   0, &bd, &read_packet, NULL, NULL);
     if (!avio_ctx) {
         ret = AVERROR(ENOMEM);
@@ -100,32 +100,32 @@ int main(int argc, char *argv[])
     }
     fmt_ctx->pb = avio_ctx;
 
-    ret = avformat_open_input(&fmt_ctx, NULL, NULL, NULL);
+    ret = zn_avformat_open_input(&fmt_ctx, NULL, NULL, NULL);
     if (ret < 0) {
         fprintf(stderr, "Could not open input\n");
         goto end;
     }
 
-    ret = avformat_find_stream_info(fmt_ctx, NULL);
+    ret = zn_avformat_find_stream_info(fmt_ctx, NULL);
     if (ret < 0) {
         fprintf(stderr, "Could not find stream information\n");
         goto end;
     }
 
-    av_dump_format(fmt_ctx, 0, input_filename, 0);
+    zn_av_dump_format(fmt_ctx, 0, input_filename, 0);
 
 end:
-    avformat_close_input(&fmt_ctx);
+    zn_avformat_close_input(&fmt_ctx);
 
     /* note: the internal buffer could have changed, and be != avio_ctx_buffer */
     if (avio_ctx)
-        av_freep(&avio_ctx->buffer);
-    avio_context_free(&avio_ctx);
+        zn_av_freep(&avio_ctx->buffer);
+    zn_avio_context_free(&avio_ctx);
 
     av_file_unmap(buffer, buffer_size);
 
     if (ret < 0) {
-        fprintf(stderr, "Error occurred: %s\n", av_err2str(ret));
+        fprintf(stderr, "Error occurred: %s\n", zn_av_err2str(ret));
         return 1;
     }
 

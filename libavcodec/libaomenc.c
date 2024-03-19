@@ -297,8 +297,8 @@ static void coded_frame_add(void *list, struct FrameListData *cx_frame)
 
 static av_cold void free_coded_frame(struct FrameListData *cx_frame)
 {
-    av_freep(&cx_frame->buf);
-    av_freep(&cx_frame);
+    zn_av_freep(&cx_frame->buf);
+    zn_av_freep(&cx_frame);
 }
 
 static av_cold void free_frame_list(struct FrameListData *list)
@@ -432,8 +432,8 @@ static av_cold int aom_free(AVCodecContext *avctx)
 #endif
 
     aom_codec_destroy(&ctx->encoder);
-    av_freep(&ctx->twopass_stats.buf);
-    av_freep(&avctx->stats_out);
+    zn_av_freep(&ctx->twopass_stats.buf);
+    zn_av_freep(&avctx->stats_out);
     free_frame_list(ctx->coded_frame_list);
     av_bsf_free(&ctx->bsf);
     return 0;
@@ -1194,7 +1194,7 @@ static int queue_frames(AVCodecContext *avctx, AVPacket *pkt_out)
                     av_log(avctx, AV_LOG_ERROR,
                            "Data buffer alloc (%"SIZE_SPECIFIER" bytes) failed\n",
                            cx_frame->sz);
-                    av_freep(&cx_frame);
+                    zn_av_freep(&cx_frame);
                     return AVERROR(ENOMEM);
                 }
                 memcpy(cx_frame->buf, pkt->data.frame.buf, pkt->data.frame.sz);
@@ -1209,7 +1209,7 @@ static int queue_frames(AVCodecContext *avctx, AVPacket *pkt_out)
                                            stats->sz +
                                            pkt->data.twopass_stats.sz);
             if (!tmp) {
-                av_freep(&stats->buf);
+                zn_av_freep(&stats->buf);
                 stats->sz = 0;
                 av_log(avctx, AV_LOG_ERROR, "Stat buffer realloc failed\n");
                 return AVERROR(ENOMEM);
@@ -1367,7 +1367,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         avci->recon_frame->width  = img.d_w;
         avci->recon_frame->height = img.d_h;
 
-        res = av_frame_get_buffer(avci->recon_frame, 0);
+        res = zn_av_frame_get_buffer(avci->recon_frame, 0);
         if (res < 0)
             return res;
 

@@ -131,7 +131,7 @@ int av_hash_alloc(AVHashContext **ctx, const char *name)
     case ADLER32: break;
     }
     if (i != ADLER32 && i != CRC32 && !res->ctx) {
-        av_free(res);
+        zn_av_free(res);
         return AVERROR(ENOMEM);
     }
     *ctx = res;
@@ -238,6 +238,6 @@ void av_hash_final_b64(struct AVHashContext *ctx, uint8_t *dst, int size)
 void av_hash_freep(AVHashContext **ctx)
 {
     if (*ctx)
-        av_freep(&(*ctx)->ctx);
-    av_freep(ctx);
+        zn_av_freep(&(*ctx)->ctx);
+    zn_av_freep(ctx);
 }

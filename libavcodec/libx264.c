@@ -298,10 +298,10 @@ static void reconfig_encoder(AVCodecContext *ctx, const AVFrame *frame)
 static void free_picture(x264_picture_t *pic)
 {
     for (int i = 0; i < pic->extra_sei.num_payloads; i++)
-        av_free(pic->extra_sei.payloads[i].payload);
-    av_freep(&pic->extra_sei.payloads);
-    av_freep(&pic->prop.quant_offsets);
-    av_freep(&pic->prop.mb_info);
+        zn_av_free(pic->extra_sei.payloads[i].payload);
+    zn_av_freep(&pic->extra_sei.payloads);
+    zn_av_freep(&pic->prop.quant_offsets);
+    zn_av_freep(&pic->prop.mb_info);
     pic->extra_sei.num_payloads = 0;
 }
 
@@ -365,7 +365,7 @@ static int setup_mb_info(AVCodecContext *ctx, x264_picture_t *pic,
     mbinfo_rects = (const AVVideoRect *)av_video_hint_rects(info);
     nb_rects = info->nb_rects;
 
-    mbinfo = av_calloc(mb_width * mb_height, sizeof(*mbinfo));
+    mbinfo = zn_av_calloc(mb_width * mb_height, sizeof(*mbinfo));
     if (!mbinfo)
         return AVERROR(ENOMEM);
 
@@ -390,7 +390,7 @@ static int setup_mb_info(AVCodecContext *ctx, x264_picture_t *pic,
     }
 
     pic->prop.mb_info = mbinfo;
-    pic->prop.mb_info_free = av_free;
+    pic->prop.mb_info_free = zn_av_free;
 
     return 0;
 }
@@ -430,7 +430,7 @@ static int setup_roi(AVCodecContext *ctx, x264_picture_t *pic, int bit_depth,
     }
     nb_rois = size / roi_size;
 
-    qoffsets = av_calloc(mbx * mby, sizeof(*qoffsets));
+    qoffsets = zn_av_calloc(mbx * mby, sizeof(*qoffsets));
     if (!qoffsets)
         return AVERROR(ENOMEM);
 
@@ -448,7 +448,7 @@ static int setup_roi(AVCodecContext *ctx, x264_picture_t *pic, int bit_depth,
         endx   = FFMIN(mbx, (roi->right + MB_SIZE - 1)/ MB_SIZE);
 
         if (roi->qoffset.den == 0) {
-            av_free(qoffsets);
+            zn_av_free(qoffsets);
             av_log(ctx, AV_LOG_ERROR, "AVRegionOfInterest.qoffset.den must not be zero.\n");
             return AVERROR(EINVAL);
         }
@@ -463,7 +463,7 @@ static int setup_roi(AVCodecContext *ctx, x264_picture_t *pic, int bit_depth,
     }
 
     pic->prop.quant_offsets = qoffsets;
-    pic->prop.quant_offsets_free = av_free;
+    pic->prop.quant_offsets_free = zn_av_free;
 
     return 0;
 }
@@ -554,12 +554,12 @@ FF_ENABLE_DEPRECATION_WARNINGS
         if (sei_data) {
             sei->payloads = av_mallocz(sizeof(sei->payloads[0]));
             if (!sei->payloads) {
-                av_free(sei_data);
+                zn_av_free(sei_data);
                 ret = AVERROR(ENOMEM);
                 goto fail;
             }
 
-            sei->sei_free = av_free;
+            sei->sei_free = zn_av_free;
 
             sei->payloads[0].payload_size = sei_size;
             sei->payloads[0].payload      = sei_data;
@@ -582,7 +582,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
             /* No need to fail here, this is not fatal. We just proceed with no
              * mb_info and log a message */
 
-            av_log(ctx, AV_LOG_WARNING, "setup_mb_info failed with error: %s\n", av_err2str(ret));
+            av_log(ctx, AV_LOG_WARNING, "setup_mb_info failed with error: %s\n", zn_av_err2str(ret));
         }
     }
 
@@ -599,7 +599,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                 goto fail;
             }
             sei->payloads = tmp;
-            sei->sei_free = av_free;
+            sei->sei_free = zn_av_free;
             sei_payload = &sei->payloads[sei->num_payloads];
             sei_payload->payload = av_memdup(side_data->data, side_data->size);
             if (!sei_payload->payload) {
@@ -786,11 +786,11 @@ static av_cold int X264_close(AVCodecContext *avctx)
 {
     X264Context *x4 = avctx->priv_data;
 
-    av_freep(&x4->sei);
+    zn_av_freep(&x4->sei);
 
     for (int i = 0; i < x4->nb_reordered_opaque; i++)
         opaque_uninit(&x4->reordered_opaque[i]);
-    av_freep(&x4->reordered_opaque);
+    zn_av_freep(&x4->reordered_opaque);
 
 #if X264_BUILD >= 161
     x264_param_cleanup(&x4->params);
@@ -1269,7 +1269,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     // Overestimate the reordered opaque buffer size, in case a runtime
     // reconfigure would increase the delay (which it shouldn't).
     x4->nb_reordered_opaque = x264_encoder_maximum_delayed_frames(x4->enc) + 17;
-    x4->reordered_opaque    = av_calloc(x4->nb_reordered_opaque,
+    x4->reordered_opaque    = zn_av_calloc(x4->nb_reordered_opaque,
                                         sizeof(*x4->reordered_opaque));
     if (!x4->reordered_opaque) {
         x4->nb_reordered_opaque = 0;

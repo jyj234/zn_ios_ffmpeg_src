@@ -169,7 +169,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (s->conf.show > 0 && !av_frame_is_writable(in)) {
         ret = ff_inlink_make_frame_writable(inlink, &in);
         if (ret < 0) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return ret;
         }
     }

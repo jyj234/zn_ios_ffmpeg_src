@@ -76,7 +76,7 @@ static av_cold int fastaudio_init(AVCodecContext *avctx)
     for (int i = 0; i < 8; i++)
         s->table[7][i] = i * 0.34f / 3.f - 0.2f;
 
-    s->ch = av_calloc(avctx->ch_layout.nb_channels, sizeof(*s->ch));
+    s->ch = zn_av_calloc(avctx->ch_layout.nb_channels, sizeof(*s->ch));
     if (!s->ch)
         return AVERROR(ENOMEM);
 
@@ -179,7 +179,7 @@ static av_cold int fastaudio_close(AVCodecContext *avctx)
 {
     FastAudioContext *s = avctx->priv_data;
 
-    av_freep(&s->ch);
+    zn_av_freep(&s->ch);
 
     return 0;
 }

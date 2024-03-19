@@ -159,7 +159,7 @@ static int v4l2_receive_frame(AVCodecContext *avctx, AVFrame *frame)
 
     /* if EAGAIN don't unref packet and try to enqueue in the next iteration */
     if (ret != AVERROR(EAGAIN))
-        av_packet_unref(&s->buf_pkt);
+        zn_av_packet_unref(&s->buf_pkt);
 
     if (!s->draining) {
         ret = v4l2_try_start(avctx);
@@ -174,7 +174,7 @@ static int v4l2_receive_frame(AVCodecContext *avctx, AVFrame *frame)
 dequeue:
     return ff_v4l2_context_dequeue_frame(capture, frame, -1);
 fail:
-    av_packet_unref(&s->buf_pkt);
+    zn_av_packet_unref(&s->buf_pkt);
     return ret;
 }
 

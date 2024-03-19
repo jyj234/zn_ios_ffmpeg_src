@@ -288,9 +288,9 @@ static void imf_asset_locator_map_init(IMFAssetLocatorMap *asset_map)
 static void imf_asset_locator_map_deinit(IMFAssetLocatorMap *asset_map)
 {
     for (uint32_t i = 0; i < asset_map->asset_count; i++)
-        av_freep(&asset_map->assets[i].absolute_uri);
+        zn_av_freep(&asset_map->assets[i].absolute_uri);
 
-    av_freep(&asset_map->assets);
+    zn_av_freep(&asset_map->assets);
 }
 
 static int parse_assetmap(AVFormatContext *s, const char *url)
@@ -342,7 +342,7 @@ static int parse_assetmap(AVFormatContext *s, const char *url)
 
 clean_up:
     if (tmp_str)
-        av_freep(&tmp_str);
+        zn_av_freep(&tmp_str);
     ff_format_io_close(s, &in);
     av_bprint_finalize(&buf, NULL);
     return ret;
@@ -374,7 +374,7 @@ static int open_track_resource_context(AVFormatContext *s,
         return 0;
     }
 
-    track_resource->ctx = avformat_alloc_context();
+    track_resource->ctx = zn_avformat_alloc_context();
     if (!track_resource->ctx)
         return AVERROR(ENOMEM);
 
@@ -396,13 +396,13 @@ FF_ENABLE_DEPRECATION_WARNINGS
     if ((ret = av_dict_copy(&opts, c->avio_opts, 0)) < 0)
         goto cleanup;
 
-    ret = avformat_open_input(&track_resource->ctx,
+    ret = zn_avformat_open_input(&track_resource->ctx,
                               track_resource->locator->absolute_uri,
                               NULL,
                               &opts);
     if (ret < 0) {
         av_log(s, AV_LOG_ERROR, "Could not open %s input context: %s\n",
-               track_resource->locator->absolute_uri, av_err2str(ret));
+               track_resource->locator->absolute_uri, zn_av_err2str(ret));
         goto cleanup;
     }
     av_dict_free(&opts);
@@ -437,8 +437,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
                    "Could not seek at %" PRId64 "on %s: %s\n",
                    seek_offset,
                    track_resource->locator->absolute_uri,
-                   av_err2str(ret));
-            avformat_close_input(&track_resource->ctx);
+                   zn_av_err2str(ret));
+            zn_avformat_close_input(&track_resource->ctx);
             return ret;
         }
     }
@@ -447,7 +447,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
 cleanup:
     av_dict_free(&opts);
-    avformat_free_context(track_resource->ctx);
+    zn_avformat_free_context(track_resource->ctx);
     track_resource->ctx = NULL;
     return ret;
 }
@@ -509,9 +509,9 @@ static int open_track_file_resource(AVFormatContext *s,
 static void imf_virtual_track_playback_context_deinit(IMFVirtualTrackPlaybackCtx *track)
 {
     for (uint32_t i = 0; i < track->resource_count; i++)
-        avformat_close_input(&track->resources[i].ctx);
+        zn_avformat_close_input(&track->resources[i].ctx);
 
-    av_freep(&track->resources);
+    zn_av_freep(&track->resources);
 }
 
 static int open_virtual_track(AVFormatContext *s,
@@ -562,7 +562,7 @@ static int open_virtual_track(AVFormatContext *s,
 
 clean_up:
     imf_virtual_track_playback_context_deinit(track);
-    av_free(track);
+    zn_av_free(track);
     return ret;
 }
 
@@ -594,7 +594,7 @@ static int set_context_streams_from_tracks(AVFormatContext *s)
                             first_resource_stream->pts_wrap_bits,
                             first_resource_stream->time_base.num,
                             first_resource_stream->time_base.den);
-        asset_stream->duration = (int64_t)av_q2d(av_mul_q(c->tracks[i]->duration,
+        asset_stream->duration = (int64_t)zn_av_q2d(av_mul_q(c->tracks[i]->duration,
                                                           av_inv_q(asset_stream->time_base)));
     }
 
@@ -640,7 +640,7 @@ static int imf_read_header(AVFormatContext *s)
     if (!tmp_str)
         return AVERROR(ENOMEM);
     c->base_url = av_strdup(av_dirname(tmp_str));
-    av_freep(&tmp_str);
+    zn_av_freep(&tmp_str);
     if (!c->base_url)
         return AVERROR(ENOMEM);
 
@@ -736,14 +736,14 @@ static int get_resource_context_for_timestamp(AVFormatContext *s, IMFVirtualTrac
            AV_LOG_TRACE,
            "Looking for track %d resource for timestamp = %lf / %lf\n",
            track->index,
-           av_q2d(track->current_timestamp),
-           av_q2d(track->duration));
+           zn_av_q2d(track->current_timestamp),
+           zn_av_q2d(track->duration));
     for (uint32_t i = 0; i < track->resource_count; i++) {
 
         if (av_cmp_q(track->resources[i].end_time, track->current_timestamp) > 0) {
             av_log(s, AV_LOG_DEBUG, "Found resource %d in track %d to read at timestamp %lf: "
                    "entry=%" PRIu32 ", duration=%" PRIu32 ", editrate=" AVRATIONAL_FORMAT "\n",
-                   i, track->index, av_q2d(track->current_timestamp),
+                   i, track->index, zn_av_q2d(track->current_timestamp),
                    track->resources[i].resource->base.entry_point,
                    track->resources[i].resource->base.duration,
                    AVRATIONAL_ARG(track->resources[i].resource->base.edit_rate));
@@ -758,7 +758,7 @@ static int get_resource_context_for_timestamp(AVFormatContext *s, IMFVirtualTrac
                 if (ret != 0)
                     return ret;
                 if (track->current_resource_index > 0)
-                    avformat_close_input(&track->resources[track->current_resource_index].ctx);
+                    zn_avformat_close_input(&track->resources[track->current_resource_index].ctx);
                 track->current_resource_index = i;
             }
 
@@ -788,13 +788,13 @@ static int imf_read_packet(AVFormatContext *s, AVPacket *pkt)
     }
 
     av_log(s, AV_LOG_DEBUG, "Found track %d to read at timestamp %lf\n",
-           track->index, av_q2d(track->current_timestamp));
+           track->index, zn_av_q2d(track->current_timestamp));
 
     ret = get_resource_context_for_timestamp(s, track, &resource);
     if (ret)
         return ret;
 
-    ret = av_read_frame(resource->ctx, pkt);
+    ret = zn_av_read_frame(resource->ctx, pkt);
     if (ret)
         return ret;
 
@@ -901,16 +901,16 @@ static int imf_close(AVFormatContext *s)
 
     av_log(s, AV_LOG_DEBUG, "Close IMF package\n");
     av_dict_free(&c->avio_opts);
-    av_freep(&c->base_url);
+    zn_av_freep(&c->base_url);
     imf_asset_locator_map_deinit(&c->asset_locator_map);
     ff_imf_cpl_free(c->cpl);
 
     for (uint32_t i = 0; i < c->track_count; i++) {
         imf_virtual_track_playback_context_deinit(c->tracks[i]);
-        av_freep(&c->tracks[i]);
+        zn_av_freep(&c->tracks[i]);
     }
 
-    av_freep(&c->tracks);
+    zn_av_freep(&c->tracks);
 
     return 0;
 }
@@ -990,7 +990,7 @@ static int imf_seek(AVFormatContext *s, int stream_index, int64_t min_ts,
 
         t->current_timestamp = av_mul_q(av_make_q(dts, 1), st->time_base);
         if (t->current_resource_index >= 0) {
-            avformat_close_input(&t->resources[t->current_resource_index].ctx);
+            zn_avformat_close_input(&t->resources[t->current_resource_index].ctx);
             t->current_resource_index = -1;
         }
     }

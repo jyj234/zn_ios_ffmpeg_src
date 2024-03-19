@@ -285,7 +285,7 @@ static int alloc_huffman(MpegEncContext *s)
     num_blocks = num_mbs * blocks_per_mb;
     num_codes = num_blocks * 64;
 
-    m->huff_buffer = av_malloc_array(num_codes, sizeof(MJpegHuffmanCode));
+    m->huff_buffer = zn_av_malloc_array(num_codes, sizeof(MJpegHuffmanCode));
     if (!m->huff_buffer)
         return AVERROR(ENOMEM);
     return 0;
@@ -364,7 +364,7 @@ av_cold int ff_mjpeg_encode_init(MpegEncContext *s)
 static av_cold int mjpeg_encode_close(AVCodecContext *avctx)
 {
     MJPEGEncContext *const mjpeg = avctx->priv_data;
-    av_freep(&mjpeg->mjpeg.huff_buffer);
+    zn_av_freep(&mjpeg->mjpeg.huff_buffer);
     ff_mpv_encode_end(avctx);
     return 0;
 }
@@ -618,7 +618,7 @@ static int amv_encode_picture(AVCodecContext *avctx, AVPacket *pkt,
         pic->linesize[i] *= -1;
     }
     ret = ff_mpv_encode_picture(avctx, pkt, pic, got_packet);
-    av_frame_free(&pic);
+    zn_av_frame_free(&pic);
     return ret;
 }
 #endif

@@ -143,10 +143,10 @@ static int alloc_scratch_buffers(H264SliceContext *sl, int linesize)
 
     if (!sl->bipred_scratchpad || !sl->edge_emu_buffer ||
         !sl->top_borders[0]    || !sl->top_borders[1]) {
-        av_freep(&sl->bipred_scratchpad);
-        av_freep(&sl->edge_emu_buffer);
-        av_freep(&sl->top_borders[0]);
-        av_freep(&sl->top_borders[1]);
+        zn_av_freep(&sl->bipred_scratchpad);
+        zn_av_freep(&sl->edge_emu_buffer);
+        zn_av_freep(&sl->top_borders[0]);
+        zn_av_freep(&sl->top_borders[1]);
 
         sl->bipred_scratchpad_allocated = 0;
         sl->edge_emu_buffer_allocated   = 0;

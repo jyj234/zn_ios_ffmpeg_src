@@ -69,7 +69,7 @@
 #define bn_free(bn)     \
     do {                \
         mpz_clear(bn);  \
-        av_free(bn);    \
+        zn_av_free(bn);    \
     } while (0)
 #define bn_set_word(bn, w)          mpz_set_ui(bn, w)
 #define bn_cmp(a, b)                mpz_cmp(a, b)
@@ -174,7 +174,7 @@ static int bn_modexp(FFBigNum bn, FFBigNum y, FFBigNum q, FFBigNum p)
 #define bn_free(bn)                     \
     do {                                \
         mbedtls_mpi_free(bn);           \
-        av_free(bn);                    \
+        zn_av_free(bn);                    \
     } while (0)
 #define bn_set_word(bn, w)          mbedtls_mpi_lset(bn, w)
 #define bn_cmp(a, b)                mbedtls_mpi_cmp_mpi(a, b)
@@ -274,7 +274,7 @@ void ff_dh_free(FF_DH *dh)
     bn_free(dh->g);
     bn_free(dh->pub_key);
     bn_free(dh->priv_key);
-    av_free(dh);
+    zn_av_free(dh);
 }
 
 static int dh_is_valid_public_key(FFBigNum y, FFBigNum p, FFBigNum q)

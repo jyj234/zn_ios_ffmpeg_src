@@ -152,7 +152,7 @@ static int activate(AVFilterContext *ctx)
             return ret;
         if (ret > 0) {
             if (s->stop_mode == MODE_CLONE && s->pad_stop != 0) {
-                av_frame_free(&s->cache_stop);
+                zn_av_frame_free(&s->cache_stop);
                 s->cache_stop = av_frame_clone(frame);
             }
             frame->pts += s->pts;
@@ -219,7 +219,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     TPadContext *s = ctx->priv;
 
-    av_frame_free(&s->cache_stop);
+    zn_av_frame_free(&s->cache_stop);
 }
 
 static const AVFilterPad tpad_inputs[] = {

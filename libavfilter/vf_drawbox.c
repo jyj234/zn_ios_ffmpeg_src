@@ -292,7 +292,7 @@ static int config_input(AVFilterLink *inlink)
 
     var_values[VAR_IN_H] = var_values[VAR_IH] = inlink->h;
     var_values[VAR_IN_W] = var_values[VAR_IW] = inlink->w;
-    var_values[VAR_SAR]  = inlink->sample_aspect_ratio.num ? av_q2d(inlink->sample_aspect_ratio) : 1;
+    var_values[VAR_SAR]  = inlink->sample_aspect_ratio.num ? zn_av_q2d(inlink->sample_aspect_ratio) : 1;
     var_values[VAR_DAR]  = (double)inlink->w / inlink->h * var_values[VAR_SAR];
     var_values[VAR_HSUB] = s->hsub;
     var_values[VAR_VSUB] = s->vsub;

@@ -148,9 +148,9 @@ static av_cold void wav_deinit(AVFormatContext *s)
 {
     WAVMuxContext *wav = s->priv_data;
 
-    av_freep(&wav->peak_maxpos);
-    av_freep(&wav->peak_maxneg);
-    av_freep(&wav->peak_output);
+    zn_av_freep(&wav->peak_maxpos);
+    zn_av_freep(&wav->peak_maxneg);
+    zn_av_freep(&wav->peak_output);
 }
 
 static av_cold int peak_init_writer(AVFormatContext *s)
@@ -178,8 +178,8 @@ static av_cold int peak_init_writer(AVFormatContext *s)
         return AVERROR(ERANGE);
     wav->size_increment = par->ch_layout.nb_channels * wav->peak_bps * wav->peak_ppv;
 
-    wav->peak_maxpos = av_calloc(par->ch_layout.nb_channels, sizeof(*wav->peak_maxpos));
-    wav->peak_maxneg = av_calloc(par->ch_layout.nb_channels, sizeof(*wav->peak_maxneg));
+    wav->peak_maxpos = zn_av_calloc(par->ch_layout.nb_channels, sizeof(*wav->peak_maxpos));
+    wav->peak_maxneg = zn_av_calloc(par->ch_layout.nb_channels, sizeof(*wav->peak_maxneg));
     if (!wav->peak_maxpos || !wav->peak_maxneg)
         goto nomem;
 

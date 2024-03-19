@@ -99,7 +99,7 @@ static int cine_read_header(AVFormatContext *avctx)
     char *description;
     uint64_t i;
 
-    st = avformat_new_stream(avctx, NULL);
+    st = zn_avformat_new_stream(avctx, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -260,7 +260,7 @@ static int cine_read_header(AVFormatContext *avctx)
     if (description[0])
         av_dict_set(&st->metadata, "description", description, AV_DICT_DONT_STRDUP_VAL);
     else
-        av_free(description);
+        zn_av_free(description);
 
     avio_skip(pb, 1176); // RisingEdge ... cmUser
 

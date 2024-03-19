@@ -167,8 +167,8 @@ static int output_single_frame(AVFilterContext *ctx, AVFrame *in, double *var_va
     var_values[VAR_PZOOM] = s->prev_zoom;
     var_values[VAR_PDURATION] = s->prev_nb_frames;
     var_values[VAR_IN_TIME] = var_values[VAR_IT]  = in->pts == AV_NOPTS_VALUE ?
-        NAN : in->pts * av_q2d(inlink->time_base);
-    var_values[VAR_OUT_TIME] = pts * av_q2d(outlink->time_base);
+        NAN : in->pts * zn_av_q2d(inlink->time_base);
+    var_values[VAR_OUT_TIME] = pts * zn_av_q2d(outlink->time_base);
     var_values[VAR_TIME] = var_values[VAR_OT] = var_values[VAR_OUT_TIME];
     var_values[VAR_FRAME] = i;
     var_values[VAR_ON] = outlink->frame_count_in;
@@ -244,14 +244,14 @@ static int output_single_frame(AVFilterContext *ctx, AVFrame *in, double *var_va
         s->prev_nb_frames = s->nb_frames;
         s->nb_frames = 0;
         s->current_frame = 0;
-        av_frame_free(&s->in);
+        zn_av_frame_free(&s->in);
         s->finished = 1;
     }
     return ret;
 error:
     sws_freeContext(s->sws);
     s->sws = NULL;
-    av_frame_free(&out);
+    zn_av_frame_free(&out);
     return ret;
 }
 
@@ -301,7 +301,7 @@ static int activate(AVFilterContext *ctx)
         if ((ret = av_expr_parse_and_eval(&nb_frames, s->duration_expr_str,
                                           var_names, s->var_values,
                                           NULL, NULL, NULL, NULL, NULL, 0, ctx)) < 0) {
-            av_frame_free(&s->in);
+            zn_av_frame_free(&s->in);
             return ret;
         }
 
@@ -347,7 +347,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     av_expr_free(s->x_expr);
     av_expr_free(s->y_expr);
     av_expr_free(s->zoom_expr);
-    av_frame_free(&s->in);
+    zn_av_frame_free(&s->in);
 }
 
 static const AVFilterPad outputs[] = {

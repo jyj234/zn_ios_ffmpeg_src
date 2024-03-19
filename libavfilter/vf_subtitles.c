@@ -191,7 +191,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
     AVFilterLink *outlink = ctx->outputs[0];
     AssContext *ass = ctx->priv;
     int detect_change = 0;
-    double time_ms = picref->pts * av_q2d(inlink->time_base) * 1000;
+    double time_ms = picref->pts * zn_av_q2d(inlink->time_base) * 1000;
     ASS_Image *image = ass_render_frame(ass->renderer, ass->track,
                                         time_ms, &detect_change);
 
@@ -330,12 +330,12 @@ static av_cold int init_subtitles(AVFilterContext *ctx)
     }
 
     /* Open subtitles file */
-    ret = avformat_open_input(&fmt, ass->filename, NULL, NULL);
+    ret = zn_avformat_open_input(&fmt, ass->filename, NULL, NULL);
     if (ret < 0) {
         av_log(ctx, AV_LOG_ERROR, "Unable to open %s\n", ass->filename);
         goto end;
     }
-    ret = avformat_find_stream_info(fmt, NULL);
+    ret = zn_avformat_find_stream_info(fmt, NULL);
     if (ret < 0)
         goto end;
 
@@ -391,7 +391,7 @@ static av_cold int init_subtitles(AVFilterContext *ctx)
     ass_set_fonts(ass->renderer, NULL, NULL, 1, NULL, 1);
 
     /* Open decoder */
-    dec = avcodec_find_decoder(st->codecpar->codec_id);
+    dec = zn_avcodec_find_decoder(st->codecpar->codec_id);
     if (!dec) {
         av_log(ctx, AV_LOG_ERROR, "Failed to find subtitle codec %s\n",
                avcodec_get_name(st->codecpar->codec_id));
@@ -408,13 +408,13 @@ static av_cold int init_subtitles(AVFilterContext *ctx)
     if (ass->charenc)
         av_dict_set(&codec_opts, "sub_charenc", ass->charenc, 0);
 
-    dec_ctx = avcodec_alloc_context3(dec);
+    dec_ctx = zn_avcodec_alloc_context3(dec);
     if (!dec_ctx) {
         ret = AVERROR(ENOMEM);
         goto end;
     }
 
-    ret = avcodec_parameters_to_context(dec_ctx, st->codecpar);
+    ret = zn_avcodec_parameters_to_context(dec_ctx, st->codecpar);
     if (ret < 0)
         goto end;
 
@@ -428,7 +428,7 @@ static av_cold int init_subtitles(AVFilterContext *ctx)
      */
     dec_ctx->pkt_timebase = st->time_base;
 
-    ret = avcodec_open2(dec_ctx, NULL, &codec_opts);
+    ret = zn_avcodec_open2(dec_ctx, NULL, &codec_opts);
     if (ret < 0)
         goto end;
 
@@ -463,14 +463,14 @@ static av_cold int init_subtitles(AVFilterContext *ctx)
             goto end;
         }
         ass_set_style_overrides(ass->library, list);
-        av_free(list);
+        zn_av_free(list);
     }
     /* Decode subtitles and push them into the renderer (libass) */
     if (dec_ctx->subtitle_header)
         ass_process_codec_private(ass->track,
                                   dec_ctx->subtitle_header,
                                   dec_ctx->subtitle_header_size);
-    while (av_read_frame(fmt, &pkt) >= 0) {
+    while (zn_av_read_frame(fmt, &pkt) >= 0) {
         int i, got_subtitle;
         AVSubtitle sub = {0};
 
@@ -478,7 +478,7 @@ static av_cold int init_subtitles(AVFilterContext *ctx)
             ret = avcodec_decode_subtitle2(dec_ctx, &sub, &got_subtitle, &pkt);
             if (ret < 0) {
                 av_log(ctx, AV_LOG_WARNING, "Error decoding: %s (ignored)\n",
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
             } else if (got_subtitle) {
                 const int64_t start_time = av_rescale_q(sub.pts, AV_TIME_BASE_Q, av_make_q(1, 1000));
                 const int64_t duration   = sub.end_display_time;
@@ -491,14 +491,14 @@ static av_cold int init_subtitles(AVFilterContext *ctx)
                 }
             }
         }
-        av_packet_unref(&pkt);
+        zn_av_packet_unref(&pkt);
         avsubtitle_free(&sub);
     }
 
 end:
     av_dict_free(&codec_opts);
     avcodec_free_context(&dec_ctx);
-    avformat_close_input(&fmt);
+    zn_avformat_close_input(&fmt);
     return ret;
 }
 

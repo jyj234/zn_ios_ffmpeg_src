@@ -304,7 +304,7 @@ static void mpc7_decode_flush(AVCodecContext *avctx)
 static av_cold int mpc7_decode_close(AVCodecContext *avctx)
 {
     MPCContext *c = avctx->priv_data;
-    av_freep(&c->bits);
+    zn_av_freep(&c->bits);
     c->buf_size = 0;
     return 0;
 }

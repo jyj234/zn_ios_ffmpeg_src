@@ -68,7 +68,7 @@ static void videotoolbox_buffer_release(void *opaque, uint8_t *data)
     av_buffer_unref(&ref->hw_frames_ctx);
     CVPixelBufferRelease(ref->pixbuf);
 
-    av_free(data);
+    zn_av_free(data);
 }
 
 int ff_videotoolbox_buffer_copy(VTContext *vtctx,
@@ -137,7 +137,7 @@ int ff_videotoolbox_alloc_frame(AVCodecContext *avctx, AVFrame *frame)
         return AVERROR(ENOMEM);
     buf = av_buffer_create(data, size, videotoolbox_buffer_release, NULL, 0);
     if (!buf) {
-        av_freep(&data);
+        zn_av_freep(&data);
         return AVERROR(ENOMEM);
     }
     frame->buf[0] = buf;
@@ -224,7 +224,7 @@ CFDataRef ff_videotoolbox_avcc_extradata_create(AVCodecContext *avctx)
         memcpy(vtctx->sps, h->ps.sps->data + 1, 3);
 
     data = CFDataCreate(kCFAllocatorDefault, vt_extradata, vt_extradata_size);
-    av_free(vt_extradata);
+    zn_av_free(vt_extradata);
     return data;
 }
 
@@ -385,7 +385,7 @@ CFDataRef ff_videotoolbox_hvcc_extradata_create(AVCodecContext *avctx)
     av_assert0(p - vt_extradata == vt_extradata_size);
 
     data = CFDataCreate(kCFAllocatorDefault, vt_extradata, vt_extradata_size);
-    av_free(vt_extradata);
+    zn_av_free(vt_extradata);
     return data;
 }
 
@@ -500,7 +500,7 @@ int ff_videotoolbox_uninit(AVCodecContext *avctx)
     if (!vtctx)
         return 0;
 
-    av_freep(&vtctx->bitstream);
+    zn_av_freep(&vtctx->bitstream);
     if (vtctx->frame)
         CVPixelBufferRelease(vtctx->frame);
 
@@ -508,7 +508,7 @@ int ff_videotoolbox_uninit(AVCodecContext *avctx)
         videotoolbox_stop(avctx);
 
     av_buffer_unref(&vtctx->cached_hw_frames_ctx);
-    av_freep(&vtctx->vt_ctx);
+    zn_av_freep(&vtctx->vt_ctx);
 
     return 0;
 }
@@ -637,7 +637,7 @@ static CFDataRef videotoolbox_esds_extradata_create(AVCodecContext *avctx)
 
     data = CFDataCreate(kCFAllocatorDefault, rw_extradata, s);
 
-    av_freep(&rw_extradata);
+    zn_av_freep(&rw_extradata);
     return data;
 }
 
@@ -1419,7 +1419,7 @@ void av_videotoolbox_default_free(AVCodecContext *avctx)
 {
 
     videotoolbox_stop(avctx);
-    av_freep(&avctx->hwaccel_context);
+    zn_av_freep(&avctx->hwaccel_context);
 }
 #endif /* FF_API_VT_HWACCEL_CONTEXT */
 

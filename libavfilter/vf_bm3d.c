@@ -782,8 +782,8 @@ static int config_input(AVFilterLink *inlink)
         float scale = 1.f;
         int ret;
 
-        sc->num = av_calloc(FFALIGN(s->planewidth[0], s->block_size) * FFALIGN(s->planeheight[0], s->block_size), sizeof(float));
-        sc->den = av_calloc(FFALIGN(s->planewidth[0], s->block_size) * FFALIGN(s->planeheight[0], s->block_size), sizeof(float));
+        sc->num = zn_av_calloc(FFALIGN(s->planewidth[0], s->block_size) * FFALIGN(s->planeheight[0], s->block_size), sizeof(float));
+        sc->den = zn_av_calloc(FFALIGN(s->planewidth[0], s->block_size) * FFALIGN(s->planeheight[0], s->block_size), sizeof(float));
         if (!sc->num || !sc->den)
             return AVERROR(ENOMEM);
 
@@ -807,24 +807,24 @@ static int config_input(AVFilterLink *inlink)
                 return ret;
         }
 
-        sc->buffer = av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->buffer));
-        sc->bufferz = av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->bufferz));
-        sc->bufferh = av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->bufferh));
-        sc->bufferv = av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->bufferv));
-        sc->buffert = av_calloc(s->pblock_size, sizeof(*sc->buffert));
+        sc->buffer = zn_av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->buffer));
+        sc->bufferz = zn_av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->bufferz));
+        sc->bufferh = zn_av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->bufferh));
+        sc->bufferv = zn_av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->bufferv));
+        sc->buffert = zn_av_calloc(s->pblock_size, sizeof(*sc->buffert));
         if (!sc->bufferh || !sc->bufferv || !sc->buffer || !sc->bufferz || !sc->buffert)
             return AVERROR(ENOMEM);
 
         if (s->mode == FINAL) {
-            sc->rbuffer = av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->rbuffer));
-            sc->rbufferz = av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->rbufferz));
-            sc->rbufferh = av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->rbufferh));
-            sc->rbufferv = av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->rbufferv));
+            sc->rbuffer = zn_av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->rbuffer));
+            sc->rbufferz = zn_av_calloc(s->pblock_size * s->pblock_size * s->pgroup_size, sizeof(*sc->rbufferz));
+            sc->rbufferh = zn_av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->rbufferh));
+            sc->rbufferv = zn_av_calloc(s->pblock_size * s->pblock_size, sizeof(*sc->rbufferv));
             if (!sc->rbufferh || !sc->rbufferv || !sc->rbuffer || !sc->rbufferz)
                 return AVERROR(ENOMEM);
         }
 
-        sc->search_positions = av_calloc(SQR(2 * s->bm_range / s->bm_step + 1), sizeof(*sc->search_positions));
+        sc->search_positions = zn_av_calloc(SQR(2 * s->bm_range / s->bm_step + 1), sizeof(*sc->search_positions));
         if (!sc->search_positions)
             return AVERROR(ENOMEM);
     }
@@ -856,7 +856,7 @@ static int activate(AVFilterContext *ctx)
 
         if ((ret = ff_inlink_consume_frame(ctx->inputs[0], &frame)) > 0) {
             ret = filter_frame(ctx, &out, frame, frame);
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             if (ret < 0)
                 return ret;
             ret = ff_filter_frame(ctx->outputs[0], out);
@@ -1010,25 +1010,25 @@ static av_cold void uninit(AVFilterContext *ctx)
     for (int i = 0; i < s->nb_threads; i++) {
         SliceContext *sc = &s->slices[i];
 
-        av_freep(&sc->num);
-        av_freep(&sc->den);
+        zn_av_freep(&sc->num);
+        zn_av_freep(&sc->den);
 
         av_tx_uninit(&sc->gdctf);
         av_tx_uninit(&sc->gdcti);
         av_tx_uninit(&sc->dctf);
         av_tx_uninit(&sc->dcti);
 
-        av_freep(&sc->buffer);
-        av_freep(&sc->bufferh);
-        av_freep(&sc->buffert);
-        av_freep(&sc->bufferv);
-        av_freep(&sc->bufferz);
-        av_freep(&sc->rbuffer);
-        av_freep(&sc->rbufferh);
-        av_freep(&sc->rbufferv);
-        av_freep(&sc->rbufferz);
+        zn_av_freep(&sc->buffer);
+        zn_av_freep(&sc->bufferh);
+        zn_av_freep(&sc->buffert);
+        zn_av_freep(&sc->bufferv);
+        zn_av_freep(&sc->bufferz);
+        zn_av_freep(&sc->rbuffer);
+        zn_av_freep(&sc->rbufferh);
+        zn_av_freep(&sc->rbufferv);
+        zn_av_freep(&sc->rbufferz);
 
-        av_freep(&sc->search_positions);
+        zn_av_freep(&sc->search_positions);
     }
 }
 

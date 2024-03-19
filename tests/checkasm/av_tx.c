@@ -67,7 +67,7 @@ static void free_tx_refs(void)
             const SCALE_TYPE scale = 1.0 / len;                                   \
                                                                                   \
             if ((err = av_tx_init(&tx, &fn, TYPE, DIR, len, &scale, 0x0)) < 0) {  \
-                fprintf(stderr, "av_tx: %s\n", av_err2str(err));                  \
+                fprintf(stderr, "av_tx: %s\n", zn_av_err2str(err));                  \
                 return;                                                           \
             }                                                                     \
                                                                                   \
@@ -117,9 +117,9 @@ void checkasm_check_av_tx(void)
     CHECK_TEMPLATE("double_fft", AV_TX_DOUBLE_FFT, 0, AVComplexDouble, double, check_lens,
                    !double_near_abs_eps_array(out_ref, out_new, EPS, len*2));
 
-    av_free(in);
-    av_free(out_ref);
-    av_free(out_new);
+    zn_av_free(in);
+    zn_av_free(out_ref);
+    zn_av_free(out_new);
 
     if (!init) {
         init = 1;

@@ -170,20 +170,20 @@ static av_cold int cinepak_encode_init(AVCodecContext *avctx)
         return AVERROR(EINVAL);
     }
 
-    if (!(s->last_frame = av_frame_alloc()))
+    if (!(s->last_frame = zn_av_frame_alloc()))
         return AVERROR(ENOMEM);
-    if (!(s->best_frame = av_frame_alloc()))
+    if (!(s->best_frame = zn_av_frame_alloc()))
         return AVERROR(ENOMEM);
-    if (!(s->scratch_frame = av_frame_alloc()))
+    if (!(s->scratch_frame = zn_av_frame_alloc()))
         return AVERROR(ENOMEM);
     if (avctx->pix_fmt == AV_PIX_FMT_RGB24)
-        if (!(s->input_frame = av_frame_alloc()))
+        if (!(s->input_frame = zn_av_frame_alloc()))
             return AVERROR(ENOMEM);
 
-    if (!(s->codebook_input = av_malloc_array((avctx->pix_fmt == AV_PIX_FMT_RGB24 ? 6 : 4) * (avctx->width * avctx->height) >> 2, sizeof(*s->codebook_input))))
+    if (!(s->codebook_input = zn_av_malloc_array((avctx->pix_fmt == AV_PIX_FMT_RGB24 ? 6 : 4) * (avctx->width * avctx->height) >> 2, sizeof(*s->codebook_input))))
         return AVERROR(ENOMEM);
 
-    if (!(s->codebook_closest = av_malloc_array((avctx->width * avctx->height) >> 2, sizeof(*s->codebook_closest))))
+    if (!(s->codebook_closest = zn_av_malloc_array((avctx->width * avctx->height) >> 2, sizeof(*s->codebook_closest))))
         return AVERROR(ENOMEM);
 
     for (x = 0; x < (avctx->pix_fmt == AV_PIX_FMT_RGB24 ? 4 : 3); x++)
@@ -206,7 +206,7 @@ static av_cold int cinepak_encode_init(AVCodecContext *avctx)
     if (!(s->frame_buf = av_malloc(frame_buf_size)))
         return AVERROR(ENOMEM);
 
-    if (!(s->mb = av_malloc_array(mb_count, sizeof(mb_info))))
+    if (!(s->mb = zn_av_malloc_array(mb_count, sizeof(mb_info))))
         return AVERROR(ENOMEM);
 
     av_lfg_init(&s->randctx, 1);
@@ -1197,19 +1197,19 @@ static av_cold int cinepak_encode_end(AVCodecContext *avctx)
     int x;
 
     avpriv_elbg_free(&s->elbg);
-    av_frame_free(&s->last_frame);
-    av_frame_free(&s->best_frame);
-    av_frame_free(&s->scratch_frame);
+    zn_av_frame_free(&s->last_frame);
+    zn_av_frame_free(&s->best_frame);
+    zn_av_frame_free(&s->scratch_frame);
     if (avctx->pix_fmt == AV_PIX_FMT_RGB24)
-        av_frame_free(&s->input_frame);
-    av_freep(&s->codebook_input);
-    av_freep(&s->codebook_closest);
-    av_freep(&s->strip_buf);
-    av_freep(&s->frame_buf);
-    av_freep(&s->mb);
+        zn_av_frame_free(&s->input_frame);
+    zn_av_freep(&s->codebook_input);
+    zn_av_freep(&s->codebook_closest);
+    zn_av_freep(&s->strip_buf);
+    zn_av_freep(&s->frame_buf);
+    zn_av_freep(&s->mb);
 
     for (x = 0; x < (avctx->pix_fmt == AV_PIX_FMT_RGB24 ? 4 : 3); x++)
-        av_freep(&s->pict_bufs[x]);
+        zn_av_freep(&s->pict_bufs[x]);
 
     return 0;
 }

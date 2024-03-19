@@ -56,14 +56,14 @@ static int decode_registered_user_data_dynamic_hdr_plus(HEVCSEIDynamicHDRPlus *s
     err = av_dynamic_hdr_plus_from_t35(metadata, gb->buffer,
                                        bytestream2_get_bytes_left(gb));
     if (err < 0) {
-        av_free(metadata);
+        zn_av_free(metadata);
         return err;
     }
 
     av_buffer_unref(&s->info);
     s->info = av_buffer_create((uint8_t *)metadata, meta_size, NULL, NULL, 0);
     if (!s->info) {
-        av_free(metadata);
+        zn_av_free(metadata);
         return AVERROR(ENOMEM);
     }
 
@@ -82,14 +82,14 @@ static int decode_registered_user_data_dynamic_hdr_vivid(HEVCSEIDynamicHDRVivid 
     err = ff_parse_itu_t_t35_to_dynamic_hdr_vivid(metadata,
                                                   gb->buffer, bytestream2_get_bytes_left(gb));
     if (err < 0) {
-        av_free(metadata);
+        zn_av_free(metadata);
         return err;
     }
 
     av_buffer_unref(&s->info);
     s->info = av_buffer_create((uint8_t *)metadata, meta_size, NULL, NULL, 0);
     if (!s->info) {
-        av_free(metadata);
+        zn_av_free(metadata);
         return AVERROR(ENOMEM);
     }
 
@@ -737,16 +737,16 @@ int ff_h2645_sei_to_frame(AVFrame *frame, H2645SEI *sei,
         av_log(avctx, AV_LOG_DEBUG, "Mastering Display Metadata:\n");
         av_log(avctx, AV_LOG_DEBUG,
                "r(%5.4f,%5.4f) g(%5.4f,%5.4f) b(%5.4f %5.4f) wp(%5.4f, %5.4f)\n",
-               av_q2d(metadata->display_primaries[0][0]),
-               av_q2d(metadata->display_primaries[0][1]),
-               av_q2d(metadata->display_primaries[1][0]),
-               av_q2d(metadata->display_primaries[1][1]),
-               av_q2d(metadata->display_primaries[2][0]),
-               av_q2d(metadata->display_primaries[2][1]),
-               av_q2d(metadata->white_point[0]), av_q2d(metadata->white_point[1]));
+               zn_av_q2d(metadata->display_primaries[0][0]),
+               zn_av_q2d(metadata->display_primaries[0][1]),
+               zn_av_q2d(metadata->display_primaries[1][0]),
+               zn_av_q2d(metadata->display_primaries[1][1]),
+               zn_av_q2d(metadata->display_primaries[2][0]),
+               zn_av_q2d(metadata->display_primaries[2][1]),
+               zn_av_q2d(metadata->white_point[0]), zn_av_q2d(metadata->white_point[1]));
         av_log(avctx, AV_LOG_DEBUG,
                "min_luminance=%f, max_luminance=%f\n",
-               av_q2d(metadata->min_luminance), av_q2d(metadata->max_luminance));
+               zn_av_q2d(metadata->min_luminance), zn_av_q2d(metadata->max_luminance));
     }
 
     if (sei->content_light.present) {
@@ -772,7 +772,7 @@ void ff_h2645_sei_reset(H2645SEI *s)
     for (unsigned i = 0; i < s->unregistered.nb_buf_ref; i++)
         av_buffer_unref(&s->unregistered.buf_ref[i]);
     s->unregistered.nb_buf_ref = 0;
-    av_freep(&s->unregistered.buf_ref);
+    zn_av_freep(&s->unregistered.buf_ref);
     av_buffer_unref(&s->dynamic_hdr_plus.info);
     av_buffer_unref(&s->dynamic_hdr_vivid.info);
 

@@ -300,7 +300,7 @@ static int translate_ipfs_to_http(URLContext *h, const char *uri, int flags, AVD
     }
 
 err:
-    av_free(fulluri);
+    zn_av_free(fulluri);
     return ret;
 }
 

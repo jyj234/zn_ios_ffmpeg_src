@@ -57,7 +57,7 @@ static int flac_read_header(AVFormatContext *s)
     uint8_t *buffer=NULL;
     uint32_t marker;
     FLACDecContext *flac = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -154,10 +154,10 @@ static int flac_read_header(AVFormatContext *s)
                 offset += ti * 12;
                 avpriv_new_chapter(s, track, st->time_base, start, AV_NOPTS_VALUE, isrc);
             }
-            av_freep(&buffer);
+            zn_av_freep(&buffer);
         } else if (metadata_type == FLAC_METADATA_TYPE_PICTURE) {
             ret = ff_flac_parse_picture(s, &buffer, metadata_size, 1);
-            av_freep(&buffer);
+            zn_av_freep(&buffer);
             if (ret < 0) {
                 av_log(s, AV_LOG_ERROR, "Error parsing attached picture.\n");
                 return ret;
@@ -175,7 +175,7 @@ static int flac_read_header(AVFormatContext *s)
                     av_add_index_entry(st, pos, timestamp, 0, 0, AVINDEX_KEYFRAME);
                 }
             }
-            av_freep(&buffer);
+            zn_av_freep(&buffer);
         }
         else {
 
@@ -207,7 +207,7 @@ static int flac_read_header(AVFormatContext *s)
                     }
                 }
             }
-            av_freep(&buffer);
+            zn_av_freep(&buffer);
         }
     }
 
@@ -219,7 +219,7 @@ static int flac_read_header(AVFormatContext *s)
     return 0;
 
 fail:
-    av_free(buffer);
+    zn_av_free(buffer);
     return ret;
 }
 
@@ -294,7 +294,7 @@ static av_unused int64_t flac_read_timestamp(AVFormatContext *s, int stream_inde
             if (ret == AVERROR(EAGAIN))
                 continue;
             else {
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
                 av_assert1(!pkt->size);
             }
         }
@@ -302,7 +302,7 @@ static av_unused int64_t flac_read_timestamp(AVFormatContext *s, int stream_inde
                          &data, &size, pkt->data, pkt->size,
                          pkt->pts, pkt->dts, *ppos);
 
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (size) {
             if (parser->pts != AV_NOPTS_VALUE){
                 // seeking may not have started from beginning of a frame

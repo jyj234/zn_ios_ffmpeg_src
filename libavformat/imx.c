@@ -54,8 +54,8 @@ static int simbiosis_imx_read_header(AVFormatContext *s)
     AVStream *vst, *ast;
     int rate;
 
-    vst = avformat_new_stream(s, NULL);
-    ast = avformat_new_stream(s, NULL);
+    vst = zn_avformat_new_stream(s, NULL);
+    ast = zn_avformat_new_stream(s, NULL);
     if (!vst || !ast)
         return AVERROR(ENOMEM);
 

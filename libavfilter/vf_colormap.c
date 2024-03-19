@@ -458,7 +458,7 @@ static int process_frame(FFFrameSync *fs)
         } else {
             out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
             if (!out) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return AVERROR(ENOMEM);
             }
             av_frame_copy_props(out, in);
@@ -470,7 +470,7 @@ static int process_frame(FFFrameSync *fs)
                           FFMIN(in->height, ff_filter_get_nb_threads(ctx)));
 
         if (out != in)
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
     } else {
         out = in;
     }

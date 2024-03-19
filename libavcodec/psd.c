@@ -429,7 +429,7 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *picture,
         ret = decode_rle(s);
 
         if (ret < 0) {
-            av_freep(&s->tmp);
+            zn_av_freep(&s->tmp);
             return ret;
         }
 
@@ -540,7 +540,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         memcpy(picture->data[1], s->palette, AVPALETTE_SIZE);
     }
 
-    av_freep(&s->tmp);
+    zn_av_freep(&s->tmp);
 
     picture->pict_type = AV_PICTURE_TYPE_I;
     *got_frame = 1;

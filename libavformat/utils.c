@@ -96,7 +96,7 @@ static int append_packet_chunked(AVIOContext *s, AVPacket *pkt, int size)
         pkt->flags |= AV_PKT_FLAG_CORRUPT;
 
     if (!pkt->size)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     return pkt->size > orig_size ? pkt->size - orig_size : ret;
 }
 
@@ -109,7 +109,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
     pkt->size = 0;
 FF_ENABLE_DEPRECATION_WARNINGS
 #else
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
 #endif
     pkt->pos  = avio_tell(s);
 
@@ -238,7 +238,7 @@ enum AVCodecID av_codec_get_id(const AVCodecTag *const *tags, unsigned int tag)
 
 int ff_alloc_extradata(AVCodecParameters *par, int size)
 {
-    av_freep(&par->extradata);
+    zn_av_freep(&par->extradata);
     par->extradata_size = 0;
 
     if (size < 0 || size >= INT32_MAX - AV_INPUT_BUFFER_PADDING_SIZE)
@@ -448,7 +448,7 @@ int ff_mkdir_p(const char *path)
         ret = mkdir(temp, 0755);
     }
 
-    av_free(temp);
+    zn_av_free(temp);
     return ret;
 }
 
@@ -590,7 +590,7 @@ int ff_bprint_to_codecpar_extradata(AVCodecParameters *par, struct AVBPrint *buf
     if (ret < 0)
         return ret;
     if (!av_bprint_is_complete(buf)) {
-        av_free(str);
+        zn_av_free(str);
         return AVERROR(ENOMEM);
     }
 

@@ -593,9 +593,9 @@ static int jpeg2000_decode_ht_cleanup_segment(const Jpeg2000DecoderContext *s,
     if (maxbp >= 32)
         return AVERROR_INVALIDDATA;
 
-    sigma_n = av_calloc(buf_size, sizeof(uint8_t));
-    E       = av_calloc(buf_size, sizeof(uint8_t));
-    mu_n    = av_calloc(buf_size, sizeof(uint32_t));
+    sigma_n = zn_av_calloc(buf_size, sizeof(uint8_t));
+    E       = zn_av_calloc(buf_size, sizeof(uint8_t));
+    mu_n    = zn_av_calloc(buf_size, sizeof(uint32_t));
 
     if (!sigma_n || !E || !mu_n) {
         ret = AVERROR(ENOMEM);
@@ -983,9 +983,9 @@ static int jpeg2000_decode_ht_cleanup_segment(const Jpeg2000DecoderContext *s,
     }
     ret = 1;
 free:
-    av_freep(&sigma_n);
-    av_freep(&E);
-    av_freep(&mu_n);
+    zn_av_freep(&sigma_n);
+    zn_av_freep(&E);
+    zn_av_freep(&mu_n);
     return ret;
 }
 
@@ -1257,8 +1257,8 @@ ff_jpeg2000_decode_htj2k(const Jpeg2000DecoderContext *s, Jpeg2000CodingStyle *c
 
     jpeg2000_init_mel_decoder(&mel_state);
 
-    sample_buf = av_calloc((width + 4) * (height + 4), sizeof(int32_t));
-    block_states = av_calloc((width + 4) * (height + 4), sizeof(uint8_t));
+    sample_buf = zn_av_calloc((width + 4) * (height + 4), sizeof(int32_t));
+    block_states = zn_av_calloc((width + 4) * (height + 4), sizeof(uint8_t));
 
     if (!sample_buf || !block_states) {
         ret = AVERROR(ENOMEM);
@@ -1301,8 +1301,8 @@ ff_jpeg2000_decode_htj2k(const Jpeg2000DecoderContext *s, Jpeg2000CodingStyle *c
         }
     }
 free:
-    av_freep(&sample_buf);
-    av_freep(&block_states);
+    zn_av_freep(&sample_buf);
+    zn_av_freep(&block_states);
     return ret;
 }
 

@@ -72,7 +72,7 @@ static void free_side_data(AVFrameSideData **ptr_sd)
 
     av_buffer_unref(&sd->buf);
     av_dict_free(&sd->metadata);
-    av_freep(ptr_sd);
+    zn_av_freep(ptr_sd);
 }
 
 static void wipe_side_data(AVFrame *frame)
@@ -82,10 +82,10 @@ static void wipe_side_data(AVFrame *frame)
     }
     frame->nb_side_data = 0;
 
-    av_freep(&frame->side_data);
+    zn_av_freep(&frame->side_data);
 }
 
-AVFrame *av_frame_alloc(void)
+AVFrame *zn_av_frame_alloc(void)
 {
     AVFrame *frame = av_malloc(sizeof(*frame));
 
@@ -97,13 +97,13 @@ AVFrame *av_frame_alloc(void)
     return frame;
 }
 
-void av_frame_free(AVFrame **frame)
+void zn_av_frame_free(AVFrame **frame)
 {
     if (!frame || !*frame)
         return;
 
     av_frame_unref(*frame);
-    av_freep(frame);
+    zn_av_freep(frame);
 }
 
 static int get_video_buffer(AVFrame *frame, int align)
@@ -207,13 +207,13 @@ FF_ENABLE_DEPRECATION_WARNINGS
     }
 
     if (planes > AV_NUM_DATA_POINTERS) {
-        frame->extended_data = av_calloc(planes,
+        frame->extended_data = zn_av_calloc(planes,
                                           sizeof(*frame->extended_data));
-        frame->extended_buf  = av_calloc(planes - AV_NUM_DATA_POINTERS,
+        frame->extended_buf  = zn_av_calloc(planes - AV_NUM_DATA_POINTERS,
                                           sizeof(*frame->extended_buf));
         if (!frame->extended_data || !frame->extended_buf) {
-            av_freep(&frame->extended_data);
-            av_freep(&frame->extended_buf);
+            zn_av_freep(&frame->extended_data);
+            zn_av_freep(&frame->extended_buf);
             return AVERROR(ENOMEM);
         }
         frame->nb_extended_buf = planes - AV_NUM_DATA_POINTERS;
@@ -240,7 +240,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
 }
 
-int av_frame_get_buffer(AVFrame *frame, int align)
+int zn_av_frame_get_buffer(AVFrame *frame, int align)
 {
     if (frame->format < 0)
         return AVERROR(EINVAL);
@@ -396,14 +396,14 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
     // this check is needed only until FF_API_OLD_CHANNEL_LAYOUT is out
     if (av_channel_layout_check(&src->ch_layout)) {
-        ret = av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
+        ret = zn_av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
         if (ret < 0)
             goto fail;
     }
 
     /* duplicate the frame data if it's not refcounted */
     if (!src->buf[0]) {
-        ret = av_frame_get_buffer(dst, 0);
+        ret = zn_av_frame_get_buffer(dst, 0);
         if (ret < 0)
             goto fail;
 
@@ -426,7 +426,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     }
 
     if (src->extended_buf) {
-        dst->extended_buf = av_calloc(src->nb_extended_buf,
+        dst->extended_buf = zn_av_calloc(src->nb_extended_buf,
                                       sizeof(*dst->extended_buf));
         if (!dst->extended_buf) {
             ret = AVERROR(ENOMEM);
@@ -460,7 +460,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
             goto fail;
         }
 
-        dst->extended_data = av_malloc_array(sizeof(*dst->extended_data), ch);
+        dst->extended_data = zn_av_malloc_array(sizeof(*dst->extended_data), ch);
         if (!dst->extended_data) {
             ret = AVERROR(ENOMEM);
             goto fail;
@@ -517,7 +517,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
         }
     } else {
 #endif
-    ret = av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
+    ret = zn_av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
     if (ret < 0)
         goto fail;
 #if FF_API_OLD_CHANNEL_LAYOUT
@@ -567,7 +567,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     } else if (dst->extended_buf) {
         for (int i = 0; i < dst->nb_extended_buf; i++)
             av_buffer_unref(&dst->extended_buf[i]);
-        av_freep(&dst->extended_buf);
+        zn_av_freep(&dst->extended_buf);
     }
 
     ret = av_buffer_replace(&dst->hw_frames_ctx, src->hw_frames_ctx);
@@ -575,7 +575,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         goto fail;
 
     if (dst->extended_data != dst->data)
-        av_freep(&dst->extended_data);
+        zn_av_freep(&dst->extended_data);
 
     if (src->extended_data != src->data) {
         int ch = dst->ch_layout.nb_channels;
@@ -608,13 +608,13 @@ fail:
 
 AVFrame *av_frame_clone(const AVFrame *src)
 {
-    AVFrame *ret = av_frame_alloc();
+    AVFrame *ret = zn_av_frame_alloc();
 
     if (!ret)
         return NULL;
 
     if (av_frame_ref(ret, src) < 0)
-        av_frame_free(&ret);
+        zn_av_frame_free(&ret);
 
     return ret;
 }
@@ -630,7 +630,7 @@ void av_frame_unref(AVFrame *frame)
         av_buffer_unref(&frame->buf[i]);
     for (int i = 0; i < frame->nb_extended_buf; i++)
         av_buffer_unref(&frame->extended_buf[i]);
-    av_freep(&frame->extended_buf);
+    zn_av_freep(&frame->extended_buf);
     av_dict_free(&frame->metadata);
 
     av_buffer_unref(&frame->hw_frames_ctx);
@@ -639,7 +639,7 @@ void av_frame_unref(AVFrame *frame)
     av_buffer_unref(&frame->private_ref);
 
     if (frame->extended_data != frame->data)
-        av_freep(&frame->extended_data);
+        zn_av_freep(&frame->extended_data);
 
     av_channel_layout_uninit(&frame->ch_layout);
 
@@ -699,7 +699,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
     tmp.nb_samples     = frame->nb_samples;
-    ret = av_channel_layout_copy(&tmp.ch_layout, &frame->ch_layout);
+    ret = zn_av_channel_layout_copy(&tmp.ch_layout, &frame->ch_layout);
     if (ret < 0) {
         av_frame_unref(&tmp);
         return ret;
@@ -708,7 +708,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     if (frame->hw_frames_ctx)
         ret = av_hwframe_get_buffer(frame->hw_frames_ctx, &tmp, 0);
     else
-        ret = av_frame_get_buffer(&tmp, 0);
+        ret = zn_av_frame_get_buffer(&tmp, 0);
     if (ret < 0)
         return ret;
 

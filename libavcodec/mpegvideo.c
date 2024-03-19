@@ -436,18 +436,18 @@ static void free_duplicate_context(MpegEncContext *s)
     if (!s)
         return;
 
-    av_freep(&s->sc.edge_emu_buffer);
-    av_freep(&s->me.scratchpad);
+    zn_av_freep(&s->sc.edge_emu_buffer);
+    zn_av_freep(&s->me.scratchpad);
     s->me.temp =
     s->sc.rd_scratchpad =
     s->sc.b_scratchpad =
     s->sc.obmc_scratchpad = NULL;
 
-    av_freep(&s->dct_error_sum);
-    av_freep(&s->me.map);
+    zn_av_freep(&s->dct_error_sum);
+    zn_av_freep(&s->me.map);
     s->me.score_map = NULL;
-    av_freep(&s->blocks);
-    av_freep(&s->ac_val_base);
+    zn_av_freep(&s->blocks);
+    zn_av_freep(&s->ac_val_base);
     s->block = NULL;
 }
 
@@ -455,7 +455,7 @@ static void free_duplicate_contexts(MpegEncContext *s)
 {
     for (int i = 1; i < s->slice_context_count; i++) {
         free_duplicate_context(s->thread_context[i]);
-        av_freep(&s->thread_context[i]);
+        zn_av_freep(&s->thread_context[i]);
     }
     free_duplicate_context(s);
 }
@@ -583,7 +583,7 @@ int ff_mpv_init_context_frame(MpegEncContext *s)
     if (s->codec_id == AV_CODEC_ID_MPEG4 ||
         (s->avctx->flags & AV_CODEC_FLAG_INTERLACED_ME)) {
         /* interlaced direct mode decoding tables */
-        int16_t (*tmp)[2] = av_calloc(mv_table_size, 4 * sizeof(*tmp));
+        int16_t (*tmp)[2] = zn_av_calloc(mv_table_size, 4 * sizeof(*tmp));
         if (!tmp)
             return AVERROR(ENOMEM);
         s->p_field_mv_table_base = tmp;
@@ -712,14 +712,14 @@ av_cold int ff_mpv_common_init(MpegEncContext *s)
     if (!FF_ALLOCZ_TYPED_ARRAY(s->picture, MAX_PICTURE_COUNT))
         return AVERROR(ENOMEM);
     for (i = 0; i < MAX_PICTURE_COUNT; i++) {
-        s->picture[i].f = av_frame_alloc();
+        s->picture[i].f = zn_av_frame_alloc();
         if (!s->picture[i].f)
             goto fail_nomem;
     }
 
-    if (!(s->next_picture.f    = av_frame_alloc()) ||
-        !(s->last_picture.f    = av_frame_alloc()) ||
-        !(s->current_picture.f = av_frame_alloc()))
+    if (!(s->next_picture.f    = zn_av_frame_alloc()) ||
+        !(s->last_picture.f    = zn_av_frame_alloc()) ||
+        !(s->current_picture.f = zn_av_frame_alloc()))
         goto fail_nomem;
 
     if ((ret = ff_mpv_init_context_frame(s)))
@@ -759,22 +759,22 @@ void ff_mpv_free_context_frame(MpegEncContext *s)
 {
     free_duplicate_contexts(s);
 
-    av_freep(&s->p_field_mv_table_base);
+    zn_av_freep(&s->p_field_mv_table_base);
     for (int i = 0; i < 2; i++)
         for (int j = 0; j < 2; j++)
             s->p_field_mv_table[i][j] = NULL;
 
-    av_freep(&s->dc_val_base);
-    av_freep(&s->coded_block_base);
-    av_freep(&s->mbintra_table);
-    av_freep(&s->cbp_table);
-    av_freep(&s->pred_dir_table);
+    zn_av_freep(&s->dc_val_base);
+    zn_av_freep(&s->coded_block_base);
+    zn_av_freep(&s->mbintra_table);
+    zn_av_freep(&s->cbp_table);
+    zn_av_freep(&s->pred_dir_table);
 
-    av_freep(&s->mbskip_table);
+    zn_av_freep(&s->mbskip_table);
 
-    av_freep(&s->er.error_status_table);
-    av_freep(&s->er.er_temp_buffer);
-    av_freep(&s->mb_index2xy);
+    zn_av_freep(&s->er.error_status_table);
+    zn_av_freep(&s->er.er_temp_buffer);
+    zn_av_freep(&s->mb_index2xy);
 
     s->linesize = s->uvlinesize = 0;
 }
@@ -785,7 +785,7 @@ void ff_mpv_common_end(MpegEncContext *s)
     if (s->slice_context_count > 1)
         s->slice_context_count = 1;
 
-    av_freep(&s->bitstream_buffer);
+    zn_av_freep(&s->bitstream_buffer);
     s->allocated_bitstream_buffer_size = 0;
 
     if (!s->avctx)
@@ -795,7 +795,7 @@ void ff_mpv_common_end(MpegEncContext *s)
         for (int i = 0; i < MAX_PICTURE_COUNT; i++)
             ff_mpv_picture_free(&s->picture[i]);
     }
-    av_freep(&s->picture);
+    zn_av_freep(&s->picture);
     ff_mpv_picture_free(&s->last_picture);
     ff_mpv_picture_free(&s->current_picture);
     ff_mpv_picture_free(&s->next_picture);

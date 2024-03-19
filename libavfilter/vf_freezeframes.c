@@ -90,7 +90,7 @@ static int activate(AVFilterContext *ctx)
         if (frame) {
             int64_t dropped_pts = frame->pts;
 
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             frame = av_frame_clone(s->replace_frame);
             if (!frame)
                 return AVERROR(ENOMEM);
@@ -112,7 +112,7 @@ static int activate(AVFilterContext *ctx)
     if (replace && frame) {
         s->replace_frame = frame;
     } else if (frame) {
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
     }
 
     FF_FILTER_FORWARD_STATUS(ctx->inputs[0], outlink);
@@ -130,7 +130,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     FreezeFramesContext *s = ctx->priv;
 
-    av_frame_free(&s->replace_frame);
+    zn_av_frame_free(&s->replace_frame);
 }
 
 static const AVFilterPad freezeframes_inputs[] = {

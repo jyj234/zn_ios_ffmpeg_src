@@ -156,5 +156,5 @@ void checkasm_check_fixed_dsp(void)
         check_scalarproduct_fixed(src0, src1);
     report("scalarproduct_fixed");
 
-    av_freep(&fdsp);
+    zn_av_freep(&fdsp);
 }

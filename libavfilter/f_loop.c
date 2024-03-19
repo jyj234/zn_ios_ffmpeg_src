@@ -86,8 +86,8 @@ static int aconfig_input(AVFilterLink *inlink)
 
     s->time_pts = AV_NOPTS_VALUE;
 
-    s->fifo = av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, 8192);
-    s->left = av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, 8192);
+    s->fifo = zn_av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, 8192);
+    s->left = zn_av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, 8192);
     if (!s->fifo || !s->left)
         return AVERROR(ENOMEM);
 
@@ -117,7 +117,7 @@ static int push_samples(AVFilterContext *ctx, int nb_samples)
             return AVERROR(ENOMEM);
         ret = av_audio_fifo_peek_at(s->fifo, (void **)out->extended_data, out->nb_samples, s->current_sample);
         if (ret < 0) {
-            av_frame_free(&out);
+            zn_av_frame_free(&out);
             return ret;
         }
         out->pts = s->pts;
@@ -159,7 +159,7 @@ static int afilter_frame(AVFilterLink *inlink, AVFrame *frame)
             if (s->start < 0)
                 s->start = inlink->sample_count_out - written;
 
-            ret = av_audio_fifo_write(s->fifo, (void **)frame->extended_data, written);
+            ret = zn_av_audio_fifo_write(s->fifo, (void **)frame->extended_data, written);
             if (ret < 0)
                 return ret;
             if (!s->nb_samples) {
@@ -173,7 +173,7 @@ static int afilter_frame(AVFilterLink *inlink, AVFrame *frame)
             if (s->nb_samples == s->size && drain > 0) {
                 int ret2;
 
-                ret2 = av_audio_fifo_write(s->left, (void **)frame->extended_data, frame->nb_samples);
+                ret2 = zn_av_audio_fifo_write(s->left, (void **)frame->extended_data, frame->nb_samples);
                 if (ret2 < 0)
                    return ret2;
                 av_audio_fifo_drain(s->left, drain);
@@ -184,7 +184,7 @@ static int afilter_frame(AVFilterLink *inlink, AVFrame *frame)
         } else {
             int nb_samples = frame->nb_samples;
 
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             ret = push_samples(ctx, nb_samples);
         }
     } else {
@@ -206,7 +206,7 @@ static int arequest_frame(AVFilterLink *outlink)
     if ((!s->size) ||
         (s->nb_samples < s->size) ||
         (s->nb_samples >= s->size && s->loop == 0)) {
-        int nb_samples = av_audio_fifo_size(s->left);
+        int nb_samples = zn_av_audio_fifo_size(s->left);
 
         if (s->loop == 0 && nb_samples > 0) {
             AVFrame *out;
@@ -318,7 +318,7 @@ static av_cold int init(AVFilterContext *ctx)
 
     s->time_pts = AV_NOPTS_VALUE;
 
-    s->frames = av_calloc(s->size, sizeof(*s->frames));
+    s->frames = zn_av_calloc(s->size, sizeof(*s->frames));
     if (!s->frames)
         return AVERROR(ENOMEM);
 
@@ -332,7 +332,7 @@ static void free_frames(AVFilterContext *ctx)
     LoopContext *s = ctx->priv;
 
     for (int i = 0; i < s->nb_frames; i++)
-        av_frame_free(&s->frames[i]);
+        zn_av_frame_free(&s->frames[i]);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
@@ -340,7 +340,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     LoopContext *s = ctx->priv;
 
     free_frames(ctx);
-    av_freep(&s->frames);
+    zn_av_freep(&s->frames);
     s->nb_frames = 0;
 }
 
@@ -386,7 +386,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         if (s->nb_frames < s->size) {
             s->frames[s->nb_frames] = av_frame_clone(frame);
             if (!s->frames[s->nb_frames]) {
-                av_frame_free(&frame);
+                zn_av_frame_free(&frame);
                 return AVERROR(ENOMEM);
             }
             s->nb_frames++;
@@ -398,7 +398,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
             s->pts_offset = s->duration;
             ret = ff_filter_frame(outlink, frame);
         } else {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             ret = push_frame(ctx);
         }
     } else {

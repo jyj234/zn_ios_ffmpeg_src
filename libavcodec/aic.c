@@ -466,7 +466,7 @@ static av_cold int aic_decode_init(AVCodecContext *avctx)
         }
     }
 
-    ctx->slice_data = av_malloc_array(ctx->slice_width, AIC_BAND_COEFFS
+    ctx->slice_data = zn_av_malloc_array(ctx->slice_width, AIC_BAND_COEFFS
                                 * sizeof(*ctx->slice_data));
     if (!ctx->slice_data) {
         av_log(avctx, AV_LOG_ERROR, "Error allocating slice buffer\n");
@@ -485,7 +485,7 @@ static av_cold int aic_decode_close(AVCodecContext *avctx)
 {
     AICContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->slice_data);
+    zn_av_freep(&ctx->slice_data);
 
     return 0;
 }

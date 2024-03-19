@@ -40,7 +40,7 @@ static int xvag_read_header(AVFormatContext *s)
 
     avio_skip(s->pb, 4);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

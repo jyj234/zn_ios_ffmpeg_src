@@ -446,7 +446,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf)
             for (i = 0; i < s->mid; i++) {
                 out = av_frame_clone(buf);
                 if (!out) {
-                    av_frame_free(&buf);
+                    zn_av_frame_free(&buf);
                     return AVERROR(ENOMEM);
                 }
                 ff_bufqueue_add(ctx, &s->q, out);
@@ -466,7 +466,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf)
 
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&buf);
+            zn_av_frame_free(&buf);
             return AVERROR(ENOMEM);
         }
 
@@ -490,13 +490,13 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf)
     } else {
         out = av_frame_clone(in);
         if (!out) {
-            av_frame_free(&buf);
+            zn_av_frame_free(&buf);
             return AVERROR(ENOMEM);
         }
     }
 
     in = ff_bufqueue_get(&s->q);
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     ff_bufqueue_add(ctx, &s->q, buf);
 
     return ff_filter_frame(outlink, out);

@@ -56,14 +56,14 @@ AVFrame *ff_default_get_video_buffer2(AVFilterLink *link, int w, int h, int alig
     if (link->hw_frames_ctx &&
         ((AVHWFramesContext*)link->hw_frames_ctx->data)->format == link->format) {
         int ret;
-        frame = av_frame_alloc();
+        frame = zn_av_frame_alloc();
 
         if (!frame)
             return NULL;
 
         ret = av_hwframe_get_buffer(link->hw_frames_ctx, frame, 0);
         if (ret < 0)
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
 
         return frame;
     }

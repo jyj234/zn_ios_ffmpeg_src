@@ -50,7 +50,7 @@ int ff_oss_audio_open(AVFormatContext *s1, int is_output,
     else
         audio_fd = avpriv_open(audio_device, O_RDONLY);
     if (audio_fd < 0) {
-        av_log(s1, AV_LOG_ERROR, "%s: %s\n", audio_device, av_err2str(AVERROR(errno)));
+        av_log(s1, AV_LOG_ERROR, "%s: %s\n", audio_device, zn_av_err2str(AVERROR(errno)));
         return AVERROR(EIO);
     }
 
@@ -61,7 +61,7 @@ int ff_oss_audio_open(AVFormatContext *s1, int is_output,
     /* non blocking mode */
     if (!is_output) {
         if (fcntl(audio_fd, F_SETFL, O_NONBLOCK) < 0) {
-            av_log(s1, AV_LOG_WARNING, "%s: Could not enable non block mode (%s)\n", audio_device, av_err2str(AVERROR(errno)));
+            av_log(s1, AV_LOG_WARNING, "%s: Could not enable non block mode (%s)\n", audio_device, zn_av_err2str(AVERROR(errno)));
         }
     }
 
@@ -69,7 +69,7 @@ int ff_oss_audio_open(AVFormatContext *s1, int is_output,
 
 #define CHECK_IOCTL_ERROR(event)                                              \
     if (err < 0) {                                                            \
-        av_log(s1, AV_LOG_ERROR, #event ": %s\n", av_err2str(AVERROR(errno)));\
+        av_log(s1, AV_LOG_ERROR, #event ": %s\n", zn_av_err2str(AVERROR(errno)));\
         goto fail;                                                            \
     }
 
@@ -79,7 +79,7 @@ int ff_oss_audio_open(AVFormatContext *s1, int is_output,
      * fail anyway. */
     err = ioctl(audio_fd, SNDCTL_DSP_GETFMTS, &tmp);
     if (err < 0) {
-        av_log(s1, AV_LOG_WARNING, "SNDCTL_DSP_GETFMTS: %s\n", av_err2str(AVERROR(errno)));
+        av_log(s1, AV_LOG_WARNING, "SNDCTL_DSP_GETFMTS: %s\n", zn_av_err2str(AVERROR(errno)));
     }
 
 #if HAVE_BIGENDIAN

@@ -190,7 +190,7 @@ static int fir_frame(AudioFIRContext *s, AVFrame *in, AVFilterLink *outlink)
 
     out = ff_get_audio_buffer(outlink, in->nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -200,7 +200,7 @@ static int fir_frame(AudioFIRContext *s, AVFrame *in, AVFilterLink *outlink)
     ff_filter_execute(ctx, fir_channels, out, NULL,
                       FFMIN(outlink->ch_layout.nb_channels, ff_filter_get_nb_threads(ctx)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     s->in = NULL;
 
     return ff_filter_frame(outlink, out);
@@ -215,9 +215,9 @@ static int init_segment(AVFilterContext *ctx, AudioFIRSegment *seg, int selir,
     enum AVTXType tx_type;
     int ret;
 
-    seg->tx  = av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->tx));
-    seg->ctx = av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->ctx));
-    seg->itx = av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->itx));
+    seg->tx  = zn_av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->tx));
+    seg->ctx = zn_av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->ctx));
+    seg->itx = zn_av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->itx));
     if (!seg->tx || !seg->ctx || !seg->itx)
         return AVERROR(ENOMEM);
 
@@ -229,8 +229,8 @@ static int init_segment(AVFilterContext *ctx, AudioFIRSegment *seg, int selir,
     seg->input_size    = offset + s->min_part_size;
     seg->input_offset  = offset;
 
-    seg->part_index    = av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->part_index));
-    seg->output_offset = av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->output_offset));
+    seg->part_index    = zn_av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->part_index));
+    seg->output_offset = zn_av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*seg->output_offset));
     if (!seg->part_index || !seg->output_offset)
         return AVERROR(ENOMEM);
 
@@ -288,35 +288,35 @@ static void uninit_segment(AVFilterContext *ctx, AudioFIRSegment *seg)
         for (int ch = 0; ch < s->nb_channels; ch++)
             av_tx_uninit(&seg->ctx[ch]);
     }
-    av_freep(&seg->ctx);
+    zn_av_freep(&seg->ctx);
 
     if (seg->tx) {
         for (int ch = 0; ch < s->nb_channels; ch++)
             av_tx_uninit(&seg->tx[ch]);
     }
-    av_freep(&seg->tx);
+    zn_av_freep(&seg->tx);
 
     if (seg->itx) {
         for (int ch = 0; ch < s->nb_channels; ch++)
             av_tx_uninit(&seg->itx[ch]);
     }
-    av_freep(&seg->itx);
+    zn_av_freep(&seg->itx);
 
-    av_freep(&seg->output_offset);
-    av_freep(&seg->part_index);
+    zn_av_freep(&seg->output_offset);
+    zn_av_freep(&seg->part_index);
 
-    av_frame_free(&seg->tempin);
-    av_frame_free(&seg->tempout);
-    av_frame_free(&seg->blockout);
-    av_frame_free(&seg->sumin);
-    av_frame_free(&seg->sumout);
-    av_frame_free(&seg->buffer);
-    av_frame_free(&seg->input);
-    av_frame_free(&seg->output);
+    zn_av_frame_free(&seg->tempin);
+    zn_av_frame_free(&seg->tempout);
+    zn_av_frame_free(&seg->blockout);
+    zn_av_frame_free(&seg->sumin);
+    zn_av_frame_free(&seg->sumout);
+    zn_av_frame_free(&seg->buffer);
+    zn_av_frame_free(&seg->input);
+    zn_av_frame_free(&seg->output);
     seg->input_size = 0;
 
     for (int i = 0; i < MAX_IR_STREAMS; i++)
-        av_frame_free(&seg->coeff);
+        zn_av_frame_free(&seg->coeff);
 }
 
 static int convert_coeffs(AVFilterContext *ctx, int selir)
@@ -382,7 +382,7 @@ skip:
     nb_taps      = cur_nb_taps;
 
     if (!s->norm_ir[selir] || s->norm_ir[selir]->nb_samples < nb_taps) {
-        av_frame_free(&s->norm_ir[selir]);
+        zn_av_frame_free(&s->norm_ir[selir]);
         s->norm_ir[selir] = ff_get_audio_buffer(ctx->inputs[0], FFALIGN(nb_taps, 8));
         if (!s->norm_ir[selir])
             return AVERROR(ENOMEM);
@@ -621,13 +621,13 @@ FF_DISABLE_DEPRECATION_WARNINGS
     outlink->channel_layout = ctx->inputs[0]->channel_layout;
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
-    if ((ret = av_channel_layout_copy(&outlink->ch_layout, &ctx->inputs[0]->ch_layout)) < 0)
+    if ((ret = zn_av_channel_layout_copy(&outlink->ch_layout, &ctx->inputs[0]->ch_layout)) < 0)
         return ret;
     outlink->ch_layout.nb_channels = ctx->inputs[0]->ch_layout.nb_channels;
 
     s->format = outlink->format;
     s->nb_channels = outlink->ch_layout.nb_channels;
-    s->loading = av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*s->loading));
+    s->loading = zn_av_calloc(ctx->inputs[0]->ch_layout.nb_channels, sizeof(*s->loading));
     if (!s->loading)
         return AVERROR(ENOMEM);
 
@@ -673,24 +673,24 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioFIRContext *s = ctx->priv;
 
-    av_freep(&s->fdsp);
-    av_freep(&s->loading);
+    zn_av_freep(&s->fdsp);
+    zn_av_freep(&s->loading);
 
     for (int i = 0; i < s->nb_irs; i++) {
         for (int j = 0; j < s->nb_segments[i]; j++)
             uninit_segment(ctx, &s->seg[i][j]);
 
-        av_frame_free(&s->ir[i]);
-        av_frame_free(&s->norm_ir[i]);
+        zn_av_frame_free(&s->ir[i]);
+        zn_av_frame_free(&s->norm_ir[i]);
     }
 
-    av_frame_free(&s->fadein[0]);
-    av_frame_free(&s->fadein[1]);
+    zn_av_frame_free(&s->fadein[0]);
+    zn_av_frame_free(&s->fadein[1]);
 
-    av_frame_free(&s->xfade[0]);
-    av_frame_free(&s->xfade[1]);
+    zn_av_frame_free(&s->xfade[0]);
+    zn_av_frame_free(&s->xfade[1]);
 
-    av_frame_free(&s->video);
+    zn_av_frame_free(&s->video);
 }
 
 static int config_video(AVFilterLink *outlink)
@@ -704,7 +704,7 @@ static int config_video(AVFilterLink *outlink)
     outlink->frame_rate = s->frame_rate;
     outlink->time_base = av_inv_q(outlink->frame_rate);
 
-    av_frame_free(&s->video);
+    zn_av_frame_free(&s->video);
     s->video = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!s->video)
         return AVERROR(ENOMEM);

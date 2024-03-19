@@ -433,28 +433,28 @@ static int vpp_set_frame_ext_params(AVFilterContext *ctx, const AVFrame *in, AVF
 
                 mdcv_conf.DisplayPrimariesX[i] =
                     FFMIN(lrint(chroma_den *
-                                av_q2d(mdm->display_primaries[j][0])),
+                                zn_av_q2d(mdm->display_primaries[j][0])),
                           chroma_den);
                 mdcv_conf.DisplayPrimariesY[i] =
                     FFMIN(lrint(chroma_den *
-                                av_q2d(mdm->display_primaries[j][1])),
+                                zn_av_q2d(mdm->display_primaries[j][1])),
                           chroma_den);
             }
 
             mdcv_conf.WhitePointX =
-                FFMIN(lrint(chroma_den * av_q2d(mdm->white_point[0])),
+                FFMIN(lrint(chroma_den * zn_av_q2d(mdm->white_point[0])),
                       chroma_den);
             mdcv_conf.WhitePointY =
-                FFMIN(lrint(chroma_den * av_q2d(mdm->white_point[1])),
+                FFMIN(lrint(chroma_den * zn_av_q2d(mdm->white_point[1])),
                       chroma_den);
 
             /* MaxDisplayMasteringLuminance is in the unit of 1 nits however
              * MinDisplayMasteringLuminance is in the unit of 0.0001 nits
              */
             mdcv_conf.MaxDisplayMasteringLuminance =
-                lrint(av_q2d(mdm->max_luminance));
+                lrint(zn_av_q2d(mdm->max_luminance));
             mdcv_conf.MinDisplayMasteringLuminance =
-                lrint(luma_den * av_q2d(mdm->min_luminance));
+                lrint(luma_den * zn_av_q2d(mdm->min_luminance));
             tm = 1;
         }
     }
@@ -749,7 +749,7 @@ static int activate(AVFilterContext *ctx)
     if (qsv->session) {
         if (in || qsv->eof) {
             ret = ff_qsvvpp_filter_frame(qsv, inlink, in);
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             if (ret == AVERROR(EAGAIN))
                 goto not_ready;
             else if (ret < 0)

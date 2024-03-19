@@ -202,7 +202,7 @@ static int get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags)
     av_frame_copy_props(new, frame);
     av_frame_unref(frame);
     av_frame_move_ref(frame, new);
-    av_frame_free(&new);
+    zn_av_frame_free(&new);
 
     frame->width  = ow;
     frame->height = oh;
@@ -215,19 +215,19 @@ static int open_stream(AVFilterContext *ctx, MovieStream *st, int dec_threads)
     const AVCodec *codec;
     int ret;
 
-    codec = avcodec_find_decoder(st->st->codecpar->codec_id);
+    codec = zn_avcodec_find_decoder(st->st->codecpar->codec_id);
     if (!codec) {
         av_log(ctx, AV_LOG_ERROR, "Failed to find any codec\n");
         return AVERROR(EINVAL);
     }
 
-    st->codec_ctx = avcodec_alloc_context3(codec);
+    st->codec_ctx = zn_avcodec_alloc_context3(codec);
     if (!st->codec_ctx)
         return AVERROR(ENOMEM);
 
     st->codec_ctx->opaque = st;
     st->codec_ctx->get_buffer2 = get_buffer;
-    ret = avcodec_parameters_to_context(st->codec_ctx, st->st->codecpar);
+    ret = zn_avcodec_parameters_to_context(st->codec_ctx, st->st->codecpar);
     if (ret < 0)
         return ret;
 
@@ -235,7 +235,7 @@ static int open_stream(AVFilterContext *ctx, MovieStream *st, int dec_threads)
         dec_threads = ff_filter_get_nb_threads(ctx);
     st->codec_ctx->thread_count = dec_threads;
 
-    if ((ret = avcodec_open2(st->codec_ctx, codec, NULL)) < 0) {
+    if ((ret = zn_avcodec_open2(st->codec_ctx, codec, NULL)) < 0) {
         av_log(ctx, AV_LOG_ERROR, "Failed to open codec\n");
         return ret;
     }
@@ -249,14 +249,14 @@ static int guess_channel_layout(MovieStream *st, int st_index, void *log_ctx)
     char buf[256];
     AVChannelLayout chl = { 0 };
 
-    av_channel_layout_default(&chl, dec_par->ch_layout.nb_channels);
+    zn_av_channel_layout_default(&chl, dec_par->ch_layout.nb_channels);
 
     if (!KNOWN(&chl)) {
         av_log(log_ctx, AV_LOG_WARNING,
                "Channel layout is not set in stream %d, and could not "
                "be guessed from the number of channels (%d)\n",
                st_index, dec_par->ch_layout.nb_channels);
-        return av_channel_layout_copy(&dec_par->ch_layout, &chl);
+        return zn_av_channel_layout_copy(&dec_par->ch_layout, &chl);
     }
 
     av_channel_layout_describe(&chl, buf, sizeof(buf));
@@ -264,7 +264,7 @@ static int guess_channel_layout(MovieStream *st, int st_index, void *log_ctx)
            "Channel layout is not set in output stream %d, "
            "guessed channel layout is '%s'\n",
            st_index, buf);
-    return av_channel_layout_copy(&dec_par->ch_layout, &chl);
+    return zn_av_channel_layout_copy(&dec_par->ch_layout, &chl);
 }
 
 static av_cold int movie_common_init(AVFilterContext *ctx)
@@ -304,12 +304,12 @@ static av_cold int movie_common_init(AVFilterContext *ctx)
     iformat = movie->format_name ? av_find_input_format(movie->format_name) : NULL;
 
     movie->format_ctx = NULL;
-    if ((ret = avformat_open_input(&movie->format_ctx, movie->file_name, iformat, &movie->format_opts)) < 0) {
+    if ((ret = zn_avformat_open_input(&movie->format_ctx, movie->file_name, iformat, &movie->format_opts)) < 0) {
         av_log(ctx, AV_LOG_ERROR,
-               "Failed to avformat_open_input '%s'\n", movie->file_name);
+               "Failed to zn_avformat_open_input '%s'\n", movie->file_name);
         return ret;
     }
-    if ((ret = avformat_find_stream_info(movie->format_ctx, NULL)) < 0)
+    if ((ret = zn_avformat_find_stream_info(movie->format_ctx, NULL)) < 0)
         av_log(ctx, AV_LOG_WARNING, "Failed to find stream info\n");
 
     // if seeking requested, we execute it
@@ -335,10 +335,10 @@ static av_cold int movie_common_init(AVFilterContext *ctx)
     for (i = 0; i < movie->format_ctx->nb_streams; i++)
         movie->format_ctx->streams[i]->discard = AVDISCARD_ALL;
 
-    movie->pkt = av_packet_alloc();
+    movie->pkt = zn_av_packet_alloc();
     if (!movie->pkt)
         return AVERROR(ENOMEM);
-    movie->st = av_calloc(nb_streams, sizeof(*movie->st));
+    movie->st = zn_av_calloc(nb_streams, sizeof(*movie->st));
     if (!movie->st)
         return AVERROR(ENOMEM);
 
@@ -356,14 +356,14 @@ static av_cold int movie_common_init(AVFilterContext *ctx)
         movie->st[i].discontinuity_threshold =
             av_rescale_q(movie->discontinuity_threshold, AV_TIME_BASE_Q, st->time_base);
 
-        movie->st[i].frame = av_frame_alloc();
+        movie->st[i].frame = zn_av_frame_alloc();
         if (!movie->st[i].frame)
             return AVERROR(ENOMEM);
     }
     if (av_strtok(NULL, "+", &cursor))
         return AVERROR_BUG;
 
-    movie->out_index = av_calloc(movie->max_stream_index + 1,
+    movie->out_index = zn_av_calloc(movie->max_stream_index + 1,
                                  sizeof(*movie->out_index));
     if (!movie->out_index)
         return AVERROR(ENOMEM);
@@ -405,13 +405,13 @@ static av_cold void movie_uninit(AVFilterContext *ctx)
     for (i = 0; i < ctx->nb_outputs; i++) {
         if (movie->st[i].st)
             avcodec_free_context(&movie->st[i].codec_ctx);
-        av_frame_free(&movie->st[i].frame);
+        zn_av_frame_free(&movie->st[i].frame);
     }
-    av_packet_free(&movie->pkt);
-    av_freep(&movie->st);
-    av_freep(&movie->out_index);
+    zn_av_packet_free(&movie->pkt);
+    zn_av_freep(&movie->st);
+    zn_av_freep(&movie->out_index);
     if (movie->format_ctx)
-        avformat_close_input(&movie->format_ctx);
+        zn_avformat_close_input(&movie->format_ctx);
 }
 
 static int movie_query_formats(AVFilterContext *ctx)
@@ -485,7 +485,7 @@ static int rewind_file(AVFilterContext *ctx)
         timestamp += movie->format_ctx->start_time;
     ret = av_seek_frame(movie->format_ctx, -1, timestamp, AVSEEK_FLAG_BACKWARD);
     if (ret < 0) {
-        av_log(ctx, AV_LOG_ERROR, "Unable to loop: %s\n", av_err2str(ret));
+        av_log(ctx, AV_LOG_ERROR, "Unable to loop: %s\n", zn_av_err2str(ret));
         movie->loop_count = 1; /* do not try again */
         return ret;
     }
@@ -501,7 +501,7 @@ static int flush_decoder(AVFilterContext *ctx, int i)
     MovieContext *movie = ctx->priv;
     AVCodecContext *dec = movie->st[i].codec_ctx;
 
-    return avcodec_send_packet(dec, NULL);
+    return zn_avcodec_send_packet(dec, NULL);
 }
 
 static int decode_packet(AVFilterContext *ctx, int i)
@@ -516,14 +516,14 @@ static int decode_packet(AVFilterContext *ctx, int i)
 
     // submit the packet to the decoder
     if (!movie->eof) {
-        ret = avcodec_send_packet(dec, pkt);
+        ret = zn_avcodec_send_packet(dec, pkt);
         if (ret < 0)
             return ret;
     }
 
     // get all the available frames from the decoder
     if (ret >= 0) {
-        ret = avcodec_receive_frame(dec, frame);
+        ret = zn_avcodec_receive_frame(dec, frame);
         if (ret < 0) {
             // those two return values are special and mean there is no output
             // frame available, but there were no errors during decoding
@@ -572,7 +572,7 @@ static int activate(AVFilterContext *ctx)
         return FFERROR_NOT_READY;
 
     if (!movie->eof) {
-        ret = av_read_frame(movie->format_ctx, movie->pkt);
+        ret = zn_av_read_frame(movie->format_ctx, movie->pkt);
         if (ret < 0) {
             movie->eof = 1;
             for (int i = 0; i < ctx->nb_outputs; i++)
@@ -586,7 +586,7 @@ static int activate(AVFilterContext *ctx)
             if (pkt_out_id >= 0) {
                 ret = decode_packet(ctx, pkt_out_id);
             }
-            av_packet_unref(movie->pkt);
+            zn_av_packet_unref(movie->pkt);
             ff_filter_set_ready(ctx, 100);
             return (ret <= 0) ? ret : 0;
         }

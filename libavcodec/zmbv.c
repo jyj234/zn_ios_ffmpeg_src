@@ -635,10 +635,10 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     ZmbvContext * const c = avctx->priv_data;
 
-    av_freep(&c->decomp_buf);
+    zn_av_freep(&c->decomp_buf);
 
-    av_freep(&c->cur);
-    av_freep(&c->prev);
+    zn_av_freep(&c->cur);
+    zn_av_freep(&c->prev);
     ff_inflate_end(&c->zstream);
 
     return 0;

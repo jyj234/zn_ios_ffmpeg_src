@@ -156,7 +156,7 @@ static void show_life_grid(AVFilterContext *ctx)
         line[j] = 0;
         av_log(ctx, AV_LOG_DEBUG, "%3d: %s\n", i, line);
     }
-    av_free(line);
+    zn_av_free(line);
 }
 #endif
 
@@ -169,7 +169,7 @@ static int init_pattern_from_file(AVFilterContext *ctx)
     if ((ret = av_file_map(life->filename, &life->file_buf, &life->file_bufsize,
                            0, ctx)) < 0)
         return ret;
-    av_freep(&life->filename);
+    zn_av_freep(&life->filename);
 
     /* prescan file to get the number of lines and the maximum width */
     w = 0;
@@ -195,10 +195,10 @@ static int init_pattern_from_file(AVFilterContext *ctx)
         life->h = h;
     }
 
-    if (!(life->buf[0] = av_calloc(life->h * life->w, sizeof(*life->buf[0]))) ||
-        !(life->buf[1] = av_calloc(life->h * life->w, sizeof(*life->buf[1])))) {
-        av_freep(&life->buf[0]);
-        av_freep(&life->buf[1]);
+    if (!(life->buf[0] = zn_av_calloc(life->h * life->w, sizeof(*life->buf[0]))) ||
+        !(life->buf[1] = zn_av_calloc(life->h * life->w, sizeof(*life->buf[1])))) {
+        zn_av_freep(&life->buf[0]);
+        zn_av_freep(&life->buf[1]);
         return AVERROR(ENOMEM);
     }
 
@@ -237,10 +237,10 @@ static av_cold int init(AVFilterContext *ctx)
         /* fill the grid randomly */
         int i;
 
-        if (!(life->buf[0] = av_calloc(life->h * life->w, sizeof(*life->buf[0]))) ||
-            !(life->buf[1] = av_calloc(life->h * life->w, sizeof(*life->buf[1])))) {
-            av_freep(&life->buf[0]);
-            av_freep(&life->buf[1]);
+        if (!(life->buf[0] = zn_av_calloc(life->h * life->w, sizeof(*life->buf[0]))) ||
+            !(life->buf[1] = zn_av_calloc(life->h * life->w, sizeof(*life->buf[1])))) {
+            zn_av_freep(&life->buf[0]);
+            zn_av_freep(&life->buf[1]);
             return AVERROR(ENOMEM);
         }
         if (life->random_seed == -1)
@@ -272,9 +272,9 @@ static av_cold void uninit(AVFilterContext *ctx)
     LifeContext *life = ctx->priv;
 
     av_file_unmap(life->file_buf, life->file_bufsize);
-    av_freep(&life->rule_str);
-    av_freep(&life->buf[0]);
-    av_freep(&life->buf[1]);
+    zn_av_freep(&life->rule_str);
+    zn_av_freep(&life->buf[0]);
+    zn_av_freep(&life->buf[1]);
 }
 
 static int config_props(AVFilterLink *outlink)

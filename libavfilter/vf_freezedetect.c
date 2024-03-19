@@ -113,7 +113,7 @@ static int config_input(AVFilterLink *inlink)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     FreezeDetectContext *s = ctx->priv;
-    av_frame_free(&s->reference_frame);
+    zn_av_frame_free(&s->reference_frame);
 }
 
 static int is_frozen(FreezeDetectContext *s, AVFrame *reference, AVFrame *frame)
@@ -179,11 +179,11 @@ static int activate(AVFilterContext *ctx)
         }
 
         if (!frozen) {
-            av_frame_free(&s->reference_frame);
+            zn_av_frame_free(&s->reference_frame);
             s->reference_frame = av_frame_clone(frame);
             s->reference_n = s->n;
             if (!s->reference_frame) {
-                av_frame_free(&frame);
+                zn_av_frame_free(&frame);
                 return AVERROR(ENOMEM);
             }
         }

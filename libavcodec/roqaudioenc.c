@@ -46,7 +46,7 @@ static av_cold int roq_dpcm_encode_close(AVCodecContext *avctx)
 {
     ROQDPCMContext *context = avctx->priv_data;
 
-    av_freep(&context->frame_buffer);
+    zn_av_freep(&context->frame_buffer);
 
     return 0;
 }

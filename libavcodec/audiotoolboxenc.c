@@ -273,23 +273,23 @@ static av_cold int ffat_init_encoder(AVCodecContext *avctx)
 
     if (status != 0) {
         av_log(avctx, AV_LOG_ERROR, "AudioToolbox init error: %i\n", (int)status);
-        av_free(channel_layout);
+        zn_av_free(channel_layout);
         return AVERROR_UNKNOWN;
     }
 
     if (avctx->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
-        av_channel_layout_default(&avctx->ch_layout, avctx->ch_layout.nb_channels);
+        zn_av_channel_layout_default(&avctx->ch_layout, avctx->ch_layout.nb_channels);
 
     if ((status = remap_layout(channel_layout, &avctx->ch_layout)) < 0) {
         av_log(avctx, AV_LOG_ERROR, "Invalid channel layout\n");
-        av_free(channel_layout);
+        zn_av_free(channel_layout);
         return status;
     }
 
     if (AudioConverterSetProperty(at->converter, kAudioConverterInputChannelLayout,
                                   layout_size, channel_layout)) {
         av_log(avctx, AV_LOG_ERROR, "Unsupported input channel layout\n");
-        av_free(channel_layout);
+        zn_av_free(channel_layout);
         return AVERROR(EINVAL);
     }
     if (avctx->codec_id == AV_CODEC_ID_AAC) {
@@ -302,10 +302,10 @@ static av_cold int ffat_init_encoder(AVCodecContext *avctx)
     if (AudioConverterSetProperty(at->converter, kAudioConverterOutputChannelLayout,
                                   layout_size, channel_layout)) {
         av_log(avctx, AV_LOG_ERROR, "Unsupported output channel layout\n");
-        av_free(channel_layout);
+        zn_av_free(channel_layout);
         return AVERROR(EINVAL);
     }
-    av_free(channel_layout);
+    zn_av_free(channel_layout);
 
     if (avctx->bits_per_raw_sample)
         AudioConverterSetProperty(at->converter,
@@ -368,7 +368,7 @@ static av_cold int ffat_init_encoder(AVCodecContext *avctx)
                        "Bitrate %u not allowed; changing to %u\n", rate, new_rate);
                 rate = new_rate;
             }
-            av_free(ranges);
+            zn_av_free(ranges);
         }
         AudioConverterSetProperty(at->converter, kAudioConverterEncodeBitRate,
                                   sizeof(rate), &rate);
@@ -445,7 +445,7 @@ static av_cold int ffat_init_encoder(AVCodecContext *avctx)
 
     ff_af_queue_init(avctx, &at->afq);
 
-    at->encoding_frame = av_frame_alloc();
+    at->encoding_frame = zn_av_frame_alloc();
     if (!at->encoding_frame)
         return AVERROR(ENOMEM);
 
@@ -580,7 +580,7 @@ static av_cold int ffat_close_encoder(AVCodecContext *avctx)
     ff_bufqueue_discard_all(&at->frame_queue);
     ff_bufqueue_discard_all(&at->used_frame_queue);
     ff_af_queue_close(&at->afq);
-    av_frame_free(&at->encoding_frame);
+    zn_av_frame_free(&at->encoding_frame);
     return 0;
 }
 

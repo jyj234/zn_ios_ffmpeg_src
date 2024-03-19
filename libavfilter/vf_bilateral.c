@@ -127,14 +127,14 @@ static int config_input(AVFilterLink *inlink)
         const int w = s->planewidth[p];
         const int h = s->planeheight[p];
 
-        s->img_out_f[p] = av_calloc(w * h, sizeof(float));
-        s->img_temp[p] = av_calloc(w * h, sizeof(float));
-        s->map_factor_a[p] = av_calloc(w * h, sizeof(float));
-        s->map_factor_b[p] = av_calloc(w * h, sizeof(float));
-        s->slice_factor_a[p] = av_calloc(w, sizeof(float));
-        s->slice_factor_b[p] = av_calloc(w, sizeof(float));
-        s->line_factor_a[p] = av_calloc(w, sizeof(float));
-        s->line_factor_b[p] = av_calloc(w, sizeof(float));
+        s->img_out_f[p] = zn_av_calloc(w * h, sizeof(float));
+        s->img_temp[p] = zn_av_calloc(w * h, sizeof(float));
+        s->map_factor_a[p] = zn_av_calloc(w * h, sizeof(float));
+        s->map_factor_b[p] = zn_av_calloc(w * h, sizeof(float));
+        s->slice_factor_a[p] = zn_av_calloc(w, sizeof(float));
+        s->slice_factor_b[p] = zn_av_calloc(w, sizeof(float));
+        s->line_factor_a[p] = zn_av_calloc(w, sizeof(float));
+        s->line_factor_b[p] = zn_av_calloc(w, sizeof(float));
 
         if (!s->img_out_f[p] ||
             !s->img_temp[p] ||
@@ -440,7 +440,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -453,7 +453,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, bilateralo_planes, &td, NULL, s->nb_threads);
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -462,14 +462,14 @@ static av_cold void uninit(AVFilterContext *ctx)
     BilateralContext *s = ctx->priv;
 
     for (int p = 0; p < s->nb_planes; p++) {
-        av_freep(&s->img_out_f[p]);
-        av_freep(&s->img_temp[p]);
-        av_freep(&s->map_factor_a[p]);
-        av_freep(&s->map_factor_b[p]);
-        av_freep(&s->slice_factor_a[p]);
-        av_freep(&s->slice_factor_b[p]);
-        av_freep(&s->line_factor_a[p]);
-        av_freep(&s->line_factor_b[p]);
+        zn_av_freep(&s->img_out_f[p]);
+        zn_av_freep(&s->img_temp[p]);
+        zn_av_freep(&s->map_factor_a[p]);
+        zn_av_freep(&s->map_factor_b[p]);
+        zn_av_freep(&s->slice_factor_a[p]);
+        zn_av_freep(&s->slice_factor_b[p]);
+        zn_av_freep(&s->line_factor_a[p]);
+        zn_av_freep(&s->line_factor_b[p]);
     }
 }
 

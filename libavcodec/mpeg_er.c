@@ -130,7 +130,7 @@ int ff_mpeg_er_init(MpegEncContext *s)
 
     return 0;
 fail:
-    av_freep(&er->er_temp_buffer);
-    av_freep(&er->error_status_table);
+    zn_av_freep(&er->er_temp_buffer);
+    zn_av_freep(&er->error_status_table);
     return AVERROR(ENOMEM);
 }

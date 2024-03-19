@@ -567,7 +567,7 @@ static void read_custom_noise(AudioFFTDeNoiseContext *s, int ch)
         band_noise[i] = av_clipd(noise, -24., 24.);
     }
 
-    av_free(custom_noise_str);
+    zn_av_free(custom_noise_str);
     memcpy(dnch->band_noise, band_noise, sizeof(band_noise));
 }
 
@@ -650,7 +650,7 @@ static int config_input(AVFilterLink *inlink)
         break;
     }
 
-    s->dnch = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->dnch));
+    s->dnch = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->dnch));
     if (!s->dnch)
         return AVERROR(ENOMEM);
 
@@ -697,8 +697,8 @@ static int config_input(AVFilterLink *inlink)
         for (k = 0; k < SOLVE_SIZE; k++)
             s->matrix_c[i++] = pow(j, k);
 
-    s->window = av_calloc(s->window_length, sizeof(*s->window));
-    s->bin2band = av_calloc(s->bin_count, sizeof(*s->bin2band));
+    s->window = zn_av_calloc(s->window_length, sizeof(*s->window));
+    s->bin2band = zn_av_calloc(s->bin_count, sizeof(*s->bin2band));
     if (!s->window || !s->bin2band)
         return AVERROR(ENOMEM);
 
@@ -708,8 +708,8 @@ static int config_input(AVFilterLink *inlink)
 
     s->number_of_bands = s->bin2band[s->bin_count - 1] + 1;
 
-    s->band_alpha = av_calloc(s->number_of_bands, sizeof(*s->band_alpha));
-    s->band_beta = av_calloc(s->number_of_bands, sizeof(*s->band_beta));
+    s->band_alpha = zn_av_calloc(s->number_of_bands, sizeof(*s->band_alpha));
+    s->band_beta = zn_av_calloc(s->number_of_bands, sizeof(*s->band_beta));
     if (!s->band_alpha || !s->band_beta)
         return AVERROR(ENOMEM);
 
@@ -738,28 +738,28 @@ static int config_input(AVFilterLink *inlink)
 
         reduce_mean(dnch->band_noise);
 
-        dnch->amt = av_calloc(s->bin_count, sizeof(*dnch->amt));
-        dnch->band_amt = av_calloc(s->number_of_bands, sizeof(*dnch->band_amt));
-        dnch->band_excit = av_calloc(s->number_of_bands, sizeof(*dnch->band_excit));
-        dnch->gain = av_calloc(s->bin_count, sizeof(*dnch->gain));
-        dnch->smoothed_gain = av_calloc(s->bin_count, sizeof(*dnch->smoothed_gain));
-        dnch->prior = av_calloc(s->bin_count, sizeof(*dnch->prior));
-        dnch->prior_band_excit = av_calloc(s->number_of_bands, sizeof(*dnch->prior_band_excit));
-        dnch->clean_data = av_calloc(s->bin_count, sizeof(*dnch->clean_data));
-        dnch->noisy_data = av_calloc(s->bin_count, sizeof(*dnch->noisy_data));
-        dnch->out_samples = av_calloc(s->buffer_length, sizeof(*dnch->out_samples));
-        dnch->abs_var = av_calloc(s->bin_count, sizeof(*dnch->abs_var));
-        dnch->rel_var = av_calloc(s->bin_count, sizeof(*dnch->rel_var));
-        dnch->min_abs_var = av_calloc(s->bin_count, sizeof(*dnch->min_abs_var));
-        dnch->fft_in = av_calloc(s->fft_length2, s->sample_size);
-        dnch->fft_out = av_calloc(s->fft_length2 + 1, s->complex_sample_size);
+        dnch->amt = zn_av_calloc(s->bin_count, sizeof(*dnch->amt));
+        dnch->band_amt = zn_av_calloc(s->number_of_bands, sizeof(*dnch->band_amt));
+        dnch->band_excit = zn_av_calloc(s->number_of_bands, sizeof(*dnch->band_excit));
+        dnch->gain = zn_av_calloc(s->bin_count, sizeof(*dnch->gain));
+        dnch->smoothed_gain = zn_av_calloc(s->bin_count, sizeof(*dnch->smoothed_gain));
+        dnch->prior = zn_av_calloc(s->bin_count, sizeof(*dnch->prior));
+        dnch->prior_band_excit = zn_av_calloc(s->number_of_bands, sizeof(*dnch->prior_band_excit));
+        dnch->clean_data = zn_av_calloc(s->bin_count, sizeof(*dnch->clean_data));
+        dnch->noisy_data = zn_av_calloc(s->bin_count, sizeof(*dnch->noisy_data));
+        dnch->out_samples = zn_av_calloc(s->buffer_length, sizeof(*dnch->out_samples));
+        dnch->abs_var = zn_av_calloc(s->bin_count, sizeof(*dnch->abs_var));
+        dnch->rel_var = zn_av_calloc(s->bin_count, sizeof(*dnch->rel_var));
+        dnch->min_abs_var = zn_av_calloc(s->bin_count, sizeof(*dnch->min_abs_var));
+        dnch->fft_in = zn_av_calloc(s->fft_length2, s->sample_size);
+        dnch->fft_out = zn_av_calloc(s->fft_length2 + 1, s->complex_sample_size);
         ret = av_tx_init(&dnch->fft, &dnch->tx_fn, tx_type, 0, s->fft_length2, scale, 0);
         if (ret < 0)
             return ret;
         ret = av_tx_init(&dnch->ifft, &dnch->itx_fn, tx_type, 1, s->fft_length2, scale, 0);
         if (ret < 0)
             return ret;
-        dnch->spread_function = av_calloc(s->number_of_bands * s->number_of_bands,
+        dnch->spread_function = zn_av_calloc(s->number_of_bands * s->number_of_bands,
                                           sizeof(*dnch->spread_function));
 
         if (!dnch->amt ||
@@ -1191,7 +1191,7 @@ static int output_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
 
@@ -1245,8 +1245,8 @@ static int output_frame(AVFilterLink *inlink, AVFrame *in)
             break;
         default:
             if (in != out)
-                av_frame_free(&in);
-            av_frame_free(&out);
+                zn_av_frame_free(&in);
+            zn_av_frame_free(&out);
             return AVERROR_BUG;
         }
 
@@ -1255,7 +1255,7 @@ static int output_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -1290,35 +1290,35 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioFFTDeNoiseContext *s = ctx->priv;
 
-    av_freep(&s->window);
-    av_freep(&s->bin2band);
-    av_freep(&s->band_alpha);
-    av_freep(&s->band_beta);
-    av_frame_free(&s->winframe);
+    zn_av_freep(&s->window);
+    zn_av_freep(&s->bin2band);
+    zn_av_freep(&s->band_alpha);
+    zn_av_freep(&s->band_beta);
+    zn_av_frame_free(&s->winframe);
 
     if (s->dnch) {
         for (int ch = 0; ch < s->channels; ch++) {
             DeNoiseChannel *dnch = &s->dnch[ch];
-            av_freep(&dnch->amt);
-            av_freep(&dnch->band_amt);
-            av_freep(&dnch->band_excit);
-            av_freep(&dnch->gain);
-            av_freep(&dnch->smoothed_gain);
-            av_freep(&dnch->prior);
-            av_freep(&dnch->prior_band_excit);
-            av_freep(&dnch->clean_data);
-            av_freep(&dnch->noisy_data);
-            av_freep(&dnch->out_samples);
-            av_freep(&dnch->spread_function);
-            av_freep(&dnch->abs_var);
-            av_freep(&dnch->rel_var);
-            av_freep(&dnch->min_abs_var);
-            av_freep(&dnch->fft_in);
-            av_freep(&dnch->fft_out);
+            zn_av_freep(&dnch->amt);
+            zn_av_freep(&dnch->band_amt);
+            zn_av_freep(&dnch->band_excit);
+            zn_av_freep(&dnch->gain);
+            zn_av_freep(&dnch->smoothed_gain);
+            zn_av_freep(&dnch->prior);
+            zn_av_freep(&dnch->prior_band_excit);
+            zn_av_freep(&dnch->clean_data);
+            zn_av_freep(&dnch->noisy_data);
+            zn_av_freep(&dnch->out_samples);
+            zn_av_freep(&dnch->spread_function);
+            zn_av_freep(&dnch->abs_var);
+            zn_av_freep(&dnch->rel_var);
+            zn_av_freep(&dnch->min_abs_var);
+            zn_av_freep(&dnch->fft_in);
+            zn_av_freep(&dnch->fft_out);
             av_tx_uninit(&dnch->fft);
             av_tx_uninit(&dnch->ifft);
         }
-        av_freep(&s->dnch);
+        zn_av_freep(&s->dnch);
     }
 }
 

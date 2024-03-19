@@ -177,18 +177,18 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     for (int ch = 0; ch < 2; ch++) {
         if (!s->frame[ch] || s->frame[ch]->nb_samples < in->nb_samples) {
-            av_frame_free(&s->frame[ch]);
+            zn_av_frame_free(&s->frame[ch]);
             s->frame[ch] = ff_get_audio_buffer(outlink, in->nb_samples);
             if (!s->frame[ch]) {
-                av_frame_free(&in);
-                av_frame_free(&out);
+                zn_av_frame_free(&in);
+                zn_av_frame_free(&out);
                 return AVERROR(ENOMEM);
             }
         }
     }
 
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -201,7 +201,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     mix(ctx, out, 0, 0, 1, 1, 0);
     mix(ctx, out, 1, 0, 1, 0, 1);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -209,8 +209,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     EarwaxContext *s = ctx->priv;
 
-    av_frame_free(&s->frame[0]);
-    av_frame_free(&s->frame[1]);
+    zn_av_frame_free(&s->frame[0]);
+    zn_av_frame_free(&s->frame[1]);
 }
 
 static const AVFilterPad earwax_inputs[] = {

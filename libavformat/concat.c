@@ -57,7 +57,7 @@ static av_cold int concat_close(URLContext *h)
     for (i = 0; i != data->length; i++)
         err |= ffurl_closep(&nodes[i].uc);
 
-    av_freep(&data->nodes);
+    zn_av_freep(&data->nodes);
 
     return err < 0 ? -1 : 0;
 }
@@ -118,7 +118,7 @@ static av_cold int concat_open(URLContext *h, const char *uri, int flags)
         nodes[i].size = size;
         total_size += size;
     }
-    av_free(node_uri);
+    zn_av_free(node_uri);
     data->length = i;
 
     if (err < 0)
@@ -236,7 +236,7 @@ static av_cold int concatf_open(URLContext *h, const char *uri, int flags)
 
     av_bprint_init(&bp, 0, AV_BPRINT_SIZE_UNLIMITED);
     err = avio_read_to_bprint(in, &bp, SIZE_MAX);
-    avio_closep(&in);
+    zn_avio_closep(&in);
     if (err < 0) {
         av_bprint_finalize(&bp, NULL);
         return err;
@@ -263,7 +263,7 @@ static av_cold int concatf_open(URLContext *h, const char *uri, int flags)
             cursor++;
 
         if (++len == SIZE_MAX / sizeof(*nodes)) {
-            av_free(node_uri);
+            zn_av_free(node_uri);
             err = AVERROR(ENAMETOOLONG);
             break;
         }
@@ -271,7 +271,7 @@ static av_cold int concatf_open(URLContext *h, const char *uri, int flags)
         /* creating URLContext */
         err = ffurl_open_whitelist(&uc, node_uri, flags,
                                    &h->interrupt_callback, NULL, h->protocol_whitelist, h->protocol_blacklist, h);
-        av_free(node_uri);
+        zn_av_free(node_uri);
         if (err < 0)
             break;
 

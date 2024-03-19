@@ -131,7 +131,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
         av_assert0(0);
     }
 
-    s->scanline = av_calloc(s->nb_scanlines, sizeof(*s->scanline));
+    s->scanline = zn_av_calloc(s->nb_scanlines, sizeof(*s->scanline));
     if (!s->scanline)
         return AVERROR(ENOMEM);
 
@@ -145,12 +145,12 @@ static av_cold int encode_close(AVCodecContext *avctx)
     for (int y = 0; y < s->nb_scanlines && s->scanline; y++) {
         EXRScanlineData *scanline = &s->scanline[y];
 
-        av_freep(&scanline->tmp);
-        av_freep(&scanline->compressed_data);
-        av_freep(&scanline->uncompressed_data);
+        zn_av_freep(&scanline->tmp);
+        zn_av_freep(&scanline->compressed_data);
+        zn_av_freep(&scanline->uncompressed_data);
     }
 
-    av_freep(&s->scanline);
+    zn_av_freep(&s->scanline);
 
     return 0;
 }
@@ -413,7 +413,7 @@ static int encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     if (avctx->sample_aspect_ratio.num && avctx->sample_aspect_ratio.den) {
         bytestream2_put_buffer(pb, "pixelAspectRatio\0float\0", 23);
         bytestream2_put_le32(pb, 4);
-        bytestream2_put_le32(pb, av_float2int(av_q2d(avctx->sample_aspect_ratio)));
+        bytestream2_put_le32(pb, av_float2int(zn_av_q2d(avctx->sample_aspect_ratio)));
     }
 
     if (avctx->framerate.num && avctx->framerate.den) {

@@ -60,7 +60,7 @@ static int osq_read_header(AVFormatContext *s)
     if (size != 48)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     if ((ret = ff_get_extradata(s, st->codecpar, s->pb, size)) < 0)

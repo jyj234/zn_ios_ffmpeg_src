@@ -679,20 +679,20 @@ static av_cold int xvid_encode_init(AVCodecContext *avctx)
         AVPacket *packet;
         int size, got_packet;
 
-        packet = av_packet_alloc();
+        packet = zn_av_packet_alloc();
         if (!packet)
             return AVERROR(ENOMEM);
 
-        picture = av_frame_alloc();
+        picture = zn_av_frame_alloc();
         if (!picture) {
-            av_packet_free(&packet);
+            zn_av_packet_free(&packet);
             return AVERROR(ENOMEM);
         }
 
         xerr = xvid_encore(NULL, XVID_ENC_CREATE, &xvid_enc_create, NULL);
         if( xerr ) {
-            av_packet_free(&packet);
-            av_frame_free(&picture);
+            zn_av_packet_free(&packet);
+            zn_av_frame_free(&picture);
             av_log(avctx, AV_LOG_ERROR, "Xvid: Could not create encoder reference\n");
             return AVERROR_EXTERNAL;
         }
@@ -700,8 +700,8 @@ static av_cold int xvid_encode_init(AVCodecContext *avctx)
         size = ((avctx->width + 1) & ~1) * ((avctx->height + 1) & ~1);
         picture->data[0] = av_malloc(size + size / 2);
         if (!picture->data[0]) {
-            av_packet_free(&packet);
-            av_frame_free(&picture);
+            zn_av_packet_free(&packet);
+            zn_av_frame_free(&picture);
             return AVERROR(ENOMEM);
         }
         picture->data[1] = picture->data[0] + size;
@@ -709,9 +709,9 @@ static av_cold int xvid_encode_init(AVCodecContext *avctx)
         memset(picture->data[0], 0, size);
         memset(picture->data[1], 128, size / 2);
         xvid_encode_frame(avctx, packet, picture, &got_packet);
-        av_packet_free(&packet);
-        av_free(picture->data[0]);
-        av_frame_free(&picture);
+        zn_av_packet_free(&packet);
+        zn_av_free(picture->data[0]);
+        zn_av_frame_free(&picture);
         xvid_encore(x->encoder_handle, XVID_ENC_DESTROY, NULL, NULL);
     }
 
@@ -858,8 +858,8 @@ static av_cold int xvid_encode_close(AVCodecContext *avctx)
     }
 
     if (x->twopassbuffer) {
-        av_freep(&x->twopassbuffer);
-        av_freep(&x->old_twopassbuffer);
+        zn_av_freep(&x->twopassbuffer);
+        zn_av_freep(&x->old_twopassbuffer);
         avctx->stats_out = NULL;
     }
     if (x->twopassfd>=0) {
@@ -867,9 +867,9 @@ static av_cold int xvid_encode_close(AVCodecContext *avctx)
         close(x->twopassfd);
         x->twopassfd = -1;
     }
-    av_freep(&x->twopassfile);
-    av_freep(&x->intra_matrix);
-    av_freep(&x->inter_matrix);
+    zn_av_freep(&x->twopassfile);
+    zn_av_freep(&x->intra_matrix);
+    zn_av_freep(&x->inter_matrix);
 
     return 0;
 }

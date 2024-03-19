@@ -223,7 +223,7 @@ static int moflex_read_sync(AVFormatContext *s)
         }
 
         if (stream_index == s->nb_streams) {
-            AVStream *st = avformat_new_stream(s, NULL);
+            AVStream *st = zn_avformat_new_stream(s, NULL);
 
             if (!st)
                 return AVERROR(ENOMEM);
@@ -234,7 +234,7 @@ static int moflex_read_sync(AVFormatContext *s)
             st->codecpar->height     = height;
             st->codecpar->sample_rate= sample_rate;
             st->codecpar->ch_layout.nb_channels = channels;
-            st->priv_data            = av_packet_alloc();
+            st->priv_data            = zn_av_packet_alloc();
             if (!st->priv_data)
                 return AVERROR(ENOMEM);
 
@@ -365,7 +365,7 @@ static int moflex_read_seek(AVFormatContext *s, int stream_index,
 static int moflex_read_close(AVFormatContext *s)
 {
     for (int i = 0; i < s->nb_streams; i++) {
-        av_packet_free((AVPacket **)&s->streams[i]->priv_data);
+        zn_av_packet_free((AVPacket **)&s->streams[i]->priv_data);
     }
 
     return 0;

@@ -103,7 +103,7 @@ int ff_av1_packet_split(AV1Packet *pkt, const uint8_t *buf, int length, void *lo
 
 void ff_av1_packet_uninit(AV1Packet *pkt)
 {
-    av_freep(&pkt->obus);
+    zn_av_freep(&pkt->obus);
     pkt->obus_allocated = pkt->obus_allocated_size = 0;
 }
 

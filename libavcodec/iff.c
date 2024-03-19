@@ -323,14 +323,14 @@ static int extract_header(AVCodecContext *const avctx,
 static av_cold int decode_end(AVCodecContext *avctx)
 {
     IffContext *s = avctx->priv_data;
-    av_freep(&s->planebuf);
-    av_freep(&s->ham_buf);
-    av_freep(&s->ham_palbuf);
-    av_freep(&s->mask_buf);
-    av_freep(&s->mask_palbuf);
-    av_freep(&s->video[0]);
-    av_freep(&s->video[1]);
-    av_freep(&s->pal);
+    zn_av_freep(&s->planebuf);
+    zn_av_freep(&s->ham_buf);
+    zn_av_freep(&s->ham_palbuf);
+    zn_av_freep(&s->mask_buf);
+    zn_av_freep(&s->mask_palbuf);
+    zn_av_freep(&s->video[0]);
+    zn_av_freep(&s->video[1]);
+    zn_av_freep(&s->pal);
     return 0;
 }
 
@@ -380,9 +380,9 @@ static av_cold int decode_init(AVCodecContext *avctx)
         s->video_size = FFALIGN(avctx->width, 2) * avctx->height * s->bpp;
         if (!s->video_size)
             return AVERROR_INVALIDDATA;
-        s->video[0] = av_calloc(FFALIGN(avctx->width, 2) * avctx->height, s->bpp);
-        s->video[1] = av_calloc(FFALIGN(avctx->width, 2) * avctx->height, s->bpp);
-        s->pal = av_calloc(256, sizeof(*s->pal));
+        s->video[0] = zn_av_calloc(FFALIGN(avctx->width, 2) * avctx->height, s->bpp);
+        s->video[1] = zn_av_calloc(FFALIGN(avctx->width, 2) * avctx->height, s->bpp);
+        s->pal = zn_av_calloc(256, sizeof(*s->pal));
         if (!s->video[0] || !s->video[1] || !s->pal)
             return AVERROR(ENOMEM);
     }

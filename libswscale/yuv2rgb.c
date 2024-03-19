@@ -855,7 +855,7 @@ av_cold int ff_yuv2rgb_c_init_tables(SwsContext *c, const int inv_table[4],
     cgu = ((cgu * (1 << 16)) + 0x8000) / FFMAX(cy, 1);
     cgv = ((cgv * (1 << 16)) + 0x8000) / FFMAX(cy, 1);
 
-    av_freep(&c->yuvTable);
+    zn_av_freep(&c->yuvTable);
 
 #define ALLOC_YUV_TABLE(x)          \
         c->yuvTable = av_malloc(x); \

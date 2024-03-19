@@ -248,7 +248,7 @@ static int wv_read_header(AVFormatContext *s)
     }
 
     /* now we are ready: build format streams */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     if ((ret = ff_alloc_extradata(st->codecpar, 2)) < 0)

@@ -120,11 +120,11 @@ AVHMAC *av_hmac_alloc(enum AVHMACType type)
         c->hash     = av_sha512_alloc();
         break;
     default:
-        av_free(c);
+        zn_av_free(c);
         return NULL;
     }
     if (!c->hash) {
-        av_free(c);
+        zn_av_free(c);
         return NULL;
     }
     return c;
@@ -134,8 +134,8 @@ void av_hmac_free(AVHMAC *c)
 {
     if (!c)
         return;
-    av_freep(&c->hash);
-    av_free(c);
+    zn_av_freep(&c->hash);
+    zn_av_free(c);
 }
 
 void av_hmac_init(AVHMAC *c, const uint8_t *key, unsigned int keylen)

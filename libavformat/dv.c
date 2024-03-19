@@ -279,7 +279,7 @@ static int dv_extract_audio_info(DVDemuxContext *c, const uint8_t *frame)
     c->ach = 0;
     for (i = 0; i < ach; i++) {
         if (!c->ast[i]) {
-            c->ast[i] = avformat_new_stream(c->fctx, NULL);
+            c->ast[i] = zn_avformat_new_stream(c->fctx, NULL);
             if (!c->ast[i])
                 return AVERROR(ENOMEM);
 
@@ -351,7 +351,7 @@ static int dv_extract_timecode(DVDemuxContext* c, const uint8_t* frame, char *tc
 
 static int dv_init_demux(AVFormatContext *s, DVDemuxContext *c)
 {
-    c->vst = avformat_new_stream(s, NULL);
+    c->vst = zn_avformat_new_stream(s, NULL);
     if (!c->vst)
         return AVERROR(ENOMEM);
 
@@ -377,7 +377,7 @@ DVDemuxContext *avpriv_dv_init_demux(AVFormatContext *s)
         return NULL;
 
     if (dv_init_demux(s, c)) {
-        av_free(c);
+        zn_av_free(c);
         return NULL;
     }
 

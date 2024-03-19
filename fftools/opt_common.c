@@ -467,7 +467,7 @@ static void show_help_protocol(const char *name)
 static void show_help_muxer(const char *name)
 {
     const AVCodecDescriptor *desc;
-    const AVOutputFormat *fmt = av_guess_format(name, NULL, NULL);
+    const AVOutputFormat *fmt = zn_av_guess_format(name, NULL, NULL);
 
     if (!fmt) {
         av_log(NULL, AV_LOG_ERROR, "Unknown format '%s'.\n", name);
@@ -606,7 +606,7 @@ int show_help(void *optctx, const char *opt, const char *arg)
         show_help_default(topic, par);
     }
 
-    av_freep(&topic);
+    zn_av_freep(&topic);
     return 0;
 }
 
@@ -640,7 +640,7 @@ static int get_codecs_sorted(const AVCodecDescriptor ***rcodecs)
 
     while ((desc = avcodec_descriptor_next(desc)))
         nb_codecs++;
-    if (!(codecs = av_calloc(nb_codecs, sizeof(*codecs))))
+    if (!(codecs = zn_av_calloc(nb_codecs, sizeof(*codecs))))
         return AVERROR(ENOMEM);
     desc = NULL;
     while ((desc = avcodec_descriptor_next(desc)))
@@ -693,8 +693,8 @@ int show_codecs(void *optctx, const char *opt, const char *arg)
             continue;
 
         printf(" %c%c%c%c%c%c",
-               avcodec_find_decoder(desc->id) ? 'D' : '.',
-               avcodec_find_encoder(desc->id) ? 'E' : '.',
+               zn_avcodec_find_decoder(desc->id) ? 'D' : '.',
+               zn_avcodec_find_encoder(desc->id) ? 'E' : '.',
                get_media_type_char(desc->type),
                (desc->props & AV_CODEC_PROP_INTRA_ONLY) ? 'I' : '.',
                (desc->props & AV_CODEC_PROP_LOSSY)      ? 'L' : '.',
@@ -720,7 +720,7 @@ int show_codecs(void *optctx, const char *opt, const char *arg)
 
         printf("\n");
     }
-    av_free(codecs);
+    zn_av_free(codecs);
     return 0;
 }
 
@@ -761,7 +761,7 @@ static void print_codecs(int encoder)
             printf("\n");
         }
     }
-    av_free(codecs);
+    zn_av_free(codecs);
 }
 
 int show_decoders(void *optctx, const char *opt, const char *arg)
@@ -1148,14 +1148,14 @@ int init_report(const char *env, FILE **file)
             if (count)
                 av_log(NULL, AV_LOG_ERROR,
                        "Failed to parse FFREPORT environment variable: %s\n",
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
             break;
         }
         if (*env)
             env++;
         count++;
         if (!strcmp(key, "file")) {
-            av_free(filename_template);
+            zn_av_free(filename_template);
             filename_template = val;
             val = NULL;
         } else if (!strcmp(key, "level")) {
@@ -1163,23 +1163,23 @@ int init_report(const char *env, FILE **file)
             report_file_level = strtol(val, &tail, 10);
             if (*tail) {
                 av_log(NULL, AV_LOG_FATAL, "Invalid report file level\n");
-                av_free(key);
-                av_free(val);
-                av_free(filename_template);
+                zn_av_free(key);
+                zn_av_free(val);
+                zn_av_free(filename_template);
                 return AVERROR(EINVAL);
             }
             envlevel = 1;
         } else {
             av_log(NULL, AV_LOG_ERROR, "Unknown key '%s' in FFREPORT\n", key);
         }
-        av_free(val);
-        av_free(key);
+        zn_av_free(val);
+        zn_av_free(key);
     }
 
     av_bprint_init(&filename, 0, AV_BPRINT_SIZE_AUTOMATIC);
     expand_filename_template(&filename,
                              av_x_if_null(filename_template, "%p-%t.log"), tm);
-    av_free(filename_template);
+    zn_av_free(filename_template);
     if (!av_bprint_is_complete(&filename)) {
         av_log(NULL, AV_LOG_ERROR, "Out of memory building report file name\n");
         return AVERROR(ENOMEM);
@@ -1341,7 +1341,7 @@ static int print_device_sources(const AVInputFormat *fmt, AVDictionary *opts)
 
     printf("Auto-detected sources for %s:\n", fmt->name);
     if ((ret = avdevice_list_input_sources(fmt, NULL, opts, &device_list)) < 0) {
-        printf("Cannot list sources: %s\n", av_err2str(ret));
+        printf("Cannot list sources: %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
@@ -1362,7 +1362,7 @@ static int print_device_sinks(const AVOutputFormat *fmt, AVDictionary *opts)
 
     printf("Auto-detected sinks for %s:\n", fmt->name);
     if ((ret = avdevice_list_output_sinks(fmt, NULL, opts, &device_list)) < 0) {
-        printf("Cannot list sinks: %s\n", av_err2str(ret));
+        printf("Cannot list sinks: %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
@@ -1385,7 +1385,7 @@ static int show_sinks_sources_parse_arg(const char *arg, char **dev, AVDictionar
         if ((opts_str = strchr(*dev, ','))) {
             *(opts_str++) = '\0';
             if (opts_str[0] && ((ret = av_dict_parse_string(opts, opts_str, "=", ":", 0)) < 0)) {
-                av_freep(dev);
+                zn_av_freep(dev);
                 return ret;
             }
         }
@@ -1428,7 +1428,7 @@ int show_sources(void *optctx, const char *opt, const char *arg)
     } while (fmt);
   fail:
     av_dict_free(&opts);
-    av_free(dev);
+    zn_av_free(dev);
     av_log_set_level(error_level);
     return ret;
 }
@@ -1464,7 +1464,7 @@ int show_sinks(void *optctx, const char *opt, const char *arg)
     } while (fmt);
   fail:
     av_dict_free(&opts);
-    av_free(dev);
+    zn_av_free(dev);
     av_log_set_level(error_level);
     return ret;
 }

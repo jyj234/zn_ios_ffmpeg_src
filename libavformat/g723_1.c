@@ -35,7 +35,7 @@ static av_cold int g723_1_init(AVFormatContext *s)
 {
     AVStream *st;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

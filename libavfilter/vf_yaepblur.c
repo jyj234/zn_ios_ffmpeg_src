@@ -56,8 +56,8 @@ typedef struct YAEPContext {
 static av_cold void uninit(AVFilterContext *ctx)
 {
     YAEPContext *s = ctx->priv;
-    av_freep(&s->sat);
-    av_freep(&s->square_sat);
+    zn_av_freep(&s->sat);
+    zn_av_freep(&s->square_sat);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -228,7 +228,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -261,7 +261,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -290,11 +290,11 @@ static int config_input(AVFilterLink *inlink)
 
     // padding one row on the top, and padding one col on the left, that is why + 1 below
     s->sat_linesize = inlink->w + 1;
-    s->sat = av_calloc(inlink->h + 1, s->sat_linesize * sizeof(*s->sat));
+    s->sat = zn_av_calloc(inlink->h + 1, s->sat_linesize * sizeof(*s->sat));
     if (!s->sat)
         return AVERROR(ENOMEM);
 
-    s->square_sat = av_calloc(inlink->h + 1, s->sat_linesize * sizeof(*s->square_sat));
+    s->square_sat = zn_av_calloc(inlink->h + 1, s->sat_linesize * sizeof(*s->square_sat));
     if (!s->square_sat)
         return AVERROR(ENOMEM);
 

@@ -324,8 +324,8 @@ static av_cold int tscc2_decode_end(AVCodecContext *avctx)
 {
     TSCC2Context * const c = avctx->priv_data;
 
-    av_frame_free(&c->pic);
-    av_freep(&c->slice_quants);
+    zn_av_frame_free(&c->pic);
+    zn_av_freep(&c->slice_quants);
 
     return 0;
 }
@@ -347,7 +347,7 @@ static av_cold int tscc2_decode_init(AVCodecContext *avctx)
         return AVERROR(ENOMEM);
     }
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 

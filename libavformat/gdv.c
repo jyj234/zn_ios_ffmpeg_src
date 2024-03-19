@@ -77,7 +77,7 @@ static int gdv_read_header(AVFormatContext *ctx)
     avio_skip(pb, 4);
     size_id = avio_rl16(pb);
 
-    vst = avformat_new_stream(ctx, 0);
+    vst = zn_avformat_new_stream(ctx, 0);
     if (!vst)
         return AVERROR(ENOMEM);
 
@@ -91,7 +91,7 @@ static int gdv_read_header(AVFormatContext *ctx)
 
     snd_flags = avio_rl16(pb);
     if (snd_flags & 1) {
-        ast = avformat_new_stream(ctx, 0);
+        ast = zn_avformat_new_stream(ctx, 0);
         if (!ast)
             return AVERROR(ENOMEM);
 

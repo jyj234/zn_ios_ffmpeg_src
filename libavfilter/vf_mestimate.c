@@ -92,7 +92,7 @@ static int config_input(AVFilterLink *inlink)
         return AVERROR(EINVAL);
 
     for (i = 0; i < 3; i++) {
-        s->mv_table[i] = av_calloc(s->b_count, sizeof(*s->mv_table[0]));
+        s->mv_table[i] = zn_av_calloc(s->b_count, sizeof(*s->mv_table[0]));
         if (!s->mv_table[i])
             return AVERROR(ENOMEM);
     }
@@ -150,7 +150,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         return ret;
     }
 
-    av_frame_free(&s->prev);
+    zn_av_frame_free(&s->prev);
     s->prev = s->cur;
     s->cur  = s->next;
     s->next = frame;
@@ -173,7 +173,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
 
     sd = av_frame_new_side_data(out, AV_FRAME_DATA_MOTION_VECTORS, 2 * s->b_count * sizeof(AVMotionVector));
     if (!sd) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return AVERROR(ENOMEM);
     }
 
@@ -330,12 +330,12 @@ static av_cold void uninit(AVFilterContext *ctx)
     MEContext *s = ctx->priv;
     int i;
 
-    av_frame_free(&s->prev);
-    av_frame_free(&s->cur);
-    av_frame_free(&s->next);
+    zn_av_frame_free(&s->prev);
+    zn_av_frame_free(&s->cur);
+    zn_av_frame_free(&s->next);
 
     for (i = 0; i < 3; i++)
-        av_freep(&s->mv_table[i]);
+        zn_av_freep(&s->mv_table[i]);
 }
 
 static const AVFilterPad mestimate_inputs[] = {

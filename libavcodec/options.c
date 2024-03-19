@@ -150,7 +150,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     return 0;
 }
 
-AVCodecContext *avcodec_alloc_context3(const AVCodec *codec)
+AVCodecContext *zn_avcodec_alloc_context3(const AVCodec *codec)
 {
     AVCodecContext *avctx= av_malloc(sizeof(AVCodecContext));
 
@@ -158,7 +158,7 @@ AVCodecContext *avcodec_alloc_context3(const AVCodec *codec)
         return NULL;
 
     if (init_context_defaults(avctx, codec) < 0) {
-        av_free(avctx);
+        zn_av_free(avctx);
         return NULL;
     }
 
@@ -174,14 +174,14 @@ void avcodec_free_context(AVCodecContext **pavctx)
 
     avcodec_close(avctx);
 
-    av_freep(&avctx->extradata);
-    av_freep(&avctx->subtitle_header);
-    av_freep(&avctx->intra_matrix);
-    av_freep(&avctx->inter_matrix);
-    av_freep(&avctx->rc_override);
+    zn_av_freep(&avctx->extradata);
+    zn_av_freep(&avctx->subtitle_header);
+    zn_av_freep(&avctx->intra_matrix);
+    zn_av_freep(&avctx->inter_matrix);
+    zn_av_freep(&avctx->rc_override);
     av_channel_layout_uninit(&avctx->ch_layout);
 
-    av_freep(pavctx);
+    zn_av_freep(pavctx);
 }
 
 const AVClass *avcodec_get_class(void)

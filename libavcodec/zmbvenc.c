@@ -305,10 +305,10 @@ static av_cold int encode_end(AVCodecContext *avctx)
 {
     ZmbvEncContext * const c = avctx->priv_data;
 
-    av_freep(&c->comp_buf);
-    av_freep(&c->work_buf);
+    zn_av_freep(&c->comp_buf);
+    zn_av_freep(&c->work_buf);
 
-    av_freep(&c->prev_buf);
+    zn_av_freep(&c->prev_buf);
     ff_deflate_end(&c->zstream);
 
     return 0;

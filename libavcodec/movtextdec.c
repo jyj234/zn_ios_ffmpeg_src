@@ -116,7 +116,7 @@ typedef struct {
 static void mov_text_cleanup(MovTextContext *m)
 {
     if (m->box_flags & STYL_BOX) {
-        av_freep(&m->s);
+        zn_av_freep(&m->s);
         m->style_entries = 0;
     }
 }
@@ -124,8 +124,8 @@ static void mov_text_cleanup(MovTextContext *m)
 static void mov_text_cleanup_ftab(MovTextContext *m)
 {
     for (unsigned i = 0; i < m->ftab_entries; i++)
-        av_freep(&m->ftab[i].font);
-    av_freep(&m->ftab);
+        zn_av_freep(&m->ftab[i].font);
+    zn_av_freep(&m->ftab);
     m->ftab_entries = 0;
 }
 
@@ -210,7 +210,7 @@ static int mov_text_tx3g(AVCodecContext *avctx, MovTextContext *m)
     remaining   -= 3 * ftab_entries;
     if (remaining < 0)
         return AVERROR_INVALIDDATA;
-    m->ftab = av_calloc(ftab_entries, sizeof(*m->ftab));
+    m->ftab = zn_av_calloc(ftab_entries, sizeof(*m->ftab));
     if (!m->ftab)
         return AVERROR(ENOMEM);
     m->ftab_entries = ftab_entries;

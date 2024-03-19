@@ -2118,7 +2118,7 @@ int TX_TAB(ff_tx_mdct_gen_exp)(AVTXContext *s, int *pre_tab)
     const double theta = (scale < 0 ? len4 : 0) + 1.0/8.0;
     size_t alloc = pre_tab ? 2*len4 : len4;
 
-    if (!(s->exp = av_malloc_array(alloc, sizeof(*s->exp))))
+    if (!(s->exp = zn_av_malloc_array(alloc, sizeof(*s->exp))))
         return AVERROR(ENOMEM);
 
     scale = sqrt(fabs(scale));

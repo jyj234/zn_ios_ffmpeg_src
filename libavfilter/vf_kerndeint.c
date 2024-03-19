@@ -63,7 +63,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     KerndeintContext *kerndeint = ctx->priv;
 
-    av_freep(&kerndeint->tmp_data[0]);
+    zn_av_freep(&kerndeint->tmp_data[0]);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -137,7 +137,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
 
     outpic = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!outpic) {
-        av_frame_free(&inpic);
+        zn_av_frame_free(&inpic);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(outpic, inpic);
@@ -281,7 +281,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         av_image_copy_plane(dstp, psrc_linesize, srcp, src_linesize, bwidth, h);
     }
 
-    av_frame_free(&inpic);
+    zn_av_frame_free(&inpic);
     return ff_filter_frame(outlink, outpic);
 }
 

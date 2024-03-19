@@ -51,7 +51,7 @@ static int pmp_header(AVFormatContext *s)
     uint64_t pos;
     int64_t fsize = avio_size(pb);
 
-    AVStream *vst = avformat_new_stream(s, NULL);
+    AVStream *vst = zn_avformat_new_stream(s, NULL);
     if (!vst)
         return AVERROR(ENOMEM);
     vst->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -114,7 +114,7 @@ static int pmp_header(AVFormatContext *s)
         }
     }
     for (i = 1; i < pmp->num_streams; i++) {
-        AVStream *ast = avformat_new_stream(s, NULL);
+        AVStream *ast = zn_avformat_new_stream(s, NULL);
         if (!ast)
             return AVERROR(ENOMEM);
         ast->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;
@@ -179,7 +179,7 @@ static int pmp_seek(AVFormatContext *s, int stream_index, int64_t ts, int flags)
 static int pmp_close(AVFormatContext *s)
 {
     PMPContext *pmp = s->priv_data;
-    av_freep(&pmp->packet_sizes);
+    zn_av_freep(&pmp->packet_sizes);
     return 0;
 }
 

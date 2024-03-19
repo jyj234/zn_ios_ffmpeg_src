@@ -102,6 +102,6 @@ int main(int argc, char** argv)
             }
         }
     }
-    av_free(cs);
+    zn_av_free(cs);
     return err;
 }

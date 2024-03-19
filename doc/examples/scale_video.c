@@ -134,8 +134,8 @@ int main(int argc, char **argv)
 
 end:
     fclose(dst_file);
-    av_freep(&src_data[0]);
-    av_freep(&dst_data[0]);
+    zn_av_freep(&src_data[0]);
+    zn_av_freep(&dst_data[0]);
     sws_freeContext(sws_ctx);
     return ret < 0;
 }

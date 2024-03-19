@@ -189,10 +189,10 @@ static int mf_encv_output_type_get(AVCodecContext *avctx, IMFMediaType *type)
             return AVERROR(ENOMEM);
         hr = IMFAttributes_GetBlob(type, &MF_MT_MPEG_SEQUENCE_HEADER, extradata, sz, NULL);
         if (FAILED(hr)) {
-            av_free(extradata);
+            zn_av_free(extradata);
             return AVERROR_EXTERNAL;
         }
-        av_freep(&avctx->extradata);
+        zn_av_freep(&avctx->extradata);
         avctx->extradata = extradata;
         avctx->extradata_size = sz;
     }
@@ -1054,7 +1054,7 @@ static int mf_init_encoder(AVCodecContext *avctx)
     const CLSID *subtype = ff_codec_to_mf_subtype(avctx->codec_id);
     int use_hw = 0;
 
-    c->frame = av_frame_alloc();
+    c->frame = zn_av_frame_alloc();
     if (!c->frame)
         return AVERROR(ENOMEM);
 
@@ -1202,9 +1202,9 @@ static int mf_close(AVCodecContext *avctx)
     ff_free_mf(&c->functions, &c->mft);
 #endif
 
-    av_frame_free(&c->frame);
+    zn_av_frame_free(&c->frame);
 
-    av_freep(&avctx->extradata);
+    zn_av_freep(&avctx->extradata);
     avctx->extradata_size = 0;
 
     return 0;

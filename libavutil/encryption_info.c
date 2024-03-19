@@ -50,7 +50,7 @@ AVEncryptionInfo *av_encryption_info_alloc(uint32_t subsample_count, uint32_t ke
     info->key_id_size = key_id_size;
     info->iv = av_mallocz(iv_size);
     info->iv_size = iv_size;
-    info->subsamples = av_calloc(subsample_count, sizeof(*info->subsamples));
+    info->subsamples = zn_av_calloc(subsample_count, sizeof(*info->subsamples));
     info->subsample_count = subsample_count;
 
     // Allow info->subsamples to be NULL if there are no subsamples.
@@ -82,10 +82,10 @@ AVEncryptionInfo *av_encryption_info_clone(const AVEncryptionInfo *info)
 void av_encryption_info_free(AVEncryptionInfo *info)
 {
     if (info) {
-        av_free(info->key_id);
-        av_free(info->iv);
-        av_free(info->subsamples);
-        av_free(info);
+        zn_av_free(info->key_id);
+        zn_av_free(info->iv);
+        zn_av_free(info->subsamples);
+        zn_av_free(info);
     }
 }
 
@@ -187,7 +187,7 @@ AVEncryptionInitInfo *av_encryption_init_info_alloc(
 
     info->system_id = av_mallocz(system_id_size);
     info->system_id_size = system_id_size;
-    info->key_ids = key_id_size ? av_calloc(num_key_ids, sizeof(*info->key_ids)) : NULL;
+    info->key_ids = key_id_size ? zn_av_calloc(num_key_ids, sizeof(*info->key_ids)) : NULL;
     info->num_key_ids = num_key_ids;
     info->key_id_size = key_id_size;
     info->data = av_mallocz(data_size);
@@ -218,13 +218,13 @@ void av_encryption_init_info_free(AVEncryptionInitInfo *info)
     uint32_t i;
     if (info) {
         for (i = 0; i < info->num_key_ids; i++) {
-            av_free(info->key_ids[i]);
+            zn_av_free(info->key_ids[i]);
         }
         av_encryption_init_info_free(info->next);
-        av_free(info->system_id);
-        av_free(info->key_ids);
-        av_free(info->data);
-        av_free(info);
+        zn_av_free(info->system_id);
+        zn_av_free(info->key_ids);
+        zn_av_free(info->data);
+        zn_av_free(info);
     }
 }
 

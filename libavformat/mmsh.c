@@ -65,8 +65,8 @@ static int mmsh_close(URLContext *h)
     MMSHContext *mmsh = (MMSHContext *)h->priv_data;
     MMSContext *mms   = &mmsh->mms;
     ffurl_closep(&mms->mms_hd);
-    av_freep(&mms->streams);
-    av_freep(&mms->asf_header);
+    zn_av_freep(&mms->streams);
+    zn_av_freep(&mms->asf_header);
     return 0;
 }
 
@@ -158,7 +158,7 @@ static int get_http_header_data(MMSHContext *mmsh)
                         mms->asf_header_size = len;
                         av_log(NULL, AV_LOG_TRACE, "Header len changed from %d to %d\n",
                                 mms->asf_header_size, len);
-                        av_freep(&mms->asf_header);
+                        zn_av_freep(&mms->asf_header);
                     }
                 }
                 mms->asf_header = av_mallocz(len);
@@ -292,7 +292,7 @@ static int mmsh_open_internal(URLContext *h, const char *uri, int flags, int tim
                    "Pragma: no-cache,rate=1.000000,stream-time=%u"
                    "Connection: Close\r\n",
                    host, port, mmsh->request_seq++, mms->stream_num, stream_selection, timestamp);
-    av_freep(&stream_selection);
+    zn_av_freep(&stream_selection);
     if (err < 0) {
         av_log(NULL, AV_LOG_ERROR, "Build play request failed!\n");
         goto fail;
@@ -314,7 +314,7 @@ static int mmsh_open_internal(URLContext *h, const char *uri, int flags, int tim
     av_log(NULL, AV_LOG_TRACE, "Connection successfully open\n");
     return 0;
 fail:
-    av_freep(&stream_selection);
+    zn_av_freep(&stream_selection);
     mmsh_close(h);
     av_log(NULL, AV_LOG_TRACE, "Connection failed with error %d\n", err);
     return err;
@@ -387,11 +387,11 @@ static int64_t mmsh_read_seek(URLContext *h, int stream_index,
         h->priv_data = mmsh_old;
         mmsh_close(h);
         h->priv_data = mmsh;
-        av_free(mmsh_old);
+        zn_av_free(mmsh_old);
         mmsh->mms.asf_header_read_size = mmsh->mms.asf_header_size;
     }else {
         h->priv_data = mmsh_old;
-        av_free(mmsh);
+        zn_av_free(mmsh);
     }
 
     return ret;

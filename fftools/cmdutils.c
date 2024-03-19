@@ -254,7 +254,7 @@ static int write_option(void *optctx, const OptionDef *po, const char *opt,
     if (po->flags & OPT_STRING) {
         char *str;
         str = av_strdup(arg);
-        av_freep(dst);
+        zn_av_freep(dst);
         if (!str)
             return AVERROR(ENOMEM);
         *(char **)dst = str;
@@ -294,7 +294,7 @@ static int write_option(void *optctx, const OptionDef *po, const char *opt,
         if (ret < 0) {
             av_log(NULL, AV_LOG_ERROR,
                    "Failed to set value '%s' for option '%s': %s\n",
-                   arg, opt, av_err2str(ret));
+                   arg, opt, zn_av_err2str(ret));
             return ret;
         }
     }
@@ -666,7 +666,7 @@ static int init_parse_context(OptionParseContext *octx,
     memset(octx, 0, sizeof(*octx));
 
     octx->nb_groups = nb_groups;
-    octx->groups    = av_calloc(octx->nb_groups, sizeof(*octx->groups));
+    octx->groups    = zn_av_calloc(octx->nb_groups, sizeof(*octx->groups));
     if (!octx->groups)
         return AVERROR(ENOMEM);
 
@@ -687,19 +687,19 @@ void uninit_parse_context(OptionParseContext *octx)
         OptionGroupList *l = &octx->groups[i];
 
         for (j = 0; j < l->nb_groups; j++) {
-            av_freep(&l->groups[j].opts);
+            zn_av_freep(&l->groups[j].opts);
             av_dict_free(&l->groups[j].codec_opts);
             av_dict_free(&l->groups[j].format_opts);
 
             av_dict_free(&l->groups[j].sws_dict);
             av_dict_free(&l->groups[j].swr_opts);
         }
-        av_freep(&l->groups);
+        zn_av_freep(&l->groups);
     }
-    av_freep(&octx->groups);
+    zn_av_freep(&octx->groups);
 
-    av_freep(&octx->cur_group.opts);
-    av_freep(&octx->global_opts.opts);
+    zn_av_freep(&octx->cur_group.opts);
+    zn_av_freep(&octx->global_opts.opts);
 
     uninit_opts();
 }
@@ -828,7 +828,7 @@ do {                                                                           \
 
 void print_error(const char *filename, int err)
 {
-    av_log(NULL, AV_LOG_ERROR, "%s: %s\n", filename, av_err2str(err));
+    av_log(NULL, AV_LOG_ERROR, "%s: %s\n", filename, zn_av_err2str(err));
 }
 
 int read_yesno(void)
@@ -867,7 +867,7 @@ FILE *get_preset_file(char *filename, size_t filename_size,
 
         if (wchartoutf8(datadir_w, &datadir))
             datadir = NULL;
-        av_free(datadir_w);
+        zn_av_free(datadir_w);
 
         if (datadir)
         {
@@ -907,7 +907,7 @@ FILE *get_preset_file(char *filename, size_t filename_size,
     }
 
 #if HAVE_GETMODULEHANDLE && defined(_WIN32)
-    av_free(datadir);
+    zn_av_free(datadir);
 #endif
     freeenv_utf8(env_ffmpeg_datadir);
     freeenv_utf8(env_home);
@@ -934,8 +934,8 @@ int filter_codec_opts(const AVDictionary *opts, enum AVCodecID codec_id,
     const AVClass    *cc = avcodec_get_class();
 
     if (!codec)
-        codec            = s->oformat ? avcodec_find_encoder(codec_id)
-                                      : avcodec_find_decoder(codec_id);
+        codec            = s->oformat ? zn_avcodec_find_encoder(codec_id)
+                                      : zn_avcodec_find_decoder(codec_id);
 
     switch (st->codecpar->codec_type) {
     case AVMEDIA_TYPE_VIDEO:
@@ -999,7 +999,7 @@ int setup_find_stream_info_opts(AVFormatContext *s,
     if (!s->nb_streams)
         return 0;
 
-    opts = av_calloc(s->nb_streams, sizeof(*opts));
+    opts = zn_av_calloc(s->nb_streams, sizeof(*opts));
     if (!opts)
         return AVERROR(ENOMEM);
 
@@ -1014,7 +1014,7 @@ int setup_find_stream_info_opts(AVFormatContext *s,
 fail:
     for (int i = 0; i < s->nb_streams; i++)
         av_dict_free(&opts[i]);
-    av_freep(&opts);
+    zn_av_freep(&opts);
     return ret;
 }
 

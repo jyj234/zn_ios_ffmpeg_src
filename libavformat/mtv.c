@@ -160,7 +160,7 @@ static int mtv_read_header(AVFormatContext *s)
 
     // video - raw rgb565
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if(!st)
         return AVERROR(ENOMEM);
 
@@ -177,7 +177,7 @@ static int mtv_read_header(AVFormatContext *s)
 
     // audio - mp3
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if(!st)
         return AVERROR(ENOMEM);
 

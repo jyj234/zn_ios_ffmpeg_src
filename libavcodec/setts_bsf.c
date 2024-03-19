@@ -108,9 +108,9 @@ static int setts_init(AVBSFContext *ctx)
     SetTSContext *s = ctx->priv_data;
     int ret;
 
-    s->prev_inpkt = av_packet_alloc();
-    s->prev_outpkt = av_packet_alloc();
-    s->cur_pkt = av_packet_alloc();
+    s->prev_inpkt = zn_av_packet_alloc();
+    s->prev_outpkt = zn_av_packet_alloc();
+    s->cur_pkt = zn_av_packet_alloc();
     if (!s->prev_inpkt || !s->prev_outpkt || !s->cur_pkt)
         return AVERROR(ENOMEM);
 
@@ -149,8 +149,8 @@ static int setts_init(AVBSFContext *ctx)
     s->var_values[VAR_STARTPTS] = AV_NOPTS_VALUE;
     s->var_values[VAR_STARTDTS] = AV_NOPTS_VALUE;
     s->var_values[VAR_NOPTS] = AV_NOPTS_VALUE;
-    s->var_values[VAR_TB]    = ctx->time_base_in.den ? av_q2d(ctx->time_base_in) : 0;
-    s->var_values[VAR_TB_OUT]= ctx->time_base_out.den ? av_q2d(ctx->time_base_out) : 0;
+    s->var_values[VAR_TB]    = ctx->time_base_in.den ? zn_av_q2d(ctx->time_base_in) : 0;
+    s->var_values[VAR_TB_OUT]= ctx->time_base_out.den ? zn_av_q2d(ctx->time_base_out) : 0;
     s->var_values[VAR_SR]    = ctx->par_in->sample_rate;
 
     return 0;
@@ -210,8 +210,8 @@ static int setts_filter(AVBSFContext *ctx, AVPacket *pkt)
         new_dts = new_ts;
     }
 
-    av_packet_unref(s->prev_inpkt);
-    av_packet_unref(s->prev_outpkt);
+    zn_av_packet_unref(s->prev_inpkt);
+    zn_av_packet_unref(s->prev_outpkt);
     av_packet_move_ref(s->prev_inpkt, s->cur_pkt);
     av_packet_move_ref(s->cur_pkt, pkt);
 
@@ -225,7 +225,7 @@ static int setts_filter(AVBSFContext *ctx, AVPacket *pkt)
 
     ret = av_packet_ref(s->prev_outpkt, pkt);
     if (ret < 0)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
 
     return ret;
 }
@@ -234,9 +234,9 @@ static void setts_close(AVBSFContext *bsf)
 {
     SetTSContext *s = bsf->priv_data;
 
-    av_packet_free(&s->prev_inpkt);
-    av_packet_free(&s->prev_outpkt);
-    av_packet_free(&s->cur_pkt);
+    zn_av_packet_free(&s->prev_inpkt);
+    zn_av_packet_free(&s->prev_outpkt);
+    zn_av_packet_free(&s->cur_pkt);
 
     av_expr_free(s->ts_expr);
     s->ts_expr = NULL;

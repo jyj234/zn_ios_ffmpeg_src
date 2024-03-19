@@ -157,7 +157,7 @@ static int ebur128_init_channel_map(FFEBUR128State * st)
 {
     size_t i;
     st->d->channel_map =
-        (int *) av_malloc_array(st->channels, sizeof(*st->d->channel_map));
+        (int *) zn_av_malloc_array(st->channels, sizeof(*st->d->channel_map));
     if (!st->d->channel_map)
         return AVERROR(ENOMEM);
     if (st->channels == 4) {
@@ -233,7 +233,7 @@ FFEBUR128State *ff_ebur128_init(unsigned int channels,
     CHECK_ERROR(errcode, 0, free_internal)
 
     st->d->sample_peak =
-        (double *) av_calloc(channels, sizeof(*st->d->sample_peak));
+        (double *) zn_av_calloc(channels, sizeof(*st->d->sample_peak));
     CHECK_ERROR(!st->d->sample_peak, 0, free_channel_map)
 
     st->samplerate = samplerate;
@@ -254,7 +254,7 @@ FFEBUR128State *ff_ebur128_init(unsigned int channels,
             - (st->d->audio_data_frames % st->d->samples_in_100ms);
     }
     st->d->audio_data =
-        (double *) av_calloc(st->d->audio_data_frames,
+        (double *) zn_av_calloc(st->d->audio_data_frames,
                              st->channels * sizeof(*st->d->audio_data));
     CHECK_ERROR(!st->d->audio_data, 0, free_sample_peak)
 
@@ -277,40 +277,40 @@ FFEBUR128State *ff_ebur128_init(unsigned int channels,
     if (ff_thread_once(&histogram_init, &init_histogram) != 0)
         goto free_short_term_block_energy_histogram;
 
-    st->d->data_ptrs = av_malloc_array(channels, sizeof(*st->d->data_ptrs));
+    st->d->data_ptrs = zn_av_malloc_array(channels, sizeof(*st->d->data_ptrs));
     CHECK_ERROR(!st->d->data_ptrs, 0,
                 free_short_term_block_energy_histogram);
 
     return st;
 
 free_short_term_block_energy_histogram:
-    av_free(st->d->short_term_block_energy_histogram);
+    zn_av_free(st->d->short_term_block_energy_histogram);
 free_block_energy_histogram:
-    av_free(st->d->block_energy_histogram);
+    zn_av_free(st->d->block_energy_histogram);
 free_audio_data:
-    av_free(st->d->audio_data);
+    zn_av_free(st->d->audio_data);
 free_sample_peak:
-    av_free(st->d->sample_peak);
+    zn_av_free(st->d->sample_peak);
 free_channel_map:
-    av_free(st->d->channel_map);
+    zn_av_free(st->d->channel_map);
 free_internal:
-    av_free(st->d);
+    zn_av_free(st->d);
 free_state:
-    av_free(st);
+    zn_av_free(st);
 exit:
     return NULL;
 }
 
 void ff_ebur128_destroy(FFEBUR128State ** st)
 {
-    av_free((*st)->d->block_energy_histogram);
-    av_free((*st)->d->short_term_block_energy_histogram);
-    av_free((*st)->d->audio_data);
-    av_free((*st)->d->channel_map);
-    av_free((*st)->d->sample_peak);
-    av_free((*st)->d->data_ptrs);
-    av_free((*st)->d);
-    av_free(*st);
+    zn_av_free((*st)->d->block_energy_histogram);
+    zn_av_free((*st)->d->short_term_block_energy_histogram);
+    zn_av_free((*st)->d->audio_data);
+    zn_av_free((*st)->d->channel_map);
+    zn_av_free((*st)->d->sample_peak);
+    zn_av_free((*st)->d->data_ptrs);
+    zn_av_free((*st)->d);
+    zn_av_free(*st);
     *st = NULL;
 }
 

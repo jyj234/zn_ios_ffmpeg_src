@@ -119,7 +119,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         return 0; // Failure of av_bsf_init() does not imply that a issue was found
     }
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt)
         error("Failed memory allocation");
 
@@ -148,18 +148,18 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
         res = av_bsf_send_packet(bsf, pkt);
         if (res < 0) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             continue;
         }
         while (av_bsf_receive_packet(bsf, pkt) >= 0)
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
     }
 
     av_bsf_send_packet(bsf, NULL);
     while (av_bsf_receive_packet(bsf, pkt) >= 0)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
 
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
     av_bsf_free(&bsf);
     return 0;
 }

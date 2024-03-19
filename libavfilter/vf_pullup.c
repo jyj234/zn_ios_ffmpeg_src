@@ -108,14 +108,14 @@ static int var_c(const uint8_t *a, const uint8_t *b, ptrdiff_t s)
 
 static int alloc_metrics(PullupContext *s, PullupField *f)
 {
-    f->diffs = av_calloc(FFALIGN(s->metric_length, 16), sizeof(*f->diffs));
-    f->combs = av_calloc(FFALIGN(s->metric_length, 16), sizeof(*f->combs));
-    f->vars  = av_calloc(FFALIGN(s->metric_length, 16), sizeof(*f->vars));
+    f->diffs = zn_av_calloc(FFALIGN(s->metric_length, 16), sizeof(*f->diffs));
+    f->combs = zn_av_calloc(FFALIGN(s->metric_length, 16), sizeof(*f->combs));
+    f->vars  = zn_av_calloc(FFALIGN(s->metric_length, 16), sizeof(*f->vars));
 
     if (!f->diffs || !f->combs || !f->vars) {
-        av_freep(&f->diffs);
-        av_freep(&f->combs);
-        av_freep(&f->vars);
+        zn_av_freep(&f->diffs);
+        zn_av_freep(&f->combs);
+        zn_av_freep(&f->vars);
         return AVERROR(ENOMEM);
     }
     return 0;
@@ -128,12 +128,12 @@ static void free_field_queue(PullupField *head)
         PullupField *next;
         if (!f)
             break;
-        av_free(f->diffs);
-        av_free(f->combs);
-        av_free(f->vars);
+        zn_av_free(f->diffs);
+        zn_av_free(f->combs);
+        zn_av_free(f->vars);
         next = f->next;
         memset(f, 0, sizeof(*f)); // clear all pointers to avoid stale ones
-        av_free(f);
+        zn_av_free(f);
         f = next;
     } while (f != head);
 }
@@ -147,7 +147,7 @@ static PullupField *make_field_queue(PullupContext *s, int len)
         return NULL;
 
     if (alloc_metrics(s, f) < 0) {
-        av_free(f);
+        zn_av_free(f);
         return NULL;
     }
 
@@ -561,7 +561,7 @@ static int check_field_queue(PullupContext *s)
             return AVERROR(ENOMEM);
 
         if ((ret = alloc_metrics(s, f)) < 0) {
-            av_free(f);
+            zn_av_free(f);
             return ret;
         }
 
@@ -721,7 +721,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ret = ff_filter_frame(outlink, out);
     pullup_release_frame(f);
 end:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ret;
 }
 
@@ -734,9 +734,9 @@ static av_cold void uninit(AVFilterContext *ctx)
     s->last = NULL;
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->buffers); i++) {
-        av_freep(&s->buffers[i].planes[0]);
-        av_freep(&s->buffers[i].planes[1]);
-        av_freep(&s->buffers[i].planes[2]);
+        zn_av_freep(&s->buffers[i].planes[0]);
+        zn_av_freep(&s->buffers[i].planes[1]);
+        zn_av_freep(&s->buffers[i].planes[2]);
     }
 }
 

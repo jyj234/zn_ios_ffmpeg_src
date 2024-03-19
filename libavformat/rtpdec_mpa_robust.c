@@ -37,7 +37,7 @@ struct PayloadContext {
 static void mpa_robust_close_context(PayloadContext *data)
 {
     ffio_free_dyn_buf(&data->fragment);
-    av_free(data->split_buf);
+    zn_av_free(data->split_buf);
 }
 
 static int mpa_robust_parse_rtp_header(AVFormatContext *ctx,
@@ -78,14 +78,14 @@ static int mpa_robust_parse_packet(AVFormatContext *ctx, PayloadContext *data,
         header_size = mpa_robust_parse_rtp_header(ctx, buf, len, &adu_size,
                                                   &continuation);
         if (header_size < 0) {
-            av_freep(&data->split_buf);
+            zn_av_freep(&data->split_buf);
             return header_size;
         }
         buf += header_size;
         len -= header_size;
 
         if (continuation || adu_size > len) {
-            av_freep(&data->split_buf);
+            zn_av_freep(&data->split_buf);
             av_log(ctx, AV_LOG_ERROR, "Invalid frame\n");
             return AVERROR_INVALIDDATA;
         }
@@ -101,7 +101,7 @@ static int mpa_robust_parse_packet(AVFormatContext *ctx, PayloadContext *data,
         data->split_pos += header_size + adu_size;
 
         if (data->split_pos == data->split_buf_size) {
-            av_freep(&data->split_buf);
+            zn_av_freep(&data->split_buf);
             return 0;
         }
 
@@ -136,7 +136,7 @@ static int mpa_robust_parse_packet(AVFormatContext *ctx, PayloadContext *data,
             data->split_pos = 0;
             if (!data->split_buf) {
                 av_log(ctx, AV_LOG_ERROR, "Out of memory.\n");
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
                 return AVERROR(ENOMEM);
             }
             memcpy(data->split_buf, buf, data->split_buf_size);

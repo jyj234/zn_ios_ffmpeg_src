@@ -56,12 +56,12 @@ static int open_input_file(const char *filename)
     const AVCodec *dec;
     int ret;
 
-    if ((ret = avformat_open_input(&fmt_ctx, filename, NULL, NULL)) < 0) {
+    if ((ret = zn_avformat_open_input(&fmt_ctx, filename, NULL, NULL)) < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
 
-    if ((ret = avformat_find_stream_info(fmt_ctx, NULL)) < 0) {
+    if ((ret = zn_avformat_find_stream_info(fmt_ctx, NULL)) < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
@@ -75,13 +75,13 @@ static int open_input_file(const char *filename)
     video_stream_index = ret;
 
     /* create decoding context */
-    dec_ctx = avcodec_alloc_context3(dec);
+    dec_ctx = zn_avcodec_alloc_context3(dec);
     if (!dec_ctx)
         return AVERROR(ENOMEM);
-    avcodec_parameters_to_context(dec_ctx, fmt_ctx->streams[video_stream_index]->codecpar);
+    zn_avcodec_parameters_to_context(dec_ctx, fmt_ctx->streams[video_stream_index]->codecpar);
 
     /* init the video decoder */
-    if ((ret = avcodec_open2(dec_ctx, dec, NULL)) < 0) {
+    if ((ret = zn_avcodec_open2(dec_ctx, dec, NULL)) < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot open video decoder\n");
         return ret;
     }
@@ -219,9 +219,9 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    frame = av_frame_alloc();
-    filt_frame = av_frame_alloc();
-    packet = av_packet_alloc();
+    frame = zn_av_frame_alloc();
+    filt_frame = zn_av_frame_alloc();
+    packet = zn_av_packet_alloc();
     if (!frame || !filt_frame || !packet) {
         fprintf(stderr, "Could not allocate frame or packet\n");
         exit(1);
@@ -234,18 +234,18 @@ int main(int argc, char **argv)
 
     /* read all packets */
     while (1) {
-        if ((ret = av_read_frame(fmt_ctx, packet)) < 0)
+        if ((ret = zn_av_read_frame(fmt_ctx, packet)) < 0)
             break;
 
         if (packet->stream_index == video_stream_index) {
-            ret = avcodec_send_packet(dec_ctx, packet);
+            ret = zn_avcodec_send_packet(dec_ctx, packet);
             if (ret < 0) {
                 av_log(NULL, AV_LOG_ERROR, "Error while sending a packet to the decoder\n");
                 break;
             }
 
             while (ret >= 0) {
-                ret = avcodec_receive_frame(dec_ctx, frame);
+                ret = zn_avcodec_receive_frame(dec_ctx, frame);
                 if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
                     break;
                 } else if (ret < 0) {
@@ -274,18 +274,18 @@ int main(int argc, char **argv)
                 av_frame_unref(frame);
             }
         }
-        av_packet_unref(packet);
+        zn_av_packet_unref(packet);
     }
 end:
     avfilter_graph_free(&filter_graph);
     avcodec_free_context(&dec_ctx);
-    avformat_close_input(&fmt_ctx);
-    av_frame_free(&frame);
-    av_frame_free(&filt_frame);
-    av_packet_free(&packet);
+    zn_avformat_close_input(&fmt_ctx);
+    zn_av_frame_free(&frame);
+    zn_av_frame_free(&filt_frame);
+    zn_av_packet_free(&packet);
 
     if (ret < 0 && ret != AVERROR_EOF) {
-        fprintf(stderr, "Error occurred: %s\n", av_err2str(ret));
+        fprintf(stderr, "Error occurred: %s\n", zn_av_err2str(ret));
         exit(1);
     }
 

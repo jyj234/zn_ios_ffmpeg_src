@@ -163,7 +163,7 @@ static int apng_read_header(AVFormatContext *s)
     if (len != 13 || tag != MKTAG('I', 'H', 'D', 'R'))
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

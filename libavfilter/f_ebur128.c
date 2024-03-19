@@ -335,7 +335,7 @@ static int config_video_output(AVFilterLink *outlink)
     av_assert0(ebur128->graph.h == ebur128->gauge.h);
 
     /* prepare the initial picref buffer */
-    av_frame_free(&ebur128->outpicref);
+    zn_av_frame_free(&ebur128->outpicref);
     ebur128->outpicref = outpicref =
         ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!outpicref)
@@ -343,7 +343,7 @@ static int config_video_output(AVFilterLink *outlink)
     outpicref->sample_aspect_ratio = (AVRational){1,1};
 
     /* init y references values (to draw LU lines) */
-    ebur128->y_line_ref = av_calloc(ebur128->graph.h + 1, sizeof(*ebur128->y_line_ref));
+    ebur128->y_line_ref = zn_av_calloc(ebur128->graph.h + 1, sizeof(*ebur128->y_line_ref));
     if (!ebur128->y_line_ref)
         return AVERROR(ENOMEM);
 
@@ -447,20 +447,20 @@ static int config_audio_output(AVFilterLink *outlink)
                    AV_CH_SURROUND_DIRECT_LEFT               |AV_CH_SURROUND_DIRECT_RIGHT)
 
     ebur128->nb_channels  = nb_channels;
-    ebur128->x            = av_calloc(nb_channels, 3 * sizeof(*ebur128->x));
-    ebur128->y            = av_calloc(nb_channels, 3 * sizeof(*ebur128->y));
-    ebur128->z            = av_calloc(nb_channels, 3 * sizeof(*ebur128->z));
-    ebur128->ch_weighting = av_calloc(nb_channels, sizeof(*ebur128->ch_weighting));
+    ebur128->x            = zn_av_calloc(nb_channels, 3 * sizeof(*ebur128->x));
+    ebur128->y            = zn_av_calloc(nb_channels, 3 * sizeof(*ebur128->y));
+    ebur128->z            = zn_av_calloc(nb_channels, 3 * sizeof(*ebur128->z));
+    ebur128->ch_weighting = zn_av_calloc(nb_channels, sizeof(*ebur128->ch_weighting));
     if (!ebur128->ch_weighting || !ebur128->x || !ebur128->y || !ebur128->z)
         return AVERROR(ENOMEM);
 
 #define I400_BINS(x)  ((x) * 4 / 10)
 #define I3000_BINS(x) ((x) * 3)
 
-    ebur128->i400.sum = av_calloc(nb_channels, sizeof(*ebur128->i400.sum));
-    ebur128->i3000.sum = av_calloc(nb_channels, sizeof(*ebur128->i3000.sum));
-    ebur128->i400.cache = av_calloc(nb_channels, sizeof(*ebur128->i400.cache));
-    ebur128->i3000.cache = av_calloc(nb_channels, sizeof(*ebur128->i3000.cache));
+    ebur128->i400.sum = zn_av_calloc(nb_channels, sizeof(*ebur128->i400.sum));
+    ebur128->i3000.sum = zn_av_calloc(nb_channels, sizeof(*ebur128->i3000.sum));
+    ebur128->i400.cache = zn_av_calloc(nb_channels, sizeof(*ebur128->i400.cache));
+    ebur128->i3000.cache = zn_av_calloc(nb_channels, sizeof(*ebur128->i3000.cache));
     if (!ebur128->i400.sum || !ebur128->i3000.sum ||
         !ebur128->i400.cache || !ebur128->i3000.cache)
         return AVERROR(ENOMEM);
@@ -482,8 +482,8 @@ static int config_audio_output(AVFilterLink *outlink)
         /* bins buffer for the two integration window (400ms and 3s) */
         ebur128->i400.cache_size = I400_BINS(outlink->sample_rate);
         ebur128->i3000.cache_size = I3000_BINS(outlink->sample_rate);
-        ebur128->i400.cache[i]  = av_calloc(ebur128->i400.cache_size,  sizeof(*ebur128->i400.cache[0]));
-        ebur128->i3000.cache[i] = av_calloc(ebur128->i3000.cache_size, sizeof(*ebur128->i3000.cache[0]));
+        ebur128->i400.cache[i]  = zn_av_calloc(ebur128->i400.cache_size,  sizeof(*ebur128->i400.cache[0]));
+        ebur128->i3000.cache[i] = zn_av_calloc(ebur128->i3000.cache_size, sizeof(*ebur128->i3000.cache[0]));
         if (!ebur128->i400.cache[i] || !ebur128->i3000.cache[i])
             return AVERROR(ENOMEM);
     }
@@ -492,9 +492,9 @@ static int config_audio_output(AVFilterLink *outlink)
     if (ebur128->peak_mode & PEAK_MODE_TRUE_PEAKS) {
         int ret;
 
-        ebur128->swr_buf    = av_malloc_array(nb_channels, 19200 * sizeof(double));
-        ebur128->true_peaks = av_calloc(nb_channels, sizeof(*ebur128->true_peaks));
-        ebur128->true_peaks_per_frame = av_calloc(nb_channels, sizeof(*ebur128->true_peaks_per_frame));
+        ebur128->swr_buf    = zn_av_malloc_array(nb_channels, 19200 * sizeof(double));
+        ebur128->true_peaks = zn_av_calloc(nb_channels, sizeof(*ebur128->true_peaks));
+        ebur128->true_peaks_per_frame = zn_av_calloc(nb_channels, sizeof(*ebur128->true_peaks_per_frame));
         ebur128->swr_ctx    = swr_alloc();
         if (!ebur128->swr_buf || !ebur128->true_peaks ||
             !ebur128->true_peaks_per_frame || !ebur128->swr_ctx)
@@ -508,14 +508,14 @@ static int config_audio_output(AVFilterLink *outlink)
         av_opt_set_int(ebur128->swr_ctx, "out_sample_rate",       192000, 0);
         av_opt_set_sample_fmt(ebur128->swr_ctx, "out_sample_fmt", outlink->format, 0);
 
-        ret = swr_init(ebur128->swr_ctx);
+        ret = zn_swr_init(ebur128->swr_ctx);
         if (ret < 0)
             return ret;
     }
 #endif
 
     if (ebur128->peak_mode & PEAK_MODE_SAMPLES_PEAKS) {
-        ebur128->sample_peaks = av_calloc(nb_channels, sizeof(*ebur128->sample_peaks));
+        ebur128->sample_peaks = zn_av_calloc(nb_channels, sizeof(*ebur128->sample_peaks));
         if (!ebur128->sample_peaks)
             return AVERROR(ENOMEM);
     }
@@ -530,7 +530,7 @@ static int config_audio_output(AVFilterLink *outlink)
 static struct hist_entry *get_histogram(void)
 {
     int i;
-    struct hist_entry *h = av_calloc(HIST_SIZE, sizeof(*h));
+    struct hist_entry *h = zn_av_calloc(HIST_SIZE, sizeof(*h));
 
     if (!h)
         return NULL;
@@ -640,7 +640,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
 #if CONFIG_SWRESAMPLE
     if (ebur128->peak_mode & PEAK_MODE_TRUE_PEAKS && ebur128->idx_insample == 0) {
         const double *swr_samples = ebur128->swr_buf;
-        int ret = swr_convert(ebur128->swr_ctx, (uint8_t**)&ebur128->swr_buf, 19200,
+        int ret = zn_swr_convert(ebur128->swr_ctx, (uint8_t**)&ebur128->swr_buf, 19200,
                               (const uint8_t **)insamples->data, nb_samples);
         if (ret < 0)
             return ret;
@@ -848,7 +848,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
 
                 ret = ff_inlink_make_frame_writable(outlink, &ebur128->outpicref);
                 if (ret < 0) {
-                    av_frame_free(&insamples);
+                    zn_av_frame_free(&insamples);
                     ebur128->insamples = NULL;
                     return ret;
                 }
@@ -1085,30 +1085,30 @@ static av_cold void uninit(AVFilterContext *ctx)
     av_log(ctx, AV_LOG_INFO, "\n");
     }
 
-    av_freep(&ebur128->y_line_ref);
-    av_freep(&ebur128->x);
-    av_freep(&ebur128->y);
-    av_freep(&ebur128->z);
-    av_freep(&ebur128->ch_weighting);
-    av_freep(&ebur128->true_peaks);
-    av_freep(&ebur128->sample_peaks);
-    av_freep(&ebur128->true_peaks_per_frame);
-    av_freep(&ebur128->i400.sum);
-    av_freep(&ebur128->i3000.sum);
-    av_freep(&ebur128->i400.histogram);
-    av_freep(&ebur128->i3000.histogram);
+    zn_av_freep(&ebur128->y_line_ref);
+    zn_av_freep(&ebur128->x);
+    zn_av_freep(&ebur128->y);
+    zn_av_freep(&ebur128->z);
+    zn_av_freep(&ebur128->ch_weighting);
+    zn_av_freep(&ebur128->true_peaks);
+    zn_av_freep(&ebur128->sample_peaks);
+    zn_av_freep(&ebur128->true_peaks_per_frame);
+    zn_av_freep(&ebur128->i400.sum);
+    zn_av_freep(&ebur128->i3000.sum);
+    zn_av_freep(&ebur128->i400.histogram);
+    zn_av_freep(&ebur128->i3000.histogram);
     for (int i = 0; i < ebur128->nb_channels; i++) {
         if (ebur128->i400.cache)
-            av_freep(&ebur128->i400.cache[i]);
+            zn_av_freep(&ebur128->i400.cache[i]);
         if (ebur128->i3000.cache)
-            av_freep(&ebur128->i3000.cache[i]);
+            zn_av_freep(&ebur128->i3000.cache[i]);
     }
-    av_freep(&ebur128->i400.cache);
-    av_freep(&ebur128->i3000.cache);
-    av_frame_free(&ebur128->outpicref);
+    zn_av_freep(&ebur128->i400.cache);
+    zn_av_freep(&ebur128->i3000.cache);
+    zn_av_frame_free(&ebur128->outpicref);
 #if CONFIG_SWRESAMPLE
-    av_freep(&ebur128->swr_buf);
-    swr_free(&ebur128->swr_ctx);
+    zn_av_freep(&ebur128->swr_buf);
+    zn_swr_free(&ebur128->swr_ctx);
 #endif
 }
 

@@ -129,7 +129,7 @@ static int smacker_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -170,7 +170,7 @@ static int smacker_read_header(AVFormatContext *s)
         smk->indexes[i] = -1;
 
         if (rate) {
-            AVStream *ast = avformat_new_stream(s, NULL);
+            AVStream *ast = zn_avformat_new_stream(s, NULL);
             AVCodecParameters *par;
             if (!ast)
                 return AVERROR(ENOMEM);
@@ -188,7 +188,7 @@ static int smacker_read_header(AVFormatContext *s)
             } else {
                 par->codec_id  = AV_CODEC_ID_PCM_U8;
             }
-            av_channel_layout_default(&par->ch_layout,
+            zn_av_channel_layout_default(&par->ch_layout,
                                       !!(aflag & SMK_AUD_STEREO) + 1);
             par->sample_rate = rate;
             par->bits_per_coded_sample = (aflag & SMK_AUD_16BITS) ? 16 : 8;
@@ -205,7 +205,7 @@ static int smacker_read_header(AVFormatContext *s)
     avio_rl32(pb); /* padding */
 
     /* setup data */
-    st->priv_data  = av_malloc_array(smk->frames, sizeof(*smk->frm_size) +
+    st->priv_data  = zn_av_malloc_array(smk->frames, sizeof(*smk->frm_size) +
                                                   sizeof(*smk->frm_flags));
     if (!st->priv_data)
         return AVERROR(ENOMEM);

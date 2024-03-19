@@ -271,19 +271,19 @@ static av_cold void ivi_free_buffers(IVIPlaneDesc *planes)
         if (planes[p].bands) {
             for (b = 0; b < planes[p].num_bands; b++) {
                 IVIBandDesc *band = &planes[p].bands[b];
-                av_freep(&band->bufs[0]);
-                av_freep(&band->bufs[1]);
-                av_freep(&band->bufs[2]);
-                av_freep(&band->bufs[3]);
+                zn_av_freep(&band->bufs[0]);
+                zn_av_freep(&band->bufs[1]);
+                zn_av_freep(&band->bufs[2]);
+                zn_av_freep(&band->bufs[3]);
 
                 if (band->blk_vlc.cust_tab.table)
                     ff_vlc_free(&band->blk_vlc.cust_tab);
                 for (t = 0; t < band->num_tiles; t++)
-                    av_freep(&band->tiles[t].mbs);
-                av_freep(&band->tiles);
+                    zn_av_freep(&band->tiles[t].mbs);
+                zn_av_freep(&band->tiles);
             }
         }
-        av_freep(&planes[p].bands);
+        zn_av_freep(&planes[p].bands);
         planes[p].num_bands = 0;
     }
 }
@@ -313,7 +313,7 @@ av_cold int ff_ivi_init_planes(AVCodecContext *avctx, IVIPlaneDesc *planes, cons
     planes[1].num_bands = planes[2].num_bands = cfg->chroma_bands;
 
     for (p = 0; p < 3; p++) {
-        planes[p].bands = av_calloc(planes[p].num_bands, sizeof(*planes[p].bands));
+        planes[p].bands = zn_av_calloc(planes[p].num_bands, sizeof(*planes[p].bands));
         if (!planes[p].bands)
             return AVERROR(ENOMEM);
 
@@ -371,8 +371,8 @@ static int ivi_init_tiles(const IVIBandDesc *band, IVITile *ref_tile,
             tile->num_MBs  = IVI_MBs_PER_TILE(tile->width, tile->height,
                                               band->mb_size);
 
-            av_freep(&tile->mbs);
-            tile->mbs = av_calloc(tile->num_MBs, sizeof(*tile->mbs));
+            zn_av_freep(&tile->mbs);
+            tile->mbs = zn_av_calloc(tile->num_MBs, sizeof(*tile->mbs));
             if (!tile->mbs)
                 return AVERROR(ENOMEM);
 
@@ -419,7 +419,7 @@ av_cold int ff_ivi_init_tiles(IVIPlaneDesc *planes,
             if (band->tiles) {
                 int t;
                 for (t = 0; t < band->num_tiles; t++) {
-                    av_freep(&band->tiles[t].mbs);
+                    zn_av_freep(&band->tiles[t].mbs);
                 }
             }
 
@@ -427,8 +427,8 @@ av_cold int ff_ivi_init_tiles(IVIPlaneDesc *planes,
             y_tiles = IVI_NUM_TILES(band->height, t_height);
             band->num_tiles = x_tiles * y_tiles;
 
-            av_freep(&band->tiles);
-            band->tiles = av_calloc(band->num_tiles, sizeof(*band->tiles));
+            zn_av_freep(&band->tiles);
+            band->tiles = zn_av_calloc(band->num_tiles, sizeof(*band->tiles));
             if (!band->tiles) {
                 band->num_tiles = 0;
                 return AVERROR(ENOMEM);
@@ -1220,7 +1220,7 @@ av_cold int ff_ivi_decode_close(AVCodecContext *avctx)
     if (ctx->blk_vlc.cust_tab.table)
         ff_vlc_free(&ctx->blk_vlc.cust_tab);
 
-    av_frame_free(&ctx->p_frame);
+    zn_av_frame_free(&ctx->p_frame);
 
     return 0;
 }

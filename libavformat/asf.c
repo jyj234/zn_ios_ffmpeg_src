@@ -113,7 +113,7 @@ static int asf_read_picture(AVFormatContext *s, int len)
         if (av_dict_set(&st->metadata, "title", desc, AV_DICT_DONT_STRDUP_VAL) < 0)
             av_log(s, AV_LOG_WARNING, "av_dict_set failed.\n");
     } else
-        av_freep(&desc);
+        zn_av_freep(&desc);
 
     if (av_dict_set(&st->metadata, "comment", ff_id3v2_picture_types[type], 0) < 0)
         av_log(s, AV_LOG_WARNING, "av_dict_set failed.\n");
@@ -121,7 +121,7 @@ static int asf_read_picture(AVFormatContext *s, int len)
     return 0;
 
 fail:
-    av_freep(&desc);
+    zn_av_freep(&desc);
     return ret;
 }
 

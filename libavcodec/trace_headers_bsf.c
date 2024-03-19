@@ -104,7 +104,7 @@ static int trace_headers(AVBSFContext *bsf, AVPacket *pkt)
         ff_cbs_fragment_reset(frag);
 
         if (err < 0) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return err;
         }
         av_log(bsf, AV_LOG_INFO, "Payload:\n");
@@ -115,7 +115,7 @@ static int trace_headers(AVBSFContext *bsf, AVPacket *pkt)
     ff_cbs_fragment_reset(frag);
 
     if (err < 0)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     return err;
 }
 

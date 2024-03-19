@@ -159,7 +159,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     SeparateFieldsContext *s = ctx->priv;
 
-    av_frame_free(&s->second);
+    zn_av_frame_free(&s->second);
 }
 
 static const AVFilterPad separatefields_outputs[] = {

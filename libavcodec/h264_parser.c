@@ -566,18 +566,18 @@ static inline int parse_nal_units(AVCodecParserContext *s,
                           sps->num_units_in_tick * 2, den, 1 << 30);
             }
 
-            av_freep(&rbsp.rbsp_buffer);
+            zn_av_freep(&rbsp.rbsp_buffer);
             return 0; /* no need to evaluate the rest */
         }
     }
     if (q264) {
-        av_freep(&rbsp.rbsp_buffer);
+        zn_av_freep(&rbsp.rbsp_buffer);
         return 0;
     }
     /* didn't find a picture! */
     av_log(avctx, AV_LOG_ERROR, "missing picture in access unit with size %d\n", buf_size);
 fail:
-    av_freep(&rbsp.rbsp_buffer);
+    zn_av_freep(&rbsp.rbsp_buffer);
     return -1;
 }
 
@@ -665,7 +665,7 @@ static void h264_close(AVCodecParserContext *s)
     H264ParseContext *p = s->priv_data;
     ParseContext *pc = &p->pc;
 
-    av_freep(&pc->buffer);
+    zn_av_freep(&pc->buffer);
 
     ff_h264_sei_uninit(&p->sei);
     ff_h264_ps_uninit(&p->ps);

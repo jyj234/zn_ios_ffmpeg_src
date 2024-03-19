@@ -216,7 +216,7 @@ static int overlay_opencl_blend(FFFrameSync *fs)
     return ff_filter_frame(outlink, output);
 
 fail:
-    av_frame_free(&output);
+    zn_av_frame_free(&output);
     return err;
 }
 

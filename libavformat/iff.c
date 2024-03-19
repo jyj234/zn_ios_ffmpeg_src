@@ -134,7 +134,7 @@ static int get_metadata(AVFormatContext *s,
         return AVERROR(ENOMEM);
 
     if (avio_read(s->pb, buf, data_size) != data_size) {
-        av_free(buf);
+        zn_av_free(buf);
         return AVERROR(EIO);
     }
     buf[data_size] = 0;
@@ -428,7 +428,7 @@ static int iff_read_header(AVFormatContext *s)
     uint8_t fmt[16];
     int fmt_size;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -540,7 +540,7 @@ static int iff_read_header(AVFormatContext *s)
             if (res < 0)
                 return res;
             if (avio_read(pb, st->codecpar->extradata + IFF_EXTRA_VIDEO_SIZE, data_size) < 0) {
-                av_freep(&st->codecpar->extradata);
+                zn_av_freep(&st->codecpar->extradata);
                 st->codecpar->extradata_size = 0;
                 return AVERROR(EIO);
             }

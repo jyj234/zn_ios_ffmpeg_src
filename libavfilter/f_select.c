@@ -231,7 +231,7 @@ static int config_input(AVFilterLink *inlink)
     select->var_values[VAR_N]          = 0.0;
     select->var_values[VAR_SELECTED_N] = 0.0;
 
-    select->var_values[VAR_TB] = av_q2d(inlink->time_base);
+    select->var_values[VAR_TB] = zn_av_q2d(inlink->time_base);
 
     select->var_values[VAR_PREV_PTS]          = NAN;
     select->var_values[VAR_PREV_SELECTED_PTS] = NAN;
@@ -300,7 +300,7 @@ static double get_scene_score(AVFilterContext *ctx, AVFrame *frame)
         diff = fabs(mafd - select->prev_mafd);
         ret  = av_clipf(FFMIN(mafd, diff) / 100., 0, 1);
         select->prev_mafd = mafd;
-        av_frame_free(&prev_picref);
+        zn_av_frame_free(&prev_picref);
     }
     select->prev_picref = av_frame_clone(frame);
     return ret;
@@ -337,11 +337,11 @@ static void select_frame(AVFilterContext *ctx, AVFrame *frame)
     if (isnan(select->var_values[VAR_START_PTS]))
         select->var_values[VAR_START_PTS] = TS2D(frame->pts);
     if (isnan(select->var_values[VAR_START_T]))
-        select->var_values[VAR_START_T] = TS2D(frame->pts) * av_q2d(inlink->time_base);
+        select->var_values[VAR_START_T] = TS2D(frame->pts) * zn_av_q2d(inlink->time_base);
 
     select->var_values[VAR_N  ] = inlink->frame_count_out;
     select->var_values[VAR_PTS] = TS2D(frame->pts);
-    select->var_values[VAR_T  ] = TS2D(frame->pts) * av_q2d(inlink->time_base);
+    select->var_values[VAR_T  ] = TS2D(frame->pts) * zn_av_q2d(inlink->time_base);
 #if FF_API_FRAME_PKT
 FF_DISABLE_DEPRECATION_WARNINGS
     select->var_values[VAR_POS] = frame->pkt_pos == -1 ? NAN : frame->pkt_pos;
@@ -425,7 +425,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     if (select->select)
         return ff_filter_frame(ctx->outputs[select->select_out], frame);
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     return 0;
 }
 
@@ -444,7 +444,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     select->expr = NULL;
 
     if (select->do_scene_detect) {
-        av_frame_free(&select->prev_picref);
+        zn_av_frame_free(&select->prev_picref);
     }
 }
 

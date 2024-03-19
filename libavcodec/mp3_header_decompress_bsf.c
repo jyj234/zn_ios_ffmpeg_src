@@ -47,7 +47,7 @@ static int mp3_header_decompress(AVBSFContext *ctx, AVPacket *out)
     header = AV_RB32(buf);
     if(ff_mpa_check_header(header) >= 0){
         av_packet_move_ref(out, in);
-        av_packet_free(&in);
+        zn_av_packet_free(&in);
 
         return 0;
     }
@@ -93,7 +93,7 @@ static int mp3_header_decompress(AVBSFContext *ctx, AVPacket *out)
         goto fail;
     ret = av_packet_copy_props(out, in);
     if (ret < 0) {
-        av_packet_unref(out);
+        zn_av_packet_unref(out);
         goto fail;
     }
     memcpy(out->data + frame_size - buf_size, buf, buf_size + AV_INPUT_BUFFER_PADDING_SIZE);
@@ -115,7 +115,7 @@ static int mp3_header_decompress(AVBSFContext *ctx, AVPacket *out)
     ret = 0;
 
 fail:
-    av_packet_free(&in);
+    zn_av_packet_free(&in);
     return ret;
 }
 

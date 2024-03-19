@@ -61,7 +61,7 @@ void objpool_free(ObjPool **pop)
     for (unsigned int i = 0; i < op->pool_count; i++)
         op->free(&op->pool[i]);
 
-    av_freep(pop);
+    zn_av_freep(pop);
 }
 
 int  objpool_get(ObjPool *op, void **obj)
@@ -92,16 +92,16 @@ void objpool_release(ObjPool *op, void **obj)
 
 static void *alloc_packet(void)
 {
-    return av_packet_alloc();
+    return zn_av_packet_alloc();
 }
 static void *alloc_frame(void)
 {
-    return av_frame_alloc();
+    return zn_av_frame_alloc();
 }
 
 static void reset_packet(void *obj)
 {
-    av_packet_unref(obj);
+    zn_av_packet_unref(obj);
 }
 static void reset_frame(void *obj)
 {
@@ -111,13 +111,13 @@ static void reset_frame(void *obj)
 static void free_packet(void **obj)
 {
     AVPacket *pkt = *obj;
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
     *obj = NULL;
 }
 static void free_frame(void **obj)
 {
     AVFrame *frame = *obj;
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     *obj = NULL;
 }
 

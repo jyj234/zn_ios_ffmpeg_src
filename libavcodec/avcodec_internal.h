@@ -29,12 +29,12 @@ struct AVCodecContext;
 struct AVFrame;
 
 /**
- * avcodec_receive_frame() implementation for decoders.
+ * zn_avcodec_receive_frame() implementation for decoders.
  */
 int ff_decode_receive_frame(struct AVCodecContext *avctx, struct AVFrame *frame);
 
 /**
- * avcodec_receive_frame() implementation for encoders.
+ * zn_avcodec_receive_frame() implementation for encoders.
  */
 int ff_encode_receive_frame(struct AVCodecContext *avctx, struct AVFrame *frame);
 

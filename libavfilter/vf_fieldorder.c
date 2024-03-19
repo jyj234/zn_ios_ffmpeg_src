@@ -90,7 +90,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, frame);
@@ -151,7 +151,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         out->flags &= ~AV_FRAME_FLAG_TOP_FIELD_FIRST;
 
     if (frame != out)
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
     return ff_filter_frame(outlink, out);
 }
 

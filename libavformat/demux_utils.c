@@ -67,7 +67,7 @@ AVChapter *avpriv_new_chapter(AVFormatContext *s, int64_t id, AVRational time_ba
             return NULL;
         ret = av_dynarray_add_nofree(&s->chapters, &s->nb_chapters, chapter);
         if (ret < 0) {
-            av_free(chapter);
+            zn_av_free(chapter);
             return NULL;
         }
     }
@@ -120,12 +120,12 @@ int ff_add_attached_pic(AVFormatContext *s, AVStream *st0, AVIOContext *pb,
     AVPacket *pkt;
     int ret;
 
-    if (!st && !(st = avformat_new_stream(s, NULL)))
+    if (!st && !(st = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
     pkt = &st->attached_pic;
     if (buf) {
         av_assert1(*buf);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         pkt->buf  = *buf;
         pkt->data = (*buf)->data;
         pkt->size = (*buf)->size - AV_INPUT_BUFFER_PADDING_SIZE;
@@ -359,7 +359,7 @@ int ff_get_extradata(void *logctx, AVCodecParameters *par, AVIOContext *pb, int 
         return ret;
     ret = ffio_read_size(pb, par->extradata, size);
     if (ret < 0) {
-        av_freep(&par->extradata);
+        zn_av_freep(&par->extradata);
         par->extradata_size = 0;
         av_log(logctx, AV_LOG_ERROR, "Failed to read extradata of size %d\n", size);
         return ret;

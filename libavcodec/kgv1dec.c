@@ -40,8 +40,8 @@ static void decode_flush(AVCodecContext *avctx)
 {
     KgvContext * const c = avctx->priv_data;
 
-    av_freep(&c->frame_buffer);
-    av_freep(&c->last_frame_buffer);
+    zn_av_freep(&c->frame_buffer);
+    zn_av_freep(&c->last_frame_buffer);
 }
 
 static int decode_frame(AVCodecContext *avctx, AVFrame *frame,
@@ -66,8 +66,8 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *frame,
         return AVERROR_INVALIDDATA;
 
     if (w != avctx->width || h != avctx->height) {
-        av_freep(&c->frame_buffer);
-        av_freep(&c->last_frame_buffer);
+        zn_av_freep(&c->frame_buffer);
+        zn_av_freep(&c->last_frame_buffer);
         if ((res = ff_set_dimensions(avctx, w, h)) < 0)
             return res;
     }

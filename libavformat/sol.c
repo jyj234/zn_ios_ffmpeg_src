@@ -107,13 +107,13 @@ static int sol_read_header(AVFormatContext *s)
     else id = 0;
 
     /* now we are ready: build format streams */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return -1;
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
     st->codecpar->codec_tag = id;
     st->codecpar->codec_id = codec;
-    av_channel_layout_default(&st->codecpar->ch_layout,channels);
+    zn_av_channel_layout_default(&st->codecpar->ch_layout,channels);
     st->codecpar->sample_rate = rate;
     avpriv_set_pts_info(st, 64, 1, rate);
     return 0;

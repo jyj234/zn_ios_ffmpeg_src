@@ -80,7 +80,7 @@ static void frame_list_clear(FrameList *frame_list)
         while (frame_list->list) {
             FrameInfo *info = frame_list->list;
             frame_list->list = info->next;
-            av_free(info);
+            zn_av_free(info);
         }
         frame_list->nb_frames  = 0;
         frame_list->nb_samples = 0;
@@ -118,7 +118,7 @@ static void frame_list_remove_samples(FrameList *frame_list, int nb_samples)
                     frame_list->end = NULL;
                 frame_list->nb_frames--;
                 frame_list->nb_samples -= info->nb_samples;
-                av_free(info);
+                zn_av_free(info);
             } else {
                 info->nb_samples       -= samples;
                 info->pts              += samples;
@@ -256,13 +256,13 @@ static int config_output(AVFilterLink *outlink)
     if (!s->frame_list)
         return AVERROR(ENOMEM);
 
-    s->fifos = av_calloc(s->nb_inputs, sizeof(*s->fifos));
+    s->fifos = zn_av_calloc(s->nb_inputs, sizeof(*s->fifos));
     if (!s->fifos)
         return AVERROR(ENOMEM);
 
     s->nb_channels = outlink->ch_layout.nb_channels;
     for (i = 0; i < s->nb_inputs; i++) {
-        s->fifos[i] = av_audio_fifo_alloc(outlink->format, s->nb_channels, 1024);
+        s->fifos[i] = zn_av_audio_fifo_alloc(outlink->format, s->nb_channels, 1024);
         if (!s->fifos[i])
             return AVERROR(ENOMEM);
     }
@@ -273,8 +273,8 @@ static int config_output(AVFilterLink *outlink)
     memset(s->input_state, INPUT_ON, s->nb_inputs);
     s->active_inputs = s->nb_inputs;
 
-    s->input_scale = av_calloc(s->nb_inputs, sizeof(*s->input_scale));
-    s->scale_norm  = av_calloc(s->nb_inputs, sizeof(*s->scale_norm));
+    s->input_scale = zn_av_calloc(s->nb_inputs, sizeof(*s->input_scale));
+    s->scale_norm  = zn_av_calloc(s->nb_inputs, sizeof(*s->scale_norm));
     if (!s->input_scale || !s->scale_norm)
         return AVERROR(ENOMEM);
     for (i = 0; i < s->nb_inputs; i++)
@@ -305,7 +305,7 @@ static int output_frame(AVFilterLink *outlink)
         nb_samples = frame_list_next_frame_size(s->frame_list);
         for (i = 1; i < s->nb_inputs; i++) {
             if (s->input_state[i] & INPUT_ON) {
-                ns = av_audio_fifo_size(s->fifos[i]);
+                ns = zn_av_audio_fifo_size(s->fifos[i]);
                 if (ns < nb_samples) {
                     if (!(s->input_state[i] & INPUT_EOF))
                         /* unclosed input with not enough samples */
@@ -322,7 +322,7 @@ static int output_frame(AVFilterLink *outlink)
         nb_samples = INT_MAX;
         for (i = 1; i < s->nb_inputs; i++) {
             if (s->input_state[i] & INPUT_ON) {
-                ns = av_audio_fifo_size(s->fifos[i]);
+                ns = zn_av_audio_fifo_size(s->fifos[i]);
                 nb_samples = FFMIN(nb_samples, ns);
             }
         }
@@ -345,7 +345,7 @@ static int output_frame(AVFilterLink *outlink)
 
     in_buf = ff_get_audio_buffer(outlink, nb_samples);
     if (!in_buf) {
-        av_frame_free(&out_buf);
+        zn_av_frame_free(&out_buf);
         return AVERROR(ENOMEM);
     }
 
@@ -376,7 +376,7 @@ static int output_frame(AVFilterLink *outlink)
             }
         }
     }
-    av_frame_free(&in_buf);
+    zn_av_frame_free(&in_buf);
 
     out_buf->pts = s->next_pts;
     if (s->next_pts != AV_NOPTS_VALUE)
@@ -399,7 +399,7 @@ static int request_samples(AVFilterContext *ctx, int min_samples)
         if (!(s->input_state[i] & INPUT_ON) ||
              (s->input_state[i] & INPUT_EOF))
             continue;
-        if (av_audio_fifo_size(s->fifos[i]) >= min_samples)
+        if (zn_av_audio_fifo_size(s->fifos[i]) >= min_samples)
             continue;
         ff_inlink_request_frame(ctx->inputs[i]);
     }
@@ -445,19 +445,19 @@ static int activate(AVFilterContext *ctx)
                                            outlink->time_base);
                 ret = frame_list_add_frame(s->frame_list, buf->nb_samples, pts);
                 if (ret < 0) {
-                    av_frame_free(&buf);
+                    zn_av_frame_free(&buf);
                     return ret;
                 }
             }
 
-            ret = av_audio_fifo_write(s->fifos[i], (void **)buf->extended_data,
+            ret = zn_av_audio_fifo_write(s->fifos[i], (void **)buf->extended_data,
                                       buf->nb_samples);
             if (ret < 0) {
-                av_frame_free(&buf);
+                zn_av_frame_free(&buf);
                 return ret;
             }
 
-            av_frame_free(&buf);
+            zn_av_frame_free(&buf);
 
             ret = output_frame(outlink);
             if (ret < 0)
@@ -479,7 +479,7 @@ static int activate(AVFilterContext *ctx)
                     }
                 } else {
                     s->input_state[i] |= INPUT_EOF;
-                    if (av_audio_fifo_size(s->fifos[i]) == 0) {
+                    if (zn_av_audio_fifo_size(s->fifos[i]) == 0) {
                         s->input_state[i] = 0;
                     }
                 }
@@ -560,7 +560,7 @@ static av_cold int init(AVFilterContext *ctx)
     if (!s->fdsp)
         return AVERROR(ENOMEM);
 
-    s->weights = av_calloc(s->nb_inputs, sizeof(*s->weights));
+    s->weights = zn_av_calloc(s->nb_inputs, sizeof(*s->weights));
     if (!s->weights)
         return AVERROR(ENOMEM);
 
@@ -577,15 +577,15 @@ static av_cold void uninit(AVFilterContext *ctx)
     if (s->fifos) {
         for (i = 0; i < s->nb_inputs; i++)
             av_audio_fifo_free(s->fifos[i]);
-        av_freep(&s->fifos);
+        zn_av_freep(&s->fifos);
     }
     frame_list_clear(s->frame_list);
-    av_freep(&s->frame_list);
-    av_freep(&s->input_state);
-    av_freep(&s->input_scale);
-    av_freep(&s->scale_norm);
-    av_freep(&s->weights);
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->frame_list);
+    zn_av_freep(&s->input_state);
+    zn_av_freep(&s->input_scale);
+    zn_av_freep(&s->scale_norm);
+    zn_av_freep(&s->weights);
+    zn_av_freep(&s->fdsp);
 }
 
 static int process_command(AVFilterContext *ctx, const char *cmd, const char *args,

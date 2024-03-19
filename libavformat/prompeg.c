@@ -347,7 +347,7 @@ static int prompeg_init(URLContext *h, const uint8_t *buf, int size) {
         s->rtp_row_sn = (seed >> 16) & 0x0fff;
     }
 
-    s->fec_arr = av_malloc_array(s->fec_arr_len, sizeof (PrompegFec*));
+    s->fec_arr = zn_av_malloc_array(s->fec_arr_len, sizeof (PrompegFec*));
     if (!s->fec_arr) {
         goto fail;
     }
@@ -356,9 +356,9 @@ static int prompeg_init(URLContext *h, const uint8_t *buf, int size) {
         if (!s->fec_arr[i]) {
             goto fail;
         }
-        s->fec_arr[i]->bitstring = av_malloc_array(s->bitstring_size, sizeof (uint8_t));
+        s->fec_arr[i]->bitstring = zn_av_malloc_array(s->bitstring_size, sizeof (uint8_t));
         if (!s->fec_arr[i]->bitstring) {
-            av_freep(&s->fec_arr[i]);
+            zn_av_freep(&s->fec_arr[i]);
             goto fail;
         }
     }
@@ -366,7 +366,7 @@ static int prompeg_init(URLContext *h, const uint8_t *buf, int size) {
     s->fec_col = s->fec_arr + 1;
     s->fec_col_tmp = s->fec_arr + 1 + s->l;
 
-    s->rtp_buf = av_malloc_array(s->rtp_buf_size, sizeof (uint8_t));
+    s->rtp_buf = zn_av_malloc_array(s->rtp_buf_size, sizeof (uint8_t));
     if (!s->rtp_buf) {
         goto fail;
     }
@@ -444,7 +444,7 @@ static int prompeg_write(URLContext *h, const uint8_t *buf, int size) {
     ret = size;
 
 end:
-    av_free(bitstring);
+    zn_av_free(bitstring);
     return ret;
 }
 
@@ -457,12 +457,12 @@ static int prompeg_close(URLContext *h) {
 
     if (s->fec_arr) {
         for (i = 0; i < s->fec_arr_len; i++) {
-            av_free(s->fec_arr[i]->bitstring);
-            av_freep(&s->fec_arr[i]);
+            zn_av_free(s->fec_arr[i]->bitstring);
+            zn_av_freep(&s->fec_arr[i]);
         }
-        av_freep(&s->fec_arr);
+        zn_av_freep(&s->fec_arr);
     }
-    av_freep(&s->rtp_buf);
+    zn_av_freep(&s->rtp_buf);
 
     return 0;
 }

@@ -297,7 +297,7 @@ static int decode_frame(AVCodecContext *avctx,
 static av_cold int decode_end(AVCodecContext *avctx)
 {
     VMIXContext *s = avctx->priv_data;
-    av_freep(&s->slices);
+    zn_av_freep(&s->slices);
     return 0;
 }
 

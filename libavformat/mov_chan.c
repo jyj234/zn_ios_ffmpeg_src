@@ -473,7 +473,7 @@ int ff_mov_get_channel_layout_tag(const AVCodecParameters *par,
         } else if (par->ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
             return AVERROR(ENOSYS);
 
-        channel_desc = av_malloc_array(par->ch_layout.nb_channels, sizeof(*channel_desc));
+        channel_desc = zn_av_malloc_array(par->ch_layout.nb_channels, sizeof(*channel_desc));
         if (!channel_desc)
             return AVERROR(ENOMEM);
 
@@ -482,7 +482,7 @@ int ff_mov_get_channel_layout_tag(const AVCodecParameters *par,
                 mov_get_channel_label(av_channel_layout_channel_from_index(&par->ch_layout, i));
 
             if (channel_desc[i] == 0) {
-                av_free(channel_desc);
+                zn_av_free(channel_desc);
                 return AVERROR(ENOSYS);
             }
         }
@@ -754,7 +754,7 @@ int ff_mov_get_channel_config_from_layout(const AVChannelLayout *layout, int *co
 int ff_mov_get_channel_layout_from_config(int config, AVChannelLayout *layout)
 {
     if (config > 0 && config < FF_ARRAY_ELEMS(iso_channel_configuration)) {
-        av_channel_layout_copy(layout, &iso_channel_configuration[config]);
+        zn_av_channel_layout_copy(layout, &iso_channel_configuration[config]);
         return 0;
     }
 
@@ -817,7 +817,7 @@ int ff_mov_get_layout_from_channel_positions(const uint8_t *position, int positi
     } else {
         layout->order = AV_CHANNEL_ORDER_CUSTOM;
         layout->nb_channels = position_num;
-        layout->u.map = av_calloc(position_num, sizeof(*layout->u.map));
+        layout->u.map = zn_av_calloc(position_num, sizeof(*layout->u.map));
         if (!layout->u.map) {
             ret = AVERROR(ENOMEM);
             goto error;

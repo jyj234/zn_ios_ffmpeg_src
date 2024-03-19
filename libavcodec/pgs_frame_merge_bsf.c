@@ -52,8 +52,8 @@ static av_cold void frame_merge_flush(AVBSFContext *bsf)
     PGSMergeContext *ctx = bsf->priv_data;
 
     ctx->presentation_found = ctx->pkt_flags = 0;
-    av_packet_unref(ctx->in);
-    av_packet_unref(ctx->buffer_pkt);
+    zn_av_packet_unref(ctx->in);
+    zn_av_packet_unref(ctx->buffer_pkt);
 }
 
 static int frame_merge_output(PGSMergeContext *ctx, AVPacket *dst, AVPacket *src)
@@ -85,7 +85,7 @@ static int frame_merge_filter(AVBSFContext *bsf, AVPacket *out)
             return ret;
     }
     if (!in->size) {
-        av_packet_unref(in);
+        zn_av_packet_unref(in);
         return AVERROR(EAGAIN);
     }
     in->flags &= ~AV_PKT_FLAG_KEY; // Will be detected in the stream
@@ -141,7 +141,7 @@ static int frame_merge_filter(AVBSFContext *bsf, AVPacket *out)
     memcpy(pkt->data + pos, in->data, size);
 
     if (size == in->size)
-        av_packet_unref(in);
+        zn_av_packet_unref(in);
     else {
         in->data += size;
         in->size -= size;
@@ -160,8 +160,8 @@ static av_cold int frame_merge_init(AVBSFContext *bsf)
 {
     PGSMergeContext *ctx = bsf->priv_data;
 
-    ctx->in  = av_packet_alloc();
-    ctx->buffer_pkt = av_packet_alloc();
+    ctx->in  = zn_av_packet_alloc();
+    ctx->buffer_pkt = zn_av_packet_alloc();
     if (!ctx->in || !ctx->buffer_pkt)
         return AVERROR(ENOMEM);
 
@@ -172,8 +172,8 @@ static av_cold void frame_merge_close(AVBSFContext *bsf)
 {
     PGSMergeContext *ctx = bsf->priv_data;
 
-    av_packet_free(&ctx->in);
-    av_packet_free(&ctx->buffer_pkt);
+    zn_av_packet_free(&ctx->in);
+    zn_av_packet_free(&ctx->buffer_pkt);
 }
 
 static const enum AVCodecID frame_merge_codec_ids[] = {

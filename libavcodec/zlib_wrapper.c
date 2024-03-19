@@ -29,12 +29,12 @@
 
 static void *alloc_wrapper(void *opaque, uInt items, uInt size)
 {
-    return av_malloc_array(items, size);
+    return zn_av_malloc_array(items, size);
 }
 
 static void free_wrapper(void *opaque, void *ptr)
 {
-    av_free(ptr);
+    zn_av_free(ptr);
 }
 
 #if CONFIG_INFLATE_WRAPPER

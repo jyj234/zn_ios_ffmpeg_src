@@ -99,7 +99,7 @@ static void set_spdif(AVFormatContext *s, WAVDemuxContext *wav)
                     }
                 }
                 avio_seek(s->pb, pos, SEEK_SET);
-                av_free(buf);
+                zn_av_free(buf);
             }
         }
 
@@ -316,7 +316,7 @@ static int wav_parse_bext_tag(AVFormatContext *s, int64_t size)
             return AVERROR(ENOMEM);
 
         if ((ret = ffio_read_size(s->pb, coding_history, size)) < 0) {
-            av_free(coding_history);
+            zn_av_free(coding_history);
             return ret;
         }
 
@@ -405,7 +405,7 @@ static int wav_read_header(AVFormatContext *s)
     }
 
     /* Create the audio stream now so that its index is always zero */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -483,7 +483,7 @@ static int wav_read_header(AVFormatContext *s)
             }
             av_log(s, AV_LOG_DEBUG, "Found SMV data\n");
             wav->smv_given_first = 0;
-            vst = avformat_new_stream(s, NULL);
+            vst = zn_avformat_new_stream(s, NULL);
             if (!vst)
                 return AVERROR(ENOMEM);
             wav->vst = vst;
@@ -879,7 +879,7 @@ static int w64_read_header(AVFormatContext *s)
 
     wav->w64 = 1;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -954,7 +954,7 @@ static int w64_read_header(AVFormatContext *s)
 
                 ret = avio_get_str16le(pb, chunk_size, value, chunk_size);
                 if (ret < 0) {
-                    av_free(value);
+                    zn_av_free(value);
                     return ret;
                 }
                 avio_skip(pb, chunk_size - ret);

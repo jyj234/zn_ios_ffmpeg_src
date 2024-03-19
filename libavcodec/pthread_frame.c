@@ -317,7 +317,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
         dst->channel_layout = src->channel_layout;
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
-        err = av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
+        err = zn_av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
         if (err < 0)
             return err;
 
@@ -429,7 +429,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
 
-    av_packet_unref(dst->internal->last_pkt_props);
+    zn_av_packet_unref(dst->internal->last_pkt_props);
     err = av_packet_copy_props(dst->internal->last_pkt_props, src->internal->last_pkt_props);
     if (err < 0)
         return err;
@@ -483,7 +483,7 @@ static int submit_packet(PerThreadContext *p, AVCodecContext *user_avctx,
         FFSWAP(void*,            p->avctx->internal->hwaccel_priv_data, fctx->stash_hwaccel_priv);
     }
 
-    av_packet_unref(p->avpkt);
+    zn_av_packet_unref(p->avpkt);
     ret = av_packet_ref(p->avpkt, avpkt);
     if (ret < 0) {
         pthread_mutex_unlock(&p->mutex);
@@ -740,24 +740,24 @@ void ff_frame_thread_free(AVCodecContext *avctx, int thread_count)
             if (ctx->priv_data) {
                 if (codec->p.priv_class)
                     av_opt_free(ctx->priv_data);
-                av_freep(&ctx->priv_data);
+                zn_av_freep(&ctx->priv_data);
             }
 
             ff_refstruct_unref(&ctx->internal->pool);
-            av_packet_free(&ctx->internal->last_pkt_props);
-            av_freep(&ctx->internal);
+            zn_av_packet_free(&ctx->internal->last_pkt_props);
+            zn_av_freep(&ctx->internal);
             av_buffer_unref(&ctx->hw_frames_ctx);
         }
 
-        av_frame_free(&p->frame);
+        zn_av_frame_free(&p->frame);
 
         ff_pthread_free(p, per_thread_offsets);
-        av_packet_free(&p->avpkt);
+        zn_av_packet_free(&p->avpkt);
 
-        av_freep(&p->avctx);
+        zn_av_freep(&p->avctx);
     }
 
-    av_freep(&fctx->threads);
+    zn_av_freep(&fctx->threads);
     ff_pthread_free(fctx, thread_ctx_offsets);
 
     /* if we have stashed hwaccel state, move it to the user-facing context,
@@ -767,7 +767,7 @@ void ff_frame_thread_free(AVCodecContext *avctx, int thread_count)
     FFSWAP(void*,            avctx->hwaccel_context,             fctx->stash_hwaccel_context);
     FFSWAP(void*,            avctx->internal->hwaccel_priv_data, fctx->stash_hwaccel_priv);
 
-    av_freep(&avctx->internal->thread_ctx);
+    zn_av_freep(&avctx->internal->thread_ctx);
 }
 
 static av_cold int init_thread(PerThreadContext *p, int *threads_to_free,
@@ -815,14 +815,14 @@ static av_cold int init_thread(PerThreadContext *p, int *threads_to_free,
     if (err < 0)
         return err;
 
-    if (!(p->frame = av_frame_alloc()) ||
-        !(p->avpkt = av_packet_alloc()))
+    if (!(p->frame = zn_av_frame_alloc()) ||
+        !(p->avpkt = zn_av_packet_alloc()))
         return AVERROR(ENOMEM);
 
     if (!first)
         copy->internal->is_copy = 1;
 
-    copy->internal->last_pkt_props = av_packet_alloc();
+    copy->internal->last_pkt_props = zn_av_packet_alloc();
     if (!copy->internal->last_pkt_props)
         return AVERROR(ENOMEM);
 
@@ -877,7 +877,7 @@ int ff_frame_thread_init(AVCodecContext *avctx)
     err = ff_pthread_init(fctx, thread_ctx_offsets);
     if (err < 0) {
         ff_pthread_free(fctx, thread_ctx_offsets);
-        av_freep(&avctx->internal->thread_ctx);
+        zn_av_freep(&avctx->internal->thread_ctx);
         return err;
     }
 
@@ -887,7 +887,7 @@ int ff_frame_thread_init(AVCodecContext *avctx)
     if (codec->p.type == AVMEDIA_TYPE_VIDEO)
         avctx->delay = avctx->thread_count - 1;
 
-    fctx->threads = av_calloc(thread_count, sizeof(*fctx->threads));
+    fctx->threads = zn_av_calloc(thread_count, sizeof(*fctx->threads));
     if (!fctx->threads) {
         err = AVERROR(ENOMEM);
         goto error;

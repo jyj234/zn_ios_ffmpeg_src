@@ -347,7 +347,7 @@ retry:
         return ret;
 
     if (dhav->type == 0xfd && dhav->video_stream_index == -1) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         DHAVStream *dst;
 
         if (!st)
@@ -376,7 +376,7 @@ retry:
 
         avpriv_set_pts_info(st, 64, 1, 1000);
     } else if (dhav->type == 0xf0 && dhav->audio_stream_index == -1) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         DHAVStream *dst;
 
         if (!st)

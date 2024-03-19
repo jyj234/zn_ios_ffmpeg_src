@@ -252,7 +252,7 @@ void ff_avfilter_link_set_in_status(AVFilterLink *link, int status, int64_t pts)
 
 #define D2TS(d)      (isnan(d) ? AV_NOPTS_VALUE : (int64_t)(d))
 #define TS2D(ts)     ((ts) == AV_NOPTS_VALUE ? NAN : (double)(ts))
-#define TS2T(ts, tb) ((ts) == AV_NOPTS_VALUE ? NAN : (double)(ts) * av_q2d(tb))
+#define TS2T(ts, tb) ((ts) == AV_NOPTS_VALUE ? NAN : (double)(ts) * zn_av_q2d(tb))
 
 /* misc trace functions */
 

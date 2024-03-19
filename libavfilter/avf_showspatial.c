@@ -75,10 +75,10 @@ static av_cold void uninit(AVFilterContext *ctx)
     for (int i = 0; i < 2; i++)
         av_tx_uninit(&s->fft[i]);
     for (int i = 0; i < 2; i++) {
-        av_freep(&s->fft_data[i]);
-        av_freep(&s->fft_tdata[i]);
+        zn_av_freep(&s->fft_data[i]);
+        zn_av_freep(&s->fft_tdata[i]);
     }
-    av_freep(&s->window_func_lut);
+    zn_av_freep(&s->window_func_lut);
     av_audio_fifo_free(s->fifo);
 }
 
@@ -151,8 +151,8 @@ static int config_output(AVFilterLink *outlink)
          * make sure the buffer is aligned in memory for the FFT functions. */
         for (int i = 0; i < 2; i++) {
             av_tx_uninit(&s->fft[i]);
-            av_freep(&s->fft_data[i]);
-            av_freep(&s->fft_tdata[i]);
+            zn_av_freep(&s->fft_data[i]);
+            zn_av_freep(&s->fft_tdata[i]);
         }
         for (int i = 0; i < 2; i++) {
             float scale = 1.f;
@@ -163,11 +163,11 @@ static int config_output(AVFilterLink *outlink)
         }
 
         for (int i = 0; i < 2; i++) {
-            s->fft_tdata[i] = av_calloc(s->buf_size, sizeof(**s->fft_tdata));
+            s->fft_tdata[i] = zn_av_calloc(s->buf_size, sizeof(**s->fft_tdata));
             if (!s->fft_tdata[i])
                 return AVERROR(ENOMEM);
 
-            s->fft_data[i] = av_calloc(s->buf_size, sizeof(**s->fft_data));
+            s->fft_data[i] = zn_av_calloc(s->buf_size, sizeof(**s->fft_data));
             if (!s->fft_data[i])
                 return AVERROR(ENOMEM);
         }
@@ -184,7 +184,7 @@ static int config_output(AVFilterLink *outlink)
     }
 
     av_audio_fifo_free(s->fifo);
-    s->fifo = av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, s->win_size);
+    s->fifo = zn_av_audio_fifo_alloc(inlink->format, inlink->ch_layout.nb_channels, s->win_size);
     if (!s->fifo)
         return AVERROR(ENOMEM);
     return 0;
@@ -262,7 +262,7 @@ static int spatial_activate(AVFilterContext *ctx)
 
     FF_FILTER_FORWARD_STATUS_BACK(outlink, inlink);
 
-    if (av_audio_fifo_size(s->fifo) < s->win_size) {
+    if (zn_av_audio_fifo_size(s->fifo) < s->win_size) {
         AVFrame *frame = NULL;
 
         ret = ff_inlink_consume_frame(inlink, &frame);
@@ -272,12 +272,12 @@ static int spatial_activate(AVFilterContext *ctx)
             s->pts = frame->pts;
             s->consumed = 0;
 
-            av_audio_fifo_write(s->fifo, (void **)frame->extended_data, frame->nb_samples);
-            av_frame_free(&frame);
+            zn_av_audio_fifo_write(s->fifo, (void **)frame->extended_data, frame->nb_samples);
+            zn_av_frame_free(&frame);
         }
     }
 
-    if (av_audio_fifo_size(s->fifo) >= s->win_size) {
+    if (zn_av_audio_fifo_size(s->fifo) >= s->win_size) {
         AVFrame *fin = ff_get_audio_buffer(inlink, s->win_size);
         if (!fin)
             return AVERROR(ENOMEM);
@@ -285,9 +285,9 @@ static int spatial_activate(AVFilterContext *ctx)
         fin->pts = s->pts + s->consumed;
         s->consumed += s->hop_size;
         ret = av_audio_fifo_peek(s->fifo, (void **)fin->extended_data,
-                                 FFMIN(s->win_size, av_audio_fifo_size(s->fifo)));
+                                 FFMIN(s->win_size, zn_av_audio_fifo_size(s->fifo)));
         if (ret < 0) {
-            av_frame_free(&fin);
+            zn_av_frame_free(&fin);
             return ret;
         }
 
@@ -297,19 +297,19 @@ static int spatial_activate(AVFilterContext *ctx)
 
         ret = draw_spatial(inlink, fin);
 
-        av_frame_free(&fin);
+        zn_av_frame_free(&fin);
         av_audio_fifo_drain(s->fifo, s->hop_size);
         if (ret <= 0)
             return ret;
     }
 
     FF_FILTER_FORWARD_STATUS(inlink, outlink);
-    if (ff_outlink_frame_wanted(outlink) && av_audio_fifo_size(s->fifo) < s->win_size) {
+    if (ff_outlink_frame_wanted(outlink) && zn_av_audio_fifo_size(s->fifo) < s->win_size) {
         ff_inlink_request_frame(inlink);
         return 0;
     }
 
-    if (av_audio_fifo_size(s->fifo) >= s->win_size) {
+    if (zn_av_audio_fifo_size(s->fifo) >= s->win_size) {
         ff_filter_set_ready(ctx, 10);
         return 0;
     }

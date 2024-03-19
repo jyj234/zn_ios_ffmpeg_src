@@ -503,7 +503,7 @@ static int init_video_stream(AVFormatContext *s, VideoProperties *video)
         return 0;
 
     /* initialize the video decoder stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     video->stream_index = st->index;
@@ -552,7 +552,7 @@ static int ea_read_header(AVFormatContext *s)
         }
 
         /* initialize the audio decoder stream */
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         avpriv_set_pts_info(st, 33, 1, ea->sample_rate);
@@ -629,7 +629,7 @@ static int ea_read_packet(AVFormatContext *s, AVPacket *pkt)
 
             if (partial_packet) {
                 avpriv_request_sample(s, "video header followed by audio packet");
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
                 partial_packet = 0;
             }
 

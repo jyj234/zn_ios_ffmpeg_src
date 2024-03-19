@@ -132,7 +132,7 @@ static int config_props(AVFilterLink *inlink)
         plane->width      = AV_CEIL_RSHIFT(inlink->w, hsub);
         plane->height     = AV_CEIL_RSHIFT(inlink->h, vsub);
         plane->tmpbuf     = av_malloc(plane->width * plane->height);
-        plane->gradients  = av_calloc(plane->width * plane->height, sizeof(*plane->gradients));
+        plane->gradients  = zn_av_calloc(plane->width * plane->height, sizeof(*plane->gradients));
         plane->directions = av_malloc(plane->width * plane->height);
         if (!plane->tmpbuf || !plane->gradients || !plane->directions)
             return AVERROR(ENOMEM);
@@ -168,7 +168,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -223,7 +223,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -234,9 +234,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     for (p = 0; p < edgedetect->nb_planes; p++) {
         struct plane_info *plane = &edgedetect->planes[p];
-        av_freep(&plane->tmpbuf);
-        av_freep(&plane->gradients);
-        av_freep(&plane->directions);
+        zn_av_freep(&plane->tmpbuf);
+        zn_av_freep(&plane->gradients);
+        zn_av_freep(&plane->directions);
     }
 }
 

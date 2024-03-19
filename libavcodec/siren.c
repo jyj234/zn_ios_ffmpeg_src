@@ -834,7 +834,7 @@ static av_cold int siren_close(AVCodecContext *avctx)
 {
     SirenContext *s = avctx->priv_data;
 
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
     av_tx_uninit(&s->tx_ctx);
 
     return 0;

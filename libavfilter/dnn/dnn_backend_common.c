@@ -154,7 +154,7 @@ DNNAsyncStatusType ff_dnn_get_result_common(Queue *task_queue, AVFrame **in, AVF
     *in = task->in_frame;
     *out = task->out_frame;
     ff_queue_pop_front(task_queue);
-    av_freep(&task);
+    zn_av_freep(&task);
 
     return DAST_SUCCESS;
 }
@@ -164,15 +164,15 @@ int ff_dnn_fill_gettingoutput_task(TaskItem *task, DNNExecBaseParams *exec_param
     AVFrame *in_frame = NULL;
     AVFrame *out_frame = NULL;
 
-    in_frame = av_frame_alloc();
+    in_frame = zn_av_frame_alloc();
     if (!in_frame) {
         av_log(ctx, AV_LOG_ERROR, "Failed to allocate memory for input frame\n");
         return AVERROR(ENOMEM);
     }
 
-    out_frame = av_frame_alloc();
+    out_frame = zn_av_frame_alloc();
     if (!out_frame) {
-        av_frame_free(&in_frame);
+        zn_av_frame_free(&in_frame);
         av_log(ctx, AV_LOG_ERROR, "Failed to allocate memory for output frame\n");
         return AVERROR(ENOMEM);
     }

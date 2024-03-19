@@ -205,11 +205,11 @@ static void reset_rects(AVSubtitle *sub_header)
 
     if (sub_header->rects) {
         for (i = 0; i < sub_header->num_rects; i++) {
-            av_freep(&sub_header->rects[i]->data[0]);
-            av_freep(&sub_header->rects[i]->data[1]);
-            av_freep(&sub_header->rects[i]);
+            zn_av_freep(&sub_header->rects[i]->data[0]);
+            zn_av_freep(&sub_header->rects[i]->data[1]);
+            zn_av_freep(&sub_header->rects[i]);
         }
-        av_freep(&sub_header->rects);
+        zn_av_freep(&sub_header->rects);
         sub_header->num_rects = 0;
     }
 }
@@ -461,7 +461,7 @@ static int find_smallest_bounding_rectangle(DVDSubContext *ctx, AVSubtitle *s)
                                   1, s->rects[0]->w, transp_color))
         y1++;
     if (y1 == s->rects[0]->h) {
-        av_freep(&s->rects[0]->data[0]);
+        zn_av_freep(&s->rects[0]->data[0]);
         s->rects[0]->w = s->rects[0]->h = 0;
         return 0;
     }
@@ -486,7 +486,7 @@ static int find_smallest_bounding_rectangle(DVDSubContext *ctx, AVSubtitle *s)
     for(y = 0; y < h; y++) {
         memcpy(bitmap + w * y, s->rects[0]->data[0] + x1 + (y1 + y) * s->rects[0]->linesize[0], w);
     }
-    av_freep(&s->rects[0]->data[0]);
+    zn_av_freep(&s->rects[0]->data[0]);
     s->rects[0]->data[0] = bitmap;
     s->rects[0]->linesize[0] = w;
     s->rects[0]->w = w;
@@ -571,7 +571,7 @@ static int parse_ifo_palette(DVDSubContext *ctx, char *p)
 
     ctx->has_palette = 0;
     if ((ifo = avpriv_fopen_utf8(p, "r")) == NULL) {
-        av_log(ctx, AV_LOG_WARNING, "Unable to open IFO file \"%s\": %s\n", p, av_err2str(AVERROR(errno)));
+        av_log(ctx, AV_LOG_WARNING, "Unable to open IFO file \"%s\": %s\n", p, zn_av_err2str(AVERROR(errno)));
         return AVERROR_EOF;
     }
     if (fread(ifostr, 12, 1, ifo) != 1 || memcmp(ifostr, "DVDVIDEO-VTS", 12)) {
@@ -656,7 +656,7 @@ static int dvdsub_parse_extradata(AVCodecContext *avctx)
     }
 
 fail:
-    av_free(dataorig);
+    zn_av_free(dataorig);
     return ret;
 }
 

@@ -331,7 +331,7 @@ struct AVVkFrame {
 
 /**
  * Allocates a single AVVkFrame and initializes everything as 0.
- * @note Must be freed via av_free()
+ * @note Must be freed via zn_av_free()
  */
 AVVkFrame *av_vk_frame_alloc(void);
 

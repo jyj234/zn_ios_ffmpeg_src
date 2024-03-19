@@ -52,7 +52,7 @@ static int frm_read_probe(const AVProbeData *p)
 static int frm_read_header(AVFormatContext *avctx)
 {
     AVIOContext *pb = avctx->pb;
-    AVStream *st = avformat_new_stream(avctx, 0);
+    AVStream *st = zn_avformat_new_stream(avctx, 0);
     unsigned idx;
 
     if (!st)

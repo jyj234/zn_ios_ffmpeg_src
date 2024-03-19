@@ -37,8 +37,8 @@ static void av1_frame_merge_flush(AVBSFContext *bsf)
 
     ff_cbs_fragment_reset(&ctx->frag[0]);
     ff_cbs_fragment_reset(&ctx->frag[1]);
-    av_packet_unref(ctx->in);
-    av_packet_unref(ctx->pkt);
+    zn_av_packet_unref(ctx->in);
+    zn_av_packet_unref(ctx->pkt);
 }
 
 static int av1_frame_merge_filter(AVBSFContext *bsf, AVPacket *out)
@@ -109,10 +109,10 @@ eof:
      * the raw OBU demuxer. */
     if (!buffer_pkt->data ||
         in->pts != AV_NOPTS_VALUE && buffer_pkt->pts == AV_NOPTS_VALUE) {
-        av_packet_unref(buffer_pkt);
+        zn_av_packet_unref(buffer_pkt);
         av_packet_move_ref(buffer_pkt, in);
     } else
-        av_packet_unref(in);
+        zn_av_packet_unref(in);
 
     ff_cbs_fragment_reset(&ctx->frag[ctx->idx]);
 
@@ -128,8 +128,8 @@ static int av1_frame_merge_init(AVBSFContext *bsf)
     AV1FMergeContext *ctx = bsf->priv_data;
     int err;
 
-    ctx->in  = av_packet_alloc();
-    ctx->pkt = av_packet_alloc();
+    ctx->in  = zn_av_packet_alloc();
+    ctx->pkt = zn_av_packet_alloc();
     if (!ctx->in || !ctx->pkt)
         return AVERROR(ENOMEM);
 
@@ -146,8 +146,8 @@ static void av1_frame_merge_close(AVBSFContext *bsf)
 
     ff_cbs_fragment_free(&ctx->frag[0]);
     ff_cbs_fragment_free(&ctx->frag[1]);
-    av_packet_free(&ctx->in);
-    av_packet_free(&ctx->pkt);
+    zn_av_packet_free(&ctx->in);
+    zn_av_packet_free(&ctx->pkt);
     ff_cbs_close(&ctx->input);
     ff_cbs_close(&ctx->output);
 }

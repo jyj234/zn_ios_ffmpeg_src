@@ -284,9 +284,9 @@ static av_cold int cfhd_encode_init(AVCodecContext *avctx)
         h2 = h4 * 2;
 
         s->plane[i].dwt_buf =
-            av_calloc(h8 * 8 * w8 * 8, sizeof(*s->plane[i].dwt_buf));
+            zn_av_calloc(h8 * 8 * w8 * 8, sizeof(*s->plane[i].dwt_buf));
         s->plane[i].dwt_tmp =
-            av_malloc_array(h8 * 8 * w8 * 8, sizeof(*s->plane[i].dwt_tmp));
+            zn_av_malloc_array(h8 * 8 * w8 * 8, sizeof(*s->plane[i].dwt_tmp));
         if (!s->plane[i].dwt_buf || !s->plane[i].dwt_tmp)
             return AVERROR(ENOMEM);
 
@@ -371,7 +371,7 @@ static av_cold int cfhd_encode_init(AVCodecContext *avctx)
     if (s->planes != 4)
         return 0;
 
-    s->alpha = av_calloc(avctx->width * avctx->height, sizeof(*s->alpha));
+    s->alpha = zn_av_calloc(avctx->width * avctx->height, sizeof(*s->alpha));
     if (!s->alpha)
         return AVERROR(ENOMEM);
 
@@ -812,8 +812,8 @@ static av_cold int cfhd_encode_close(AVCodecContext *avctx)
     CFHDEncContext *s = avctx->priv_data;
 
     for (int i = 0; i < s->planes; i++) {
-        av_freep(&s->plane[i].dwt_buf);
-        av_freep(&s->plane[i].dwt_tmp);
+        zn_av_freep(&s->plane[i].dwt_buf);
+        zn_av_freep(&s->plane[i].dwt_tmp);
 
         for (int j = 0; j < SUBBAND_COUNT; j++)
             s->plane[i].subband[j] = NULL;
@@ -822,7 +822,7 @@ static av_cold int cfhd_encode_close(AVCodecContext *avctx)
             s->plane[i].l_h[j] = NULL;
     }
 
-    av_freep(&s->alpha);
+    zn_av_freep(&s->alpha);
 
     return 0;
 }

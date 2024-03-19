@@ -195,7 +195,7 @@ static int transpose_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
     cle = clFinish(ctx->command_queue);
     CL_FAIL_ON_ERROR(AVERROR(EIO), "Failed to finish command queue: %d.\n", cle);
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     av_log(ctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(output->format),
@@ -205,8 +205,8 @@ static int transpose_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
 
 fail:
     clFinish(ctx->command_queue);
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

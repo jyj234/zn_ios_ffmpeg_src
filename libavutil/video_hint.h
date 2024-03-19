@@ -91,7 +91,7 @@ av_video_hint_get_rect(const AVVideoHint *hints, size_t idx) {
  *                 written here
  *
  * @return newly allocated AVVideoHint struct (must be freed by the caller using
- *         av_free()) on success, NULL on memory allocation failure
+ *         zn_av_free()) on success, NULL on memory allocation failure
  */
 AVVideoHint *av_video_hint_alloc(size_t nb_rects,
                                  size_t *out_size);

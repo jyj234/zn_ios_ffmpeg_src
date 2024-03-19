@@ -50,8 +50,8 @@
  * which exports all information about the file being read or written. As with
  * most Libavformat structures, its size is not part of public ABI, so it cannot be
  * allocated on stack or directly with av_malloc(). To create an
- * AVFormatContext, use avformat_alloc_context() (some functions, like
- * avformat_open_input() might do that for you).
+ * AVFormatContext, use zn_avformat_alloc_context() (some functions, like
+ * zn_avformat_open_input() might do that for you).
  *
  * Most importantly an AVFormatContext contains:
  * @li the @ref AVFormatContext.iformat "input" or @ref AVFormatContext.oformat
@@ -95,17 +95,17 @@
  * Demuxers read a media file and split it into chunks of data (@em packets). A
  * @ref AVPacket "packet" contains one or more encoded frames which belongs to a
  * single elementary stream. In the lavf API this process is represented by the
- * avformat_open_input() function for opening a file, av_read_frame() for
- * reading a single packet and finally avformat_close_input(), which does the
+ * zn_avformat_open_input() function for opening a file, zn_av_read_frame() for
+ * reading a single packet and finally zn_avformat_close_input(), which does the
  * cleanup.
  *
  * @section lavf_decoding_open Opening a media file
  * The minimum information required to open a file is its URL, which
- * is passed to avformat_open_input(), as in the following code:
+ * is passed to zn_avformat_open_input(), as in the following code:
  * @code
  * const char    *url = "file:in.mp3";
  * AVFormatContext *s = NULL;
- * int ret = avformat_open_input(&s, url, NULL, NULL);
+ * int ret = zn_avformat_open_input(&s, url, NULL, NULL);
  * if (ret < 0)
  *     abort();
  * @endcode
@@ -113,27 +113,27 @@
  * specified file (autodetecting the format) and read the header, exporting the
  * information stored there into s. Some formats do not have a header or do not
  * store enough information there, so it is recommended that you call the
- * avformat_find_stream_info() function which tries to read and decode a few
+ * zn_avformat_find_stream_info() function which tries to read and decode a few
  * frames to find missing information.
  *
  * In some cases you might want to preallocate an AVFormatContext yourself with
- * avformat_alloc_context() and do some tweaking on it before passing it to
- * avformat_open_input(). One such case is when you want to use custom functions
+ * zn_avformat_alloc_context() and do some tweaking on it before passing it to
+ * zn_avformat_open_input(). One such case is when you want to use custom functions
  * for reading input data instead of lavf internal I/O layer.
- * To do that, create your own AVIOContext with avio_alloc_context(), passing
+ * To do that, create your own AVIOContext with zn_avio_alloc_context(), passing
  * your reading callbacks to it. Then set the @em pb field of your
  * AVFormatContext to newly created AVIOContext.
  *
  * Since the format of the opened file is in general not known until after
- * avformat_open_input() has returned, it is not possible to set demuxer private
+ * zn_avformat_open_input() has returned, it is not possible to set demuxer private
  * options on a preallocated context. Instead, the options should be passed to
- * avformat_open_input() wrapped in an AVDictionary:
+ * zn_avformat_open_input() wrapped in an AVDictionary:
  * @code
  * AVDictionary *options = NULL;
  * av_dict_set(&options, "video_size", "640x480", 0);
  * av_dict_set(&options, "pixel_format", "rgb24", 0);
  *
- * if (avformat_open_input(&s, url, NULL, &options) < 0)
+ * if (zn_avformat_open_input(&s, url, NULL, &options) < 0)
  *     abort();
  * av_dict_free(&options);
  * @endcode
@@ -154,14 +154,14 @@
  * @endcode
  *
  * After you have finished reading the file, you must close it with
- * avformat_close_input(). It will free everything associated with the file.
+ * zn_avformat_close_input(). It will free everything associated with the file.
  *
  * @section lavf_decoding_read Reading from an opened file
  * Reading data from an opened AVFormatContext is done by repeatedly calling
- * av_read_frame() on it. Each call, if successful, will return an AVPacket
+ * zn_av_read_frame() on it. Each call, if successful, will return an AVPacket
  * containing encoded data for one AVStream, identified by
  * AVPacket.stream_index. This packet may be passed straight into the libavcodec
- * decoding functions avcodec_send_packet() or avcodec_decode_subtitle2() if the
+ * decoding functions zn_avcodec_send_packet() or avcodec_decode_subtitle2() if the
  * caller wishes to decode the data.
  *
  * AVPacket.pts, AVPacket.dts and AVPacket.duration timing information will be
@@ -170,9 +170,9 @@
  * information will be in AVStream.time_base units, i.e. it has to be
  * multiplied by the timebase to convert them to seconds.
  *
- * A packet returned by av_read_frame() is always reference-counted,
+ * A packet returned by zn_av_read_frame() is always reference-counted,
  * i.e. AVPacket.buf is set and the user may keep it indefinitely.
- * The packet must be freed with av_packet_unref() when it is no
+ * The packet must be freed with zn_av_packet_unref() when it is no
  * longer needed.
  *
  * @section lavf_decoding_seek Seeking
@@ -183,12 +183,12 @@
  * Muxers take encoded data in the form of @ref AVPacket "AVPackets" and write
  * it into files or other output bytestreams in the specified container format.
  *
- * The main API functions for muxing are avformat_write_header() for writing the
- * file header, av_write_frame() / av_interleaved_write_frame() for writing the
- * packets and av_write_trailer() for finalizing the file.
+ * The main API functions for muxing are zn_avformat_write_header() for writing the
+ * file header, av_write_frame() / zn_av_interleaved_write_frame() for writing the
+ * packets and zn_av_write_trailer() for finalizing the file.
  *
  * At the beginning of the muxing process, the caller must first call
- * avformat_alloc_context() to create a muxing context. The caller then sets up
+ * zn_avformat_alloc_context() to create a muxing context. The caller then sets up
  * the muxer by filling the various fields in this context:
  *
  * - The @ref AVFormatContext.oformat "oformat" field must be set to select the
@@ -197,7 +197,7 @@
  *   "pb" field must be set to an opened IO context, either returned from
  *   avio_open2() or a custom one.
  * - Unless the format is of the AVFMT_NOSTREAMS type, at least one stream must
- *   be created with the avformat_new_stream() function. The caller should fill
+ *   be created with the zn_avformat_new_stream() function. The caller should fill
  *   the @ref AVStream.codecpar "stream codec parameters" information, such as the
  *   codec @ref AVCodecParameters.codec_type "type", @ref AVCodecParameters.codec_id
  *   "id" and other parameters (e.g. width / height, the pixel or sample format,
@@ -206,7 +206,7 @@
  *   that the timebase actually used by the muxer can be different, as will be
  *   described later).
  * - It is advised to manually initialize only the relevant fields in
- *   AVCodecParameters, rather than using @ref avcodec_parameters_copy() during
+ *   AVCodecParameters, rather than using @ref zn_avcodec_parameters_copy() during
  *   remuxing: there is no guarantee that the codec context values remain valid
  *   for both input and output format contexts.
  * - The caller may fill in additional information, such as @ref
@@ -218,24 +218,24 @@
  *   support.
  *
  * When the muxing context is fully set up, the caller must call
- * avformat_write_header() to initialize the muxer internals and write the file
+ * zn_avformat_write_header() to initialize the muxer internals and write the file
  * header. Whether anything actually is written to the IO context at this step
  * depends on the muxer, but this function must always be called. Any muxer
  * private options must be passed in the options parameter to this function.
  *
  * The data is then sent to the muxer by repeatedly calling av_write_frame() or
- * av_interleaved_write_frame() (consult those functions' documentation for
+ * zn_av_interleaved_write_frame() (consult those functions' documentation for
  * discussion on the difference between them; only one of them may be used with
  * a single muxing context, they should not be mixed). Do note that the timing
  * information on the packets sent to the muxer must be in the corresponding
  * AVStream's timebase. That timebase is set by the muxer (in the
- * avformat_write_header() step) and may be different from the timebase
+ * zn_avformat_write_header() step) and may be different from the timebase
  * requested by the caller.
  *
- * Once all the data has been written, the caller must call av_write_trailer()
+ * Once all the data has been written, the caller must call zn_av_write_trailer()
  * to flush any buffered packets and finalize the output file, then close the IO
  * context (if any) and finally free the muxing context with
- * avformat_free_context().
+ * zn_avformat_free_context().
  * @}
  *
  * @defgroup lavf_io I/O Read/Write
@@ -367,7 +367,7 @@ struct AVDeviceInfoList;
  *       sorting will have '-sort' appended. E.g. artist="The Beatles",
  *       artist-sort="Beatles, The".
  * - Some protocols and demuxers support metadata updates. After a successful
- *   call to av_read_frame(), AVFormatContext.event_flags or AVStream.event_flags
+ *   call to zn_av_read_frame(), AVFormatContext.event_flags or AVStream.event_flags
  *   will be updated to indicate if metadata changed. In order to detect metadata
  *   changes on a stream, you need to loop through all streams in the AVFormatContext
  *   and check their individual event_flags.
@@ -465,7 +465,7 @@ typedef struct AVProbeData {
 
 #define AVPROBE_PADDING_SIZE 32             ///< extra allocated bytes at the end of the probe buffer
 
-/// Demuxer will use avio_open, no opened file should be provided by the caller.
+/// Demuxer will use zn_avio_open, no opened file should be provided by the caller.
 #define AVFMT_NOFILE        0x0001
 #define AVFMT_NEEDNUMBER    0x0002 /**< Needs '%d' in filename. */
 /**
@@ -495,7 +495,7 @@ typedef struct AVProbeData {
 #define AVFMT_TS_NEGATIVE  0x40000 /**< Format allows muxing negative
                                         timestamps. If not set the timestamp
                                         will be shifted in av_write_frame and
-                                        av_interleaved_write_frame so they
+                                        zn_av_interleaved_write_frame so they
                                         start from 0.
                                         The user or muxer can override this through
                                         AVFormatContext.avoid_negative_ts
@@ -616,14 +616,14 @@ typedef struct AVInputFormat {
 
     /**
      * Read the format header and initialize the AVFormatContext
-     * structure. Return 0 if OK. 'avformat_new_stream' should be
+     * structure. Return 0 if OK. 'zn_avformat_new_stream' should be
      * called to create new streams.
      */
     int (*read_header)(struct AVFormatContext *);
 
     /**
      * Read one packet and put it in 'pkt'. pts and flags are also
-     * set. 'avformat_new_stream' can be called only if the flag
+     * set. 'zn_avformat_new_stream' can be called only if the flag
      * AVFMTCTX_NOHEADER is used and only in the calling thread (not in a
      * background thread).
      * @return 0 on success, < 0 on error.
@@ -856,12 +856,12 @@ typedef struct AVStream {
 
     /**
      * Codec parameters associated with this stream. Allocated and freed by
-     * libavformat in avformat_new_stream() and avformat_free_context()
+     * libavformat in zn_avformat_new_stream() and zn_avformat_free_context()
      * respectively.
      *
      * - demuxing: filled by libavformat on stream creation or in
-     *             avformat_find_stream_info()
-     * - muxing: filled by the caller before avformat_write_header()
+     *             zn_avformat_find_stream_info()
+     * - muxing: filled by the caller before zn_avformat_write_header()
      */
     AVCodecParameters *codecpar;
 
@@ -872,9 +872,9 @@ typedef struct AVStream {
      * of which frame timestamps are represented.
      *
      * decoding: set by libavformat
-     * encoding: May be set by the caller before avformat_write_header() to
+     * encoding: May be set by the caller before zn_avformat_write_header() to
      *           provide a hint to the muxer about the desired timebase. In
-     *           avformat_write_header(), the muxer will overwrite this field
+     *           zn_avformat_write_header(), the muxer will overwrite this field
      *           with the timebase that will actually be used for the timestamps
      *           written into the file (which may or may not be related to the
      *           user-provided one, depending on the format).
@@ -896,7 +896,7 @@ typedef struct AVStream {
      * If a source file does not specify a duration, but does specify
      * a bitrate, this value will be estimated from bitrate and file size.
      *
-     * Encoding: May be set by the caller before avformat_write_header() to
+     * Encoding: May be set by the caller before zn_avformat_write_header() to
      * provide a hint to the muxer about the estimated duration.
      */
     int64_t duration;
@@ -906,8 +906,8 @@ typedef struct AVStream {
     /**
      * Stream disposition - a combination of AV_DISPOSITION_* flags.
      * - demuxing: set by libavformat when creating the stream or in
-     *             avformat_find_stream_info().
-     * - muxing: may be set by the caller before avformat_write_header().
+     *             zn_avformat_find_stream_info().
+     * - muxing: may be set by the caller before zn_avformat_write_header().
      */
     int disposition;
 
@@ -926,8 +926,8 @@ typedef struct AVStream {
      * Average framerate
      *
      * - demuxing: May be set by libavformat when creating the stream or in
-     *             avformat_find_stream_info().
-     * - muxing: May be set by the caller before avformat_write_header().
+     *             zn_avformat_find_stream_info().
+     * - muxing: May be set by the caller before zn_avformat_write_header().
      */
     AVRational avg_frame_rate;
 
@@ -953,9 +953,9 @@ typedef struct AVStream {
      * changes), then it does not appear in this array.
      *
      * - demuxing: Set by libavformat when the stream is created.
-     * - muxing: May be set by the caller before avformat_write_header().
+     * - muxing: May be set by the caller before zn_avformat_write_header().
      *
-     * Freed by libavformat in avformat_free_context().
+     * Freed by libavformat in zn_avformat_free_context().
      *
      * @deprecated use AVStream's @ref AVCodecParameters.coded_side_data
      *             "codecpar side data".
@@ -976,10 +976,10 @@ typedef struct AVStream {
      * Flags indicating events happening on the stream, a combination of
      * AVSTREAM_EVENT_FLAG_*.
      *
-     * - demuxing: may be set by the demuxer in avformat_open_input(),
-     *   avformat_find_stream_info() and av_read_frame(). Flags must be cleared
+     * - demuxing: may be set by the demuxer in zn_avformat_open_input(),
+     *   zn_avformat_find_stream_info() and zn_av_read_frame(). Flags must be cleared
      *   by the user once the event has been handled.
-     * - muxing: may be set by the user after avformat_write_header(). to
+     * - muxing: may be set by the user after zn_avformat_write_header(). to
      *   indicate a user-triggered event.  The muxer will clear the flags for
      *   events it has handled in av_[interleaved]_write_frame().
      */
@@ -994,7 +994,7 @@ typedef struct AVStream {
 /**
  * - demuxing: new packets for this stream were read from the file. This
  *   event is informational only and does not guarantee that new packets
- *   for this stream will necessarily be returned from av_read_frame().
+ *   for this stream will necessarily be returned from zn_av_read_frame().
  */
 #define AVSTREAM_EVENT_FLAG_NEW_PACKETS (1 << 1)
 
@@ -1106,7 +1106,7 @@ enum AVDurationEstimationMethod {
  * Removal, reordering and changes to existing fields require a major
  * version bump.
  * sizeof(AVFormatContext) must not be used outside libav*, use
- * avformat_alloc_context() to create an AVFormatContext.
+ * zn_avformat_alloc_context() to create an AVFormatContext.
  *
  * Fields can be accessed through AVOptions (av_opt*),
  * the name string used matches the associated command line parameter name and
@@ -1116,7 +1116,7 @@ enum AVDurationEstimationMethod {
  */
 typedef struct AVFormatContext {
     /**
-     * A class for logging and @ref avoptions. Set by avformat_alloc_context().
+     * A class for logging and @ref avoptions. Set by zn_avformat_alloc_context().
      * Exports (de)muxer private options if they exist.
      */
     const AVClass *av_class;
@@ -1124,14 +1124,14 @@ typedef struct AVFormatContext {
     /**
      * The input container format.
      *
-     * Demuxing only, set by avformat_open_input().
+     * Demuxing only, set by zn_avformat_open_input().
      */
     const struct AVInputFormat *iformat;
 
     /**
      * The output container format.
      *
-     * Muxing only, must be set by the caller before avformat_write_header().
+     * Muxing only, must be set by the caller before zn_avformat_write_header().
      */
     const struct AVOutputFormat *oformat;
 
@@ -1139,17 +1139,17 @@ typedef struct AVFormatContext {
      * Format private data. This is an AVOptions-enabled struct
      * if and only if iformat/oformat.priv_class is not NULL.
      *
-     * - muxing: set by avformat_write_header()
-     * - demuxing: set by avformat_open_input()
+     * - muxing: set by zn_avformat_write_header()
+     * - demuxing: set by zn_avformat_open_input()
      */
     void *priv_data;
 
     /**
      * I/O context.
      *
-     * - demuxing: either set by the user before avformat_open_input() (then
-     *             the user must close it manually) or set by avformat_open_input().
-     * - muxing: set by the user before avformat_write_header(). The caller must
+     * - demuxing: either set by the user before zn_avformat_open_input() (then
+     *             the user must close it manually) or set by zn_avformat_open_input().
+     * - muxing: set by the user before zn_avformat_write_header(). The caller must
      *           take care of closing / freeing the IO context.
      *
      * Do NOT set this field if AVFMT_NOFILE flag is set in
@@ -1168,19 +1168,19 @@ typedef struct AVFormatContext {
     /**
      * Number of elements in AVFormatContext.streams.
      *
-     * Set by avformat_new_stream(), must not be modified by any other code.
+     * Set by zn_avformat_new_stream(), must not be modified by any other code.
      */
     unsigned int nb_streams;
     /**
      * A list of all streams in the file. New streams are created with
-     * avformat_new_stream().
+     * zn_avformat_new_stream().
      *
-     * - demuxing: streams are created by libavformat in avformat_open_input().
+     * - demuxing: streams are created by libavformat in zn_avformat_open_input().
      *             If AVFMTCTX_NOHEADER is set in ctx_flags, then new streams may also
-     *             appear in av_read_frame().
-     * - muxing: streams are created by the user before avformat_write_header().
+     *             appear in zn_av_read_frame().
+     * - muxing: streams are created by the user before zn_avformat_write_header().
      *
-     * Freed by libavformat in avformat_free_context().
+     * Freed by libavformat in zn_avformat_free_context().
      */
     AVStream **streams;
 
@@ -1188,14 +1188,14 @@ typedef struct AVFormatContext {
      * input or output URL. Unlike the old filename field, this field has no
      * length restriction.
      *
-     * - demuxing: set by avformat_open_input(), initialized to an empty
-     *             string if url parameter was NULL in avformat_open_input().
-     * - muxing: may be set by the caller before calling avformat_write_header()
+     * - demuxing: set by zn_avformat_open_input(), initialized to an empty
+     *             string if url parameter was NULL in zn_avformat_open_input().
+     * - muxing: may be set by the caller before calling zn_avformat_write_header()
      *           (or avformat_init_output() if that is called first) to a string
-     *           which is freeable by av_free(). Set to an empty string if it
+     *           which is freeable by zn_av_free(). Set to an empty string if it
      *           was NULL in avformat_init_output().
      *
-     * Freed by libavformat in avformat_free_context().
+     * Freed by libavformat in zn_avformat_free_context().
      */
     char *url;
 
@@ -1230,7 +1230,7 @@ typedef struct AVFormatContext {
 
     /**
      * Flags modifying the (de)muxer behaviour. A combination of AVFMT_FLAG_*.
-     * Set by the user before avformat_open_input() / avformat_write_header().
+     * Set by the user before zn_avformat_open_input() / zn_avformat_write_header().
      */
     int flags;
 #define AVFMT_FLAG_GENPTS       0x0001 ///< Generate missing pts even if it requires parsing future frames.
@@ -1260,9 +1260,9 @@ typedef struct AVFormatContext {
     /**
      * Maximum number of bytes read from input in order to determine stream
      * properties. Used when reading the global header and in
-     * avformat_find_stream_info().
+     * zn_avformat_find_stream_info().
      *
-     * Demuxing only, set by the caller before avformat_open_input().
+     * Demuxing only, set by the caller before zn_avformat_open_input().
      *
      * @note this is \e not  used for determining the \ref AVInputFormat
      *       "input format"
@@ -1272,8 +1272,8 @@ typedef struct AVFormatContext {
 
     /**
      * Maximum duration (in AV_TIME_BASE units) of the data read
-     * from input in avformat_find_stream_info().
-     * Demuxing only, set by the caller before avformat_find_stream_info().
+     * from input in zn_avformat_find_stream_info().
+     * Demuxing only, set by the caller before zn_avformat_find_stream_info().
      * Can be set to 0 to let avformat choose using a heuristic.
      */
     int64_t max_analyze_duration;
@@ -1337,10 +1337,10 @@ typedef struct AVFormatContext {
     /**
      * Metadata that applies to the whole file.
      *
-     * - demuxing: set by libavformat in avformat_open_input()
-     * - muxing: may be set by the caller before avformat_write_header()
+     * - demuxing: set by libavformat in zn_avformat_open_input()
+     * - muxing: may be set by the caller before zn_avformat_write_header()
      *
-     * Freed by libavformat in avformat_free_context().
+     * Freed by libavformat in zn_avformat_free_context().
      */
     AVDictionary *metadata;
 
@@ -1348,7 +1348,7 @@ typedef struct AVFormatContext {
      * Start time of the stream in real world time, in microseconds
      * since the Unix epoch (00:00 1st January 1970). That is, pts=0 in the
      * stream was captured at this real world time.
-     * - muxing: Set by the caller before avformat_write_header(). If set to
+     * - muxing: Set by the caller before zn_avformat_write_header(). If set to
      *           either 0 or AV_NOPTS_VALUE, then the current wall-time will
      *           be used.
      * - demuxing: Set by libavformat. AV_NOPTS_VALUE if unknown. Note that
@@ -1359,23 +1359,23 @@ typedef struct AVFormatContext {
 
     /**
      * The number of frames used for determining the framerate in
-     * avformat_find_stream_info().
-     * Demuxing only, set by the caller before avformat_find_stream_info().
+     * zn_avformat_find_stream_info().
+     * Demuxing only, set by the caller before zn_avformat_find_stream_info().
      */
     int fps_probe_size;
 
     /**
      * Error recognition; higher values will detect more errors but may
      * misdetect some more or less valid parts as errors.
-     * Demuxing only, set by the caller before avformat_open_input().
+     * Demuxing only, set by the caller before zn_avformat_open_input().
      */
     int error_recognition;
 
     /**
      * Custom interrupt callbacks for the I/O layer.
      *
-     * demuxing: set by the user before avformat_open_input().
-     * muxing: set by the user before avformat_write_header()
+     * demuxing: set by the user before zn_avformat_open_input().
+     * muxing: set by the user before zn_avformat_write_header()
      * (mainly useful for AVFMT_NOFILE formats). The callback
      * should also be passed to avio_open2() if it's used to
      * open the file.
@@ -1392,7 +1392,7 @@ typedef struct AVFormatContext {
      * Maximum buffering duration for interleaving.
      *
      * To ensure all the streams are interleaved correctly,
-     * av_interleaved_write_frame() will wait until it has at least one packet
+     * zn_av_interleaved_write_frame() will wait until it has at least one packet
      * for each stream before actually writing any packets to the output file.
      * When some streams are "sparse" (i.e. there are large gaps between
      * successive packets), this can result in excessive buffering.
@@ -1402,7 +1402,7 @@ typedef struct AVFormatContext {
      * will output a packet regardless of whether it has queued a packet for all
      * the streams.
      *
-     * Muxing only, set by the caller before avformat_write_header().
+     * Muxing only, set by the caller before zn_avformat_write_header().
      */
     int64_t max_interleave_delta;
 
@@ -1416,10 +1416,10 @@ typedef struct AVFormatContext {
      * Flags indicating events happening on the file, a combination of
      * AVFMT_EVENT_FLAG_*.
      *
-     * - demuxing: may be set by the demuxer in avformat_open_input(),
-     *   avformat_find_stream_info() and av_read_frame(). Flags must be cleared
+     * - demuxing: may be set by the demuxer in zn_avformat_open_input(),
+     *   zn_avformat_find_stream_info() and zn_av_read_frame(). Flags must be cleared
      *   by the user once the event has been handled.
-     * - muxing: may be set by the user after avformat_write_header() to
+     * - muxing: may be set by the user after zn_avformat_write_header() to
      *   indicate a user-triggered event.  The muxer will clear the flags for
      *   events it has handled in av_[interleaved]_write_frame().
      */
@@ -1441,7 +1441,7 @@ typedef struct AVFormatContext {
     /**
      * Avoid negative timestamps during muxing.
      * Any value of the AVFMT_AVOID_NEG_TS_* constants.
-     * Note, this works better when using av_interleaved_write_frame().
+     * Note, this works better when using zn_av_interleaved_write_frame().
      * - muxing: Set by user
      * - demuxing: unused
      */
@@ -1546,7 +1546,7 @@ typedef struct AVFormatContext {
      * \ref AVInputFormat "input format". Only used when the format is not set
      * explicitly by the caller.
      *
-     * Demuxing only, set by the caller before avformat_open_input().
+     * Demuxing only, set by the caller before zn_avformat_open_input().
      *
      * @sa probesize
      */
@@ -1657,7 +1657,7 @@ typedef struct AVFormatContext {
      * A callback for opening new IO streams.
      *
      * Whenever a muxer or a demuxer needs to open an IO stream (typically from
-     * avformat_open_input() for demuxers, but for certain formats can happen at
+     * zn_avformat_open_input() for demuxers, but for certain formats can happen at
      * other times as well), it will call this callback to obtain an IO context.
      *
      * @param s the format context
@@ -1817,16 +1817,16 @@ const AVInputFormat *av_demuxer_iterate(void **opaque);
 
 /**
  * Allocate an AVFormatContext.
- * avformat_free_context() can be used to free the context and everything
+ * zn_avformat_free_context() can be used to free the context and everything
  * allocated by the framework within it.
  */
-AVFormatContext *avformat_alloc_context(void);
+AVFormatContext *zn_avformat_alloc_context(void);
 
 /**
  * Free an AVFormatContext and all its streams.
  * @param s context to free
  */
-void avformat_free_context(AVFormatContext *s);
+void zn_avformat_free_context(AVFormatContext *s);
 
 /**
  * Get the AVClass for AVFormatContext. It can be used in combination with
@@ -1851,17 +1851,17 @@ const AVClass *av_stream_get_class(void);
  * flag AVFMTCTX_NOHEADER is set in s.ctx_flags, then it may also
  * be called in read_packet().
  *
- * When muxing, should be called by the user before avformat_write_header().
+ * When muxing, should be called by the user before zn_avformat_write_header().
  *
- * User is required to call avformat_free_context() to clean up the allocation
- * by avformat_new_stream().
+ * User is required to call zn_avformat_free_context() to clean up the allocation
+ * by zn_avformat_new_stream().
  *
  * @param s media file handle
  * @param c unused, does nothing
  *
  * @return newly created stream or NULL on error.
  */
-AVStream *avformat_new_stream(AVFormatContext *s, const struct AVCodec *c);
+AVStream *zn_avformat_new_stream(AVFormatContext *s, const struct AVCodec *c);
 
 #if FF_API_AVSTREAM_SIDE_DATA
 /**
@@ -1923,7 +1923,7 @@ AVProgram *av_new_program(AVFormatContext *s, int id);
 
 /**
  * Allocate an AVFormatContext for an output format.
- * avformat_free_context() can be used to free the context and
+ * zn_avformat_free_context() can be used to free the context and
  * everything allocated by the framework within it.
  *
  * @param ctx           pointee is set to the created format context,
@@ -1938,7 +1938,7 @@ AVProgram *av_new_program(AVFormatContext *s, int id);
  * @return  >= 0 in case of success, a negative AVERROR code in case of
  *          failure
  */
-int avformat_alloc_output_context2(AVFormatContext **ctx, const AVOutputFormat *oformat,
+int zn_avformat_alloc_output_context2(AVFormatContext **ctx, const AVOutputFormat *oformat,
                                    const char *format_name, const char *filename);
 
 /**
@@ -2015,10 +2015,10 @@ int av_probe_input_buffer(AVIOContext *pb, const AVInputFormat **fmt,
 
 /**
  * Open an input stream and read the header. The codecs are not opened.
- * The stream must be closed with avformat_close_input().
+ * The stream must be closed with zn_avformat_close_input().
  *
  * @param ps       Pointer to user-supplied AVFormatContext (allocated by
- *                 avformat_alloc_context). May be a pointer to NULL, in
+ *                 zn_avformat_alloc_context). May be a pointer to NULL, in
  *                 which case an AVFormatContext is allocated by this
  *                 function and written into ps.
  *                 Note that a user-supplied AVFormatContext will be freed
@@ -2035,7 +2035,7 @@ int av_probe_input_buffer(AVIOContext *pb, const AVInputFormat **fmt,
  *
  * @note If you want to use custom IO, preallocate the format context and set its pb field.
  */
-int avformat_open_input(AVFormatContext **ps, const char *url,
+int zn_avformat_open_input(AVFormatContext **ps, const char *url,
                         const AVInputFormat *fmt, AVDictionary **options);
 
 /**
@@ -2059,7 +2059,7 @@ int avformat_open_input(AVFormatContext **ps, const char *url,
  * @todo Let the user decide somehow what information is needed so that
  *       we do not waste time getting stuff the user does not need.
  */
-int avformat_find_stream_info(AVFormatContext *ic, AVDictionary **options);
+int zn_avformat_find_stream_info(AVFormatContext *ic, AVDictionary **options);
 
 /**
  * Find the programs which belong to a given stream.
@@ -2118,7 +2118,7 @@ int av_find_best_stream(AVFormatContext *ic,
  * information possible for decoding.
  *
  * On success, the returned packet is reference-counted (pkt->buf is set) and
- * valid indefinitely. The packet must be freed with av_packet_unref() when
+ * valid indefinitely. The packet must be freed with zn_av_packet_unref() when
  * it is no longer needed. For video, the packet contains exactly one frame.
  * For audio, it contains an integer number of frames if each frame has
  * a known fixed size (e.g. PCM or ADPCM data). If the audio frames have
@@ -2131,12 +2131,12 @@ int av_find_best_stream(AVFormatContext *ic,
  * decompress the payload.
  *
  * @return 0 if OK, < 0 on error or end of file. On error, pkt will be blank
- *         (as if it came from av_packet_alloc()).
+ *         (as if it came from zn_av_packet_alloc()).
  *
  * @note pkt will be initialized, so it may be uninitialized, but it must not
  *       contain data that needs to be freed.
  */
-int av_read_frame(AVFormatContext *s, AVPacket *pkt);
+int zn_av_read_frame(AVFormatContext *s, AVPacket *pkt);
 
 /**
  * Seek to the keyframe at timestamp.
@@ -2218,7 +2218,7 @@ int av_read_pause(AVFormatContext *s);
  * Close an opened input AVFormatContext. Free it and all its contents
  * and set *s to NULL.
  */
-void avformat_close_input(AVFormatContext **s);
+void zn_avformat_close_input(AVFormatContext **s);
 /**
  * @}
  */
@@ -2233,7 +2233,7 @@ void avformat_close_input(AVFormatContext **s);
  * @{
  */
 
-#define AVSTREAM_INIT_IN_WRITE_HEADER 0 ///< stream parameters initialized in avformat_write_header
+#define AVSTREAM_INIT_IN_WRITE_HEADER 0 ///< stream parameters initialized in zn_avformat_write_header
 #define AVSTREAM_INIT_IN_INIT_OUTPUT  1 ///< stream parameters initialized in avformat_init_output
 
 /**
@@ -2241,7 +2241,7 @@ void avformat_close_input(AVFormatContext **s);
  * an output media file.
  *
  * @param s        Media file handle, must be allocated with
- *                 avformat_alloc_context().
+ *                 zn_avformat_alloc_context().
  *                 Its \ref AVFormatContext.oformat "oformat" field must be set
  *                 to the desired output format;
  *                 Its \ref AVFormatContext.pb "pb" field must be set to an
@@ -2257,19 +2257,19 @@ void avformat_close_input(AVFormatContext **s);
  *                                       initialized in avformat_init_output().
  * @retval AVERROR                       A negative AVERROR on failure.
  *
- * @see av_opt_find, av_dict_set, avio_open, av_oformat_next, avformat_init_output.
+ * @see av_opt_find, av_dict_set, zn_avio_open, av_oformat_next, avformat_init_output.
  */
 av_warn_unused_result
-int avformat_write_header(AVFormatContext *s, AVDictionary **options);
+int zn_avformat_write_header(AVFormatContext *s, AVDictionary **options);
 
 /**
  * Allocate the stream private data and initialize the codec, but do not write the header.
- * May optionally be used before avformat_write_header() to initialize stream parameters
+ * May optionally be used before zn_avformat_write_header() to initialize stream parameters
  * before actually writing the header.
- * If using this function, do not pass the same options to avformat_write_header().
+ * If using this function, do not pass the same options to zn_avformat_write_header().
  *
  * @param s        Media file handle, must be allocated with
- *                 avformat_alloc_context().
+ *                 zn_avformat_alloc_context().
  *                 Its \ref AVFormatContext.oformat "oformat" field must be set
  *                 to the desired output format;
  *                 Its \ref AVFormatContext.pb "pb" field must be set to an
@@ -2280,12 +2280,12 @@ int avformat_write_header(AVFormatContext *s, AVDictionary **options);
  *                 a dict containing options that were not found. May be NULL.
  *
  * @retval AVSTREAM_INIT_IN_WRITE_HEADER On success, if the codec requires
- *                                       avformat_write_header to fully initialize.
+ *                                       zn_avformat_write_header to fully initialize.
  * @retval AVSTREAM_INIT_IN_INIT_OUTPUT  On success, if the codec has been fully
  *                                       initialized.
  * @retval AVERROR                       Anegative AVERROR on failure.
  *
- * @see av_opt_find, av_dict_set, avio_open, av_oformat_next, avformat_write_header.
+ * @see av_opt_find, av_dict_set, zn_avio_open, av_oformat_next, zn_avformat_write_header.
  */
 av_warn_unused_result
 int avformat_init_output(AVFormatContext *s, AVDictionary **options);
@@ -2296,12 +2296,12 @@ int avformat_init_output(AVFormatContext *s, AVDictionary **options);
  * This function passes the packet directly to the muxer, without any buffering
  * or reordering. The caller is responsible for correctly interleaving the
  * packets if the format requires it. Callers that want libavformat to handle
- * the interleaving should call av_interleaved_write_frame() instead of this
+ * the interleaving should call zn_av_interleaved_write_frame() instead of this
  * function.
  *
  * @param s media file handle
  * @param pkt The packet containing the data to be written. Note that unlike
- *            av_interleaved_write_frame(), this function does not take
+ *            zn_av_interleaved_write_frame(), this function does not take
  *            ownership of the packet passed to it (though some muxers may make
  *            an internal reference to the input packet).
  *            <br>
@@ -2325,7 +2325,7 @@ int avformat_init_output(AVFormatContext *s, AVDictionary **options);
  *            "duration") should also be set if known.
  * @return < 0 on error, = 0 if OK, 1 if flushed and there is no more data to flush
  *
- * @see av_interleaved_write_frame()
+ * @see zn_av_interleaved_write_frame()
  */
 int av_write_frame(AVFormatContext *s, AVPacket *pkt);
 
@@ -2349,7 +2349,7 @@ int av_write_frame(AVFormatContext *s, AVPacket *pkt);
  *            fit. If the packet is not reference-counted, libavformat will
  *            make a copy.
  *            The returned packet will be blank (as if returned from
- *            av_packet_alloc()), even on error.
+ *            zn_av_packet_alloc()), even on error.
  *            <br>
  *            This parameter can be NULL (at any time, not just at the end), to
  *            flush the interleaving queues.
@@ -2371,7 +2371,7 @@ int av_write_frame(AVFormatContext *s, AVPacket *pkt);
  *
  * @see av_write_frame(), AVFormatContext.max_interleave_delta
  */
-int av_interleaved_write_frame(AVFormatContext *s, AVPacket *pkt);
+int zn_av_interleaved_write_frame(AVFormatContext *s, AVPacket *pkt);
 
 /**
  * Write an uncoded frame to an output media file.
@@ -2415,12 +2415,12 @@ int av_write_uncoded_frame_query(AVFormatContext *s, int stream_index);
  * Write the stream trailer to an output media file and free the
  * file private data.
  *
- * May only be called after a successful call to avformat_write_header.
+ * May only be called after a successful call to zn_avformat_write_header.
  *
  * @param s media file handle
  * @return 0 if OK, AVERROR_xxx on error
  */
-int av_write_trailer(AVFormatContext *s);
+int zn_av_write_trailer(AVFormatContext *s);
 
 /**
  * Return the output format in the list of registered output formats
@@ -2434,7 +2434,7 @@ int av_write_trailer(AVFormatContext *s);
  * @param mime_type  if non-NULL checks if mime_type matches with the
  *                   MIME type of the registered formats
  */
-const AVOutputFormat *av_guess_format(const char *short_name,
+const AVOutputFormat *zn_av_guess_format(const char *short_name,
                                       const char *filename,
                                       const char *mime_type);
 
@@ -2663,7 +2663,7 @@ void av_url_split(char *proto,         int proto_size,
  * @param url       the URL to print, such as source or destination file
  * @param is_output Select whether the specified context is an input(0) or output(1)
  */
-void av_dump_format(AVFormatContext *ic,
+void zn_av_dump_format(AVFormatContext *ic,
                     int index,
                     const char *url,
                     int is_output);

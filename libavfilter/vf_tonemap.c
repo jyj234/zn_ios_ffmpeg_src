@@ -124,7 +124,7 @@ static void tonemap(TonemapContext *s, AVFrame *out, const AVFrame *in,
 
     /* desaturate to prevent unnatural colors */
     if (s->desat > 0) {
-        float luma = av_q2d(s->coeffs->cr) * *r_in + av_q2d(s->coeffs->cg) * *g_in + av_q2d(s->coeffs->cb) * *b_in;
+        float luma = zn_av_q2d(s->coeffs->cr) * *r_in + zn_av_q2d(s->coeffs->cg) * *g_in + zn_av_q2d(s->coeffs->cb) * *b_in;
         float overbright = FFMAX(luma - s->desat, 1e-6) / FFMAX(luma, 1e-6);
         *r_out = MIX(*r_in, luma, overbright);
         *g_out = MIX(*g_in, luma, overbright);
@@ -207,20 +207,20 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
     double peak = s->peak;
 
     if (!desc || !odesc) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR_BUG;
     }
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
     ret = av_frame_copy_props(out, in);
     if (ret < 0) {
-        av_frame_free(&in);
-        av_frame_free(&out);
+        zn_av_frame_free(&in);
+        zn_av_frame_free(&out);
         return ret;
     }
 
@@ -271,7 +271,7 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
         }
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     ff_update_hdr_metadata(out, peak);
 

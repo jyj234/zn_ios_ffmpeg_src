@@ -108,7 +108,7 @@ static void run_encryption_info_test(void)
     av_assert0(copy != info);
     av_assert0(compare_encryption_info(info, copy) == 0);
     av_encryption_info_free(copy);
-    av_free(side_data);
+    zn_av_free(side_data);
 
     av_encryption_info_free(info);
 }
@@ -153,7 +153,7 @@ static void run_encryption_init_info_test(void)
     av_assert0(copy);
     av_assert0(compare_encryption_init_info(info, copy) == 0);
     av_encryption_init_info_free(copy);
-    av_free(side_data);
+    zn_av_free(side_data);
 
     // Make the first init info different from the second to test the correct order.
     memset(info->system_id, 0, info->system_id_size);
@@ -164,7 +164,7 @@ static void run_encryption_init_info_test(void)
     av_assert0(copy);
     av_assert0(compare_encryption_init_info(info, copy) == 0);
     av_encryption_init_info_free(copy);
-    av_free(side_data);
+    zn_av_free(side_data);
 
     av_encryption_init_info_free(info);
 }

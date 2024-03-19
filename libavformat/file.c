@@ -347,7 +347,7 @@ static int file_read_dir(URLContext *h, AVIODirEntry **next)
         errno = 0;
         dir = readdir(c->dir);
         if (!dir) {
-            av_freep(next);
+            zn_av_freep(next);
             return AVERROR(errno);
         }
     } while (!strcmp(dir->d_name, ".") || !strcmp(dir->d_name, ".."));
@@ -381,7 +381,7 @@ static int file_read_dir(URLContext *h, AVIODirEntry **next)
             (*next)->access_timestamp =  INT64_C(1000000) * st.st_atime;
             (*next)->status_change_timestamp = INT64_C(1000000) * st.st_ctime;
         }
-        av_free(fullpath);
+        zn_av_free(fullpath);
     }
 
     (*next)->name = av_strdup(dir->d_name);

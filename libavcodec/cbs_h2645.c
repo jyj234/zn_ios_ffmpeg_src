@@ -1838,7 +1838,7 @@ static int cbs_h2645_assemble_fragment(CodedBitstreamContext *ctx,
     frag->data_ref = av_buffer_create(data, dp + AV_INPUT_BUFFER_PADDING_SIZE,
                                       NULL, NULL, 0);
     if (!frag->data_ref) {
-        av_freep(&data);
+        zn_av_freep(&data);
         return AVERROR(ENOMEM);
     }
 

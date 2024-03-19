@@ -257,7 +257,7 @@ static void glslc_uninit(FFVkSPIRVCompiler **ctx)
         glslang_finalize_process();
     pthread_mutex_unlock(&glslc_mutex);
 
-    av_freep(ctx);
+    zn_av_freep(ctx);
 }
 
 FFVkSPIRVCompiler *ff_vk_glslang_init(void)
@@ -273,7 +273,7 @@ FFVkSPIRVCompiler *ff_vk_glslang_init(void)
     pthread_mutex_lock(&glslc_mutex);
     if (!glslc_refcount++) {
         if (!glslang_initialize_process()) {
-            av_freep(&ret);
+            zn_av_freep(&ret);
             glslc_refcount--;
         }
     }

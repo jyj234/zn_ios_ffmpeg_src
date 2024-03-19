@@ -137,19 +137,19 @@ void ff_h264_free_tables(H264Context *h)
 {
     int i;
 
-    av_freep(&h->intra4x4_pred_mode);
-    av_freep(&h->chroma_pred_mode_table);
-    av_freep(&h->cbp_table);
-    av_freep(&h->mvd_table[0]);
-    av_freep(&h->mvd_table[1]);
-    av_freep(&h->direct_table);
-    av_freep(&h->non_zero_count);
-    av_freep(&h->slice_table_base);
+    zn_av_freep(&h->intra4x4_pred_mode);
+    zn_av_freep(&h->chroma_pred_mode_table);
+    zn_av_freep(&h->cbp_table);
+    zn_av_freep(&h->mvd_table[0]);
+    zn_av_freep(&h->mvd_table[1]);
+    zn_av_freep(&h->direct_table);
+    zn_av_freep(&h->non_zero_count);
+    zn_av_freep(&h->slice_table_base);
     h->slice_table = NULL;
-    av_freep(&h->list_counts);
+    zn_av_freep(&h->list_counts);
 
-    av_freep(&h->mb2b_xy);
-    av_freep(&h->mb2br_xy);
+    zn_av_freep(&h->mb2b_xy);
+    zn_av_freep(&h->mb2br_xy);
 
     av_buffer_pool_uninit(&h->qscale_table_pool);
     av_buffer_pool_uninit(&h->mb_type_pool);
@@ -157,19 +157,19 @@ void ff_h264_free_tables(H264Context *h)
     av_buffer_pool_uninit(&h->ref_index_pool);
 
 #if CONFIG_ERROR_RESILIENCE
-    av_freep(&h->er.mb_index2xy);
-    av_freep(&h->er.error_status_table);
-    av_freep(&h->er.er_temp_buffer);
-    av_freep(&h->dc_val_base);
+    zn_av_freep(&h->er.mb_index2xy);
+    zn_av_freep(&h->er.error_status_table);
+    zn_av_freep(&h->er.er_temp_buffer);
+    zn_av_freep(&h->dc_val_base);
 #endif
 
     for (i = 0; i < h->nb_slice_ctx; i++) {
         H264SliceContext *sl = &h->slice_ctx[i];
 
-        av_freep(&sl->bipred_scratchpad);
-        av_freep(&sl->edge_emu_buffer);
-        av_freep(&sl->top_borders[0]);
-        av_freep(&sl->top_borders[1]);
+        zn_av_freep(&sl->bipred_scratchpad);
+        zn_av_freep(&sl->edge_emu_buffer);
+        zn_av_freep(&sl->top_borders[0]);
+        zn_av_freep(&sl->top_borders[1]);
 
         sl->bipred_scratchpad_allocated = 0;
         sl->edge_emu_buffer_allocated   = 0;
@@ -271,11 +271,11 @@ void ff_h264_slice_context_init(H264Context *h, H264SliceContext *sl)
 
 static int h264_init_pic(H264Picture *pic)
 {
-    pic->f = av_frame_alloc();
+    pic->f = zn_av_frame_alloc();
     if (!pic->f)
         return AVERROR(ENOMEM);
 
-    pic->f_grain = av_frame_alloc();
+    pic->f_grain = zn_av_frame_alloc();
     if (!pic->f_grain)
         return AVERROR(ENOMEM);
 
@@ -314,7 +314,7 @@ static int h264_init_context(AVCodecContext *avctx, H264Context *h)
     }
 
     h->nb_slice_ctx = (avctx->active_thread_type & FF_THREAD_SLICE) ? avctx->thread_count : 1;
-    h->slice_ctx = av_calloc(h->nb_slice_ctx, sizeof(*h->slice_ctx));
+    h->slice_ctx = zn_av_calloc(h->nb_slice_ctx, sizeof(*h->slice_ctx));
     if (!h->slice_ctx) {
         h->nb_slice_ctx = 0;
         return AVERROR(ENOMEM);
@@ -340,8 +340,8 @@ static int h264_init_context(AVCodecContext *avctx, H264Context *h)
 static void h264_free_pic(H264Context *h, H264Picture *pic)
 {
     ff_h264_unref_picture(pic);
-    av_frame_free(&pic->f);
-    av_frame_free(&pic->f_grain);
+    zn_av_frame_free(&pic->f);
+    zn_av_frame_free(&pic->f_grain);
 }
 
 static av_cold int h264_decode_end(AVCodecContext *avctx)
@@ -361,7 +361,7 @@ static av_cold int h264_decode_end(AVCodecContext *avctx)
 
     av_buffer_pool_uninit(&h->decode_error_flags_pool);
 
-    av_freep(&h->slice_ctx);
+    zn_av_freep(&h->slice_ctx);
     h->nb_slice_ctx = 0;
 
     ff_h264_sei_uninit(&h->sei);

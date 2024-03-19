@@ -181,7 +181,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *ref)
                                           cmd_buf, sizeof(cmd_buf),
                                           AVFILTER_CMD_FLAG_ONE);
         send_buf = av_asprintf("%d %s%s%s",
-                               -ret, av_err2str(ret), cmd_buf[0] ? "\n" : "", cmd_buf);
+                               -ret, zn_av_err2str(ret), cmd_buf[0] ? "\n" : "", cmd_buf);
         if (!send_buf) {
             ret = AVERROR(ENOMEM);
             goto end;
@@ -194,12 +194,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *ref)
                    zmq->command_count, zmq_strerror(ret));
 
     end:
-        av_freep(&send_buf);
-        av_freep(&recv_buf);
+        zn_av_freep(&send_buf);
+        zn_av_freep(&recv_buf);
         recv_buf_size = 0;
-        av_freep(&cmd.target);
-        av_freep(&cmd.command);
-        av_freep(&cmd.arg);
+        zn_av_freep(&cmd.target);
+        zn_av_freep(&cmd.command);
+        zn_av_freep(&cmd.arg);
     }
 
     return ff_filter_frame(ctx->outputs[0], ref);

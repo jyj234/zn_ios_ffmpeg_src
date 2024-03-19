@@ -313,7 +313,7 @@ static int encode_dvd_subtitles(AVCodecContext *avctx,
     select_palette(avctx, out_palette, out_alpha, global_palette_hits);
 
     if (rects > 1) {
-        if (!(vrect_data = av_calloc(vrect.w, vrect.h)))
+        if (!(vrect_data = zn_av_calloc(vrect.w, vrect.h)))
             return AVERROR(ENOMEM);
         vrect.data    [0] = vrect_data;
         vrect.linesize[0] = vrect.w;
@@ -414,7 +414,7 @@ static int encode_dvd_subtitles(AVCodecContext *avctx,
     ret = q - outbuf;
 
 fail:
-    av_free(vrect_data);
+    zn_av_free(vrect_data);
     return ret;
 }
 
@@ -427,7 +427,7 @@ static int bprint_to_extradata(AVCodecContext *avctx, struct AVBPrint *buf)
     if (ret < 0)
         return ret;
     if (!av_bprint_is_complete(buf)) {
-        av_free(str);
+        zn_av_free(str);
         return AVERROR(ENOMEM);
     }
 

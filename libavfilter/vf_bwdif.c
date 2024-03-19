@@ -142,9 +142,9 @@ static av_cold void uninit(AVFilterContext *ctx)
     BWDIFContext *bwdif = ctx->priv;
     YADIFContext *yadif = &bwdif->yadif;
 
-    av_frame_free(&yadif->prev);
-    av_frame_free(&yadif->cur );
-    av_frame_free(&yadif->next);
+    zn_av_frame_free(&yadif->prev);
+    zn_av_frame_free(&yadif->cur );
+    zn_av_frame_free(&yadif->next);
     ff_ccfifo_uninit(&yadif->cc_fifo);
 }
 

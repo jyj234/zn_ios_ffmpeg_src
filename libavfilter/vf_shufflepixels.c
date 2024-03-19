@@ -319,7 +319,7 @@ static int config_output(AVFilterLink *outlink)
     s->planeheight[1] = s->planeheight[2] = AV_CEIL_RSHIFT(inlink->h, desc->log2_chroma_h);
     s->planeheight[0] = s->planeheight[3] = inlink->h;
 
-    s->map = av_calloc(inlink->w * inlink->h, sizeof(*s->map));
+    s->map = zn_av_calloc(inlink->w * inlink->h, sizeof(*s->map));
     if (!s->map)
         return AVERROR(ENOMEM);
 
@@ -341,7 +341,7 @@ static int config_output(AVFilterLink *outlink)
         av_assert0(0);
     }
 
-    s->used = av_calloc(s->nb_blocks, sizeof(*s->used));
+    s->used = zn_av_calloc(s->nb_blocks, sizeof(*s->used));
     if (!s->used)
         return AVERROR(ENOMEM);
 
@@ -377,7 +377,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     ret = av_frame_copy_props(out, in);
     if (ret < 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         goto fail;
     }
 
@@ -386,10 +386,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, s->shuffle_pixels, &td, NULL,
                       FFMIN(s->planeheight[1], ff_filter_get_nb_threads(ctx)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(ctx->outputs[0], out);
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ret;
 }
 
@@ -397,8 +397,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ShufflePixelsContext *s = ctx->priv;
 
-    av_freep(&s->map);
-    av_freep(&s->used);
+    zn_av_freep(&s->map);
+    zn_av_freep(&s->used);
 }
 
 #define OFFSET(x) offsetof(ShufflePixelsContext, x)

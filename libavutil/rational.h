@@ -101,7 +101,7 @@ static inline int av_cmp_q(AVRational a, AVRational b){
  * @return `a` in floating-point form
  * @see av_d2q()
  */
-static inline double av_q2d(AVRational a){
+static inline double zn_av_q2d(AVRational a){
     return a.num / (double) a.den;
 }
 
@@ -171,7 +171,7 @@ static av_always_inline AVRational av_inv_q(AVRational q)
  * @param d   `double` to convert
  * @param max Maximum allowed numerator and denominator
  * @return `d` in AVRational form
- * @see av_q2d()
+ * @see zn_av_q2d()
  */
 AVRational av_d2q(double d, int max) av_const;
 

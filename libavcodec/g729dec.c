@@ -746,7 +746,7 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *frame,
 static av_cold int decode_close(AVCodecContext *avctx)
 {
     G729Context *s = avctx->priv_data;
-    av_freep(&s->channel_context);
+    zn_av_freep(&s->channel_context);
 
     return 0;
 }

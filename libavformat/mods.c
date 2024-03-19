@@ -45,7 +45,7 @@ static int mods_read_header(AVFormatContext *s)
     AVRational fps;
     int64_t pos;
 
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

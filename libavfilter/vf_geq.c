@@ -163,7 +163,7 @@ static int calculate_sums(GEQContext *geq, int plane, int w, int h)
     int linesize = picref->linesize[plane];
 
     if (!geq->pixel_sums[plane])
-        geq->pixel_sums[plane] = av_malloc_array(w, h * sizeof (*geq->pixel_sums[plane]));
+        geq->pixel_sums[plane] = zn_av_malloc_array(w, h * sizeof (*geq->pixel_sums[plane]));
     if (!geq->pixel_sums[plane])
         return AVERROR(ENOMEM);
     if (geq->bps == 32)
@@ -455,12 +455,12 @@ static int geq_filter_frame(AVFilterLink *inlink, AVFrame *in)
     AVFrame *out;
 
     geq->values[VAR_N] = inlink->frame_count_out,
-    geq->values[VAR_T] = in->pts == AV_NOPTS_VALUE ? NAN : in->pts * av_q2d(inlink->time_base),
+    geq->values[VAR_T] = in->pts == AV_NOPTS_VALUE ? NAN : in->pts * zn_av_q2d(inlink->time_base),
 
     geq->picref = in;
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -492,7 +492,7 @@ static int geq_filter_frame(AVFilterLink *inlink, AVFrame *in)
                           NULL, FFMIN(height, nb_threads));
     }
 
-    av_frame_free(&geq->picref);
+    zn_av_frame_free(&geq->picref);
     return ff_filter_frame(outlink, out);
 }
 
@@ -505,7 +505,7 @@ static av_cold void geq_uninit(AVFilterContext *ctx)
         for (int j = 0; j < MAX_NB_THREADS; j++)
             av_expr_free(geq->e[i][j]);
     for (i = 0; i < NB_PLANES; i++)
-        av_freep(&geq->pixel_sums);
+        zn_av_freep(&geq->pixel_sums);
 }
 
 static const AVFilterPad geq_inputs[] = {

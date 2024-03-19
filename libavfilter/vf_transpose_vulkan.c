@@ -162,13 +162,13 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         out->sample_aspect_ratio.den = in->sample_aspect_ratio.num;
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return err;
 }
 

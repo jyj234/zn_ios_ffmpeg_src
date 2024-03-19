@@ -219,7 +219,7 @@ static int encode_frame(AVCodecContext *avctx, AVPacket *pkt,
                 length = sgi_rle_encode(&pbc, encode_buf, width,
                                         bytes_per_channel);
                 if (length < 1) {
-                    av_free(encode_buf);
+                    zn_av_free(encode_buf);
                     return AVERROR_INVALIDDATA;
                 }
 
@@ -228,7 +228,7 @@ static int encode_frame(AVCodecContext *avctx, AVPacket *pkt,
             }
         }
 
-        av_free(encode_buf);
+        zn_av_free(encode_buf);
     } else {
         for (z = 0; z < depth; z++) {
             const uint8_t *in_buf = p->data[0] + p->linesize[0] * (height - 1) + z * bytes_per_channel;

@@ -35,7 +35,7 @@ struct PayloadContext {
 static void latm_close_context(PayloadContext *data)
 {
     ffio_free_dyn_buf(&data->dyn_buf);
-    av_freep(&data->buf);
+    zn_av_freep(&data->buf);
 }
 
 static int latm_parse_packet(AVFormatContext *ctx, PayloadContext *data,
@@ -47,7 +47,7 @@ static int latm_parse_packet(AVFormatContext *ctx, PayloadContext *data,
 
     if (buf) {
         if (!data->dyn_buf || data->timestamp != *timestamp) {
-            av_freep(&data->buf);
+            zn_av_freep(&data->buf);
             ffio_free_dyn_buf(&data->dyn_buf);
 
             data->timestamp = *timestamp;
@@ -58,7 +58,7 @@ static int latm_parse_packet(AVFormatContext *ctx, PayloadContext *data,
 
         if (!(flags & RTP_FLAG_MARKER))
             return AVERROR(EAGAIN);
-        av_freep(&data->buf);
+        zn_av_freep(&data->buf);
         data->len = avio_close_dyn_buf(data->dyn_buf, &data->buf);
         data->dyn_buf = NULL;
         data->pos = 0;
@@ -125,7 +125,7 @@ static int parse_fmtp_config(AVStream *st, const char *value)
         st->codecpar->extradata[i] = get_bits(&gb, 8);
 
 end:
-    av_free(config);
+    zn_av_free(config);
     return ret;
 }
 

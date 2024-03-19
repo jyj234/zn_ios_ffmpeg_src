@@ -285,7 +285,7 @@ static void write_palette(AVFilterContext *ctx, AVFrame *out)
 static struct color_ref **load_color_refs(const struct hist_node *hist, int nb_refs)
 {
     int k = 0;
-    struct color_ref **refs = av_malloc_array(nb_refs, sizeof(*refs));
+    struct color_ref **refs = zn_av_malloc_array(nb_refs, sizeof(*refs));
 
     if (!refs)
         return NULL;
@@ -477,7 +477,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         s->nb_refs += ret;
 
     if (s->stats_mode == STATS_MODE_DIFF_FRAMES) {
-        av_frame_free(&s->prev_frame);
+        zn_av_frame_free(&s->prev_frame);
         s->prev_frame = in;
     } else if (s->stats_mode == STATS_MODE_SINGLE_FRAMES && s->nb_refs > 0) {
         AVFrame *out;
@@ -485,17 +485,17 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
         out = get_palette_frame(ctx);
         out->pts = in->pts;
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         ret = ff_filter_frame(ctx->outputs[0], out);
         for (i = 0; i < HIST_SIZE; i++)
-            av_freep(&s->histogram[i].entries);
-        av_freep(&s->refs);
+            zn_av_freep(&s->histogram[i].entries);
+        zn_av_freep(&s->refs);
         s->nb_refs = 0;
         s->nb_boxes = 0;
         memset(s->boxes, 0, sizeof(s->boxes));
         memset(s->histogram, 0, sizeof(s->histogram));
     } else {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
 
     return ret;
@@ -548,9 +548,9 @@ static av_cold void uninit(AVFilterContext *ctx)
     PaletteGenContext *s = ctx->priv;
 
     for (i = 0; i < HIST_SIZE; i++)
-        av_freep(&s->histogram[i].entries);
-    av_freep(&s->refs);
-    av_frame_free(&s->prev_frame);
+        zn_av_freep(&s->histogram[i].entries);
+    zn_av_freep(&s->refs);
+    zn_av_frame_free(&s->prev_frame);
 }
 
 static const AVFilterPad palettegen_inputs[] = {

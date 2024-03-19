@@ -273,11 +273,11 @@ static void reset_ctx(AVTXContext *s, int free_sub)
         s->cd_self->uninit(s);
 
     if (free_sub)
-        av_freep(&s->sub);
+        zn_av_freep(&s->sub);
 
-    av_freep(&s->map);
-    av_freep(&s->exp);
-    av_freep(&s->tmp);
+    zn_av_freep(&s->map);
+    zn_av_freep(&s->exp);
+    zn_av_freep(&s->tmp);
 
     /* Nothing else needs to be reset, it gets overwritten if another
      * ff_tx_init_subtx() call is made. */
@@ -297,7 +297,7 @@ av_cold void av_tx_uninit(AVTXContext **ctx)
         return;
 
     reset_ctx(*ctx, 1);
-    av_freep(ctx);
+    zn_av_freep(ctx);
 }
 
 static av_cold int ff_tx_null_init(AVTXContext *s, const FFTXCodelet *cd,
@@ -785,7 +785,7 @@ av_cold int ff_tx_init_subtx(AVTXContext *s, enum AVTXType type,
             cd_tmp = av_fast_realloc(cd_matches, &cd_matches_size,
                                      sizeof(*cd_tmp) * (nb_cd_matches + 1));
             if (!cd_tmp) {
-                av_free(cd_matches);
+                zn_av_free(cd_matches);
                 return AVERROR(ENOMEM);
             }
 
@@ -875,7 +875,7 @@ av_cold int ff_tx_init_subtx(AVTXContext *s, enum AVTXType type,
                 for (int i = 0; i < len; i++)
                     sctx->map[tmp[i]] = i;
 
-                av_free(tmp);
+                zn_av_free(tmp);
             }
 
             s->nb_sub++;
@@ -891,10 +891,10 @@ av_cold int ff_tx_init_subtx(AVTXContext *s, enum AVTXType type,
     }
 
     if (!s->nb_sub)
-        av_freep(&s->sub);
+        zn_av_freep(&s->sub);
 
 end:
-    av_free(cd_matches);
+    zn_av_free(cd_matches);
     return ret;
 }
 

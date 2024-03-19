@@ -82,10 +82,10 @@ static void tlog_ref(void *ctx, AVFrame *ref, int end)
 static void command_queue_pop(AVFilterContext *filter)
 {
     AVFilterCommand *c= filter->command_queue;
-    av_freep(&c->arg);
-    av_freep(&c->command);
+    zn_av_freep(&c->arg);
+    zn_av_freep(&c->command);
     filter->command_queue= c->next;
-    av_free(c);
+    zn_av_free(c);
 }
 
 /**
@@ -112,7 +112,7 @@ static int append_pad(unsigned *count, AVFilterPad **pads,
         *links = newlinks;
     if (!newpads || !newlinks) {
         if (newpad->flags & AVFILTERPAD_FLAG_FREE_NAME)
-            av_freep(&newpad->name);
+            zn_av_freep(&newpad->name);
         return AVERROR(ENOMEM);
     }
 
@@ -199,7 +199,7 @@ void avfilter_link_free(AVFilterLink **link)
     ff_frame_pool_uninit((FFFramePool**)&(*link)->frame_pool);
     av_channel_layout_uninit(&(*link)->ch_layout);
 
-    av_freep(link);
+    zn_av_freep(link);
 }
 
 static void update_link_current_pts(AVFilterLink *link, int64_t pts)
@@ -530,9 +530,9 @@ static int set_enable_expr(AVFilterContext *ctx, const char *expr)
         return AVERROR(ENOMEM);
 
     if (!ctx->var_values) {
-        ctx->var_values = av_calloc(VAR_VARS_NB, sizeof(*ctx->var_values));
+        ctx->var_values = zn_av_calloc(VAR_VARS_NB, sizeof(*ctx->var_values));
         if (!ctx->var_values) {
-            av_free(expr_dup);
+            zn_av_free(expr_dup);
             return AVERROR(ENOMEM);
         }
     }
@@ -543,12 +543,12 @@ static int set_enable_expr(AVFilterContext *ctx, const char *expr)
         av_log(ctx->priv, AV_LOG_ERROR,
                "Error when evaluating the expression '%s' for enable\n",
                expr_dup);
-        av_free(expr_dup);
+        zn_av_free(expr_dup);
         return ret;
     }
 
     av_expr_free(old);
-    av_free(ctx->enable_str);
+    zn_av_free(ctx->enable_str);
     ctx->enable_str = expr_dup;
     return 0;
 }
@@ -684,7 +684,7 @@ AVFilterContext *ff_filter_alloc(const AVFilter *filter, const char *inst_name)
         ret->input_pads   = av_memdup(filter->inputs,  ret->nb_inputs  * sizeof(*filter->inputs));
         if (!ret->input_pads)
             goto err;
-        ret->inputs      = av_calloc(ret->nb_inputs, sizeof(*ret->inputs));
+        ret->inputs      = zn_av_calloc(ret->nb_inputs, sizeof(*ret->inputs));
         if (!ret->inputs)
             goto err;
     }
@@ -694,7 +694,7 @@ AVFilterContext *ff_filter_alloc(const AVFilter *filter, const char *inst_name)
         ret->output_pads  = av_memdup(filter->outputs, ret->nb_outputs * sizeof(*filter->outputs));
         if (!ret->output_pads)
             goto err;
-        ret->outputs     = av_calloc(ret->nb_outputs, sizeof(*ret->outputs));
+        ret->outputs     = zn_av_calloc(ret->nb_outputs, sizeof(*ret->outputs));
         if (!ret->outputs)
             goto err;
     }
@@ -704,15 +704,15 @@ AVFilterContext *ff_filter_alloc(const AVFilter *filter, const char *inst_name)
 err:
     if (preinited)
         filter->uninit(ret);
-    av_freep(&ret->inputs);
-    av_freep(&ret->input_pads);
+    zn_av_freep(&ret->inputs);
+    zn_av_freep(&ret->input_pads);
     ret->nb_inputs = 0;
-    av_freep(&ret->outputs);
-    av_freep(&ret->output_pads);
+    zn_av_freep(&ret->outputs);
+    zn_av_freep(&ret->output_pads);
     ret->nb_outputs = 0;
-    av_freep(&ret->priv);
-    av_freep(&ret->internal);
-    av_free(ret);
+    zn_av_freep(&ret->priv);
+    zn_av_freep(&ret->internal);
+    zn_av_free(ret);
     return NULL;
 }
 
@@ -753,12 +753,12 @@ void avfilter_free(AVFilterContext *filter)
     for (i = 0; i < filter->nb_inputs; i++) {
         free_link(filter->inputs[i]);
         if (filter->input_pads[i].flags  & AVFILTERPAD_FLAG_FREE_NAME)
-            av_freep(&filter->input_pads[i].name);
+            zn_av_freep(&filter->input_pads[i].name);
     }
     for (i = 0; i < filter->nb_outputs; i++) {
         free_link(filter->outputs[i]);
         if (filter->output_pads[i].flags & AVFILTERPAD_FLAG_FREE_NAME)
-            av_freep(&filter->output_pads[i].name);
+            zn_av_freep(&filter->output_pads[i].name);
     }
 
     if (filter->filter->priv_class)
@@ -766,21 +766,21 @@ void avfilter_free(AVFilterContext *filter)
 
     av_buffer_unref(&filter->hw_device_ctx);
 
-    av_freep(&filter->name);
-    av_freep(&filter->input_pads);
-    av_freep(&filter->output_pads);
-    av_freep(&filter->inputs);
-    av_freep(&filter->outputs);
-    av_freep(&filter->priv);
+    zn_av_freep(&filter->name);
+    zn_av_freep(&filter->input_pads);
+    zn_av_freep(&filter->output_pads);
+    zn_av_freep(&filter->inputs);
+    zn_av_freep(&filter->outputs);
+    zn_av_freep(&filter->priv);
     while(filter->command_queue){
         command_queue_pop(filter);
     }
     av_opt_free(filter);
     av_expr_free(filter->enable);
     filter->enable = NULL;
-    av_freep(&filter->var_values);
-    av_freep(&filter->internal);
-    av_free(filter);
+    zn_av_freep(&filter->var_values);
+    zn_av_freep(&filter->internal);
+    zn_av_free(filter);
 }
 
 int ff_filter_get_nb_threads(AVFilterContext *ctx)
@@ -822,7 +822,7 @@ int ff_filter_opt_parse(void *logctx, const AVClass *priv_class,
                 av_log(logctx, AV_LOG_ERROR, "No option name near '%s'\n", args);
             else
                 av_log(logctx, AV_LOG_ERROR, "Unable to parse '%s': %s\n", args,
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
             return ret;
         }
         if (*args)
@@ -841,8 +841,8 @@ int ff_filter_opt_parse(void *logctx, const AVClass *priv_class,
 
         av_dict_set(options, key, value, AV_DICT_MULTIKEY);
 
-        av_free(value);
-        av_free(parsed_key);
+        zn_av_free(value);
+        zn_av_free(parsed_key);
     }
 
     return 0;
@@ -971,7 +971,7 @@ static int ff_filter_frame_framed(AVFilterLink *link, AVFrame *frame)
     return ret;
 
 fail:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     return ret;
 }
 
@@ -1022,14 +1022,14 @@ FF_ENABLE_DEPRECATION_WARNINGS
     filter_unblock(link->dst);
     ret = ff_framequeue_add(&link->fifo, frame);
     if (ret < 0) {
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         return ret;
     }
     ff_filter_set_ready(link->dst, 300);
     return 0;
 
 error:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     return AVERROR_PATCHWELCOME;
 }
 
@@ -1075,7 +1075,7 @@ static int take_samples(AVFilterLink *link, unsigned min, unsigned max,
         return AVERROR(ENOMEM);
     ret = av_frame_copy_props(buf, frame0);
     if (ret < 0) {
-        av_frame_free(&buf);
+        zn_av_frame_free(&buf);
         return ret;
     }
 
@@ -1085,7 +1085,7 @@ static int take_samples(AVFilterLink *link, unsigned min, unsigned max,
         av_samples_copy(buf->extended_data, frame->extended_data, p, 0,
                         frame->nb_samples, link->ch_layout.nb_channels, link->format);
         p += frame->nb_samples;
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
     }
     if (p < nb_samples) {
         unsigned n = nb_samples - p;
@@ -1449,17 +1449,17 @@ int ff_inlink_make_frame_writable(AVFilterLink *link, AVFrame **rframe)
 
     ret = av_frame_copy_props(out, frame);
     if (ret < 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ret;
     }
 
     ret = av_frame_copy(out, frame);
     if (ret < 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ret;
     }
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     *rframe = out;
     return 0;
 }
@@ -1468,7 +1468,7 @@ int ff_inlink_process_commands(AVFilterLink *link, const AVFrame *frame)
 {
     AVFilterCommand *cmd = link->dst->command_queue;
 
-    while(cmd && cmd->time <= frame->pts * av_q2d(link->time_base)){
+    while(cmd && cmd->time <= frame->pts * zn_av_q2d(link->time_base)){
         av_log(link->dst, AV_LOG_DEBUG,
                "Processing command time:%f command:%s arg:%s\n",
                cmd->time, cmd->command, cmd->arg);
@@ -1493,7 +1493,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         return 1;
 
     dstctx->var_values[VAR_N] = link->frame_count_out;
-    dstctx->var_values[VAR_T] = pts == AV_NOPTS_VALUE ? NAN : pts * av_q2d(link->time_base);
+    dstctx->var_values[VAR_T] = pts == AV_NOPTS_VALUE ? NAN : pts * zn_av_q2d(link->time_base);
     dstctx->var_values[VAR_W] = link->w;
     dstctx->var_values[VAR_H] = link->h;
 #if FF_API_FRAME_PKT
@@ -1520,7 +1520,7 @@ void ff_inlink_set_status(AVFilterLink *link, int status)
     link_set_out_status(link, status, AV_NOPTS_VALUE);
     while (ff_framequeue_queued_frames(&link->fifo)) {
            AVFrame *frame = ff_framequeue_take(&link->fifo);
-           av_frame_free(&frame);
+           zn_av_frame_free(&frame);
     }
     if (!link->status_in)
         link->status_in = status;

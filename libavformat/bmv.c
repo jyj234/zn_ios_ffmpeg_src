@@ -44,7 +44,7 @@ static int bmv_read_header(AVFormatContext *s)
     AVStream *st, *ast;
     BMVContext *c = s->priv_data;
 
-    st = avformat_new_stream(s, 0);
+    st = zn_avformat_new_stream(s, 0);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -53,7 +53,7 @@ static int bmv_read_header(AVFormatContext *s)
     st->codecpar->height     = 429;
     st->codecpar->format     = AV_PIX_FMT_PAL8;
     avpriv_set_pts_info(st, 16, 1, 12);
-    ast = avformat_new_stream(s, 0);
+    ast = zn_avformat_new_stream(s, 0);
     if (!ast)
         return AVERROR(ENOMEM);
     ast->codecpar->codec_type      = AVMEDIA_TYPE_AUDIO;
@@ -119,7 +119,7 @@ static int bmv_read_close(AVFormatContext *s)
 {
     BMVContext *c = s->priv_data;
 
-    av_freep(&c->packet);
+    zn_av_freep(&c->packet);
 
     return 0;
 }

@@ -82,7 +82,7 @@ int ff_openssl_init(void)
 #if HAVE_THREADS && OPENSSL_VERSION_NUMBER < 0x10100000L
         if (!CRYPTO_get_locking_callback()) {
             int i;
-            openssl_mutexes = av_malloc_array(sizeof(pthread_mutex_t), CRYPTO_num_locks());
+            openssl_mutexes = zn_av_malloc_array(sizeof(pthread_mutex_t), CRYPTO_num_locks());
             if (!openssl_mutexes) {
                 ff_unlock_avformat();
                 return AVERROR(ENOMEM);
@@ -114,7 +114,7 @@ void ff_openssl_deinit(void)
             CRYPTO_set_locking_callback(NULL);
             for (i = 0; i < CRYPTO_num_locks(); i++)
                 pthread_mutex_destroy(&openssl_mutexes[i]);
-            av_free(openssl_mutexes);
+            zn_av_free(openssl_mutexes);
         }
 #endif
     }
@@ -135,7 +135,7 @@ static int print_tls_error(URLContext *h, int ret)
         printed = 1;
     }
     if (c->io_err) {
-        av_log(h, AV_LOG_ERROR, "IO error: %s\n", av_err2str(c->io_err));
+        av_log(h, AV_LOG_ERROR, "IO error: %s\n", zn_av_err2str(c->io_err));
         printed = 1;
         averr = c->io_err;
         c->io_err = 0;

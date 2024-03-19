@@ -146,7 +146,7 @@ static void rkmpp_release_decoder(void *opaque, uint8_t *data)
     av_buffer_unref(&decoder->frames_ref);
     av_buffer_unref(&decoder->device_ref);
 
-    av_free(decoder);
+    zn_av_free(decoder);
 }
 
 static int rkmpp_init_decoder(AVCodecContext *avctx)
@@ -170,7 +170,7 @@ static int rkmpp_init_decoder(AVCodecContext *avctx)
     rk_context->decoder_ref = av_buffer_create((uint8_t *)decoder, sizeof(*decoder), rkmpp_release_decoder,
                                                NULL, AV_BUFFER_FLAG_READONLY);
     if (!rk_context->decoder_ref) {
-        av_free(decoder);
+        zn_av_free(decoder);
         ret = AVERROR(ENOMEM);
         goto fail;
     }
@@ -314,7 +314,7 @@ static void rkmpp_release_frame(void *opaque, uint8_t *data)
     av_buffer_unref(&framecontext->decoder_ref);
     av_buffer_unref(&framecontextref);
 
-    av_free(desc);
+    zn_av_free(desc);
 }
 
 static int rkmpp_retrieve_frame(AVCodecContext *avctx, AVFrame *frame)
@@ -490,7 +490,7 @@ fail:
         av_buffer_unref(&framecontextref);
 
     if (desc)
-        av_free(desc);
+        zn_av_free(desc);
 
     return ret;
 }
@@ -519,7 +519,7 @@ static int rkmpp_receive_frame(AVCodecContext *avctx, AVFrame *frame)
             }
 
             ret = rkmpp_send_packet(avctx, &pkt);
-            av_packet_unref(&pkt);
+            zn_av_packet_unref(&pkt);
 
             if (ret < 0) {
                 av_log(avctx, AV_LOG_ERROR, "Failed to send packet to decoder (code = %d)\n", ret);

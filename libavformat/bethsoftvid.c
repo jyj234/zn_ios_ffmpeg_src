@@ -113,7 +113,7 @@ static int read_frame(BVID_DemuxContext *vid, AVIOContext *pb, AVPacket *pkt,
     AVStream *st;
 
     if (vid->video_index < 0) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         vid->video_index = st->index;
@@ -213,7 +213,7 @@ static int read_frame(BVID_DemuxContext *vid, AVIOContext *pb, AVPacket *pkt,
 
     vid->nframes--;  // used to check if all the frames were read
 fail:
-    av_free(vidbuf_start);
+    zn_av_free(vidbuf_start);
     return ret;
 }
 
@@ -248,7 +248,7 @@ static int vid_read_packet(AVFormatContext *s,
             vid->sample_rate = 1000000 / (256 - avio_r8(pb));
         case AUDIO_BLOCK:
             if (vid->audio_index < 0) {
-                AVStream *st = avformat_new_stream(s, NULL);
+                AVStream *st = zn_avformat_new_stream(s, NULL);
                 if (!st)
                     return AVERROR(ENOMEM);
                 vid->audio_index                 = st->index;

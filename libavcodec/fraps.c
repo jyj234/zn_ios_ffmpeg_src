@@ -331,7 +331,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     FrapsContext *s = avctx->priv_data;
 
-    av_freep(&s->tmpbuf);
+    zn_av_freep(&s->tmpbuf);
     return 0;
 }
 

@@ -76,7 +76,7 @@ static void decode(AVCodecContext *dec_ctx, AVPacket *pkt, AVFrame *frame,
     int ret, data_size;
 
     /* send the packet with the compressed data to the decoder */
-    ret = avcodec_send_packet(dec_ctx, pkt);
+    ret = zn_avcodec_send_packet(dec_ctx, pkt);
     if (ret < 0) {
         fprintf(stderr, "Error submitting the packet to the decoder\n");
         exit(1);
@@ -84,7 +84,7 @@ static void decode(AVCodecContext *dec_ctx, AVPacket *pkt, AVFrame *frame,
 
     /* read all the output frames (in general there may be any number of them */
     while (ret >= 0) {
-        ret = avcodec_receive_frame(dec_ctx, frame);
+        ret = zn_avcodec_receive_frame(dec_ctx, frame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
             return;
         else if (ret < 0) {
@@ -127,10 +127,10 @@ int main(int argc, char **argv)
     filename    = argv[1];
     outfilename = argv[2];
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
 
     /* find the MPEG audio decoder */
-    codec = avcodec_find_decoder(AV_CODEC_ID_MP2);
+    codec = zn_avcodec_find_decoder(AV_CODEC_ID_MP2);
     if (!codec) {
         fprintf(stderr, "Codec not found\n");
         exit(1);
@@ -142,14 +142,14 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    c = avcodec_alloc_context3(codec);
+    c = zn_avcodec_alloc_context3(codec);
     if (!c) {
         fprintf(stderr, "Could not allocate audio codec context\n");
         exit(1);
     }
 
     /* open it */
-    if (avcodec_open2(c, codec, NULL) < 0) {
+    if (zn_avcodec_open2(c, codec, NULL) < 0) {
         fprintf(stderr, "Could not open codec\n");
         exit(1);
     }
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
     }
     outfile = fopen(outfilename, "wb");
     if (!outfile) {
-        av_free(c);
+        zn_av_free(c);
         exit(1);
     }
 
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 
     while (data_size > 0) {
         if (!decoded_frame) {
-            if (!(decoded_frame = av_frame_alloc())) {
+            if (!(decoded_frame = zn_av_frame_alloc())) {
                 fprintf(stderr, "Could not allocate audio frame\n");
                 exit(1);
             }
@@ -230,8 +230,8 @@ end:
 
     avcodec_free_context(&c);
     av_parser_close(parser);
-    av_frame_free(&decoded_frame);
-    av_packet_free(&pkt);
+    zn_av_frame_free(&decoded_frame);
+    zn_av_packet_free(&pkt);
 
     return 0;
 }

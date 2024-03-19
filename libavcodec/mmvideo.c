@@ -69,7 +69,7 @@ static av_cold int mm_decode_init(AVCodecContext *avctx)
         return AVERROR(EINVAL);
     }
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
@@ -233,7 +233,7 @@ static av_cold int mm_decode_end(AVCodecContext *avctx)
 {
     MmContext *s = avctx->priv_data;
 
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 
     return 0;
 }

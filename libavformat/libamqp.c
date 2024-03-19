@@ -105,7 +105,7 @@ static int amqp_proto_open(URLContext *h, const char *uri, int flags)
 
     user_decoded = ff_urldecode(user, 0);
     if (!user_decoded) {
-        av_freep(&password_decoded);
+        zn_av_freep(&password_decoded);
         return AVERROR(ENOMEM);
     }
 
@@ -122,16 +122,16 @@ static int amqp_proto_open(URLContext *h, const char *uri, int flags)
 
     vhost_decoded = ff_urldecode(vhost, 0);
     if (!vhost_decoded) {
-        av_freep(&user_decoded);
-        av_freep(&password_decoded);
+        zn_av_freep(&user_decoded);
+        zn_av_freep(&password_decoded);
         return AVERROR(ENOMEM);
     }
 
     s->conn = amqp_new_connection();
     if (!s->conn) {
-        av_freep(&vhost_decoded);
-        av_freep(&user_decoded);
-        av_freep(&password_decoded);
+        zn_av_freep(&vhost_decoded);
+        zn_av_freep(&user_decoded);
+        zn_av_freep(&password_decoded);
         av_log(h, AV_LOG_ERROR, "Error creating connection\n");
         return AVERROR_EXTERNAL;
     }
@@ -214,9 +214,9 @@ static int amqp_proto_open(URLContext *h, const char *uri, int flags)
         }
     }
 
-    av_freep(&vhost_decoded);
-    av_freep(&user_decoded);
-    av_freep(&password_decoded);
+    zn_av_freep(&vhost_decoded);
+    zn_av_freep(&user_decoded);
+    zn_av_freep(&password_decoded);
     return 0;
 
 close_channel:
@@ -226,9 +226,9 @@ close_connection:
 destroy_connection:
     amqp_destroy_connection(s->conn);
 
-    av_freep(&vhost_decoded);
-    av_freep(&user_decoded);
-    av_freep(&password_decoded);
+    zn_av_freep(&vhost_decoded);
+    zn_av_freep(&user_decoded);
+    zn_av_freep(&password_decoded);
     return AVERROR_EXTERNAL;
 }
 

@@ -542,7 +542,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     for (int i = 0; i < ctx->nb_outputs; i++) {
         if (ff_outlink_get_status(ctx->outputs[i])) {
-            av_frame_free(&frames[i]);
+            zn_av_frame_free(&frames[i]);
             continue;
         }
 
@@ -554,7 +554,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
 fail:
     for (int i = 0; i < ctx->nb_outputs; i++)
-        av_frame_free(&frames[i]);
+        zn_av_frame_free(&frames[i]);
 
     return ret;
 }
@@ -575,7 +575,7 @@ static int activate(AVFilterContext *ctx)
         return ret;
     if (ret > 0) {
         ret = filter_frame(inlink, in);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         if (ret < 0)
             return ret;
     }
@@ -606,8 +606,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioCrossoverContext *s = ctx->priv;
 
-    av_freep(&s->fdsp);
-    av_frame_free(&s->xover);
+    zn_av_freep(&s->fdsp);
+    zn_av_frame_free(&s->xover);
 }
 
 static const AVFilterPad inputs[] = {

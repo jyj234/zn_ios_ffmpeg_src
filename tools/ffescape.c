@@ -179,11 +179,11 @@ int main(int argc, char **argv)
             av_log(NULL, AV_LOG_ERROR, "Could not escape string\n");
             return 1;
         }
-        av_free(src_buf);
+        zn_av_free(src_buf);
         src_buf = dst_buf;
     }
 
     fprintf(outfile, "%s%s", prompt, dst_buf);
-    av_free(dst_buf);
+    zn_av_free(dst_buf);
     return 0;
 }

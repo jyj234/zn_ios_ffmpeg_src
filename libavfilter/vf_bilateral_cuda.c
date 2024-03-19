@@ -76,11 +76,11 @@ static av_cold int cudabilateral_init(AVFilterContext *ctx)
 {
     CUDABilateralContext *s = ctx->priv;
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
-    s->tmp_frame = av_frame_alloc();
+    s->tmp_frame = zn_av_frame_alloc();
     if (!s->tmp_frame)
         return AVERROR(ENOMEM);
 
@@ -101,9 +101,9 @@ static av_cold void cudabilateral_uninit(AVFilterContext *ctx)
         CHECK_CU(cu->cuCtxPopCurrent(&bilateral));
     }
 
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
     av_buffer_unref(&s->frames_ctx);
-    av_frame_free(&s->tmp_frame);
+    zn_av_frame_free(&s->tmp_frame);
 }
 
 static av_cold int init_hwframe_ctx(CUDABilateralContext *s, AVBufferRef *device_ctx, int width, int height)
@@ -400,7 +400,7 @@ static int cuda_bilateral_filter_frame(AVFilterLink *link, AVFrame *in)
     CUcontext bilateral;
     int ret = 0;
 
-    out = av_frame_alloc();
+    out = zn_av_frame_alloc();
     if (!out) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -416,11 +416,11 @@ static int cuda_bilateral_filter_frame(AVFilterLink *link, AVFrame *in)
     if (ret < 0)
         goto fail;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

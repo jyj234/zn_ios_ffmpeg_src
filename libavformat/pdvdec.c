@@ -48,7 +48,7 @@ static int pdv_read_header(AVFormatContext *s)
 
     avio_skip(pb, 16);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -67,8 +67,8 @@ static int pdv_read_header(AVFormatContext *s)
     avpriv_set_pts_info(st, 64, st->avg_frame_rate.den, st->avg_frame_rate.num);
 
     p->current_frame = 0;
-    p->frame_flags = av_calloc(st->nb_frames + 1, sizeof(*p->frame_flags));
-    p->frame_offsets = av_calloc(st->nb_frames + 1, sizeof(*p->frame_offsets));
+    p->frame_flags = zn_av_calloc(st->nb_frames + 1, sizeof(*p->frame_flags));
+    p->frame_offsets = zn_av_calloc(st->nb_frames + 1, sizeof(*p->frame_offsets));
 
     if (!p->frame_flags || !p->frame_offsets)
         return AVERROR(ENOMEM);
@@ -136,8 +136,8 @@ static int pdv_read_close(AVFormatContext *s)
 {
     PDVDemuxContext *p = s->priv_data;
 
-    av_freep(&p->frame_flags);
-    av_freep(&p->frame_offsets);
+    zn_av_freep(&p->frame_flags);
+    zn_av_freep(&p->frame_offsets);
 
     return 0;
 }

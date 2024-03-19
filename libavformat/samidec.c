@@ -47,7 +47,7 @@ static int sami_probe(const AVProbeData *p)
 static int sami_read_header(AVFormatContext *s)
 {
     SAMIContext *sami = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     AVBPrint buf, hdr_buf;
     char c = 0;
     int res = 0, got_first_sync_point = 0;

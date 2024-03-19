@@ -63,16 +63,16 @@
     if (size <= 0 || (bp)->len != size - 1) {                              \
         printf("Return value %d of " #func_name " inconsistent with length"\
                " %d obtained in first pass.\n", size, (bp)->len);          \
-        av_free(str);                                                      \
+        zn_av_free(str);                                                      \
         break;                                                             \
     }                                                                      \
     if (strcmp(str, (bp)->str)) {                                          \
         printf("Ordinary and _bprint versions of "#func_name" disagree: "  \
                "'%s' vs. '%s'\n", str, (bp)->str);                         \
-        av_free(str);                                                      \
+        zn_av_free(str);                                                      \
         break;                                                             \
     }                                                                      \
-    av_free(str);                                                          \
+    zn_av_free(str);                                                          \
     } while (0)
 
 
@@ -324,7 +324,7 @@ int main(void)
     CHANNEL_LAYOUT_FROM_STRING("FR+FL@Foo+USR63@Foo");
     printf("With \"FR+FL@Foo+USR63@Foo\": %33s\n", bp.str);
 
-    ret = av_channel_layout_copy(&layout2, &layout);
+    ret = zn_av_channel_layout_copy(&layout2, &layout);
     if (ret < 0) {
         printf("Copying channel layout \"FR+FL@Foo+USR63@Foo\" failed; "
                "ret %d\n", ret);

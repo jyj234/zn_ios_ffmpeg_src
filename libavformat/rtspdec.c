@@ -67,7 +67,7 @@ static int rtsp_read_close(AVFormatContext *s)
     ff_rtsp_close_connections(s);
     ff_network_close();
     rt->real_setup = NULL;
-    av_freep(&rt->real_setup_cache);
+    zn_av_freep(&rt->real_setup_cache);
     return 0;
 }
 
@@ -199,13 +199,13 @@ static int rtsp_read_announce(AVFormatContext *s)
             av_log(s, AV_LOG_ERROR,
                    "Unable to get complete SDP Description in ANNOUNCE\n");
             rtsp_send_reply(s, RTSP_STATUS_INTERNAL, NULL, request.seq);
-            av_free(sdp);
+            zn_av_free(sdp);
             return AVERROR(EIO);
         }
         sdp[request.content_length] = '\0';
         av_log(s, AV_LOG_VERBOSE, "SDP: %s\n", sdp);
         ret = ff_sdp_parse(s, sdp);
-        av_free(sdp);
+        zn_av_free(sdp);
         if (ret)
             return ret;
         rtsp_send_reply(s, RTSP_STATUS_OK, NULL, request.seq);
@@ -630,7 +630,7 @@ int ff_rtsp_setup_input_streams(AVFormatContext *s, RTSPMessageHeader *reply)
     }
     ff_rtsp_send_cmd(s, "DESCRIBE", rt->control_uri, cmd, reply, &content);
     if (reply->status_code != RTSP_STATUS_OK) {
-        av_freep(&content);
+        zn_av_freep(&content);
         return ff_rtsp_averror(reply->status_code, AVERROR_INVALIDDATA);
     }
     if (!content)
@@ -639,7 +639,7 @@ int ff_rtsp_setup_input_streams(AVFormatContext *s, RTSPMessageHeader *reply)
     av_log(s, AV_LOG_VERBOSE, "SDP:\n%s\n", content);
     /* now we got the SDP description, we parse it */
     ret = ff_sdp_parse(s, (const char *)content);
-    av_freep(&content);
+    zn_av_freep(&content);
     if (ret < 0)
         return ret;
 
@@ -757,7 +757,7 @@ static int rtsp_read_header(AVFormatContext *s)
             return ret;
 
         rt->real_setup_cache = !s->nb_streams ? NULL :
-            av_calloc(s->nb_streams, 2 * sizeof(*rt->real_setup_cache));
+            zn_av_calloc(s->nb_streams, 2 * sizeof(*rt->real_setup_cache));
         if (!rt->real_setup_cache && s->nb_streams) {
             ret = AVERROR(ENOMEM);
             goto fail;

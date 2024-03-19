@@ -73,8 +73,8 @@ end:
     free(mw.mem); /* must use free() according to libwebp documentation */
 #endif
     WebPPictureFree(pic);
-    av_freep(&pic);
-    av_frame_free(&alt_frame);
+    zn_av_freep(&pic);
+    zn_av_frame_free(&alt_frame);
 
     return ret;
 }
@@ -82,7 +82,7 @@ end:
 static int libwebp_encode_close(AVCodecContext *avctx)
 {
     LibWebPContextCommon *s  = avctx->priv_data;
-    av_frame_free(&s->ref);
+    zn_av_frame_free(&s->ref);
 
     return 0;
 }

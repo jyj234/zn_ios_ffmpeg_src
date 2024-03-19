@@ -106,13 +106,13 @@ static av_cold int mimic_decode_end(AVCodecContext *avctx)
     MimicContext *ctx = avctx->priv_data;
     int i;
 
-    av_freep(&ctx->swap_buf);
+    zn_av_freep(&ctx->swap_buf);
     ctx->swap_buf_size = 0;
 
     for (i = 0; i < FF_ARRAY_ELEMS(ctx->frames); i++) {
         if (ctx->frames[i].f)
             ff_thread_release_ext_buffer(&ctx->frames[i]);
-        av_frame_free(&ctx->frames[i].f);
+        zn_av_frame_free(&ctx->frames[i].f);
     }
 
     return 0;
@@ -140,7 +140,7 @@ static av_cold int mimic_decode_init(AVCodecContext *avctx)
     ff_permute_scantable(ctx->permutated_scantable, col_zag, ctx->idsp.idct_permutation);
 
     for (i = 0; i < FF_ARRAY_ELEMS(ctx->frames); i++) {
-        ctx->frames[i].f = av_frame_alloc();
+        ctx->frames[i].f = zn_av_frame_alloc();
         if (!ctx->frames[i].f)
             return AVERROR(ENOMEM);
     }

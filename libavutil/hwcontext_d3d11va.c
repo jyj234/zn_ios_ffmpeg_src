@@ -124,7 +124,7 @@ static void d3d11va_frames_uninit(AVHWFramesContext *ctx)
         ID3D11Texture2D_Release(s->staging_texture);
     s->staging_texture = NULL;
 
-    av_freep(&frames_hwctx->texture_infos);
+    zn_av_freep(&frames_hwctx->texture_infos);
 }
 
 static int d3d11va_frames_get_constraints(AVHWDeviceContext *ctx,
@@ -136,7 +136,7 @@ static int d3d11va_frames_get_constraints(AVHWDeviceContext *ctx,
     HRESULT hr;
     int i;
 
-    constraints->valid_sw_formats = av_malloc_array(FF_ARRAY_ELEMS(supported_formats) + 1,
+    constraints->valid_sw_formats = zn_av_malloc_array(FF_ARRAY_ELEMS(supported_formats) + 1,
                                                     sizeof(*constraints->valid_sw_formats));
     if (!constraints->valid_sw_formats)
         return AVERROR(ENOMEM);
@@ -149,7 +149,7 @@ static int d3d11va_frames_get_constraints(AVHWDeviceContext *ctx,
     }
     constraints->valid_sw_formats[nb_sw_formats] = AV_PIX_FMT_NONE;
 
-    constraints->valid_hw_formats = av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
+    constraints->valid_hw_formats = zn_av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
     if (!constraints->valid_hw_formats)
         return AVERROR(ENOMEM);
 
@@ -162,7 +162,7 @@ static int d3d11va_frames_get_constraints(AVHWDeviceContext *ctx,
 static void free_texture(void *opaque, uint8_t *data)
 {
     ID3D11Texture2D_Release((ID3D11Texture2D *)opaque);
-    av_free(data);
+    zn_av_free(data);
 }
 
 static AVBufferRef *wrap_texture_buf(AVHWFramesContext *ctx, ID3D11Texture2D *tex, int index)
@@ -197,7 +197,7 @@ static AVBufferRef *wrap_texture_buf(AVHWFramesContext *ctx, ID3D11Texture2D *te
     buf = av_buffer_create((uint8_t *)desc, sizeof(desc), free_texture, tex, 0);
     if (!buf) {
         ID3D11Texture2D_Release(tex);
-        av_free(desc);
+        zn_av_free(desc);
         return NULL;
     }
 
@@ -348,7 +348,7 @@ static int d3d11va_transfer_get_formats(AVHWFramesContext *ctx,
     D3D11VAFramesContext *s = ctx->internal->priv;
     enum AVPixelFormat *fmts;
 
-    fmts = av_malloc_array(2, sizeof(*fmts));
+    fmts = zn_av_malloc_array(2, sizeof(*fmts));
     if (!fmts)
         return AVERROR(ENOMEM);
 

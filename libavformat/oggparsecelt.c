@@ -51,7 +51,7 @@ static int celt_header(AVFormatContext *s, int idx)
             return AVERROR(ENOMEM);
         ret = ff_alloc_extradata(st->codecpar, 2 * sizeof(uint32_t));
         if (ret < 0) {
-            av_free(priv);
+            zn_av_free(priv);
             return ret;
         }
         version          = AV_RL32(p + 28);
@@ -69,7 +69,7 @@ static int celt_header(AVFormatContext *s, int idx)
             avpriv_set_pts_info(st, 64, 1, sample_rate);
 
         if (os->private) {
-            av_free(priv);
+            zn_av_free(priv);
             priv = os->private;
         }
         os->private = priv;

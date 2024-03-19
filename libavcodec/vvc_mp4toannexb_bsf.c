@@ -176,7 +176,7 @@ static int vvc_extradata_to_annexb(AVBSFContext *ctx)
         }
     }
 
-    av_freep(&ctx->par_out->extradata);
+    zn_av_freep(&ctx->par_out->extradata);
     ctx->par_out->extradata = new_extradata;
     ctx->par_out->extradata_size = new_extradata_size;
 
@@ -185,7 +185,7 @@ static int vvc_extradata_to_annexb(AVBSFContext *ctx)
 
     return length_size;
   fail:
-    av_freep(&new_extradata);
+    zn_av_freep(&new_extradata);
     return ret;
 }
 
@@ -226,7 +226,7 @@ static int vvc_mp4toannexb_filter(AVBSFContext *ctx, AVPacket *out)
 
     if (!s->extradata_parsed) {
         av_packet_move_ref(out, in);
-        av_packet_free(&in);
+        zn_av_packet_free(&in);
         return 0;
     }
 
@@ -308,8 +308,8 @@ static int vvc_mp4toannexb_filter(AVBSFContext *ctx, AVPacket *out)
 
   fail:
     if (ret < 0)
-        av_packet_unref(out);
-    av_packet_free(&in);
+        zn_av_packet_unref(out);
+    zn_av_packet_free(&in);
 
     return ret;
 }

@@ -1220,7 +1220,7 @@ static int g723_1_encode_frame(AVCodecContext *avctx, AVPacket *avpkt,
         offset += LPC_ORDER;
     }
 
-    av_free(start);
+    zn_av_free(start);
 
     ret = ff_get_encode_buffer(avctx, avpkt, frame_size[info_bits], 0);
     if (ret < 0)

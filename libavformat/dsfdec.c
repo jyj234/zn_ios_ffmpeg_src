@@ -77,7 +77,7 @@ static int dsf_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
 
     /* create primary stream before any id3 coverart streams */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

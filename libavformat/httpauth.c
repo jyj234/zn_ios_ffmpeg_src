@@ -173,7 +173,7 @@ static char *make_digest_auth(HTTPAuthState *state, const char *username,
         ff_data_to_hex(A1hash, hash, 16, 1);
     } else {
         /* Unsupported algorithm */
-        av_free(md5ctx);
+        zn_av_free(md5ctx);
         return NULL;
     }
 
@@ -191,7 +191,7 @@ static char *make_digest_auth(HTTPAuthState *state, const char *username,
     av_md5_final(md5ctx, hash);
     ff_data_to_hex(response, hash, 16, 1);
 
-    av_free(md5ctx);
+    zn_av_free(md5ctx);
 
     if (!strcmp(digest->qop, "") || !strcmp(digest->qop, "auth")) {
     } else if (!strcmp(digest->qop, "auth-int")) {
@@ -259,7 +259,7 @@ char *ff_http_auth_create_response(HTTPAuthState *state, const char *auth,
 
         authstr = av_malloc(len);
         if (!authstr) {
-            av_free(decoded_auth);
+            zn_av_free(decoded_auth);
             return NULL;
         }
 
@@ -267,7 +267,7 @@ char *ff_http_auth_create_response(HTTPAuthState *state, const char *auth,
         ptr = authstr + strlen(authstr);
         av_base64_encode(ptr, auth_b64_len, decoded_auth, strlen(decoded_auth));
         av_strlcat(ptr, "\r\n", len - (ptr - authstr));
-        av_free(decoded_auth);
+        zn_av_free(decoded_auth);
     } else if (state->auth_type == HTTP_AUTH_DIGEST) {
         char *username = ff_urldecode(auth, 0), *password;
 
@@ -278,7 +278,7 @@ char *ff_http_auth_create_response(HTTPAuthState *state, const char *auth,
             *password++ = 0;
             authstr = make_digest_auth(state, username, password, path, method);
         }
-        av_free(username);
+        zn_av_free(username);
     }
     return authstr;
 }

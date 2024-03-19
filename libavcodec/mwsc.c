@@ -149,7 +149,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     if (!(s->decomp_buf = av_malloc(s->decomp_size)))
         return AVERROR(ENOMEM);
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 
@@ -160,8 +160,8 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     MWSCContext *s = avctx->priv_data;
 
-    av_frame_free(&s->prev_frame);
-    av_freep(&s->decomp_buf);
+    zn_av_frame_free(&s->prev_frame);
+    zn_av_freep(&s->decomp_buf);
     s->decomp_size = 0;
     ff_inflate_end(&s->zstream);
 

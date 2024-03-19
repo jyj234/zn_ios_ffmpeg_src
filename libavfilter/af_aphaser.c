@@ -177,9 +177,9 @@ static int config_output(AVFilterLink *outlink)
         av_log(outlink->src, AV_LOG_ERROR, "delay is too small\n");
         return AVERROR(EINVAL);
     }
-    s->delay_buffer = av_calloc(s->delay_buffer_length, sizeof(*s->delay_buffer) * inlink->ch_layout.nb_channels);
+    s->delay_buffer = zn_av_calloc(s->delay_buffer_length, sizeof(*s->delay_buffer) * inlink->ch_layout.nb_channels);
     s->modulation_buffer_length = inlink->sample_rate / s->speed + 0.5;
-    s->modulation_buffer = av_malloc_array(s->modulation_buffer_length, sizeof(*s->modulation_buffer));
+    s->modulation_buffer = zn_av_malloc_array(s->modulation_buffer_length, sizeof(*s->modulation_buffer));
 
     if (!s->modulation_buffer || !s->delay_buffer)
         return AVERROR(ENOMEM);
@@ -216,7 +216,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inbuf)
     } else {
         outbuf = ff_get_audio_buffer(outlink, inbuf->nb_samples);
         if (!outbuf) {
-            av_frame_free(&inbuf);
+            zn_av_frame_free(&inbuf);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(outbuf, inbuf);
@@ -226,7 +226,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inbuf)
               outbuf->nb_samples, outbuf->ch_layout.nb_channels);
 
     if (inbuf != outbuf)
-        av_frame_free(&inbuf);
+        zn_av_frame_free(&inbuf);
 
     return ff_filter_frame(outlink, outbuf);
 }
@@ -235,8 +235,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioPhaserContext *s = ctx->priv;
 
-    av_freep(&s->delay_buffer);
-    av_freep(&s->modulation_buffer);
+    zn_av_freep(&s->delay_buffer);
+    zn_av_freep(&s->modulation_buffer);
 }
 
 static const AVFilterPad aphaser_inputs[] = {

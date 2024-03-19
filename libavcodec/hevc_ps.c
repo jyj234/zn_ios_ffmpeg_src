@@ -1327,16 +1327,16 @@ static void hevc_pps_free(FFRefStructOpaque unused, void *obj)
 {
     HEVCPPS *pps = obj;
 
-    av_freep(&pps->column_width);
-    av_freep(&pps->row_height);
-    av_freep(&pps->col_bd);
-    av_freep(&pps->row_bd);
-    av_freep(&pps->col_idxX);
-    av_freep(&pps->ctb_addr_rs_to_ts);
-    av_freep(&pps->ctb_addr_ts_to_rs);
-    av_freep(&pps->tile_pos_rs);
-    av_freep(&pps->tile_id);
-    av_freep(&pps->min_tb_addr_zs_tab);
+    zn_av_freep(&pps->column_width);
+    zn_av_freep(&pps->row_height);
+    zn_av_freep(&pps->col_bd);
+    zn_av_freep(&pps->row_bd);
+    zn_av_freep(&pps->col_idxX);
+    zn_av_freep(&pps->ctb_addr_rs_to_ts);
+    zn_av_freep(&pps->ctb_addr_ts_to_rs);
+    zn_av_freep(&pps->tile_pos_rs);
+    zn_av_freep(&pps->tile_id);
+    zn_av_freep(&pps->min_tb_addr_zs_tab);
 }
 
 static void colour_mapping_octants(GetBitContext *gb, HEVCPPS *pps, int inp_depth,
@@ -1605,16 +1605,16 @@ static inline int setup_pps(AVCodecContext *avctx, GetBitContext *gb,
     int i, j, x, y, ctb_addr_rs, tile_id;
 
     // Inferred parameters
-    pps->col_bd   = av_malloc_array(pps->num_tile_columns + 1, sizeof(*pps->col_bd));
-    pps->row_bd   = av_malloc_array(pps->num_tile_rows + 1,    sizeof(*pps->row_bd));
-    pps->col_idxX = av_malloc_array(sps->ctb_width,    sizeof(*pps->col_idxX));
+    pps->col_bd   = zn_av_malloc_array(pps->num_tile_columns + 1, sizeof(*pps->col_bd));
+    pps->row_bd   = zn_av_malloc_array(pps->num_tile_rows + 1,    sizeof(*pps->row_bd));
+    pps->col_idxX = zn_av_malloc_array(sps->ctb_width,    sizeof(*pps->col_idxX));
     if (!pps->col_bd || !pps->row_bd || !pps->col_idxX)
         return AVERROR(ENOMEM);
 
     if (pps->uniform_spacing_flag) {
         if (!pps->column_width) {
-            pps->column_width = av_malloc_array(pps->num_tile_columns, sizeof(*pps->column_width));
-            pps->row_height   = av_malloc_array(pps->num_tile_rows,    sizeof(*pps->row_height));
+            pps->column_width = zn_av_malloc_array(pps->num_tile_columns, sizeof(*pps->column_width));
+            pps->row_height   = zn_av_malloc_array(pps->num_tile_rows,    sizeof(*pps->row_height));
         }
         if (!pps->column_width || !pps->row_height)
             return AVERROR(ENOMEM);
@@ -1649,10 +1649,10 @@ static inline int setup_pps(AVCodecContext *avctx, GetBitContext *gb,
      */
     pic_area_in_ctbs     = sps->ctb_width    * sps->ctb_height;
 
-    pps->ctb_addr_rs_to_ts = av_malloc_array(pic_area_in_ctbs,    sizeof(*pps->ctb_addr_rs_to_ts));
-    pps->ctb_addr_ts_to_rs = av_malloc_array(pic_area_in_ctbs,    sizeof(*pps->ctb_addr_ts_to_rs));
-    pps->tile_id           = av_malloc_array(pic_area_in_ctbs,    sizeof(*pps->tile_id));
-    pps->min_tb_addr_zs_tab = av_malloc_array((sps->tb_mask+2) * (sps->tb_mask+2), sizeof(*pps->min_tb_addr_zs_tab));
+    pps->ctb_addr_rs_to_ts = zn_av_malloc_array(pic_area_in_ctbs,    sizeof(*pps->ctb_addr_rs_to_ts));
+    pps->ctb_addr_ts_to_rs = zn_av_malloc_array(pic_area_in_ctbs,    sizeof(*pps->ctb_addr_ts_to_rs));
+    pps->tile_id           = zn_av_malloc_array(pic_area_in_ctbs,    sizeof(*pps->tile_id));
+    pps->min_tb_addr_zs_tab = zn_av_malloc_array((sps->tb_mask+2) * (sps->tb_mask+2), sizeof(*pps->min_tb_addr_zs_tab));
     if (!pps->ctb_addr_rs_to_ts || !pps->ctb_addr_ts_to_rs ||
         !pps->tile_id || !pps->min_tb_addr_zs_tab) {
         return AVERROR(ENOMEM);
@@ -1697,7 +1697,7 @@ static inline int setup_pps(AVCodecContext *avctx, GetBitContext *gb,
                 for (x = pps->col_bd[i]; x < pps->col_bd[i + 1]; x++)
                     pps->tile_id[pps->ctb_addr_rs_to_ts[y * sps->ctb_width + x]] = tile_id;
 
-    pps->tile_pos_rs = av_malloc_array(tile_id, sizeof(*pps->tile_pos_rs));
+    pps->tile_pos_rs = zn_av_malloc_array(tile_id, sizeof(*pps->tile_pos_rs));
     if (!pps->tile_pos_rs)
         return AVERROR(ENOMEM);
 
@@ -1867,8 +1867,8 @@ int ff_hevc_decode_nal_pps(GetBitContext *gb, AVCodecContext *avctx,
         pps->num_tile_columns = num_tile_columns_minus1 + 1;
         pps->num_tile_rows    = num_tile_rows_minus1    + 1;
 
-        pps->column_width = av_malloc_array(pps->num_tile_columns, sizeof(*pps->column_width));
-        pps->row_height   = av_malloc_array(pps->num_tile_rows,    sizeof(*pps->row_height));
+        pps->column_width = zn_av_malloc_array(pps->num_tile_columns, sizeof(*pps->column_width));
+        pps->row_height   = zn_av_malloc_array(pps->num_tile_rows,    sizeof(*pps->row_height));
         if (!pps->column_width || !pps->row_height) {
             ret = AVERROR(ENOMEM);
             goto err;

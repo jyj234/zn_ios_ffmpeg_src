@@ -54,7 +54,7 @@ av_cold static int kbd_window_init(float *float_window, int *int_window, float a
        else                int_window[i] = lrint(2147483647 * sqrt(sum * scale));
    }
    if (temp != temp_small)
-       av_free(temp);
+       zn_av_free(temp);
    return 0;
 }
 

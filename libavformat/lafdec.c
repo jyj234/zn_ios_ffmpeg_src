@@ -143,14 +143,14 @@ static int laf_read_header(AVFormatContext *ctx)
         (int64_t)bpp * st_count * (int64_t)sample_rate == 0
     )
         return AVERROR_INVALIDDATA;
-    s->data = av_calloc(st_count * sample_rate, bpp);
+    s->data = zn_av_calloc(st_count * sample_rate, bpp);
     if (!s->data)
         return AVERROR(ENOMEM);
 
     for (int st = 0; st < st_count; st++) {
         StreamParams *stp = &s->p[st];
         AVCodecParameters *par;
-        AVStream *st = avformat_new_stream(ctx, NULL);
+        AVStream *st = zn_avformat_new_stream(ctx, NULL);
         if (!st)
             return AVERROR(ENOMEM);
 
@@ -262,7 +262,7 @@ static int laf_read_close(AVFormatContext *ctx)
 {
     LAFContext *s = ctx->priv_data;
 
-    av_freep(&s->data);
+    zn_av_freep(&s->data);
 
     return 0;
 }

@@ -76,7 +76,7 @@ static int config_input(AVFilterLink *inlink)
     s->length *= 2;
     if (s->length == 0)
         return AVERROR(EINVAL);
-    s->buffer = av_calloc(s->length, sizeof(*s->buffer));
+    s->buffer = zn_av_calloc(s->length, sizeof(*s->buffer));
     if (!s->buffer)
         return AVERROR(ENOMEM);
     s->cur = s->buffer;
@@ -102,7 +102,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -128,7 +128,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -136,7 +136,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     StereoWidenContext *s = ctx->priv;
 
-    av_freep(&s->buffer);
+    zn_av_freep(&s->buffer);
 }
 
 static const AVFilterPad inputs[] = {

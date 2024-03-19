@@ -672,7 +672,7 @@ av_cold int ff_mss12_decode_init(MSS12Context *c, int version,
                             (version ? 8 : 0) + i * 3);
 
     c->mask_stride = FFALIGN(avctx->width, 16);
-    c->mask        = av_malloc_array(c->mask_stride, avctx->height);
+    c->mask        = zn_av_malloc_array(c->mask_stride, avctx->height);
     if (!c->mask) {
         av_log(avctx, AV_LOG_ERROR, "Cannot allocate mask plane\n");
         return AVERROR(ENOMEM);
@@ -691,7 +691,7 @@ av_cold int ff_mss12_decode_init(MSS12Context *c, int version,
 
 av_cold int ff_mss12_decode_end(MSS12Context *c)
 {
-    av_freep(&c->mask);
+    zn_av_freep(&c->mask);
 
     return 0;
 }

@@ -125,7 +125,7 @@ static int64_t get_bit_rate(AVCodecContext *ctx)
     return bit_rate;
 }
 
-int attribute_align_arg avcodec_open2(AVCodecContext *avctx, const AVCodec *codec, AVDictionary **options)
+int attribute_align_arg zn_avcodec_open2(AVCodecContext *avctx, const AVCodec *codec, AVDictionary **options)
 {
     int ret = 0;
     AVCodecInternal *avci;
@@ -135,12 +135,12 @@ int attribute_align_arg avcodec_open2(AVCodecContext *avctx, const AVCodec *code
         return 0;
 
     if (!codec && !avctx->codec) {
-        av_log(avctx, AV_LOG_ERROR, "No codec provided to avcodec_open2()\n");
+        av_log(avctx, AV_LOG_ERROR, "No codec provided to zn_avcodec_open2()\n");
         return AVERROR(EINVAL);
     }
     if (codec && avctx->codec && codec != avctx->codec) {
         av_log(avctx, AV_LOG_ERROR, "This AVCodecContext was allocated for %s, "
-                                    "but %s passed to avcodec_open2()\n", avctx->codec->name, codec->name);
+                                    "but %s passed to zn_avcodec_open2()\n", avctx->codec->name, codec->name);
         return AVERROR(EINVAL);
     }
     if (!codec)
@@ -169,8 +169,8 @@ int attribute_align_arg avcodec_open2(AVCodecContext *avctx, const AVCodec *code
     }
     avctx->internal = avci;
 
-    avci->buffer_frame = av_frame_alloc();
-    avci->buffer_pkt = av_packet_alloc();
+    avci->buffer_frame = zn_av_frame_alloc();
+    avci->buffer_pkt = zn_av_packet_alloc();
     if (!avci->buffer_frame || !avci->buffer_pkt) {
         ret = AVERROR(ENOMEM);
         goto free_and_end;
@@ -297,7 +297,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                "The %s '%s' is experimental but experimental codecs are not enabled, "
                "add '-strict %d' if you want to use it.\n",
                codec_string, codec->name, FF_COMPLIANCE_EXPERIMENTAL);
-        codec2 = av_codec_is_encoder(codec) ? avcodec_find_encoder(codec->id) : avcodec_find_decoder(codec->id);
+        codec2 = av_codec_is_encoder(codec) ? zn_avcodec_find_encoder(codec->id) : zn_avcodec_find_decoder(codec->id);
         if (!(codec2->capabilities & AV_CODEC_CAP_EXPERIMENTAL))
             av_log(avctx, AV_LOG_ERROR, "Alternatively use the non experimental %s '%s'.\n",
                 codec_string, codec2->name);
@@ -402,7 +402,7 @@ void avcodec_flush_buffers(AVCodecContext *avctx)
     avci->draining      = 0;
     avci->draining_done = 0;
     av_frame_unref(avci->buffer_frame);
-    av_packet_unref(avci->buffer_pkt);
+    zn_av_packet_unref(avci->buffer_pkt);
 
     if (HAVE_THREADS && avctx->active_thread_type & FF_THREAD_FRAME)
         ff_thread_flush(avctx);
@@ -417,17 +417,17 @@ void avsubtitle_free(AVSubtitle *sub)
     for (i = 0; i < sub->num_rects; i++) {
         AVSubtitleRect *const rect = sub->rects[i];
 
-        av_freep(&rect->data[0]);
-        av_freep(&rect->data[1]);
-        av_freep(&rect->data[2]);
-        av_freep(&rect->data[3]);
-        av_freep(&rect->text);
-        av_freep(&rect->ass);
+        zn_av_freep(&rect->data[0]);
+        zn_av_freep(&rect->data[1]);
+        zn_av_freep(&rect->data[2]);
+        zn_av_freep(&rect->data[3]);
+        zn_av_freep(&rect->text);
+        zn_av_freep(&rect->ass);
 
-        av_freep(&sub->rects[i]);
+        zn_av_freep(&sub->rects[i]);
     }
 
-    av_freep(&sub->rects);
+    zn_av_freep(&sub->rects);
 
     memset(sub, 0, sizeof(*sub));
 }
@@ -451,14 +451,14 @@ av_cold int avcodec_close(AVCodecContext *avctx)
         if (avci->needs_close && ffcodec(avctx->codec)->close)
             ffcodec(avctx->codec)->close(avctx);
         avci->byte_buffer_size = 0;
-        av_freep(&avci->byte_buffer);
-        av_frame_free(&avci->buffer_frame);
-        av_packet_free(&avci->buffer_pkt);
-        av_packet_free(&avci->last_pkt_props);
+        zn_av_freep(&avci->byte_buffer);
+        zn_av_frame_free(&avci->buffer_frame);
+        zn_av_packet_free(&avci->buffer_pkt);
+        zn_av_packet_free(&avci->last_pkt_props);
 
-        av_packet_free(&avci->in_pkt);
-        av_frame_free(&avci->in_frame);
-        av_frame_free(&avci->recon_frame);
+        zn_av_packet_free(&avci->in_pkt);
+        zn_av_frame_free(&avci->in_frame);
+        zn_av_frame_free(&avci->recon_frame);
 
         ff_refstruct_unref(&avci->pool);
 
@@ -474,12 +474,12 @@ av_cold int avcodec_close(AVCodecContext *avctx)
         ff_icc_context_uninit(&avci->icc);
 #endif
 
-        av_freep(&avctx->internal);
+        zn_av_freep(&avctx->internal);
     }
 
     for (i = 0; i < avctx->nb_coded_side_data; i++)
-        av_freep(&avctx->coded_side_data[i].data);
-    av_freep(&avctx->coded_side_data);
+        zn_av_freep(&avctx->coded_side_data[i].data);
+    zn_av_freep(&avctx->coded_side_data);
     avctx->nb_coded_side_data = 0;
 
     av_buffer_unref(&avctx->hw_frames_ctx);
@@ -488,12 +488,12 @@ av_cold int avcodec_close(AVCodecContext *avctx)
     if (avctx->priv_data && avctx->codec && avctx->codec->priv_class)
         av_opt_free(avctx->priv_data);
     av_opt_free(avctx);
-    av_freep(&avctx->priv_data);
+    zn_av_freep(&avctx->priv_data);
     if (av_codec_is_encoder(avctx->codec)) {
-        av_freep(&avctx->extradata);
+        zn_av_freep(&avctx->extradata);
         avctx->extradata_size = 0;
     } else if (av_codec_is_decoder(avctx->codec))
-        av_freep(&avctx->subtitle_header);
+        zn_av_freep(&avctx->subtitle_header);
 
     avctx->codec = NULL;
     avctx->active_thread_type = 0;
@@ -710,7 +710,7 @@ int avcodec_is_open(AVCodecContext *s)
     return !!s->internal;
 }
 
-int attribute_align_arg avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
+int attribute_align_arg zn_avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
 {
     av_frame_unref(frame);
 

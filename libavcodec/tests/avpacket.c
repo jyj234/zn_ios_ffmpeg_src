@@ -40,7 +40,7 @@ static int setup_side_data_entry(AVPacket* avpkt)
 
     if(!(extra_data = av_malloc(bytes))){
         ret = AVERROR(ENOMEM);
-        fprintf(stderr, "Error occurred: %s\n", av_err2str(ret));
+        fprintf(stderr, "Error occurred: %s\n", zn_av_err2str(ret));
         exit(1);
     }
     /* copy side_data_name to extra_data array */
@@ -52,7 +52,7 @@ static int setup_side_data_entry(AVPacket* avpkt)
     if(ret < 0){
         fprintf(stderr,
                 "Error occurred in av_packet_add_side_data: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
     }
 
     return ret;
@@ -83,16 +83,16 @@ int main(void)
     AVPacket *avpkt_clone = NULL;
     int ret = 0;
 
-    /* test av_packet_alloc */
-    avpkt = av_packet_alloc();
+    /* test zn_av_packet_alloc */
+    avpkt = zn_av_packet_alloc();
     if(!avpkt) {
-        av_log(NULL, AV_LOG_ERROR, "av_packet_alloc failed to allcoate AVPacket\n");
+        av_log(NULL, AV_LOG_ERROR, "zn_av_packet_alloc failed to allcoate AVPacket\n");
         return 1;
     }
 
     if (initializations(avpkt) < 0) {
         printf("failed to initialize variables\n");
-        av_packet_free(&avpkt);
+        zn_av_packet_free(&avpkt);
         return 1;
     }
     /* test av_packet_clone*/
@@ -125,8 +125,8 @@ int main(void)
         ret = 1;
     }
     /*clean up*/
-    av_packet_free(&avpkt_clone);
-    av_packet_free(&avpkt);
+    zn_av_packet_free(&avpkt_clone);
+    zn_av_packet_free(&avpkt);
 
 
     return ret;

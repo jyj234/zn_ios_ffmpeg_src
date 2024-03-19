@@ -158,7 +158,7 @@ static av_cold void ddagrab_uninit(AVFilterContext *avctx)
     release_resource(&dda->mouse_xor_resource_view);
     release_resource(&dda->mouse_xor_texture);
 
-    av_frame_free(&dda->last_frame);
+    zn_av_frame_free(&dda->last_frame);
     av_buffer_unref(&dda->frames_ref);
     av_buffer_unref(&dda->device_ref);
 }
@@ -435,7 +435,7 @@ static av_cold int ddagrab_init(AVFilterContext *avctx)
 {
     DdagrabContext *dda = avctx->priv;
 
-    dda->last_frame = av_frame_alloc();
+    dda->last_frame = zn_av_frame_alloc();
     if (!dda->last_frame)
         return AVERROR(ENOMEM);
 
@@ -510,8 +510,8 @@ static int convert_mono_buffer(uint8_t *input, uint8_t **rgba_out, uint8_t **xor
     int y, x;
 
     if (!output || !output_xor) {
-        av_free(output);
-        av_free(output_xor);
+        zn_av_free(output);
+        zn_av_free(output_xor);
         return AVERROR(ENOMEM);
     }
 
@@ -567,8 +567,8 @@ static int fixup_color_mask(uint8_t *input, uint8_t **rgba_out, uint8_t **xor_ou
     int x, y;
 
     if (!output || !output_xor) {
-        av_free(output);
-        av_free(output_xor);
+        zn_av_free(output);
+        zn_av_free(output_xor);
         return AVERROR(ENOMEM);
     }
 
@@ -634,19 +634,19 @@ static int update_mouse_pointer(AVFilterContext *avctx, DXGI_OUTDUPL_FRAME_INFO 
             &size,
             &shape_info);
         if (FAILED(hr)) {
-            av_free(buf);
+            zn_av_free(buf);
             av_log(avctx, AV_LOG_ERROR, "Failed getting pointer shape: %lx\n", hr);
             return AVERROR_EXTERNAL;
         }
 
         if (shape_info.Type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME) {
             ret = convert_mono_buffer(buf, &rgba_buf, &rgb_xor_buf, &shape_info.Width, &shape_info.Height, &shape_info.Pitch);
-            av_freep(&buf);
+            zn_av_freep(&buf);
             if (ret < 0)
                 return ret;
         } else if (shape_info.Type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR) {
             ret = fixup_color_mask(buf, &rgba_buf, &rgb_xor_buf, shape_info.Width, shape_info.Height, shape_info.Pitch);
-            av_freep(&buf);
+            zn_av_freep(&buf);
             if (ret < 0)
                 return ret;
         } else if (shape_info.Type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR) {
@@ -654,7 +654,7 @@ static int update_mouse_pointer(AVFilterContext *avctx, DXGI_OUTDUPL_FRAME_INFO 
             buf = NULL;
         } else {
             av_log(avctx, AV_LOG_WARNING, "Unsupported pointer shape type: %d\n", (int)shape_info.Type);
-            av_freep(&buf);
+            zn_av_freep(&buf);
             return 0;
         }
 
@@ -665,8 +665,8 @@ static int update_mouse_pointer(AVFilterContext *avctx, DXGI_OUTDUPL_FRAME_INFO 
 
         ret = create_d3d11_pointer_tex(avctx, rgba_buf, &shape_info, &dda->mouse_texture, &dda->mouse_resource_view);
         ret2 = rgb_xor_buf ? create_d3d11_pointer_tex(avctx, rgb_xor_buf, &shape_info, &dda->mouse_xor_texture, &dda->mouse_xor_resource_view) : 0;
-        av_freep(&rgba_buf);
-        av_freep(&rgb_xor_buf);
+        zn_av_freep(&rgba_buf);
+        zn_av_freep(&rgb_xor_buf);
         if (ret < 0)
             return ret;
         if (ret2 < 0)
@@ -855,7 +855,7 @@ static int ddagrab_config_props(AVFilterLink *outlink)
     dda->height -= FFMAX(dda->height - dda->raw_height + dda->offset_y, 0);
 
     dda->time_base  = av_inv_q(dda->framerate);
-    dda->time_frame = av_gettime_relative() / av_q2d(dda->time_base);
+    dda->time_frame = av_gettime_relative() / zn_av_q2d(dda->time_base);
     dda->time_timeout = av_rescale_q(1, dda->time_base, (AVRational) { 1, 1000 }) / 2;
 
     if (dda->draw_mouse) {
@@ -1052,9 +1052,9 @@ static int ddagrab_request_frame(AVFilterLink *outlink)
     time_frame += TIMER_RES64;
     for (;;) {
         now = av_gettime_relative();
-        delay = time_frame * av_q2d(dda->time_base) - now;
+        delay = time_frame * zn_av_q2d(dda->time_base) - now;
         if (delay <= 0) {
-            if (delay < -TIMER_RES64 * av_q2d(dda->time_base)) {
+            if (delay < -TIMER_RES64 * zn_av_q2d(dda->time_base)) {
                 time_frame += TIMER_RES64;
             }
             break;
@@ -1075,13 +1075,13 @@ static int ddagrab_request_frame(AVFilterLink *outlink)
     }
 
     if (ret == AVERROR(EAGAIN) && dda->last_frame->buf[0]) {
-        frame = av_frame_alloc();
+        frame = zn_av_frame_alloc();
         if (!frame)
             return AVERROR(ENOMEM);
 
         ret = av_frame_ref(frame, dda->last_frame);
         if (ret < 0) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return ret;
         }
 
@@ -1175,7 +1175,7 @@ frame_done:
 
 fail:
     if (frame)
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
 
     if (cur_texture)
         IDXGIOutputDuplication_ReleaseFrame(dda->dxgi_outdupl);

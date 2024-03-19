@@ -103,12 +103,12 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioFIRSourceContext *s = ctx->priv;
 
-    av_freep(&s->win);
-    av_freep(&s->taps);
-    av_freep(&s->freq);
-    av_freep(&s->magnitude);
-    av_freep(&s->phase);
-    av_freep(&s->complexf);
+    zn_av_freep(&s->win);
+    zn_av_freep(&s->taps);
+    zn_av_freep(&s->freq);
+    zn_av_freep(&s->magnitude);
+    zn_av_freep(&s->phase);
+    zn_av_freep(&s->complexf);
     av_tx_uninit(&s->tx_ctx);
     av_tx_uninit(&s->itx_ctx);
 }
@@ -226,7 +226,7 @@ static av_cold int config_output(AVFilterLink *outlink)
     }
 
     fft_size = 1 << (av_log2(s->nb_taps) + 1);
-    s->complexf = av_calloc(fft_size * 2, sizeof(*s->complexf));
+    s->complexf = zn_av_calloc(fft_size * 2, sizeof(*s->complexf));
     if (!s->complexf)
         return AVERROR(ENOMEM);
 
@@ -234,11 +234,11 @@ static av_cold int config_output(AVFilterLink *outlink)
     if (ret < 0)
         return ret;
 
-    s->taps = av_calloc(s->nb_taps, sizeof(*s->taps));
+    s->taps = zn_av_calloc(s->nb_taps, sizeof(*s->taps));
     if (!s->taps)
         return AVERROR(ENOMEM);
 
-    s->win = av_calloc(s->nb_taps, sizeof(*s->win));
+    s->win = zn_av_calloc(s->nb_taps, sizeof(*s->win));
     if (!s->win)
         return AVERROR(ENOMEM);
 
@@ -476,11 +476,11 @@ static av_cold int config_eq_output(AVFilterLink *outlink)
             return AVERROR(ENOMEM);
 
         ret = parse_string(freq_str, &s->freq, &s->nb_freq, &s->freq_size);
-        av_free(freq_str);
+        zn_av_free(freq_str);
         if (ret < 0)
             return ret;
 
-        s->magnitude = av_calloc(s->nb_magnitude, sizeof(*s->magnitude));
+        s->magnitude = zn_av_calloc(s->nb_magnitude, sizeof(*s->magnitude));
         if (!s->magnitude)
             return AVERROR(ENOMEM);
         memcpy(s->magnitude, eq_presets[s->preset].gains, sizeof(*s->magnitude) * s->nb_magnitude);
@@ -497,7 +497,7 @@ static av_cold int config_eq_output(AVFilterLink *outlink)
     fft_size = s->nb_taps * 2;
     factor = FFMIN(outlink->sample_rate * 0.5f, s->freq[s->nb_freq - 1]) / (float)fft_size;
     asize = FFALIGN(fft_size, av_cpu_max_align());
-    s->complexf = av_calloc(asize * 2, sizeof(*s->complexf));
+    s->complexf = zn_av_calloc(asize * 2, sizeof(*s->complexf));
     if (!s->complexf)
         return AVERROR(ENOMEM);
 
@@ -506,7 +506,7 @@ static av_cold int config_eq_output(AVFilterLink *outlink)
     if (ret < 0)
         return ret;
 
-    s->taps = av_calloc(s->nb_taps, sizeof(*s->taps));
+    s->taps = zn_av_calloc(s->nb_taps, sizeof(*s->taps));
     if (!s->taps)
         return AVERROR(ENOMEM);
 

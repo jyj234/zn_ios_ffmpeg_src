@@ -479,8 +479,8 @@ av_cold int ff_bgmc_init(void *logctx,
 /** Release the lookup table arrays */
 av_cold void ff_bgmc_end(uint8_t **cf_lut, int **cf_lut_status)
 {
-    av_freep(cf_lut);
-    av_freep(cf_lut_status);
+    zn_av_freep(cf_lut);
+    zn_av_freep(cf_lut_status);
 }
 
 

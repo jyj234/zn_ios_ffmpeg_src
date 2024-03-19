@@ -115,7 +115,7 @@ static int vt_frames_get_constraints(AVHWDeviceContext *ctx,
 {
     int i;
 
-    constraints->valid_sw_formats = av_malloc_array(FF_ARRAY_ELEMS(supported_formats) + 1,
+    constraints->valid_sw_formats = zn_av_malloc_array(FF_ARRAY_ELEMS(supported_formats) + 1,
                                                     sizeof(*constraints->valid_sw_formats));
     if (!constraints->valid_sw_formats)
         return AVERROR(ENOMEM);
@@ -124,7 +124,7 @@ static int vt_frames_get_constraints(AVHWDeviceContext *ctx,
         constraints->valid_sw_formats[i] = supported_formats[i];
     constraints->valid_sw_formats[FF_ARRAY_ELEMS(supported_formats)] = AV_PIX_FMT_NONE;
 
-    constraints->valid_hw_formats = av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
+    constraints->valid_hw_formats = zn_av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
     if (!constraints->valid_hw_formats)
         return AVERROR(ENOMEM);
 
@@ -297,7 +297,7 @@ static int vt_transfer_get_formats(AVHWFramesContext *ctx,
                                    enum AVHWFrameTransferDirection dir,
                                    enum AVPixelFormat **formats)
 {
-    enum AVPixelFormat *fmts = av_malloc_array(2, sizeof(*fmts));
+    enum AVPixelFormat *fmts = zn_av_malloc_array(2, sizeof(*fmts));
     if (!fmts)
         return AVERROR(ENOMEM);
 
@@ -651,7 +651,7 @@ static int vt_transfer_data_from(AVHWFramesContext *hwfc,
     if (dst->width > hwfc->width || dst->height > hwfc->height)
         return AVERROR(EINVAL);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = dst->format;
@@ -669,7 +669,7 @@ static int vt_transfer_data_from(AVHWFramesContext *hwfc,
 
     err = 0;
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return err;
 }
 
@@ -682,7 +682,7 @@ static int vt_transfer_data_to(AVHWFramesContext *hwfc,
     if (src->width > hwfc->width || src->height > hwfc->height)
         return AVERROR(EINVAL);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = src->format;
@@ -704,7 +704,7 @@ static int vt_transfer_data_to(AVHWFramesContext *hwfc,
 
     err = 0;
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return err;
 }
 

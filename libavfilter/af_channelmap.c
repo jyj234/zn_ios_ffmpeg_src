@@ -233,7 +233,7 @@ static av_cold int channelmap_init(AVFilterContext *ctx)
     if (out_ch_mask)
         av_channel_layout_from_mask(&s->output_layout, out_ch_mask);
     else
-        av_channel_layout_default(&s->output_layout, map_entries);
+        zn_av_channel_layout_default(&s->output_layout, map_entries);
 
     if (s->channel_layout_str) {
         AVChannelLayout fmt = { 0 };
@@ -325,19 +325,19 @@ static int channelmap_filter_frame(AVFilterLink *inlink, AVFrame *buf)
     if (nch_out > nch_in) {
         if (nch_out > FF_ARRAY_ELEMS(buf->data)) {
             uint8_t **new_extended_data =
-                av_calloc(nch_out, sizeof(*buf->extended_data));
+                zn_av_calloc(nch_out, sizeof(*buf->extended_data));
             if (!new_extended_data) {
-                av_frame_free(&buf);
+                zn_av_frame_free(&buf);
                 return AVERROR(ENOMEM);
             }
             if (buf->extended_data == buf->data) {
                 buf->extended_data = new_extended_data;
             } else {
-                av_free(buf->extended_data);
+                zn_av_free(buf->extended_data);
                 buf->extended_data = new_extended_data;
             }
         } else if (buf->extended_data != buf->data) {
-            av_free(buf->extended_data);
+            zn_av_free(buf->extended_data);
             buf->extended_data = buf->data;
         }
     }
@@ -357,7 +357,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
     buf->channel_layout = outlink->channel_layout;
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
-    if ((ret = av_channel_layout_copy(&buf->ch_layout, &outlink->ch_layout)) < 0)
+    if ((ret = zn_av_channel_layout_copy(&buf->ch_layout, &outlink->ch_layout)) < 0)
         return ret;
 
     return ff_filter_frame(outlink, buf);

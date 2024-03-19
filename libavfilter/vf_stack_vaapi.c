@@ -73,8 +73,8 @@ static int process_frame(FFFrameSync *fs)
     if (!oframe)
         return AVERROR(ENOMEM);
 
-    irect = av_calloc(avctx->nb_inputs, sizeof(*irect));
-    params = av_calloc(avctx->nb_inputs, sizeof(*params));
+    irect = zn_av_calloc(avctx->nb_inputs, sizeof(*irect));
+    params = zn_av_calloc(avctx->nb_inputs, sizeof(*params));
     if (!irect || !params) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -120,14 +120,14 @@ static int process_frame(FFFrameSync *fs)
     if (ret)
         goto fail;
 
-    av_freep(&irect);
-    av_freep(&params);
+    zn_av_freep(&irect);
+    zn_av_freep(&params);
     return ff_filter_frame(outlink, oframe);
 
 fail:
-    av_freep(&irect);
-    av_freep(&params);
-    av_frame_free(&oframe);
+    zn_av_freep(&irect);
+    zn_av_freep(&params);
+    zn_av_frame_free(&oframe);
     return ret;
 }
 
@@ -200,7 +200,7 @@ static int vaapi_stack_init(AVFilterContext *avctx)
         return ret;
 
     /* stack region */
-    sctx->rects = av_calloc(sctx->base.nb_inputs, sizeof(*sctx->rects));
+    sctx->rects = zn_av_calloc(sctx->base.nb_inputs, sizeof(*sctx->rects));
     if (!sctx->rects)
         return AVERROR(ENOMEM);
 
@@ -216,7 +216,7 @@ static av_cold void vaapi_stack_uninit(AVFilterContext *avctx)
 
     stack_uninit(avctx);
 
-    av_freep(&sctx->rects);
+    zn_av_freep(&sctx->rects);
 }
 
 static int vaapi_stack_query_formats(AVFilterContext *avctx)

@@ -257,7 +257,7 @@ int av_bprint_finalize(AVBPrint *buf, char **ret_str)
         *ret_str = str;
     } else {
         if (av_bprint_is_allocated(buf))
-            av_freep(&buf->str);
+            zn_av_freep(&buf->str);
     }
     buf->size = real_size;
     return ret;

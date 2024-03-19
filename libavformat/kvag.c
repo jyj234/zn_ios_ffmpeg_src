@@ -58,7 +58,7 @@ static int kvag_read_header(AVFormatContext *s)
     AVCodecParameters *par;
     uint8_t buf[KVAG_HEADER_SIZE];
 
-    if (!(st = avformat_new_stream(s, NULL)))
+    if (!(st = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
     if ((ret = ffio_read_size(s->pb, buf, KVAG_HEADER_SIZE)) < 0)
@@ -74,7 +74,7 @@ static int kvag_read_header(AVFormatContext *s)
     par->codec_id               = AV_CODEC_ID_ADPCM_IMA_SSI;
     par->format                 = AV_SAMPLE_FMT_S16;
 
-    av_channel_layout_default(&par->ch_layout, !!hdr.stereo + 1);
+    zn_av_channel_layout_default(&par->ch_layout, !!hdr.stereo + 1);
     par->sample_rate            = hdr.sample_rate;
     par->bits_per_coded_sample  = 4;
     par->block_align            = 1;

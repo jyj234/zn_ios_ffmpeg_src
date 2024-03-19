@@ -314,7 +314,7 @@ int ff_decklink_set_format(AVFormatContext *avctx,
             ctx->bmd_tb_num = bmd_tb_num;
             ctx->bmd_field_dominance = bmd_field_dominance;
             av_log(avctx, AV_LOG_INFO, "Found Decklink mode %d x %d with rate %.2f%s\n",
-                bmd_width, bmd_height, 1/av_q2d(mode_tb),
+                bmd_width, bmd_height, 1/zn_av_q2d(mode_tb),
                 (ctx->bmd_field_dominance==bmdLowerFieldFirst || ctx->bmd_field_dominance==bmdUpperFieldFirst)?"(i)":"");
         }
 
@@ -405,7 +405,7 @@ void ff_decklink_packet_queue_flush(DecklinkPacketQueue *q)
 
     pthread_mutex_lock(&q->mutex);
     while (avpriv_packet_list_get(&q->pkt_list, &pkt) == 0) {
-        av_packet_unref(&pkt);
+        zn_av_packet_unref(&pkt);
     }
     q->nb_packets = 0;
     q->size       = 0;
@@ -435,13 +435,13 @@ int ff_decklink_packet_queue_put(DecklinkPacketQueue *q, AVPacket *pkt)
 
     // Drop Packet if queue size is > maximum queue size
     if (ff_decklink_packet_queue_size(q) > (uint64_t)q->max_q_size) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         av_log(q->avctx, AV_LOG_WARNING,  "Decklink input buffer overrun!\n");
         return -1;
     }
     /* ensure the packet is reference counted */
     if (av_packet_make_refcounted(pkt) < 0) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return -1;
     }
 
@@ -453,7 +453,7 @@ int ff_decklink_packet_queue_put(DecklinkPacketQueue *q, AVPacket *pkt)
         q->size += pkt_size + sizeof(AVPacket);
         pthread_cond_signal(&q->cond);
     } else {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 
     pthread_mutex_unlock(&q->mutex);
@@ -554,16 +554,16 @@ int ff_decklink_list_devices(AVFormatContext *avctx,
                 !new_device->device_description ||
                 av_dynarray_add_nofree(&device_list->devices, &device_list->nb_devices, new_device) < 0) {
                 ret = AVERROR(ENOMEM);
-                av_freep(&new_device->device_name);
-                av_freep(&new_device->device_description);
-                av_freep(&new_device);
+                zn_av_freep(&new_device->device_name);
+                zn_av_freep(&new_device->device_description);
+                zn_av_freep(&new_device);
                 goto next;
             }
         }
 
     next:
-        av_freep(&display_name);
-        av_freep(&unique_name);
+        zn_av_freep(&display_name);
+        zn_av_freep(&unique_name);
         dl->Release();
     }
     iter->Release();
@@ -677,13 +677,13 @@ int ff_decklink_init_device(AVFormatContext *avctx, const char* name)
         decklink_get_attr_string(dl, BMDDeckLinkDisplayName, &display_name);
         decklink_get_attr_string(dl, BMDDeckLinkDeviceHandle, &unique_name);
         if (display_name && !strcmp(name, display_name) || unique_name && !strcmp(name, unique_name)) {
-            av_free((void *)unique_name);
-            av_free((void *)display_name);
+            zn_av_free((void *)unique_name);
+            zn_av_free((void *)display_name);
             ctx->dl = dl;
             break;
         }
-        av_free((void *)display_name);
-        av_free((void *)unique_name);
+        zn_av_free((void *)display_name);
+        zn_av_free((void *)unique_name);
         dl->Release();
     }
     iter->Release();

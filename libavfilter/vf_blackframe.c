@@ -81,7 +81,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         av_log(ctx, AV_LOG_INFO, "frame:%u pblack:%u pts:%"PRId64" t:%f "
                "type:%c last_keyframe:%d\n",
                s->frame, pblack, frame->pts,
-               frame->pts == AV_NOPTS_VALUE ? -1 : frame->pts * av_q2d(inlink->time_base),
+               frame->pts == AV_NOPTS_VALUE ? -1 : frame->pts * zn_av_q2d(inlink->time_base),
                av_get_picture_type_char(frame->pict_type), s->last_keyframe);
 
         SET_META("lavfi.blackframe.pblack", "%u", pblack);

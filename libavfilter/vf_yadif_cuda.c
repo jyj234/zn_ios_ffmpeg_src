@@ -200,9 +200,9 @@ static av_cold void deint_cuda_uninit(AVFilterContext *ctx)
         CHECK_CU(cu->cuCtxPopCurrent(&dummy));
     }
 
-    av_frame_free(&y->prev);
-    av_frame_free(&y->cur);
-    av_frame_free(&y->next);
+    zn_av_frame_free(&y->prev);
+    zn_av_frame_free(&y->cur);
+    zn_av_frame_free(&y->next);
     ff_ccfifo_uninit(&y->cc_fifo);
 
     av_buffer_unref(&s->device_ref);

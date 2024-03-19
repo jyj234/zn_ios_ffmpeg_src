@@ -150,7 +150,7 @@ av_video_enc_params_block(AVVideoEncParams *par, unsigned int idx)
 /**
  * Allocates memory for AVVideoEncParams of the given type, plus an array of
  * {@code nb_blocks} AVVideoBlockParams and initializes the variables. Can be
- * freed with a normal av_free() call.
+ * freed with a normal zn_av_free() call.
  *
  * @param out_size if non-NULL, the size in bytes of the resulting data array is
  * written here.

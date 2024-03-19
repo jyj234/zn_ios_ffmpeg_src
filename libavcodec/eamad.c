@@ -70,7 +70,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     ff_bswapdsp_init(&s->bbdsp);
     ff_mpeg12_init_vlcs();
 
-    s->last_frame = av_frame_alloc();
+    s->last_frame = zn_av_frame_alloc();
     if (!s->last_frame)
         return AVERROR(ENOMEM);
 
@@ -327,8 +327,8 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *frame,
 static av_cold int decode_end(AVCodecContext *avctx)
 {
     MadContext *t = avctx->priv_data;
-    av_frame_free(&t->last_frame);
-    av_freep(&t->bitstream_buf);
+    zn_av_frame_free(&t->last_frame);
+    zn_av_freep(&t->bitstream_buf);
     return 0;
 }
 

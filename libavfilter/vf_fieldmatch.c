@@ -690,7 +690,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     /* update frames queue(s) */
 #define SLIDING_FRAME_WINDOW(prv, src, nxt) do {                \
         if (prv != src) /* 2nd loop exception (1st has prv==src and we don't want to loose src) */ \
-            av_frame_free(&prv);                                \
+            zn_av_frame_free(&prv);                                \
         prv = src;                                              \
         src = nxt;                                              \
         if (in)                                                 \
@@ -849,7 +849,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
 fail:
     for (i = 0; i < FF_ARRAY_ELEMS(gen_frames); i++)
-        av_frame_free(&gen_frames[i]);
+        zn_av_frame_free(&gen_frames[i]);
 
     if (ret >= 0)
         return ff_filter_frame(outlink, dst);
@@ -979,8 +979,8 @@ static int config_input(AVFilterLink *inlink)
     fm->tpitchy  = FFALIGN(w,      16);
     fm->tpitchuv = FFALIGN(w >> 1, 16);
 
-    fm->tbuffer = av_calloc((h/2 + 4) * fm->tpitchy, sizeof(*fm->tbuffer));
-    fm->c_array = av_malloc_array((((w + fm->blockx/2)/fm->blockx)+1) *
+    fm->tbuffer = zn_av_calloc((h/2 + 4) * fm->tpitchy, sizeof(*fm->tbuffer));
+    fm->c_array = zn_av_malloc_array((((w + fm->blockx/2)/fm->blockx)+1) *
                             (((h + fm->blocky/2)/fm->blocky)+1),
                             4 * sizeof(*fm->c_array));
     if (!fm->tbuffer || !fm->c_array)
@@ -1028,19 +1028,19 @@ static av_cold void fieldmatch_uninit(AVFilterContext *ctx)
     FieldMatchContext *fm = ctx->priv;
 
     if (fm->prv != fm->src)
-        av_frame_free(&fm->prv);
+        zn_av_frame_free(&fm->prv);
     if (fm->nxt != fm->src)
-        av_frame_free(&fm->nxt);
+        zn_av_frame_free(&fm->nxt);
     if (fm->prv2 != fm->src2)
-        av_frame_free(&fm->prv2);
+        zn_av_frame_free(&fm->prv2);
     if (fm->nxt2 != fm->src2)
-        av_frame_free(&fm->nxt2);
-    av_frame_free(&fm->src);
-    av_frame_free(&fm->src2);
-    av_freep(&fm->map_data[0]);
-    av_freep(&fm->cmask_data[0]);
-    av_freep(&fm->tbuffer);
-    av_freep(&fm->c_array);
+        zn_av_frame_free(&fm->nxt2);
+    zn_av_frame_free(&fm->src);
+    zn_av_frame_free(&fm->src2);
+    zn_av_freep(&fm->map_data[0]);
+    zn_av_freep(&fm->cmask_data[0]);
+    zn_av_freep(&fm->tbuffer);
+    zn_av_freep(&fm->c_array);
 }
 
 static int config_output(AVFilterLink *outlink)

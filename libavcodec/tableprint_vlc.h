@@ -28,10 +28,10 @@
 #define ff_dlog(a, ...) while(0)
 #define AVUTIL_MEM_H
 #define av_malloc(s) NULL
-#define av_malloc_array(a, b) NULL
+#define zn_av_malloc_array(a, b) NULL
 #define av_realloc_f(p, o, n) NULL
-#define av_free(p) while(0)
-#define av_freep(p) while(0)
+#define zn_av_free(p) while(0)
+#define zn_av_freep(p) while(0)
 #define AVUTIL_INTERNAL_H
 #define avpriv_request_sample(...)
 #include "tableprint.h"

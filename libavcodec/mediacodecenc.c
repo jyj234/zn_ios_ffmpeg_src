@@ -106,8 +106,8 @@ static void mediacodec_output_format(AVCodecContext *avctx)
 
     av_log(avctx, AV_LOG_DEBUG, "MediaCodec encoder %s output format %s\n",
            name ? name : "unknown", str);
-    av_free(name);
-    av_free(str);
+    zn_av_free(name);
+    zn_av_free(str);
     ff_AMediaFormat_delete(out_format);
 }
 
@@ -315,13 +315,13 @@ static av_cold int mediacodec_init(AVCodecContext *avctx)
     ret = ff_AMediaCodec_getConfigureFlagEncode(s->codec);
     ret = ff_AMediaCodec_configure(s->codec, format, s->window, NULL, ret);
     if (ret) {
-        av_log(avctx, AV_LOG_ERROR, "MediaCodec configure failed, %s\n", av_err2str(ret));
+        av_log(avctx, AV_LOG_ERROR, "MediaCodec configure failed, %s\n", zn_av_err2str(ret));
         goto bailout;
     }
 
     ret = ff_AMediaCodec_start(s->codec);
     if (ret) {
-        av_log(avctx, AV_LOG_ERROR, "MediaCodec failed to start, %s\n", av_err2str(ret));
+        av_log(avctx, AV_LOG_ERROR, "MediaCodec failed to start, %s\n", zn_av_err2str(ret));
         goto bailout;
     }
 
@@ -335,7 +335,7 @@ static av_cold int mediacodec_init(AVCodecContext *avctx)
                 "Mediacodec encoder doesn't support AV_CODEC_FLAG_GLOBAL_HEADER. "
                 "Use extract_extradata bsf when necessary.\n");
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         ret = AVERROR(ENOMEM);
 
@@ -561,7 +561,7 @@ static av_cold int mediacodec_close(AVCodecContext *avctx)
     }
 
     av_bsf_free(&s->bsf);
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 
     return 0;
 }

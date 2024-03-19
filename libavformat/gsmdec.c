@@ -73,7 +73,7 @@ static int gsm_read_packet(AVFormatContext *s, AVPacket *pkt)
 static int gsm_read_header(AVFormatContext *s)
 {
     GSMDemuxerContext *c = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

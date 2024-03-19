@@ -754,7 +754,7 @@ static int activate(AVFilterContext *ctx)
 
         if ((ret = ff_inlink_consume_frame(ctx->inputs[0], &frame)) > 0) {
             ret = filter_frame(ctx, &out, frame, frame);
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             if (ret < 0)
                 return ret;
             ret = ff_filter_frame(ctx->outputs[0], out);

@@ -358,9 +358,9 @@ static int decode_picture_header(AVCodecContext *avctx, const uint8_t *buf, cons
                                     av_popcount(ctx->mb_width & (1 << log2_slice_mb_width) - 1));
 
     if (ctx->slice_count != slice_count || !ctx->slices) {
-        av_freep(&ctx->slices);
+        zn_av_freep(&ctx->slices);
         ctx->slice_count = 0;
-        ctx->slices = av_calloc(slice_count, sizeof(*ctx->slices));
+        ctx->slices = zn_av_calloc(slice_count, sizeof(*ctx->slices));
         if (!ctx->slices)
             return AVERROR(ENOMEM);
         ctx->slice_count = slice_count;
@@ -848,7 +848,7 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     ProresContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->slices);
+    zn_av_freep(&ctx->slices);
 
     return 0;
 }

@@ -102,7 +102,7 @@ static int dss_read_metadata_string(AVFormatContext *s, unsigned int offset,
 
     ret = avio_read(s->pb, value, size);
     if (ret < size) {
-        av_free(value);
+        zn_av_free(value);
         return ret < 0 ? ret : AVERROR_EOF;
     }
 
@@ -116,7 +116,7 @@ static int dss_read_header(AVFormatContext *s)
     AVStream *st;
     int ret, version;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

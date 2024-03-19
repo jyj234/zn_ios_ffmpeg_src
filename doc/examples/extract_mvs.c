@@ -44,18 +44,18 @@ static int video_frame_count = 0;
 
 static int decode_packet(const AVPacket *pkt)
 {
-    int ret = avcodec_send_packet(video_dec_ctx, pkt);
+    int ret = zn_avcodec_send_packet(video_dec_ctx, pkt);
     if (ret < 0) {
-        fprintf(stderr, "Error while sending a packet to the decoder: %s\n", av_err2str(ret));
+        fprintf(stderr, "Error while sending a packet to the decoder: %s\n", zn_av_err2str(ret));
         return ret;
     }
 
     while (ret >= 0)  {
-        ret = avcodec_receive_frame(video_dec_ctx, frame);
+        ret = zn_avcodec_receive_frame(video_dec_ctx, frame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             break;
         } else if (ret < 0) {
-            fprintf(stderr, "Error while receiving a frame from the decoder: %s\n", av_err2str(ret));
+            fprintf(stderr, "Error while receiving a frame from the decoder: %s\n", zn_av_err2str(ret));
             return ret;
         }
 
@@ -100,13 +100,13 @@ static int open_codec_context(AVFormatContext *fmt_ctx, enum FFMAVMediaType type
         int stream_idx = ret;
         st = fmt_ctx->streams[stream_idx];
 
-        dec_ctx = avcodec_alloc_context3(dec);
+        dec_ctx = zn_avcodec_alloc_context3(dec);
         if (!dec_ctx) {
             fprintf(stderr, "Failed to allocate codec\n");
             return AVERROR(EINVAL);
         }
 
-        ret = avcodec_parameters_to_context(dec_ctx, st->codecpar);
+        ret = zn_avcodec_parameters_to_context(dec_ctx, st->codecpar);
         if (ret < 0) {
             fprintf(stderr, "Failed to copy codec parameters to codec context\n");
             return ret;
@@ -114,7 +114,7 @@ static int open_codec_context(AVFormatContext *fmt_ctx, enum FFMAVMediaType type
 
         /* Init the video decoder */
         av_dict_set(&opts, "flags2", "+export_mvs", 0);
-        ret = avcodec_open2(dec_ctx, dec, &opts);
+        ret = zn_avcodec_open2(dec_ctx, dec, &opts);
         av_dict_free(&opts);
         if (ret < 0) {
             fprintf(stderr, "Failed to open %s codec\n",
@@ -141,19 +141,19 @@ int main(int argc, char **argv)
     }
     src_filename = argv[1];
 
-    if (avformat_open_input(&fmt_ctx, src_filename, NULL, NULL) < 0) {
+    if (zn_avformat_open_input(&fmt_ctx, src_filename, NULL, NULL) < 0) {
         fprintf(stderr, "Could not open source file %s\n", src_filename);
         exit(1);
     }
 
-    if (avformat_find_stream_info(fmt_ctx, NULL) < 0) {
+    if (zn_avformat_find_stream_info(fmt_ctx, NULL) < 0) {
         fprintf(stderr, "Could not find stream information\n");
         exit(1);
     }
 
     open_codec_context(fmt_ctx, AVMEDIA_TYPE_VIDEO);
 
-    av_dump_format(fmt_ctx, 0, src_filename, 0);
+    zn_av_dump_format(fmt_ctx, 0, src_filename, 0);
 
     if (!video_stream) {
         fprintf(stderr, "Could not find video stream in the input, aborting\n");
@@ -161,14 +161,14 @@ int main(int argc, char **argv)
         goto end;
     }
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         fprintf(stderr, "Could not allocate frame\n");
         ret = AVERROR(ENOMEM);
         goto end;
     }
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         fprintf(stderr, "Could not allocate AVPacket\n");
         ret = AVERROR(ENOMEM);
@@ -178,10 +178,10 @@ int main(int argc, char **argv)
     printf("framenum,source,blockw,blockh,srcx,srcy,dstx,dsty,flags,motion_x,motion_y,motion_scale\n");
 
     /* read frames from the file */
-    while (av_read_frame(fmt_ctx, pkt) >= 0) {
+    while (zn_av_read_frame(fmt_ctx, pkt) >= 0) {
         if (pkt->stream_index == video_stream_idx)
             ret = decode_packet(pkt);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0)
             break;
     }
@@ -191,8 +191,8 @@ int main(int argc, char **argv)
 
 end:
     avcodec_free_context(&video_dec_ctx);
-    avformat_close_input(&fmt_ctx);
-    av_frame_free(&frame);
-    av_packet_free(&pkt);
+    zn_avformat_close_input(&fmt_ctx);
+    zn_av_frame_free(&frame);
+    zn_av_packet_free(&pkt);
     return ret < 0;
 }

@@ -742,7 +742,7 @@ static int hvcc_add_nal_unit(uint8_t *nal_buf, uint32_t nal_size,
         goto end;
 
 end:
-    av_free(rbsp_buf);
+    zn_av_free(rbsp_buf);
     return ret;
 }
 
@@ -771,8 +771,8 @@ static void hvcc_close(HEVCDecoderConfigurationRecord *hvcc)
     for (unsigned i = 0; i < FF_ARRAY_ELEMS(hvcc->arrays); i++) {
         HVCCNALUnitArray *const array = &hvcc->arrays[i];
         array->numNalus = 0;
-        av_freep(&array->nalUnit);
-        av_freep(&array->nalUnitLength);
+        zn_av_freep(&array->nalUnit);
+        zn_av_freep(&array->nalUnitLength);
     }
 }
 
@@ -1012,7 +1012,7 @@ int ff_hevc_annexb2mp4(AVIOContext *pb, const uint8_t *buf_in,
     }
 
 end:
-    av_free(start);
+    zn_av_free(start);
     if (ps_count)
         *ps_count = num_ps;
     return ret;
@@ -1094,6 +1094,6 @@ int ff_isom_write_hvcc(AVIOContext *pb, const uint8_t *data,
 
 end:
     hvcc_close(&hvcc);
-    av_free(start);
+    zn_av_free(start);
     return ret;
 }

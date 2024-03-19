@@ -92,9 +92,9 @@ void ff_slice_thread_free(AVCodecContext *avctx)
         pthread_cond_destroy(&progress->cond);
     }
 
-    av_freep(&c->entries);
-    av_freep(&c->progress);
-    av_freep(&avctx->internal->thread_ctx);
+    zn_av_freep(&c->entries);
+    zn_av_freep(&c->progress);
+    zn_av_freep(&avctx->internal->thread_ctx);
 }
 
 static int thread_execute(AVCodecContext *avctx, action_func* func, void *arg, int *ret, int job_count, int job_size)
@@ -164,7 +164,7 @@ int ff_slice_thread_init(AVCodecContext *avctx)
     if (!c || (thread_count = avpriv_slicethread_create(&c->thread, avctx, worker_func, mainfunc, thread_count)) <= 1) {
         if (c)
             avpriv_slicethread_free(&c->thread);
-        av_freep(&avctx->internal->thread_ctx);
+        zn_av_freep(&avctx->internal->thread_ctx);
         avctx->thread_count = 1;
         avctx->active_thread_type = 0;
         return 0;
@@ -181,7 +181,7 @@ int av_cold ff_slice_thread_init_progress(AVCodecContext *avctx)
     SliceThreadContext *const p = avctx->internal->thread_ctx;
     int err, i = 0, thread_count = avctx->thread_count;
 
-    p->progress = av_calloc(thread_count, sizeof(*p->progress));
+    p->progress = zn_av_calloc(thread_count, sizeof(*p->progress));
     if (!p->progress) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -246,9 +246,9 @@ int ff_slice_thread_allocz_entries(AVCodecContext *avctx, int count)
             memset(p->entries, 0, p->entries_count * sizeof(*p->entries));
             return 0;
         }
-        av_freep(&p->entries);
+        zn_av_freep(&p->entries);
 
-        p->entries       = av_calloc(count, sizeof(*p->entries));
+        p->entries       = zn_av_calloc(count, sizeof(*p->entries));
         if (!p->entries) {
             p->entries_count = 0;
             return AVERROR(ENOMEM);

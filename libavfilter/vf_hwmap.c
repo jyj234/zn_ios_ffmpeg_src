@@ -278,9 +278,9 @@ static AVFrame *hwmap_get_buffer(AVFilterLink *inlink, int w, int h)
             return NULL;
         }
 
-        dst = av_frame_alloc();
+        dst = zn_av_frame_alloc();
         if (!dst) {
-            av_frame_free(&src);
+            zn_av_frame_free(&src);
             return NULL;
         }
 
@@ -288,12 +288,12 @@ static AVFrame *hwmap_get_buffer(AVFilterLink *inlink, int w, int h)
         if (err) {
             av_log(avctx, AV_LOG_ERROR, "Failed to map frame to "
                    "software: %d.\n", err);
-            av_frame_free(&src);
-            av_frame_free(&dst);
+            zn_av_frame_free(&src);
+            zn_av_frame_free(&dst);
             return NULL;
         }
 
-        av_frame_free(&src);
+        zn_av_frame_free(&src);
         return dst;
     } else {
         return ff_default_get_video_buffer(inlink, w, h);
@@ -312,7 +312,7 @@ static int hwmap_filter_frame(AVFilterLink *link, AVFrame *input)
            av_get_pix_fmt_name(input->format),
            input->width, input->height, input->pts);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -346,7 +346,7 @@ static int hwmap_filter_frame(AVFilterLink *link, AVFrame *input)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     av_log(ctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(map->format),
@@ -355,8 +355,8 @@ static int hwmap_filter_frame(AVFilterLink *link, AVFrame *input)
     return ff_filter_frame(outlink, map);
 
 fail:
-    av_frame_free(&input);
-    av_frame_free(&map);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&map);
     return err;
 }
 

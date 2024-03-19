@@ -79,7 +79,7 @@ void ff_vs_init(void)
     vs_malloc  = av_malloc;
     vs_zalloc  = av_mallocz;
     vs_realloc = av_realloc;
-    vs_free    = av_free;
+    vs_free    = zn_av_free;
 
     VS_ERROR_TYPE = AV_LOG_ERROR;
     VS_WARN_TYPE  = AV_LOG_WARNING;

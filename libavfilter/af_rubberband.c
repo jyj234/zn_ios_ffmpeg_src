@@ -108,7 +108,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (nb_samples > 0) {
         out = ff_get_audio_buffer(outlink, nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         out->pts = s->first_pts + av_rescale_q(s->nb_samples_out,
@@ -121,7 +121,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         s->nb_samples_out += nb_samples;
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     if (ff_inlink_queued_samples(inlink) >= s->nb_samples)
         ff_filter_set_ready(ctx, 100);
     return ret < 0 ? ret : nb_samples;

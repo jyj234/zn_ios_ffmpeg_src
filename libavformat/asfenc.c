@@ -1111,7 +1111,7 @@ static void asf_deinit(AVFormatContext *s)
 {
     ASFContext *const asf = s->priv_data;
 
-    av_freep(&asf->index_ptr);
+    zn_av_freep(&asf->index_ptr);
 }
 
 static const AVOption asf_options[] = {

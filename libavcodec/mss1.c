@@ -200,13 +200,13 @@ static av_cold int mss1_decode_init(AVCodecContext *avctx)
 
     c->ctx.avctx       = avctx;
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 
     ret = ff_mss12_decode_init(&c->ctx, 0, &c->sc, NULL);
     if (ret < 0)
-        av_frame_free(&c->pic);
+        zn_av_frame_free(&c->pic);
 
     avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
@@ -217,7 +217,7 @@ static av_cold int mss1_decode_end(AVCodecContext *avctx)
 {
     MSS1Context * const ctx = avctx->priv_data;
 
-    av_frame_free(&ctx->pic);
+    zn_av_frame_free(&ctx->pic);
     ff_mss12_decode_end(&ctx->ctx);
 
     return 0;

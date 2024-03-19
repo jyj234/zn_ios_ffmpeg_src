@@ -95,8 +95,8 @@ static int config_input(AVFilterLink *inlink)
 
     s->max_samples = (s->delay_min + s->delay_depth) * inlink->sample_rate + 2.5;
     s->lfo_length  = inlink->sample_rate / s->speed;
-    s->delay_last  = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->delay_last));
-    s->lfo         = av_calloc(s->lfo_length, sizeof(*s->lfo));
+    s->delay_last  = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->delay_last));
+    s->lfo         = zn_av_calloc(s->lfo_length, sizeof(*s->lfo));
     if (!s->lfo || !s->delay_last)
         return AVERROR(ENOMEM);
 
@@ -104,7 +104,7 @@ static int config_input(AVFilterLink *inlink)
                            rint(s->delay_min * inlink->sample_rate),
                            s->max_samples - 2., 3 * M_PI_2);
 
-    return av_samples_alloc_array_and_samples(&s->delay_buffer, NULL,
+    return zn_zn_av_samples_alloc_array_and_samples(&s->delay_buffer, NULL,
                                               inlink->ch_layout.nb_channels, s->max_samples,
                                               inlink->format, 0);
 }
@@ -121,7 +121,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     } else {
         out_frame = ff_get_audio_buffer(ctx->outputs[0], frame->nb_samples);
         if (!out_frame) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out_frame, frame);
@@ -169,7 +169,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     }
 
     if (frame != out_frame)
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
 
     return ff_filter_frame(ctx->outputs[0], out_frame);
 }
@@ -178,12 +178,12 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     FlangerContext *s = ctx->priv;
 
-    av_freep(&s->lfo);
-    av_freep(&s->delay_last);
+    zn_av_freep(&s->lfo);
+    zn_av_freep(&s->delay_last);
 
     if (s->delay_buffer)
-        av_freep(&s->delay_buffer[0]);
-    av_freep(&s->delay_buffer);
+        zn_av_freep(&s->delay_buffer[0]);
+    zn_av_freep(&s->delay_buffer);
 }
 
 static const AVFilterPad flanger_inputs[] = {

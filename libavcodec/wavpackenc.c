@@ -2924,29 +2924,29 @@ static av_cold int wavpack_encode_close(AVCodecContext *avctx)
     int i;
 
     for (i = 0; i < MAX_TERMS + 2; i++) {
-        av_freep(&s->sampleptrs[i][0]);
-        av_freep(&s->sampleptrs[i][1]);
+        zn_av_freep(&s->sampleptrs[i][0]);
+        zn_av_freep(&s->sampleptrs[i][1]);
         s->sampleptrs_size[i][0] = s->sampleptrs_size[i][1] = 0;
     }
 
     for (i = 0; i < 2; i++) {
-        av_freep(&s->samples[i]);
+        zn_av_freep(&s->samples[i]);
         s->samples_size[i] = 0;
 
-        av_freep(&s->best_buffer[i]);
+        zn_av_freep(&s->best_buffer[i]);
         s->best_buffer_size[i] = 0;
 
-        av_freep(&s->temp_buffer[i][0]);
-        av_freep(&s->temp_buffer[i][1]);
+        zn_av_freep(&s->temp_buffer[i][0]);
+        zn_av_freep(&s->temp_buffer[i][1]);
         s->temp_buffer_size[i][0] = s->temp_buffer_size[i][1] = 0;
     }
 
-    av_freep(&s->js_left);
-    av_freep(&s->js_right);
+    zn_av_freep(&s->js_left);
+    zn_av_freep(&s->js_right);
     s->js_left_size = s->js_right_size = 0;
 
-    av_freep(&s->orig_l);
-    av_freep(&s->orig_r);
+    zn_av_freep(&s->orig_l);
+    zn_av_freep(&s->orig_r);
     s->orig_l_size = s->orig_r_size = 0;
 
     return 0;

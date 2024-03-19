@@ -121,14 +121,14 @@ static int handle_file(struct Tracks *tracks, const char *file)
     char errbuf[50], *ptr;
     struct Track *track;
 
-    err = avformat_open_input(&ctx, file, NULL, NULL);
+    err = zn_avformat_open_input(&ctx, file, NULL, NULL);
     if (err < 0) {
         av_strerror(err, errbuf, sizeof(errbuf));
         fprintf(stderr, "Unable to open %s: %s\n", file, errbuf);
         return 1;
     }
 
-    err = avformat_find_stream_info(ctx, NULL);
+    err = zn_avformat_find_stream_info(ctx, NULL);
     if (err < 0) {
         av_strerror(err, errbuf, sizeof(errbuf));
         fprintf(stderr, "Unable to identify %s: %s\n", file, errbuf);
@@ -160,7 +160,7 @@ static int handle_file(struct Tracks *tracks, const char *file)
         temp = av_realloc_array(tracks->tracks, tracks->nb_tracks + 1,
                                 sizeof(*tracks->tracks));
         if (!temp) {
-            av_free(track);
+            zn_av_free(track);
             err = AVERROR(ENOMEM);
             goto fail;
         }
@@ -182,7 +182,7 @@ static int handle_file(struct Tracks *tracks, const char *file)
             fprintf(stderr,
                     "Track %d in %s is neither video nor audio, skipping\n",
                     track->track_id, file);
-            av_freep(&tracks->tracks[tracks->nb_tracks]);
+            zn_av_freep(&tracks->tracks[tracks->nb_tracks]);
             continue;
         }
 
@@ -203,13 +203,13 @@ static int handle_file(struct Tracks *tracks, const char *file)
         tracks->nb_tracks++;
     }
 
-    avformat_close_input(&ctx);
+    zn_avformat_close_input(&ctx);
 
     err = find_sidx(tracks, orig_tracks, file);
 
 fail:
     if (ctx)
-        avformat_close_input(&ctx);
+        zn_avformat_close_input(&ctx);
     return err;
 }
 
@@ -245,7 +245,7 @@ static int output_mpd(struct Tracks *tracks, const char *filename)
         nb_tracks = nb_tracks_buf;
         nb_sets = 2;
         for (i = 0; i < 2; i++) {
-            adaptation_sets[i] = av_malloc_array(tracks->nb_tracks, sizeof(*adaptation_sets[i]));
+            adaptation_sets[i] = zn_av_malloc_array(tracks->nb_tracks, sizeof(*adaptation_sets[i]));
             if (!adaptation_sets[i]) {
                 ret = AVERROR(ENOMEM);
                 goto err;
@@ -343,7 +343,7 @@ static int output_mpd(struct Tracks *tracks, const char *filename)
     fclose(out);
 err:
     for (i = 0; i < 2; i++)
-        av_free(adaptation_sets_buf[i]);
+        zn_av_free(adaptation_sets_buf[i]);
     return ret;
 }
 
@@ -351,9 +351,9 @@ static void clean_tracks(struct Tracks *tracks)
 {
     int i;
     for (i = 0; i < tracks->nb_tracks; i++) {
-        av_freep(&tracks->tracks[i]);
+        zn_av_freep(&tracks->tracks[i]);
     }
-    av_freep(&tracks->tracks);
+    zn_av_freep(&tracks->tracks);
     tracks->nb_tracks = 0;
 }
 

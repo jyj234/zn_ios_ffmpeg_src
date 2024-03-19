@@ -305,57 +305,57 @@ static av_cold void uninit(AVFilterContext *ctx)
     ShowSpectrumContext *s = ctx->priv;
     int i;
 
-    av_freep(&s->combine_buffer);
+    zn_av_freep(&s->combine_buffer);
     if (s->fft) {
         for (i = 0; i < s->nb_display_channels; i++)
             av_tx_uninit(&s->fft[i]);
     }
-    av_freep(&s->fft);
+    zn_av_freep(&s->fft);
     if (s->ifft) {
         for (i = 0; i < s->nb_display_channels; i++)
             av_tx_uninit(&s->ifft[i]);
     }
-    av_freep(&s->ifft);
+    zn_av_freep(&s->ifft);
     if (s->fft_data) {
         for (i = 0; i < s->nb_display_channels; i++)
-            av_freep(&s->fft_data[i]);
+            zn_av_freep(&s->fft_data[i]);
     }
-    av_freep(&s->fft_data);
+    zn_av_freep(&s->fft_data);
     if (s->fft_in) {
         for (i = 0; i < s->nb_display_channels; i++)
-            av_freep(&s->fft_in[i]);
+            zn_av_freep(&s->fft_in[i]);
     }
-    av_freep(&s->fft_in);
+    zn_av_freep(&s->fft_in);
     if (s->fft_scratch) {
         for (i = 0; i < s->nb_display_channels; i++)
-            av_freep(&s->fft_scratch[i]);
+            zn_av_freep(&s->fft_scratch[i]);
     }
-    av_freep(&s->fft_scratch);
+    zn_av_freep(&s->fft_scratch);
     if (s->color_buffer) {
         for (i = 0; i < s->nb_display_channels; i++)
-            av_freep(&s->color_buffer[i]);
+            zn_av_freep(&s->color_buffer[i]);
     }
-    av_freep(&s->color_buffer);
-    av_freep(&s->window_func_lut);
+    zn_av_freep(&s->color_buffer);
+    zn_av_freep(&s->window_func_lut);
     if (s->magnitudes) {
         for (i = 0; i < s->nb_display_channels; i++)
-            av_freep(&s->magnitudes[i]);
+            zn_av_freep(&s->magnitudes[i]);
     }
-    av_freep(&s->magnitudes);
-    av_frame_free(&s->outpicref);
-    av_frame_free(&s->in_frame);
+    zn_av_freep(&s->magnitudes);
+    zn_av_frame_free(&s->outpicref);
+    zn_av_frame_free(&s->in_frame);
     if (s->phases) {
         for (i = 0; i < s->nb_display_channels; i++)
-            av_freep(&s->phases[i]);
+            zn_av_freep(&s->phases[i]);
     }
-    av_freep(&s->phases);
+    zn_av_freep(&s->phases);
 
     while (s->nb_frames > 0) {
-        av_frame_free(&s->frames[s->nb_frames - 1]);
+        zn_av_frame_free(&s->frames[s->nb_frames - 1]);
         s->nb_frames--;
     }
 
-    av_freep(&s->frames);
+    zn_av_freep(&s->frames);
 }
 
 static int query_formats(AVFilterContext *ctx)
@@ -798,13 +798,13 @@ static int draw_legend(AVFilterContext *ctx, uint64_t samples)
 
     drawtext(s->outpicref, 2, outlink->h - 10, "CREATED BY LIBAVFILTER", 0);
     drawtext(s->outpicref, outlink->w - 2 - strlen(text) * 10, outlink->h - 10, text, 0);
-    av_freep(&text);
+    zn_av_freep(&text);
     if (s->stop) {
         text = av_asprintf("Zoom: %d Hz - %d Hz", s->start, s->stop);
         if (!text)
             return AVERROR(ENOMEM);
         drawtext(s->outpicref, outlink->w - 2 - strlen(text) * 10, 3, text, 0);
-        av_freep(&text);
+        zn_av_freep(&text);
     }
 
     dst = s->outpicref->data[0] + (s->start_y - 1) * s->outpicref->linesize[0] + s->start_x - 1;
@@ -859,7 +859,7 @@ static int draw_legend(AVFilterContext *ctx, uint64_t samples)
                     return AVERROR(ENOMEM);
 
                 drawtext(s->outpicref, s->start_x - 8 * strlen(units) - 4, h * (ch + 1) + s->start_y - y - 4 - hh, units, 0);
-                av_free(units);
+                zn_av_free(units);
             }
         }
 
@@ -871,7 +871,7 @@ static int draw_legend(AVFilterContext *ctx, uint64_t samples)
 
             drawtext(s->outpicref, s->start_x + x - 4 * strlen(units), s->h + s->start_y + 6, units, 0);
             drawtext(s->outpicref, s->start_x + x - 4 * strlen(units), s->start_y - 12, units, 0);
-            av_free(units);
+            zn_av_free(units);
         }
 
         drawtext(s->outpicref, outlink->w / 2 - 4 * 4, outlink->h - s->start_y / 2, "TIME", 0);
@@ -917,7 +917,7 @@ static int draw_legend(AVFilterContext *ctx, uint64_t samples)
 
                 drawtext(s->outpicref, s->start_x - 4 * strlen(units) + x + w * ch, s->start_y - 12, units, 0);
                 drawtext(s->outpicref, s->start_x - 4 * strlen(units) + x + w * ch, s->h + s->start_y + 6, units, 0);
-                av_free(units);
+                zn_av_free(units);
             }
         }
         for (y = 0; y < s->h && s->single_pic; y+=40) {
@@ -927,7 +927,7 @@ static int draw_legend(AVFilterContext *ctx, uint64_t samples)
                 return AVERROR(ENOMEM);
 
             drawtext(s->outpicref, s->start_x - 8 * strlen(units) - 4, s->start_y + y - 4, units, 0);
-            av_free(units);
+            zn_av_free(units);
         }
         drawtext(s->outpicref, s->start_x / 7, outlink->h / 2 - 4 * 4, "TIME", 1);
         drawtext(s->outpicref, outlink->w / 2 - 14 * 4, outlink->h - s->start_y / 2, "FREQUENCY (Hz)", 0);
@@ -970,7 +970,7 @@ static int draw_legend(AVFilterContext *ctx, uint64_t samples)
             if (!text)
                 continue;
             drawtext(s->outpicref, s->w + s->start_x + 35, s->start_y + y - 3, text, 0);
-            av_free(text);
+            zn_av_free(text);
         }
     }
 
@@ -1113,14 +1113,14 @@ static int config_output(AVFilterLink *outlink)
     s->buf_size = FFALIGN(s->win_size << (!!s->stop), av_cpu_max_align());
 
     if (!s->fft) {
-        s->fft = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft));
+        s->fft = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft));
         if (!s->fft)
             return AVERROR(ENOMEM);
     }
 
     if (s->stop) {
         if (!s->ifft) {
-            s->ifft = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->ifft));
+            s->ifft = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->ifft));
             if (!s->ifft)
                 return AVERROR(ENOMEM);
         }
@@ -1138,13 +1138,13 @@ static int config_output(AVFilterLink *outlink)
         for (i = 0; i < s->nb_display_channels; i++) {
             if (s->stop) {
                 av_tx_uninit(&s->ifft[i]);
-                av_freep(&s->fft_scratch[i]);
+                zn_av_freep(&s->fft_scratch[i]);
             }
             av_tx_uninit(&s->fft[i]);
-            av_freep(&s->fft_in[i]);
-            av_freep(&s->fft_data[i]);
+            zn_av_freep(&s->fft_in[i]);
+            zn_av_freep(&s->fft_data[i]);
         }
-        av_freep(&s->fft_data);
+        zn_av_freep(&s->fft_data);
 
         s->nb_display_channels = inlink->ch_layout.nb_channels;
         for (i = 0; i < s->nb_display_channels; i++) {
@@ -1166,53 +1166,53 @@ static int config_output(AVFilterLink *outlink)
             }
         }
 
-        s->magnitudes = av_calloc(s->nb_display_channels, sizeof(*s->magnitudes));
+        s->magnitudes = zn_av_calloc(s->nb_display_channels, sizeof(*s->magnitudes));
         if (!s->magnitudes)
             return AVERROR(ENOMEM);
         for (i = 0; i < s->nb_display_channels; i++) {
-            s->magnitudes[i] = av_calloc(s->orientation == VERTICAL ? s->h : s->w, sizeof(**s->magnitudes));
+            s->magnitudes[i] = zn_av_calloc(s->orientation == VERTICAL ? s->h : s->w, sizeof(**s->magnitudes));
             if (!s->magnitudes[i])
                 return AVERROR(ENOMEM);
         }
 
-        s->phases = av_calloc(s->nb_display_channels, sizeof(*s->phases));
+        s->phases = zn_av_calloc(s->nb_display_channels, sizeof(*s->phases));
         if (!s->phases)
             return AVERROR(ENOMEM);
         for (i = 0; i < s->nb_display_channels; i++) {
-            s->phases[i] = av_calloc(s->orientation == VERTICAL ? s->h : s->w, sizeof(**s->phases));
+            s->phases[i] = zn_av_calloc(s->orientation == VERTICAL ? s->h : s->w, sizeof(**s->phases));
             if (!s->phases[i])
                 return AVERROR(ENOMEM);
         }
 
-        av_freep(&s->color_buffer);
-        s->color_buffer = av_calloc(s->nb_display_channels, sizeof(*s->color_buffer));
+        zn_av_freep(&s->color_buffer);
+        s->color_buffer = zn_av_calloc(s->nb_display_channels, sizeof(*s->color_buffer));
         if (!s->color_buffer)
             return AVERROR(ENOMEM);
         for (i = 0; i < s->nb_display_channels; i++) {
-            s->color_buffer[i] = av_calloc(s->orientation == VERTICAL ? s->h * 4 : s->w * 4, sizeof(**s->color_buffer));
+            s->color_buffer[i] = zn_av_calloc(s->orientation == VERTICAL ? s->h * 4 : s->w * 4, sizeof(**s->color_buffer));
             if (!s->color_buffer[i])
                 return AVERROR(ENOMEM);
         }
 
-        s->fft_in = av_calloc(s->nb_display_channels, sizeof(*s->fft_in));
+        s->fft_in = zn_av_calloc(s->nb_display_channels, sizeof(*s->fft_in));
         if (!s->fft_in)
             return AVERROR(ENOMEM);
-        s->fft_data = av_calloc(s->nb_display_channels, sizeof(*s->fft_data));
+        s->fft_data = zn_av_calloc(s->nb_display_channels, sizeof(*s->fft_data));
         if (!s->fft_data)
             return AVERROR(ENOMEM);
-        s->fft_scratch = av_calloc(s->nb_display_channels, sizeof(*s->fft_scratch));
+        s->fft_scratch = zn_av_calloc(s->nb_display_channels, sizeof(*s->fft_scratch));
         if (!s->fft_scratch)
             return AVERROR(ENOMEM);
         for (i = 0; i < s->nb_display_channels; i++) {
-            s->fft_in[i] = av_calloc(s->buf_size, sizeof(**s->fft_in));
+            s->fft_in[i] = zn_av_calloc(s->buf_size, sizeof(**s->fft_in));
             if (!s->fft_in[i])
                 return AVERROR(ENOMEM);
 
-            s->fft_data[i] = av_calloc(s->buf_size, sizeof(**s->fft_data));
+            s->fft_data[i] = zn_av_calloc(s->buf_size, sizeof(**s->fft_data));
             if (!s->fft_data[i])
                 return AVERROR(ENOMEM);
 
-            s->fft_scratch[i] = av_calloc(s->buf_size, sizeof(**s->fft_scratch));
+            s->fft_scratch[i] = zn_av_calloc(s->buf_size, sizeof(**s->fft_scratch));
             if (!s->fft_scratch[i])
                 return AVERROR(ENOMEM);
         }
@@ -1238,7 +1238,7 @@ static int config_output(AVFilterLink *outlink)
         s->win_scale = 1.f / sqrtf(s->win_scale);
 
         /* prepare the initial picref buffer (black frame) */
-        av_frame_free(&s->outpicref);
+        zn_av_frame_free(&s->outpicref);
         s->outpicref = outpicref =
             ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!outpicref)
@@ -1573,7 +1573,7 @@ static int plot_spectrum_column(AVFilterLink *inlink, AVFrame *insamples)
                              units, 1);
                 }
                 s->old_len = strlen(units);
-                av_free(units);
+                zn_av_free(units);
             }
             s->old_pts = outpicref->pts;
             clone = av_frame_clone(s->outpicref);
@@ -1622,7 +1622,7 @@ static int activate(AVFilterContext *ctx)
             if (s->sliding != FULLFRAME || s->xpos == 0)
                 s->in_pts = fin->pts;
             ret = plot_spectrum_column(inlink, fin);
-            av_frame_free(&fin);
+            zn_av_frame_free(&fin);
             if (ret <= 0)
                 return ret;
         }
@@ -1800,7 +1800,7 @@ static int showspectrumpic_request_frame(AVFilterLink *outlink)
                 src_offset += nb_samples;
                 dst_offset += nb_samples;
                 if (cur_frame_samples <= src_offset) {
-                    av_frame_free(&s->frames[nb_frame]);
+                    zn_av_frame_free(&s->frames[nb_frame]);
                     nb_frame++;
                     src_offset = 0;
                 }
@@ -1825,7 +1825,7 @@ static int showspectrumpic_request_frame(AVFilterLink *outlink)
             }
         }
 
-        av_frame_free(&fin);
+        zn_av_frame_free(&fin);
         s->outpicref->pts = 0;
 
         if (s->legend)

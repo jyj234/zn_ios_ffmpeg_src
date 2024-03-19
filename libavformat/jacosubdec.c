@@ -169,7 +169,7 @@ static int jacosub_read_header(AVFormatContext *s)
     int merge_line = 0;
     int i, ret;
 
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 64, 1, 100);

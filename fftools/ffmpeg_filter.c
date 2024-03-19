@@ -213,7 +213,7 @@ static int sub2video_get_blank_frame(InputFilterPriv *ifp)
     frame->height = ifp->height;
     frame->format = ifp->format;
 
-    ret = av_frame_get_buffer(frame, 0);
+    ret = zn_av_frame_get_buffer(frame, 0);
     if (ret < 0)
         return ret;
 
@@ -265,7 +265,7 @@ static void sub2video_push_ref(InputFilterPriv *ifp, int64_t pts)
                                        AV_BUFFERSRC_FLAG_PUSH);
     if (ret != AVERROR_EOF && ret < 0)
         av_log(NULL, AV_LOG_WARNING, "Error while add the frame to buffer source(%s).\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
 }
 
 static void sub2video_update(InputFilterPriv *ifp, int64_t heartbeat_pts,
@@ -400,7 +400,7 @@ static int read_binary(const char *path, uint8_t **data, int *len)
     ret = avio_open2(&io, path, AVIO_FLAG_READ, &int_cb, NULL);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot open file '%s': %s\n",
-               path, av_err2str(ret));
+               path, zn_av_err2str(ret));
         return ret;
     }
 
@@ -430,7 +430,7 @@ static int read_binary(const char *path, uint8_t **data, int *len)
 fail:
     avio_close(io);
     if (ret < 0) {
-        av_freep(data);
+        zn_av_freep(data);
         *len = 0;
     }
     return ret;
@@ -463,7 +463,7 @@ static int filter_opt_apply(AVFilterContext *f, const char *key, const char *val
             goto err_load;
 
         ret = av_opt_set_bin(f, key, data, len, AV_OPT_SEARCH_CHILDREN);
-        av_freep(&data);
+        zn_av_freep(&data);
     } else {
         char *data = file_read(val);
         if (!data) {
@@ -472,7 +472,7 @@ static int filter_opt_apply(AVFilterContext *f, const char *key, const char *val
         }
 
         ret = av_opt_set(f, key, data, AV_OPT_SEARCH_CHILDREN);
-        av_freep(&data);
+        zn_av_freep(&data);
     }
     if (ret < 0)
         goto err_apply;
@@ -482,7 +482,7 @@ static int filter_opt_apply(AVFilterContext *f, const char *key, const char *val
 err_apply:
     av_log(NULL, AV_LOG_ERROR,
            "Error applying option '%s' to filter '%s': %s\n",
-           key, f->filter->name, av_err2str(ret));
+           key, f->filter->name, zn_av_err2str(ret));
     return ret;
 err_load:
     av_log(NULL, AV_LOG_ERROR,
@@ -614,7 +614,7 @@ static int ifilter_bind_ist(InputFilter *ifilter, InputStream *ist)
         return ret;
 
     if (ifp->type_src == AVMEDIA_TYPE_SUBTITLE) {
-        ifp->sub2video.frame = av_frame_alloc();
+        ifp->sub2video.frame = zn_av_frame_alloc();
         if (!ifp->sub2video.frame)
             return AVERROR(ENOMEM);
     }
@@ -629,7 +629,7 @@ static int set_channel_layout(OutputFilterPriv *f, OutputStream *ost)
 
     if (ost->enc_ctx->ch_layout.order != AV_CHANNEL_ORDER_UNSPEC) {
         /* Pass the layout through for all orders but UNSPEC */
-        err = av_channel_layout_copy(&f->ch_layout, &ost->enc_ctx->ch_layout);
+        err = zn_av_channel_layout_copy(&f->ch_layout, &ost->enc_ctx->ch_layout);
         if (err < 0)
             return err;
         return 0;
@@ -639,7 +639,7 @@ static int set_channel_layout(OutputFilterPriv *f, OutputStream *ost)
     if (!c->ch_layouts) {
         /* Use the default native layout for the requested amount of channels when the
            encoder doesn't have a list of supported layouts */
-        av_channel_layout_default(&f->ch_layout, ost->enc_ctx->ch_layout.nb_channels);
+        zn_av_channel_layout_default(&f->ch_layout, ost->enc_ctx->ch_layout.nb_channels);
         return 0;
     }
     /* Encoder has a list of supported layouts. Pick the first layout in it with the
@@ -650,14 +650,14 @@ static int set_channel_layout(OutputFilterPriv *f, OutputStream *ost)
     }
     if (c->ch_layouts[i].nb_channels) {
         /* Use it if one is found */
-        err = av_channel_layout_copy(&f->ch_layout, &c->ch_layouts[i]);
+        err = zn_av_channel_layout_copy(&f->ch_layout, &c->ch_layouts[i]);
         if (err < 0)
             return err;
         return 0;
     }
     /* If no layout for the amount of channels requested was found, use the default
        native layout for it. */
-    av_channel_layout_default(&f->ch_layout, ost->enc_ctx->ch_layout.nb_channels);
+    zn_av_channel_layout_default(&f->ch_layout, ost->enc_ctx->ch_layout.nb_channels);
 
     return 0;
 }
@@ -673,7 +673,7 @@ int ofilter_bind_ost(OutputFilter *ofilter, OutputStream *ost)
     av_assert0(!ofilter->ost);
 
     ofilter->ost = ost;
-    av_freep(&ofilter->linklabel);
+    zn_av_freep(&ofilter->linklabel);
 
     ofp->ts_offset     = of->start_time == AV_NOPTS_VALUE ? 0 : of->start_time;
     ofp->enc_timebase = ost->enc_timebase;
@@ -714,7 +714,7 @@ int ofilter_bind_ost(OutputFilter *ofilter, OutputStream *ost)
 
         fgp->disable_conversions |= ost->keep_pix_fmt;
 
-        ofp->fps.last_frame = av_frame_alloc();
+        ofp->fps.last_frame = zn_av_frame_alloc();
         if (!ofp->fps.last_frame)
             return AVERROR(ENOMEM);
 
@@ -763,7 +763,7 @@ int ofilter_bind_ost(OutputFilter *ofilter, OutputStream *ost)
         ret = configure_filtergraph(fg);
         if (ret < 0) {
             av_log(fg, AV_LOG_ERROR, "Error configuring filter graph: %s\n",
-                   av_err2str(ret));
+                   zn_av_err2str(ret));
             return ret;
         }
     }
@@ -783,7 +783,7 @@ static InputFilter *ifilter_alloc(FilterGraph *fg)
     ifilter         = &ifp->ifilter;
     ifilter->graph  = fg;
 
-    ifp->frame = av_frame_alloc();
+    ifp->frame = zn_av_frame_alloc();
     if (!ifp->frame)
         return NULL;
 
@@ -814,39 +814,39 @@ void fg_free(FilterGraph **pfg)
         if (ifp->frame_queue) {
             AVFrame *frame;
             while (av_fifo_read(ifp->frame_queue, &frame, 1) >= 0)
-                av_frame_free(&frame);
+                zn_av_frame_free(&frame);
             av_fifo_freep2(&ifp->frame_queue);
         }
-        av_frame_free(&ifp->sub2video.frame);
+        zn_av_frame_free(&ifp->sub2video.frame);
 
         av_channel_layout_uninit(&ifp->fallback.ch_layout);
 
-        av_frame_free(&ifp->frame);
+        zn_av_frame_free(&ifp->frame);
 
         av_buffer_unref(&ifp->hw_frames_ctx);
-        av_freep(&ifp->linklabel);
-        av_freep(&ifilter->name);
-        av_freep(&fg->inputs[j]);
+        zn_av_freep(&ifp->linklabel);
+        zn_av_freep(&ifilter->name);
+        zn_av_freep(&fg->inputs[j]);
     }
-    av_freep(&fg->inputs);
+    zn_av_freep(&fg->inputs);
     for (int j = 0; j < fg->nb_outputs; j++) {
         OutputFilter *ofilter = fg->outputs[j];
         OutputFilterPriv *ofp = ofp_from_ofilter(ofilter);
 
-        av_frame_free(&ofp->fps.last_frame);
+        zn_av_frame_free(&ofp->fps.last_frame);
 
-        av_freep(&ofilter->linklabel);
-        av_freep(&ofilter->name);
+        zn_av_freep(&ofilter->linklabel);
+        zn_av_freep(&ofilter->name);
         av_channel_layout_uninit(&ofp->ch_layout);
-        av_freep(&fg->outputs[j]);
+        zn_av_freep(&fg->outputs[j]);
     }
-    av_freep(&fg->outputs);
-    av_freep(&fgp->graph_desc);
+    zn_av_freep(&fg->outputs);
+    zn_av_freep(&fgp->graph_desc);
 
-    av_frame_free(&fgp->frame);
-    av_frame_free(&fgp->frame_enc);
+    zn_av_frame_free(&fgp->frame);
+    zn_av_frame_free(&fgp->frame_enc);
 
-    av_freep(pfg);
+    zn_av_freep(pfg);
 }
 
 static const char *fg_item_name(void *obj)
@@ -887,8 +887,8 @@ int fg_create(FilterGraph **pfg, char *graph_desc)
 
     snprintf(fgp->log_name, sizeof(fgp->log_name), "fc#%d", fg->index);
 
-    fgp->frame     = av_frame_alloc();
-    fgp->frame_enc = av_frame_alloc();
+    fgp->frame     = zn_av_frame_alloc();
+    fgp->frame_enc = zn_av_frame_alloc();
     if (!fgp->frame || !fgp->frame_enc)
         return AVERROR(ENOMEM);
 
@@ -1267,7 +1267,7 @@ static int configure_output_audio_filter(FilterGraph *fg, OutputFilter *ofilter,
     if (ost->audio_channels_mapped) {
         AVChannelLayout mapped_layout = { 0 };
         int i;
-        av_channel_layout_default(&mapped_layout, ost->audio_channels_mapped);
+        zn_av_channel_layout_default(&mapped_layout, ost->audio_channels_mapped);
         av_channel_layout_describe_bprint(&mapped_layout, &args);
         for (i = 0; i < ost->audio_channels_mapped; i++)
             if (ost->audio_channels_map[i] != -1)
@@ -1435,7 +1435,7 @@ static int configure_input_video_filter(FilterGraph *fg, InputFilter *ifilter,
     ret = av_buffersrc_parameters_set(ifp->filter, par);
     if (ret < 0)
         goto fail;
-    av_freep(&par);
+    zn_av_freep(&par);
     last_filter = ifp->filter;
 
     desc = av_pix_fmt_desc_get(ifp->format);
@@ -1500,7 +1500,7 @@ static int configure_input_video_filter(FilterGraph *fg, InputFilter *ifilter,
         return ret;
     return 0;
 fail:
-    av_freep(&par);
+    zn_av_freep(&par);
 
     return ret;
 }
@@ -1648,7 +1648,7 @@ static int configure_filtergraph(FilterGraph *fg)
             if (ret < 0)
                 goto fail;
             av_opt_set(fg->graph, "aresample_swr_opts", args, 0);
-            av_free(args);
+            zn_av_free(args);
         }
     } else {
         fg->graph->nb_threads = filter_complex_nbthreads;
@@ -1723,7 +1723,7 @@ static int configure_filtergraph(FilterGraph *fg)
             } else {
                 ret = av_buffersrc_add_frame(ifp->filter, tmp);
             }
-            av_frame_free(&tmp);
+            zn_av_frame_free(&tmp);
             if (ret < 0)
                 goto fail;
         }
@@ -1761,7 +1761,7 @@ int ifilter_parameters_from_dec(InputFilter *ifilter, const AVCodecContext *dec)
         ifp->fallback.format                 = dec->sample_fmt;
         ifp->fallback.sample_rate            = dec->sample_rate;
 
-        ret = av_channel_layout_copy(&ifp->fallback.ch_layout, &dec->ch_layout);
+        ret = zn_av_channel_layout_copy(&ifp->fallback.ch_layout, &dec->ch_layout);
         if (ret < 0)
             return ret;
     } else {
@@ -1797,7 +1797,7 @@ static int ifilter_parameters_from_frame(InputFilter *ifilter, const AVFrame *fr
     ifp->sample_aspect_ratio = frame->sample_aspect_ratio;
 
     ifp->sample_rate         = frame->sample_rate;
-    ret = av_channel_layout_copy(&ifp->ch_layout, &frame->ch_layout);
+    ret = zn_av_channel_layout_copy(&ifp->ch_layout, &frame->ch_layout);
     if (ret < 0)
         return ret;
 
@@ -1835,7 +1835,7 @@ void fg_send_command(FilterGraph *fg, double time, const char *target,
     } else {
         ret = avfilter_graph_queue_command(fg->graph, target, command, arg, 0, time);
         if (ret < 0)
-            fprintf(stderr, "Queuing command failed with error %s\n", av_err2str(ret));
+            fprintf(stderr, "Queuing command failed with error %s\n", zn_av_err2str(ret));
     }
 }
 
@@ -1887,7 +1887,7 @@ static int choose_out_timebase(OutputFilterPriv *ofp, AVFrame *frame)
         }
 
         if (fps->framerate_max.num &&
-            (av_q2d(fr) > av_q2d(fps->framerate_max) ||
+            (zn_av_q2d(fr) > zn_av_q2d(fps->framerate_max) ||
             !fr.den))
             fr = fps->framerate_max;
     }
@@ -1979,7 +1979,7 @@ static void video_sync_process(OutputFilterPriv *ofp, AVFrame *frame,
         goto finish;
     }
 
-    duration = frame->duration * av_q2d(frame->time_base) / av_q2d(ofp->tb_out);
+    duration = frame->duration * zn_av_q2d(frame->time_base) / zn_av_q2d(ofp->tb_out);
 
     sync_ipts = adjust_frame_pts_to_encoder_tb(frame, ofp->tb_out, ofp->ts_offset);
     /* delta0 is the "drift" between the input frame and
@@ -2166,7 +2166,7 @@ static int fg_output_step(OutputFilterPriv *ofp, int flush)
     } else if (ret < 0) {
         av_log(fgp, AV_LOG_WARNING,
                "Error in retrieving a frame from the filtergraph: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         return ret;
     }
     if (ost->finished) {
@@ -2296,7 +2296,7 @@ int ifilter_sub2video(InputFilter *ifilter, const AVFrame *frame)
 
         ret = av_fifo_write(ifp->frame_queue, &tmp, 1);
         if (ret < 0) {
-            av_frame_free(&tmp);
+            zn_av_frame_free(&tmp);
             return ret;
         }
     }
@@ -2327,7 +2327,7 @@ int ifilter_send_eof(InputFilter *ifilter, int64_t pts, AVRational tb)
             ifp->height                 = ifp->fallback.height;
             ifp->sample_aspect_ratio    = ifp->fallback.sample_aspect_ratio;
 
-            ret = av_channel_layout_copy(&ifp->ch_layout,
+            ret = zn_av_channel_layout_copy(&ifp->ch_layout,
                                          &ifp->fallback.ch_layout);
             if (ret < 0)
                 return ret;
@@ -2402,14 +2402,14 @@ int ifilter_send_frame(InputFilter *ifilter, AVFrame *frame, int keep_reference)
 
             ret = av_fifo_write(ifp->frame_queue, &tmp, 1);
             if (ret < 0)
-                av_frame_free(&tmp);
+                zn_av_frame_free(&tmp);
 
             return ret;
         }
 
         ret = reap_filters(fg, 0);
         if (ret < 0 && ret != AVERROR_EOF) {
-            av_log(fg, AV_LOG_ERROR, "Error while filtering: %s\n", av_err2str(ret));
+            av_log(fg, AV_LOG_ERROR, "Error while filtering: %s\n", zn_av_err2str(ret));
             return ret;
         }
 
@@ -2442,7 +2442,7 @@ int ifilter_send_frame(InputFilter *ifilter, AVFrame *frame, int keep_reference)
     if (ret < 0) {
         av_frame_unref(frame);
         if (ret != AVERROR_EOF)
-            av_log(fg, AV_LOG_ERROR, "Error while filtering: %s\n", av_err2str(ret));
+            av_log(fg, AV_LOG_ERROR, "Error while filtering: %s\n", zn_av_err2str(ret));
         return ret;
     }
 
@@ -2499,7 +2499,7 @@ int fg_transcode_step(FilterGraph *graph, InputStream **best_ist)
 
                 frame->sample_rate = ofp->sample_rate;
                 if (ofp->ch_layout.nb_channels) {
-                    ret = av_channel_layout_copy(&frame->ch_layout, &ofp->ch_layout);
+                    ret = zn_av_channel_layout_copy(&frame->ch_layout, &ofp->ch_layout);
                     if (ret < 0)
                         return ret;
                 }

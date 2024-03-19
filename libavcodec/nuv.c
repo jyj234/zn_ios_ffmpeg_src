@@ -308,7 +308,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     NuvContext *c  = avctx->priv_data;
     int ret;
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 
@@ -335,8 +335,8 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     NuvContext *c = avctx->priv_data;
 
-    av_freep(&c->decomp_buf);
-    av_frame_free(&c->pic);
+    zn_av_freep(&c->decomp_buf);
+    zn_av_frame_free(&c->pic);
 
     return 0;
 }

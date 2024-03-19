@@ -98,7 +98,7 @@ CFDataRef ff_videotoolbox_vpcc_extradata_create(AVCodecContext *avctx)
     av_assert0(p - vt_extradata == vt_extradata_size);
 
     data = CFDataCreate(kCFAllocatorDefault, vt_extradata, vt_extradata_size);
-    av_free(vt_extradata);
+    zn_av_free(vt_extradata);
     return data;
 }
 

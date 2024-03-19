@@ -122,7 +122,7 @@ static int my_ass_subtitle_header(AVCodecContext *avctx)
     if (!new_header)
         return AVERROR(ENOMEM);
 
-    av_free(avctx->subtitle_header);
+    zn_av_free(avctx->subtitle_header);
     avctx->subtitle_header = new_header;
     avctx->subtitle_header_size = strlen(new_header);
     return 0;
@@ -141,10 +141,10 @@ static int chop_spaces_utf8(const unsigned char* t, int len)
 
 static void subtitle_rect_free(AVSubtitleRect **sub_rect)
 {
-    av_freep(&(*sub_rect)->data[0]);
-    av_freep(&(*sub_rect)->data[1]);
-    av_freep(&(*sub_rect)->ass);
-    av_freep(sub_rect);
+    zn_av_freep(&(*sub_rect)->data[0]);
+    zn_av_freep(&(*sub_rect)->data[1]);
+    zn_av_freep(&(*sub_rect)->ass);
+    zn_av_freep(sub_rect);
 }
 
 static char *create_ass_text(TeletextContext *ctx, const char *text)
@@ -180,7 +180,7 @@ static int gen_sub_text(TeletextContext *ctx, AVSubtitleRect *sub_rect, vbi_page
                                    page->columns, page->rows-chop_top);
     if (sz <= 0) {
         av_log(ctx, AV_LOG_ERROR, "vbi_print error\n");
-        av_free(vbi_text);
+        zn_av_free(vbi_text);
         return AVERROR_EXTERNAL;
     }
     vbi_text[sz] = '\0';
@@ -208,7 +208,7 @@ static int gen_sub_text(TeletextContext *ctx, AVSubtitleRect *sub_rect, vbi_page
     } else {
         av_bprintf(&buf, "%s\n", vbi_text);
     }
-    av_free(vbi_text);
+    zn_av_free(vbi_text);
 
     if (!av_bprint_is_complete(&buf)) {
         av_bprint_finalize(&buf, NULL);
@@ -485,7 +485,7 @@ static int gen_sub_bitmap(TeletextContext *ctx, AVSubtitleRect *sub_rect, vbi_pa
     sub_rect->nb_colors = ctx->opacity > 0 && ctx->opacity < 255 ? 2 * VBI_NB_COLORS : VBI_NB_COLORS;
     sub_rect->data[1] = av_mallocz(AVPALETTE_SIZE);
     if (!sub_rect->data[1]) {
-        av_freep(&sub_rect->data[0]);
+        zn_av_freep(&sub_rect->data[0]);
         return AVERROR(ENOMEM);
     }
     for (ci = 0; ci < VBI_NB_COLORS; ci++) {
@@ -561,7 +561,7 @@ static void handler(vbi_event *ev, void *user_data)
                         break;
                 }
                 if (res < 0) {
-                    av_freep(&cur_page->sub_rect);
+                    zn_av_freep(&cur_page->sub_rect);
                     ctx->handler_ret = res;
                 } else {
                     ctx->pages[ctx->nb_pages++] = *cur_page;
@@ -767,7 +767,7 @@ static int teletext_close_decoder(AVCodecContext *avctx)
     ff_dlog(avctx, "lines_total=%u\n", ctx->lines_processed);
     while (ctx->nb_pages)
         subtitle_rect_free(&ctx->pages[--ctx->nb_pages].sub_rect);
-    av_freep(&ctx->pages);
+    zn_av_freep(&ctx->pages);
 
     vbi_decoder_delete(ctx->vbi);
     ctx->vbi = NULL;

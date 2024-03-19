@@ -43,7 +43,7 @@ static int svs_read_header(AVFormatContext *s)
     AVStream *st;
     uint32_t pitch;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

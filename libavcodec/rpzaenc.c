@@ -791,7 +791,7 @@ static int rpza_encode_init(AVCodecContext *avctx)
     s->frame_width = avctx->width;
     s->frame_height = avctx->height;
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 
@@ -818,7 +818,7 @@ static int rpza_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
         s->prev_frame->format = pict->format;
         s->prev_frame->width = pict->width;
         s->prev_frame->height = pict->height;
-        ret = av_frame_get_buffer(s->prev_frame, 0);
+        ret = zn_av_frame_get_buffer(s->prev_frame, 0);
         if (ret < 0)
             return ret;
     } else {
@@ -847,7 +847,7 @@ static int rpza_encode_end(AVCodecContext *avctx)
 {
     RpzaContext *s = (RpzaContext *)avctx->priv_data;
 
-    av_frame_free(&s->prev_frame);
+    zn_av_frame_free(&s->prev_frame);
 
     return 0;
 }

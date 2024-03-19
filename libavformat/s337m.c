@@ -175,7 +175,7 @@ static int s337m_read_packet(AVFormatContext *s, AVPacket *pkt)
         bswap_buf24(pkt->data, pkt->size);
 
     if (!s->nb_streams) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         if (!st) {
             return AVERROR(ENOMEM);
         }

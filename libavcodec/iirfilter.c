@@ -318,17 +318,17 @@ static void iir_filter_flt(const struct FFIIRFilterCoeffs *c,
 
 av_cold void ff_iir_filter_free_statep(struct FFIIRFilterState **state)
 {
-    av_freep(state);
+    zn_av_freep(state);
 }
 
 av_cold void ff_iir_filter_free_coeffsp(struct FFIIRFilterCoeffs **coeffsp)
 {
     struct FFIIRFilterCoeffs *coeffs = *coeffsp;
     if (coeffs) {
-        av_freep(&coeffs->cx);
-        av_freep(&coeffs->cy);
+        zn_av_freep(&coeffs->cx);
+        zn_av_freep(&coeffs->cy);
     }
-    av_freep(coeffsp);
+    zn_av_freep(coeffsp);
 }
 
 void ff_iir_filter_init(FFIIRFilterContext *f) {

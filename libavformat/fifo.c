@@ -135,14 +135,14 @@ static int fifo_thread_write_header(FifoThreadContext *ctx)
     ret = ff_format_output_open(avf2, avf->url, &format_options);
     if (ret < 0) {
         av_log(avf, AV_LOG_ERROR, "Error opening %s: %s\n", avf->url,
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto end;
     }
 
     for (i = 0;i < avf2->nb_streams; i++)
         ffstream(avf2->streams[i])->cur_dts = 0;
 
-    ret = avformat_write_header(avf2, &format_options);
+    ret = zn_avformat_write_header(avf2, &format_options);
     if (!ret)
         ctx->header_written = 1;
 
@@ -195,7 +195,7 @@ static int fifo_thread_write_packet(FifoThreadContext *ctx, AVPacket *pkt)
             av_log(avf, AV_LOG_VERBOSE, "Keyframe received, recovering...\n");
         } else {
             av_log(avf, AV_LOG_VERBOSE, "Dropping non-keyframe packet\n");
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return 0;
         }
     }
@@ -210,7 +210,7 @@ static int fifo_thread_write_packet(FifoThreadContext *ctx, AVPacket *pkt)
 
     ret = av_write_frame(avf2, pkt);
     if (ret >= 0) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     } else {
         // avoid scaling twice
         pkt->pts = orig_pts;
@@ -230,7 +230,7 @@ static int fifo_thread_write_trailer(FifoThreadContext *ctx)
     if (!ctx->header_written)
         return 0;
 
-    ret = av_write_trailer(avf2);
+    ret = zn_av_write_trailer(avf2);
     ff_format_io_close(avf2, &avf2->pb);
 
     return ret;
@@ -287,7 +287,7 @@ static void free_message(void *msg)
     FifoMessage *fifo_msg = msg;
 
     if (fifo_msg->type == FIFO_WRITE_PACKET)
-        av_packet_unref(&fifo_msg->pkt);
+        zn_av_packet_unref(&fifo_msg->pkt);
 }
 
 static int fifo_thread_process_recovery_failure(FifoThreadContext *ctx, AVPacket *pkt,
@@ -298,7 +298,7 @@ static int fifo_thread_process_recovery_failure(FifoThreadContext *ctx, AVPacket
     int ret;
 
     av_log(avf, AV_LOG_INFO, "Recovery failed: %s\n",
-           av_err2str(err_no));
+           zn_av_err2str(err_no));
 
     if (fifo->recovery_wait_streamtime) {
         if (pkt->pts == AV_NOPTS_VALUE)
@@ -412,7 +412,7 @@ static int fifo_thread_recover(FifoThreadContext *ctx, FifoMessage *msg, int err
 
     if (ret == AVERROR(EAGAIN) && fifo->drop_pkts_on_overflow) {
         if (msg->type == FIFO_WRITE_PACKET)
-            av_packet_unref(&msg->pkt);
+            zn_av_packet_unref(&msg->pkt);
         ret = 0;
     }
 
@@ -489,7 +489,7 @@ static int fifo_mux_init(AVFormatContext *avf, const AVOutputFormat *oformat,
     AVFormatContext *avf2;
     int ret = 0, i;
 
-    ret = avformat_alloc_output_context2(&avf2, oformat, NULL, filename);
+    ret = zn_avformat_alloc_output_context2(&avf2, oformat, NULL, filename);
     if (ret < 0)
         return ret;
 
@@ -533,7 +533,7 @@ static int fifo_init(AVFormatContext *avf)
     atomic_init(&fifo->queue_duration, 0);
     fifo->last_sent_dts = AV_NOPTS_VALUE;
 
-    oformat = av_guess_format(fifo->format, avf->url, NULL);
+    oformat = zn_av_guess_format(fifo->format, avf->url, NULL);
     if (!oformat) {
         ret = AVERROR_MUXER_NOT_FOUND;
         return ret;
@@ -566,7 +566,7 @@ static int fifo_write_header(AVFormatContext *avf)
     ret = pthread_create(&fifo->writer_thread, NULL, fifo_consumer_thread, avf);
     if (ret) {
         av_log(avf, AV_LOG_ERROR, "Failed to start thread: %s\n",
-               av_err2str(AVERROR(ret)));
+               zn_av_err2str(AVERROR(ret)));
         ret = AVERROR(ret);
     }
 
@@ -613,7 +613,7 @@ static int fifo_write_packet(AVFormatContext *avf, AVPacket *pkt)
     return ret;
 fail:
     if (pkt)
-        av_packet_unref(&msg.pkt);
+        zn_av_packet_unref(&msg.pkt);
     return ret;
 }
 
@@ -648,7 +648,7 @@ static int fifo_write_trailer(AVFormatContext *avf)
     ret = pthread_join(fifo->writer_thread, NULL);
     if (ret < 0) {
         av_log(avf, AV_LOG_ERROR, "pthread join error: %s\n",
-               av_err2str(AVERROR(ret)));
+               zn_av_err2str(AVERROR(ret)));
         return AVERROR(ret);
     }
 
@@ -660,7 +660,7 @@ static void fifo_deinit(AVFormatContext *avf)
 {
     FifoContext *fifo = avf->priv_data;
 
-    avformat_free_context(fifo->avf);
+    zn_avformat_free_context(fifo->avf);
     av_thread_message_queue_free(&fifo->queue);
     if (fifo->overflow_flag_lock_initialized)
         pthread_mutex_destroy(&fifo->overflow_flag_lock);

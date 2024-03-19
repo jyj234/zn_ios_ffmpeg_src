@@ -307,7 +307,7 @@ static int flac_fifo_alloc(FifoBuffer *f, size_t size)
 
 static void flac_fifo_free(FifoBuffer *f)
 {
-    av_freep(&f->buffer);
+    zn_av_freep(&f->buffer);
     memset(f, 0, sizeof(*f));
 }
 
@@ -715,7 +715,7 @@ static int flac_parse(AVCodecParserContext *s, AVCodecContext *avctx,
                        curr->max_score, curr->offset, curr->next->offset);
             }
             temp = curr->next;
-            av_free(curr);
+            zn_av_free(curr);
             fpc->nb_headers_buffered--;
         }
         /* Release returned data from ring buffer. */
@@ -738,11 +738,11 @@ static int flac_parse(AVCodecParserContext *s, AVCodecContext *avctx,
 
         for (curr = fpc->headers; curr != fpc->best_header; curr = temp) {
             temp = curr->next;
-            av_free(curr);
+            zn_av_free(curr);
             fpc->nb_headers_buffered--;
         }
         fpc->headers = fpc->best_header->next;
-        av_freep(&fpc->best_header);
+        zn_av_freep(&fpc->best_header);
         fpc->nb_headers_buffered--;
     }
 
@@ -893,12 +893,12 @@ static void flac_parse_close(AVCodecParserContext *c)
 
     while (curr) {
         temp = curr->next;
-        av_free(curr);
+        zn_av_free(curr);
         curr = temp;
     }
     fpc->headers = NULL;
     flac_fifo_free(&fpc->fifo_buf);
-    av_freep(&fpc->wrap_buf);
+    zn_av_freep(&fpc->wrap_buf);
 }
 
 const AVCodecParser ff_flac_parser = {

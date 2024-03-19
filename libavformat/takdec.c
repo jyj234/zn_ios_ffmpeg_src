@@ -58,7 +58,7 @@ static int tak_read_header(AVFormatContext *s)
     uint8_t *buffer = NULL;
     int ret;
 
-    st = avformat_new_stream(s, 0);
+    st = zn_avformat_new_stream(s, 0);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -95,13 +95,13 @@ static int tak_read_header(AVFormatContext *s)
 
             ffio_init_checksum(pb, tak_check_crc, 0xCE04B7U);
             if (avio_read(pb, buffer, size - 3) != size - 3) {
-                av_freep(&buffer);
+                zn_av_freep(&buffer);
                 return AVERROR(EIO);
             }
             if (ffio_get_checksum(s->pb) != avio_rb24(pb)) {
                 av_log(s, AV_LOG_ERROR, "%d metadata block CRC error.\n", type);
                 if (s->error_recognition & AV_EF_EXPLODE) {
-                    av_freep(&buffer);
+                    zn_av_freep(&buffer);
                     return AVERROR_INVALIDDATA;
                 }
             }
@@ -173,17 +173,17 @@ static int tak_read_header(AVFormatContext *s)
             tc->mlast_frame = 1;
             tc->data_end    = get_bits64(&gb, TAK_LAST_FRAME_POS_BITS) +
                               get_bits(&gb, TAK_LAST_FRAME_SIZE_BITS);
-            av_freep(&buffer);
+            zn_av_freep(&buffer);
         } else if (type == TAK_METADATA_ENCODER) {
             av_log(s, AV_LOG_VERBOSE, "encoder version: %0X\n",
                    AV_RL24(buffer));
-            av_freep(&buffer);
+            zn_av_freep(&buffer);
         }
     }
 
     return AVERROR_EOF;
 end:
-    av_freep(&buffer);
+    zn_av_freep(&buffer);
     return ret;
 }
 

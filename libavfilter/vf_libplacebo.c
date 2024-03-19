@@ -58,7 +58,7 @@ typedef struct pl_options_t {
 } *pl_options;
 
 #define pl_options_alloc(log) av_mallocz(sizeof(struct pl_options_t))
-#define pl_options_free(ptr)  av_freep(ptr)
+#define pl_options_free(ptr)  zn_av_freep(ptr)
 #endif
 
 enum {
@@ -724,7 +724,7 @@ static int init_vulkan(AVFilterContext *avctx, const AVVulkanDeviceContext *hwct
     }
 
     /* Initialize inputs */
-    s->inputs = av_calloc(s->nb_inputs, sizeof(*s->inputs));
+    s->inputs = zn_av_calloc(s->nb_inputs, sizeof(*s->inputs));
     if (!s->inputs)
         return AVERROR(ENOMEM);
     for (int i = 0; i < s->nb_inputs; i++)
@@ -748,7 +748,7 @@ static void libplacebo_uninit(AVFilterContext *avctx)
     if (s->inputs) {
         for (int i = 0; i < s->nb_inputs; i++)
             input_uninit(&s->inputs[i]);
-        av_freep(&s->inputs);
+        zn_av_freep(&s->inputs);
     }
 
     pl_options_free(&s->opts);
@@ -800,7 +800,7 @@ static void update_crops(AVFilterContext *ctx, LibplaceboInput *in,
         // own the entire pl_queue, and hence, the pointed-at frames.
         struct pl_frame *image = (struct pl_frame *) in->mix.frames[i];
         const AVFrame *src = pl_get_mapped_avframe(image);
-        double image_pts = src->pts * av_q2d(in->link->time_base);
+        double image_pts = src->pts * zn_av_q2d(in->link->time_base);
 
         /* Update dynamic variables */
         s->var_values[VAR_IN_IDX] = s->var_values[VAR_IDX] = in->idx;
@@ -808,7 +808,7 @@ static void update_crops(AVFilterContext *ctx, LibplaceboInput *in,
         s->var_values[VAR_IN_H]   = s->var_values[VAR_IH] = in->link->h;
         s->var_values[VAR_A]      = (double) in->link->w / in->link->h;
         s->var_values[VAR_SAR]    = in->link->sample_aspect_ratio.num ?
-            av_q2d(in->link->sample_aspect_ratio) : 1.0;
+            zn_av_q2d(in->link->sample_aspect_ratio) : 1.0;
         s->var_values[VAR_IN_T]   = s->var_values[VAR_T]  = image_pts;
         s->var_values[VAR_OUT_T]  = s->var_values[VAR_OT] = target_pts;
         s->var_values[VAR_N]      = ctx->outputs[0]->frame_count_out;
@@ -846,7 +846,7 @@ static void update_crops(AVFilterContext *ctx, LibplaceboInput *in,
             target->crop.y1 = target->crop.y0 + s->var_values[VAR_POS_H];
             if (s->normalize_sar) {
                 float aspect = pl_rect2df_aspect(&image->crop);
-                aspect *= av_q2d(in->link->sample_aspect_ratio);
+                aspect *= zn_av_q2d(in->link->sample_aspect_ratio);
                 pl_rect2df_aspect_set(&target->crop, aspect, s->pad_crop_ratio);
             }
         }
@@ -950,7 +950,7 @@ static int output_frame(AVFilterContext *ctx, int64_t pts)
         if (in->qstatus != PL_QUEUE_OK)
             continue;
         opts->params.skip_caching_single_frame = high_fps;
-        update_crops(ctx, in, &target, out->pts * av_q2d(outlink->time_base));
+        update_crops(ctx, in, &target, out->pts * zn_av_q2d(outlink->time_base));
         pl_render_image_mix(in->renderer, &in->mix, &target, &opts->params);
         opts->params.skip_target_clearing = true;
         opts->params.blend_params = &pl_alpha_overlay;
@@ -965,7 +965,7 @@ static int output_frame(AVFilterContext *ctx, int64_t pts)
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&out);
+    zn_av_frame_free(&out);
     return err;
 }
 
@@ -984,7 +984,7 @@ static bool map_frame(pl_gpu gpu, pl_tex *tex,
     if (!s->apply_filmgrain)
         out->film_grain.type = PL_FILM_GRAIN_NONE;
 
-    av_frame_free(&avframe);
+    zn_av_frame_free(&avframe);
     return ok;
 }
 
@@ -997,7 +997,7 @@ static void unmap_frame(pl_gpu gpu, struct pl_frame *frame,
 static void discard_frame(const struct pl_source_frame *src)
 {
     AVFrame *avframe = src->frame_data;
-    av_frame_free(&avframe);
+    zn_av_frame_free(&avframe);
 }
 
 static int handle_input(AVFilterContext *ctx, LibplaceboInput *input)
@@ -1011,8 +1011,8 @@ static int handle_input(AVFilterContext *ctx, LibplaceboInput *input)
     while ((ret = ff_inlink_consume_frame(input->link, &in)) > 0) {
         in->opaque = s;
         pl_queue_push(input->queue, &(struct pl_source_frame) {
-            .pts         = in->pts * av_q2d(input->link->time_base),
-            .duration    = in->duration * av_q2d(input->link->time_base),
+            .pts         = in->pts * zn_av_q2d(input->link->time_base),
+            .duration    = in->duration * zn_av_q2d(input->link->time_base),
             .first_field = pl_field_from_avframe(in),
             .frame_data  = in,
             .map         = map_frame,
@@ -1097,9 +1097,9 @@ static int libplacebo_activate(AVFilterContext *ctx)
             }
 
             in->qstatus = pl_queue_update(in->queue, &in->mix, pl_queue_params(
-                .pts            = out_pts * av_q2d(outlink->time_base),
+                .pts            = out_pts * zn_av_q2d(outlink->time_base),
                 .radius         = pl_frame_mix_radius(&s->opts->params),
-                .vsync_duration = av_q2d(av_inv_q(outlink->frame_rate)),
+                .vsync_duration = zn_av_q2d(av_inv_q(outlink->frame_rate)),
             ));
 
             switch (in->qstatus) {
@@ -1283,7 +1283,7 @@ static int libplacebo_config_output(AVFilterLink *outlink)
     s->var_values[VAR_OUT_W]    = s->var_values[VAR_OW] = outlink->w;
     s->var_values[VAR_OUT_H]    = s->var_values[VAR_OH] = outlink->h;
     s->var_values[VAR_DAR]      = outlink->sample_aspect_ratio.num ?
-        av_q2d(outlink->sample_aspect_ratio) : 1.0;
+        zn_av_q2d(outlink->sample_aspect_ratio) : 1.0;
     s->var_values[VAR_HSUB]     = 1 << desc->log2_chroma_w;
     s->var_values[VAR_VSUB]     = 1 << desc->log2_chroma_h;
     s->var_values[VAR_OHSUB]    = 1 << out_desc->log2_chroma_w;

@@ -136,10 +136,10 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ShowWavesContext *showwaves = ctx->priv;
 
-    av_frame_free(&showwaves->outpicref);
-    av_freep(&showwaves->buf_idy);
-    av_freep(&showwaves->history);
-    av_freep(&showwaves->fg);
+    zn_av_frame_free(&showwaves->outpicref);
+    zn_av_freep(&showwaves->buf_idy);
+    zn_av_freep(&showwaves->history);
+    zn_av_freep(&showwaves->fg);
 
     if (showwaves->single_pic) {
         struct frame_node *node = showwaves->audio_frames;
@@ -147,10 +147,10 @@ static av_cold void uninit(AVFilterContext *ctx)
             struct frame_node *tmp = node;
 
             node = node->next;
-            av_frame_free(&tmp->frame);
-            av_freep(&tmp);
+            zn_av_frame_free(&tmp->frame);
+            zn_av_freep(&tmp);
         }
-        av_freep(&showwaves->sum);
+        zn_av_freep(&showwaves->sum);
         showwaves->last_frame = NULL;
     }
 }
@@ -442,7 +442,7 @@ static int config_output(AVFilterLink *outlink)
                                                showwaves->n.num, showwaves->n.den);
     if (showwaves->history_nb_samples <= 0)
         return AVERROR(EINVAL);
-    showwaves->history = av_calloc(showwaves->history_nb_samples,
+    showwaves->history = zn_av_calloc(showwaves->history_nb_samples,
                                    sizeof(*showwaves->history));
     if (!showwaves->history)
         return AVERROR(ENOMEM);
@@ -453,7 +453,7 @@ static int config_output(AVFilterLink *outlink)
     outlink->sample_aspect_ratio = (AVRational){1,1};
 
     av_log(ctx, AV_LOG_VERBOSE, "s:%dx%d r:%f n:%f\n",
-           showwaves->w, showwaves->h, av_q2d(outlink->frame_rate), av_q2d(showwaves->n));
+           showwaves->w, showwaves->h, zn_av_q2d(outlink->frame_rate), zn_av_q2d(showwaves->n));
 
     switch (outlink->format) {
     case AV_PIX_FMT_GRAY8:
@@ -523,7 +523,7 @@ static int config_output(AVFilterLink *outlink)
         break;
     }
 
-    showwaves->fg = av_malloc_array(nb_channels, 4 * sizeof(*showwaves->fg));
+    showwaves->fg = zn_av_malloc_array(nb_channels, 4 * sizeof(*showwaves->fg));
     if (!showwaves->fg)
         return AVERROR(ENOMEM);
 
@@ -555,7 +555,7 @@ static int config_output(AVFilterLink *outlink)
         for (ch = 0; ch < nb_channels; ch++)
             showwaves->fg[4 * ch + 0] = x;
     }
-    av_free(colors);
+    zn_av_free(colors);
 
     return 0;
 }
@@ -764,7 +764,7 @@ static int showwaves_filter_frame(AVFilterLink *inlink, AVFrame *insamples)
         goto end;
     outpicref = showwaves->outpicref;
 end:
-    av_frame_free(&insamples);
+    zn_av_frame_free(&insamples);
     return ret;
 }
 
@@ -851,7 +851,7 @@ static int showwavespic_config_input(AVFilterLink *inlink)
     ShowWavesContext *showwaves = ctx->priv;
 
     if (showwaves->single_pic) {
-        showwaves->sum = av_calloc(inlink->ch_layout.nb_channels, sizeof(*showwaves->sum));
+        showwaves->sum = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*showwaves->sum));
         if (!showwaves->sum)
             return AVERROR(ENOMEM);
     }
@@ -894,7 +894,7 @@ static int showwavespic_filter_frame(AVFilterLink *inlink, AVFrame *insamples)
     }
 
 end:
-    av_frame_free(&insamples);
+    zn_av_frame_free(&insamples);
     return ret;
 }
 

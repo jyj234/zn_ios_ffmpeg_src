@@ -298,7 +298,7 @@ static av_cold int encode_end(AVCodecContext *avctx)
 {
     Msvideo1EncContext * const c = avctx->priv_data;
 
-    av_freep(&c->prev);
+    zn_av_freep(&c->prev);
     avpriv_elbg_free(&c->elbg);
 
     return 0;

@@ -224,7 +224,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
 
     s->bpp = avctx->bits_per_coded_sample >> 3;
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 
@@ -235,7 +235,7 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     WCMVContext *s = avctx->priv_data;
 
-    av_frame_free(&s->prev_frame);
+    zn_av_frame_free(&s->prev_frame);
     ff_inflate_end(&s->zstream);
 
     return 0;

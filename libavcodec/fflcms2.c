@@ -157,11 +157,11 @@ int ff_icc_profile_generate(FFIccContext *s,
         return ret;
 
     *out_profile = cmsCreateRGBProfileTHR(s->ctx,
-        &(cmsCIExyY) { av_q2d(prim->wp.x), av_q2d(prim->wp.y), 1.0 },
+        &(cmsCIExyY) { zn_av_q2d(prim->wp.x), zn_av_q2d(prim->wp.y), 1.0 },
         &(cmsCIExyYTRIPLE) {
-            .Red    = { av_q2d(prim->prim.r.x), av_q2d(prim->prim.r.y), 1.0 },
-            .Green  = { av_q2d(prim->prim.g.x), av_q2d(prim->prim.g.y), 1.0 },
-            .Blue   = { av_q2d(prim->prim.b.x), av_q2d(prim->prim.b.y), 1.0 },
+            .Red    = { zn_av_q2d(prim->prim.r.x), zn_av_q2d(prim->prim.r.y), 1.0 },
+            .Green  = { zn_av_q2d(prim->prim.g.x), zn_av_q2d(prim->prim.g.y), 1.0 },
+            .Blue   = { zn_av_q2d(prim->prim.b.x), zn_av_q2d(prim->prim.b.y), 1.0 },
         },
         (cmsToneCurve *[3]) { tonecurve, tonecurve, tonecurve }
     );
@@ -234,13 +234,13 @@ int ff_icc_profile_sanitize(FFIccContext *s, cmsHPROFILE profile)
                 av_log(s->avctx, AV_LOG_WARNING, "Invalid colorimetric ICCv4 "
                        "profile media white point tag (expected %.4f %.4f, "
                        "got %.4f %.4f)\n",
-                       av_q2d(wp_d50.x), av_q2d(wp_d50.y),
-                       av_q2d(wpxy.x), av_q2d(wpxy.y));
+                       zn_av_q2d(wp_d50.x), zn_av_q2d(wp_d50.y),
+                       zn_av_q2d(wpxy.x), zn_av_q2d(wpxy.y));
                 /* x+y+z = 1 */
                 z = av_sub_q(av_sub_q(av_make_q(1, 1), wp_d50.x), wp_d50.y);
-                fixed.X = av_q2d(av_div_q(wp_d50.x, wp_d50.y)) * white->Y;
+                fixed.X = zn_av_q2d(av_div_q(wp_d50.x, wp_d50.y)) * white->Y;
                 fixed.Y = white->Y;
-                fixed.Z = av_q2d(av_div_q(z, wp_d50.y)) * white->Y;
+                fixed.Z = zn_av_q2d(av_div_q(z, wp_d50.y)) * white->Y;
                 if (!cmsWriteTag(profile, cmsSigMediaWhitePointTag, &fixed))
                     return AVERROR_EXTERNAL;
             }

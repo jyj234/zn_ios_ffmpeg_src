@@ -95,13 +95,13 @@ old_flac_header (AVFormatContext * s, int idx)
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
     st->codecpar->codec_id = AV_CODEC_ID_FLAC;
 
-    avctx = avcodec_alloc_context3(NULL);
+    avctx = zn_avcodec_alloc_context3(NULL);
     if (!avctx) {
         ret = AVERROR(ENOMEM);
         goto fail;
     }
 
-    ret = avcodec_parameters_to_context(avctx, st->codecpar);
+    ret = zn_avcodec_parameters_to_context(avctx, st->codecpar);
     if (ret < 0)
         goto fail;
 

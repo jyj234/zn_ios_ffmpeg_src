@@ -104,7 +104,7 @@ static void flush_cache(AVCodecContext *avctx)
     int i;
 
     for (i = 0; i < ctx->objects.count; i++) {
-        av_freep(&ctx->objects.object[i].rle);
+        zn_av_freep(&ctx->objects.object[i].rle);
         ctx->objects.object[i].rle_buffer_size  = 0;
         ctx->objects.object[i].rle_remaining_len  = 0;
     }
@@ -166,7 +166,7 @@ static int decode_rle(AVCodecContext *avctx, AVSubtitleRect *rect,
 
     rle_bitmap_end = buf + buf_size;
 
-    rect->data[0] = av_malloc_array(rect->w, rect->h);
+    rect->data[0] = zn_av_malloc_array(rect->w, rect->h);
 
     if (!rect->data[0])
         return AVERROR(ENOMEM);
@@ -515,7 +515,7 @@ static int display_end_segment(AVCodecContext *avctx, AVSubtitle *sub,
     // Blank if last object_count was 0.
     if (!ctx->presentation.object_count)
         return 1;
-    sub->rects = av_calloc(ctx->presentation.object_count, sizeof(*sub->rects));
+    sub->rects = zn_av_calloc(ctx->presentation.object_count, sizeof(*sub->rects));
     if (!sub->rects) {
         return AVERROR(ENOMEM);
     }

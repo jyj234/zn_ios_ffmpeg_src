@@ -234,7 +234,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
 
         ret = ff_qp_table_extract(frame, &qp_table, &qstride, NULL, &qp_type);
         if (ret < 0) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return ret;
         }
 
@@ -256,7 +256,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
                 pv += lzv;
             }
         }
-        av_freep(&qp_table);
+        zn_av_freep(&qp_table);
     }
 
     if (s->block) {

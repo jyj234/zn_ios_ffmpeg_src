@@ -58,9 +58,9 @@ static int vp9_alloc_entries(AVCodecContext *avctx, int n) {
 
     if (avctx->active_thread_type & FF_THREAD_SLICE)  {
         if (s->entries)
-            av_freep(&s->entries);
+            zn_av_freep(&s->entries);
 
-        s->entries = av_malloc_array(n, sizeof(atomic_int));
+        s->entries = zn_av_malloc_array(n, sizeof(atomic_int));
         if (!s->entries)
             return AVERROR(ENOMEM);
 
@@ -92,9 +92,9 @@ static int vp9_alloc_entries(AVCodecContext *avctx, int n) { return 0; }
 
 static void vp9_tile_data_free(VP9TileData *td)
 {
-    av_freep(&td->b_base);
-    av_freep(&td->block_base);
-    av_freep(&td->block_structure);
+    zn_av_freep(&td->b_base);
+    zn_av_freep(&td->block_base);
+    zn_av_freep(&td->block_structure);
 }
 
 static void vp9_frame_unref(VP9Frame *f)
@@ -269,7 +269,7 @@ static int update_size(AVCodecContext *avctx, int w, int h)
     lflvl_len    = avctx->active_thread_type == FF_THREAD_SLICE ? s->sb_rows : 1;
 
 #define assign(var, type, n) var = (type) p; p += s->sb_cols * (n) * sizeof(*var)
-    av_freep(&s->intra_pred_data[0]);
+    zn_av_freep(&s->intra_pred_data[0]);
     // FIXME we slightly over-allocate here for subsampled chroma, but a little
     // bit of padding shouldn't affect performance...
     p = av_malloc(s->sb_cols * (128 + 192 * bytesperpixel +
@@ -325,7 +325,7 @@ static int update_block_buffers(AVCodecContext *avctx)
     if (s->s.frames[CUR_FRAME].uses_2pass) {
         int sbs = s->sb_cols * s->sb_rows;
 
-        td->b_base = av_malloc_array(s->cols * s->rows, sizeof(VP9Block));
+        td->b_base = zn_av_malloc_array(s->cols * s->rows, sizeof(VP9Block));
         td->block_base = av_mallocz(((64 * 64 + 2 * chroma_blocks) * bytesperpixel * sizeof(int16_t) +
                                     16 * 16 + 2 * chroma_eobs) * sbs);
         if (!td->b_base || !td->block_base)
@@ -337,7 +337,7 @@ static int update_block_buffers(AVCodecContext *avctx)
         td->uveob_base[1] = td->uveob_base[0] + chroma_eobs * sbs;
 
         if (avctx->export_side_data & AV_CODEC_EXPORT_DATA_VIDEO_ENC_PARAMS) {
-            td->block_structure = av_malloc_array(s->cols * s->rows, sizeof(*td->block_structure));
+            td->block_structure = zn_av_malloc_array(s->cols * s->rows, sizeof(*td->block_structure));
             if (!td->block_structure)
                 return AVERROR(ENOMEM);
         }
@@ -358,7 +358,7 @@ static int update_block_buffers(AVCodecContext *avctx)
             s->td[i].uveob_base[1] = s->td[i].uveob_base[0] + chroma_eobs;
 
             if (avctx->export_side_data & AV_CODEC_EXPORT_DATA_VIDEO_ENC_PARAMS) {
-                s->td[i].block_structure = av_malloc_array(s->cols * s->rows, sizeof(*td->block_structure));
+                s->td[i].block_structure = zn_av_malloc_array(s->cols * s->rows, sizeof(*td->block_structure));
                 if (!s->td[i].block_structure)
                     return AVERROR(ENOMEM);
             }
@@ -796,7 +796,7 @@ static int decode_frame_header(AVCodecContext *avctx,
         if (s->td) {
             for (i = 0; i < s->active_tile_cols; i++)
                 vp9_tile_data_free(&s->td[i]);
-            av_freep(&s->td);
+            zn_av_freep(&s->td);
         }
 
         s->s.h.tiling.tile_cols = 1 << s->s.h.tiling.log2_tile_cols;
@@ -808,7 +808,7 @@ static int decode_frame_header(AVCodecContext *avctx,
         } else {
             n_range_coders = s->s.h.tiling.tile_cols;
         }
-        s->td = av_calloc(s->active_tile_cols, sizeof(VP9TileData) +
+        s->td = zn_av_calloc(s->active_tile_cols, sizeof(VP9TileData) +
                                  n_range_coders * sizeof(VPXRangeCoder));
         if (!s->td)
             return AVERROR(ENOMEM);
@@ -1231,7 +1231,7 @@ static void free_buffers(VP9Context *s)
 {
     int i;
 
-    av_freep(&s->intra_pred_data[0]);
+    zn_av_freep(&s->intra_pred_data[0]);
     for (i = 0; i < s->active_tile_cols; i++)
         vp9_tile_data_free(&s->td[i]);
 }
@@ -1243,22 +1243,22 @@ static av_cold int vp9_decode_free(AVCodecContext *avctx)
 
     for (i = 0; i < 3; i++) {
         vp9_frame_unref(&s->s.frames[i]);
-        av_frame_free(&s->s.frames[i].tf.f);
+        zn_av_frame_free(&s->s.frames[i].tf.f);
     }
     av_buffer_pool_uninit(&s->frame_extradata_pool);
     for (i = 0; i < 8; i++) {
         ff_thread_release_ext_buffer(&s->s.refs[i]);
-        av_frame_free(&s->s.refs[i].f);
+        zn_av_frame_free(&s->s.refs[i].f);
         ff_thread_release_ext_buffer(&s->next_refs[i]);
-        av_frame_free(&s->next_refs[i].f);
+        zn_av_frame_free(&s->next_refs[i].f);
     }
 
     free_buffers(s);
 #if HAVE_THREADS
-    av_freep(&s->entries);
+    zn_av_freep(&s->entries);
     ff_pthread_free(s, vp9_context_offsets);
 #endif
-    av_freep(&s->td);
+    zn_av_freep(&s->td);
     return 0;
 }
 
@@ -1816,13 +1816,13 @@ static av_cold int vp9_decode_init(AVCodecContext *avctx)
 #endif
 
     for (int i = 0; i < 3; i++) {
-        s->s.frames[i].tf.f = av_frame_alloc();
+        s->s.frames[i].tf.f = zn_av_frame_alloc();
         if (!s->s.frames[i].tf.f)
             return AVERROR(ENOMEM);
     }
     for (int i = 0; i < 8; i++) {
-        s->s.refs[i].f      = av_frame_alloc();
-        s->next_refs[i].f   = av_frame_alloc();
+        s->s.refs[i].f      = zn_av_frame_alloc();
+        s->next_refs[i].f   = zn_av_frame_alloc();
         if (!s->s.refs[i].f || !s->next_refs[i].f)
             return AVERROR(ENOMEM);
     }

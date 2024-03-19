@@ -156,8 +156,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
 end:
         WebPPictureFree(pic);
-        av_freep(&pic);
-        av_frame_free(&alt_frame);
+        zn_av_freep(&pic);
+        zn_av_frame_free(&alt_frame);
         return ret;
     }
 }
@@ -165,7 +165,7 @@ end:
 static int libwebp_anim_encode_close(AVCodecContext *avctx)
 {
     LibWebPAnimContext *s = avctx->priv_data;
-    av_frame_free(&s->cc.ref);
+    zn_av_frame_free(&s->cc.ref);
     WebPAnimEncoderDelete(s->enc);
 
     av_buffer_unref(&s->first_frame_opaque_ref);

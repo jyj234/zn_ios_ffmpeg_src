@@ -119,7 +119,7 @@ static TyRecHdr *parse_chunk_headers(const uint8_t *buf,
     TyRecHdr *hdrs, *rec_hdr;
     int i;
 
-    hdrs = av_calloc(num_recs, sizeof(TyRecHdr));
+    hdrs = zn_av_calloc(num_recs, sizeof(TyRecHdr));
     if (!hdrs)
         return NULL;
 
@@ -270,7 +270,7 @@ static int analyze_chunk(AVFormatContext *s, const uint8_t *chunk)
             data_offset += hdrs[i].rec_size;
         }
     }
-    av_free(hdrs);
+    zn_av_free(hdrs);
 
     return 0;
 }
@@ -303,7 +303,7 @@ static int ty_read_header(AVFormatContext *s)
         ty->tivo_type == TIVO_TYPE_UNKNOWN)
         return AVERROR(EIO);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -311,7 +311,7 @@ static int ty_read_header(AVFormatContext *s)
     ffstream(st)->need_parsing = AVSTREAM_PARSE_FULL_RAW;
     avpriv_set_pts_info(st, 64, 1, 90000);
 
-    ast = avformat_new_stream(s, NULL);
+    ast = zn_avformat_new_stream(s, NULL);
     if (!ast)
         return AVERROR(ENOMEM);
     ast->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -371,7 +371,7 @@ static int get_chunk(AVFormatContext *s)
     ff_dlog(s, "chunk has %d records\n", num_recs);
     ty->cur_chunk_pos = 4;
 
-    av_freep(&ty->rec_hdrs);
+    zn_av_freep(&ty->rec_hdrs);
 
     if (num_recs * 16 >= CHUNK_SIZE - 4)
         return AVERROR_INVALIDDATA;
@@ -593,7 +593,7 @@ static int demux_audio(AVFormatContext *s, TyRecHdr *rec_hdr, AVPacket *pkt)
             ty->last_audio_pts = ff_parse_pes_pts(&pkt->data[SA_PTS_OFFSET]);
             if (ty->first_audio_pts == AV_NOPTS_VALUE)
                 ty->first_audio_pts = ty->last_audio_pts;
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return 0;
         }
         /* DTiVo Audio with PES Header                      */
@@ -603,7 +603,7 @@ static int demux_audio(AVFormatContext *s, TyRecHdr *rec_hdr, AVPacket *pkt)
         if (check_sync_pes(s, pkt, es_offset1, rec_size) == -1) {
             /* partial PES header found, nothing else.
              * we're done. */
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return 0;
         }
     } else if (subrec_type == 0x04) {
@@ -629,7 +629,7 @@ static int demux_audio(AVFormatContext *s, TyRecHdr *rec_hdr, AVPacket *pkt)
         /* Check for complete PES */
         if (check_sync_pes(s, pkt, es_offset1, rec_size) == -1) {
             /* partial PES header found, nothing else.  we're done. */
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return 0;
         }
         /* S2 DTivo has invalid long AC3 packets */
@@ -705,7 +705,7 @@ static int ty_read_close(AVFormatContext *s)
 {
     TYDemuxContext *ty = s->priv_data;
 
-    av_freep(&ty->rec_hdrs);
+    zn_av_freep(&ty->rec_hdrs);
 
     return 0;
 }

@@ -432,7 +432,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples * s->oversample);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -449,7 +449,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                       FFMIN(channels, ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     out->nb_samples /= s->oversample;
     return ff_filter_frame(outlink, out);
@@ -459,8 +459,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ASoftClipContext *s = ctx->priv;
 
-    av_frame_free(&s->frame[0]);
-    av_frame_free(&s->frame[1]);
+    zn_av_frame_free(&s->frame[0]);
+    zn_av_frame_free(&s->frame[1]);
 }
 
 static const AVFilterPad inputs[] = {

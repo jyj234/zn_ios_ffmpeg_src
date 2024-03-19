@@ -413,7 +413,7 @@ static int extract_extradata_filter(AVBSFContext *ctx, AVPacket *pkt)
         ret = av_packet_add_side_data(pkt, AV_PKT_DATA_NEW_EXTRADATA,
                                       extradata, extradata_size);
         if (ret < 0) {
-            av_freep(&extradata);
+            zn_av_freep(&extradata);
             goto fail;
         }
     }
@@ -421,7 +421,7 @@ static int extract_extradata_filter(AVBSFContext *ctx, AVPacket *pkt)
     return 0;
 
 fail:
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     return ret;
 }
 

@@ -93,11 +93,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         AVFrame *out = av_frame_clone(s->empty);
 
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         out->pts = in->pts;
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
         return ff_filter_frame(outlink, out);
     }
@@ -116,7 +116,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                       FFMIN(s->planeheight[1], ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -303,7 +303,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     MaskFunContext *s = ctx->priv;
 
-    av_frame_free(&s->empty);
+    zn_av_frame_free(&s->empty);
 }
 
 static const AVFilterPad maskfun_inputs[] = {

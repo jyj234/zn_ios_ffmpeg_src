@@ -471,14 +471,14 @@ static int receive_samples(SyncQueue *sq, SyncQueueStream *st,
     }
 
     // otherwise allocate a new frame and copy the data
-    ret = av_channel_layout_copy(&dst->ch_layout, &src.f->ch_layout);
+    ret = zn_av_channel_layout_copy(&dst->ch_layout, &src.f->ch_layout);
     if (ret < 0)
         return ret;
 
     dst->format     = src.f->format;
     dst->nb_samples = nb_samples;
 
-    ret = av_frame_get_buffer(dst, 0);
+    ret = zn_av_frame_get_buffer(dst, 0);
     if (ret < 0)
         goto fail;
 
@@ -689,7 +689,7 @@ SyncQueue *sq_alloc(enum SyncQueueType type, int64_t buf_size_us, void *logctx)
     sq->pool = (type == SYNC_QUEUE_PACKETS) ? objpool_alloc_packets() :
                                               objpool_alloc_frames();
     if (!sq->pool) {
-        av_freep(&sq);
+        zn_av_freep(&sq);
         return NULL;
     }
 
@@ -711,9 +711,9 @@ void sq_free(SyncQueue **psq)
         av_fifo_freep2(&sq->streams[i].fifo);
     }
 
-    av_freep(&sq->streams);
+    zn_av_freep(&sq->streams);
 
     objpool_free(&sq->pool);
 
-    av_freep(psq);
+    zn_av_freep(psq);
 }

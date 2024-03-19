@@ -133,7 +133,7 @@ static int denoise_depth(HQDN3DContext *s,
     uint16_t *frame_ant = *frame_ant_ptr;
     if (!frame_ant) {
         uint8_t *frame_src = src;
-        *frame_ant_ptr = frame_ant = av_malloc_array(w, h*sizeof(uint16_t));
+        *frame_ant_ptr = frame_ant = zn_av_malloc_array(w, h*sizeof(uint16_t));
         if (!frame_ant)
             return AVERROR(ENOMEM);
         for (y = 0; y < h; y++, src += sstride, frame_ant += w)
@@ -165,9 +165,9 @@ static int denoise_depth(HQDN3DContext *s,
             case 16: ret = denoise_depth(__VA_ARGS__, 16); break;             \
         }                                                                     \
         if (ret < 0) {                                                        \
-            av_frame_free(&out);                                              \
+            zn_av_frame_free(&out);                                              \
             if (!direct)                                                      \
-                av_frame_free(&in);                                           \
+                zn_av_frame_free(&in);                                           \
             return ret;                                                       \
         }                                                                     \
     } while (0)
@@ -217,16 +217,16 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     HQDN3DContext *s = ctx->priv;
 
-    av_freep(&s->coefs[0]);
-    av_freep(&s->coefs[1]);
-    av_freep(&s->coefs[2]);
-    av_freep(&s->coefs[3]);
-    av_freep(&s->line[0]);
-    av_freep(&s->line[1]);
-    av_freep(&s->line[2]);
-    av_freep(&s->frame_prev[0]);
-    av_freep(&s->frame_prev[1]);
-    av_freep(&s->frame_prev[2]);
+    zn_av_freep(&s->coefs[0]);
+    zn_av_freep(&s->coefs[1]);
+    zn_av_freep(&s->coefs[2]);
+    zn_av_freep(&s->coefs[3]);
+    zn_av_freep(&s->line[0]);
+    zn_av_freep(&s->line[1]);
+    zn_av_freep(&s->line[2]);
+    zn_av_freep(&s->frame_prev[0]);
+    zn_av_freep(&s->frame_prev[1]);
+    zn_av_freep(&s->frame_prev[2]);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -265,7 +265,7 @@ static int config_input(AVFilterLink *inlink)
     s->depth = depth = desc->comp[0].depth;
 
     for (i = 0; i < 3; i++) {
-        s->line[i] = av_malloc_array(inlink->w, sizeof(*s->line[i]));
+        s->line[i] = zn_av_malloc_array(inlink->w, sizeof(*s->line[i]));
         if (!s->line[i])
             return AVERROR(ENOMEM);
     }
@@ -323,7 +323,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
 
@@ -337,12 +337,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, do_denoise, &td, NULL, 3);
 
     if (ctx->is_disabled) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ff_filter_frame(outlink, in);
     }
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

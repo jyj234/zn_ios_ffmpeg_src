@@ -115,11 +115,11 @@ static av_cold int init(AVFilterContext *ctx)
             s->nb_inputs = s->nb_grid_rows * s->nb_grid_columns;
     }
 
-    s->frames = av_calloc(s->nb_inputs, sizeof(*s->frames));
+    s->frames = zn_av_calloc(s->nb_inputs, sizeof(*s->frames));
     if (!s->frames)
         return AVERROR(ENOMEM);
 
-    s->items = av_calloc(s->nb_inputs, sizeof(*s->items));
+    s->items = zn_av_calloc(s->nb_inputs, sizeof(*s->items));
     if (!s->items)
         return AVERROR(ENOMEM);
 
@@ -422,8 +422,8 @@ static av_cold void uninit(AVFilterContext *ctx)
     StackContext *s = ctx->priv;
 
     ff_framesync_uninit(&s->fs);
-    av_freep(&s->frames);
-    av_freep(&s->items);
+    zn_av_freep(&s->frames);
+    zn_av_freep(&s->items);
 }
 
 static int activate(AVFilterContext *ctx)

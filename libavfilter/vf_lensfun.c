@@ -235,7 +235,7 @@ static int config_props(AVFilterLink *inlink)
 
     if (!lensfun->distortion_coords) {
         if (lensfun->mode & SUBPIXEL_DISTORTION) {
-            lensfun->distortion_coords = av_malloc_array(inlink->w * inlink->h, sizeof(float) * 2 * 3);
+            lensfun->distortion_coords = zn_av_malloc_array(inlink->w * inlink->h, sizeof(float) * 2 * 3);
             if (!lensfun->distortion_coords)
                 return AVERROR(ENOMEM);
             if (lensfun->mode & GEOMETRY_DISTORTION) {
@@ -252,7 +252,7 @@ static int config_props(AVFilterLink *inlink)
                                                       lensfun->distortion_coords);
             }
         } else if (lensfun->mode & GEOMETRY_DISTORTION) {
-            lensfun->distortion_coords = av_malloc_array(inlink->w * inlink->h, sizeof(float) * 2);
+            lensfun->distortion_coords = zn_av_malloc_array(inlink->w * inlink->h, sizeof(float) * 2);
             if (!lensfun->distortion_coords)
                 return AVERROR(ENOMEM);
             // apply only geometry distortion
@@ -265,7 +265,7 @@ static int config_props(AVFilterLink *inlink)
 
     if (!lensfun->interpolation)
         if (lensfun->interpolation_type == LANCZOS) {
-            lensfun->interpolation = av_malloc_array(LANCZOS_RESOLUTION, sizeof(float) * 4);
+            lensfun->interpolation = zn_av_malloc_array(LANCZOS_RESOLUTION, sizeof(float) * 4);
             if (!lensfun->interpolation)
                 return AVERROR(ENOMEM);
             for (index = 0; index < 4 * LANCZOS_RESOLUTION; ++index) {
@@ -446,7 +446,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (lensfun->mode & VIGNETTING) {
         ret = ff_inlink_make_frame_writable(inlink, &in);
         if (ret < 0) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return ret;
         }
 
@@ -467,7 +467,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (lensfun->mode & (GEOMETRY_DISTORTION | SUBPIXEL_DISTORTION)) {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -489,7 +489,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                           &distortion_correction_thread_data, NULL,
                           FFMIN(outlink->h, ff_filter_get_nb_threads(ctx)));
 
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return ff_filter_frame(outlink, out);
     } else {
         return ff_filter_frame(outlink, in);
@@ -506,8 +506,8 @@ static av_cold void uninit(AVFilterContext *ctx)
         lf_lens_destroy(lensfun->lens);
     if (lensfun->modifier)
         lf_modifier_destroy(lensfun->modifier);
-    av_freep(&lensfun->distortion_coords);
-    av_freep(&lensfun->interpolation);
+    zn_av_freep(&lensfun->distortion_coords);
+    zn_av_freep(&lensfun->interpolation);
 }
 
 static const AVFilterPad lensfun_inputs[] = {

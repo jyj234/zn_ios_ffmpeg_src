@@ -279,7 +279,7 @@ static int grab_read_header(AVFormatContext *s1)
         goto out;
     }
 
-    st = avformat_new_stream(s1, NULL);
+    st = zn_avformat_new_stream(s1, NULL);
     if (!st) {
         ret = AVERROR(ENOMEM);
         goto out;

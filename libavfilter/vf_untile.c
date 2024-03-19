@@ -160,7 +160,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     UntileContext *s = ctx->priv;
 
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 }
 
 static const AVFilterPad untile_outputs[] = {

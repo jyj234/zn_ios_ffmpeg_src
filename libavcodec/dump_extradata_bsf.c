@@ -63,7 +63,7 @@ static int dump_extradata(AVBSFContext *ctx, AVPacket *out)
 
         ret = av_packet_copy_props(out, in);
         if (ret < 0) {
-            av_packet_unref(out);
+            zn_av_packet_unref(out);
             goto fail;
         }
 
@@ -74,7 +74,7 @@ static int dump_extradata(AVBSFContext *ctx, AVPacket *out)
     }
 
 fail:
-    av_packet_unref(in);
+    zn_av_packet_unref(in);
 
     return ret;
 }

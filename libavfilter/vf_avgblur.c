@@ -190,7 +190,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AverageBlurContext *s = ctx->priv;
 
-    av_freep(&s->buffer);
+    zn_av_freep(&s->buffer);
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -210,7 +210,7 @@ static int config_input(AVFilterLink *inlink)
 
     s->nb_planes = av_pix_fmt_count_planes(inlink->format);
 
-    s->buffer = av_calloc(inlink->w + (1024 * 2 + 1), 4 * ((s->depth + 7) / 8));
+    s->buffer = zn_av_calloc(inlink->w + (1024 * 2 + 1), 4 * ((s->depth + 7) / 8));
     if (!s->buffer)
         return AVERROR(ENOMEM);
 
@@ -277,7 +277,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -297,7 +297,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         averageiir2d(ctx, in, out, plane);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

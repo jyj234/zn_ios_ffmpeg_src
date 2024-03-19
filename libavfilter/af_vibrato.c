@@ -71,7 +71,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -112,7 +112,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     s->wave_table_index = wave_table_index;
     s->buf_index = buf_index;
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -122,10 +122,10 @@ static av_cold void uninit(AVFilterContext *ctx)
     VibratoContext *s = ctx->priv;
     int c;
 
-    av_freep(&s->wave_table);
+    zn_av_freep(&s->wave_table);
     for (c = 0; c < s->channels; c++)
-        av_freep(&s->buf[c]);
-    av_freep(&s->buf);
+        zn_av_freep(&s->buf[c]);
+    zn_av_freep(&s->buf);
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -134,20 +134,20 @@ static int config_input(AVFilterLink *inlink)
     AVFilterContext *ctx = inlink->dst;
     VibratoContext *s = ctx->priv;
 
-    s->buf = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->buf));
+    s->buf = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->buf));
     if (!s->buf)
         return AVERROR(ENOMEM);
     s->channels = inlink->ch_layout.nb_channels;
     s->buf_size = lrint(inlink->sample_rate * 0.005 + 0.5);
     for (c = 0; c < s->channels; c++) {
-        s->buf[c] = av_malloc_array(s->buf_size, sizeof(*s->buf[c]));
+        s->buf[c] = zn_av_malloc_array(s->buf_size, sizeof(*s->buf[c]));
         if (!s->buf[c])
             return AVERROR(ENOMEM);
     }
     s->buf_index = 0;
 
     s->wave_table_size = lrint(inlink->sample_rate / s->freq + 0.5);
-    s->wave_table = av_malloc_array(s->wave_table_size, sizeof(*s->wave_table));
+    s->wave_table = zn_av_malloc_array(s->wave_table_size, sizeof(*s->wave_table));
     if (!s->wave_table)
         return AVERROR(ENOMEM);
     ff_generate_wave_table(WAVE_SIN, AV_SAMPLE_FMT_DBL, s->wave_table, s->wave_table_size, 0.0, s->buf_size - 1, 3.0 * M_PI_2);

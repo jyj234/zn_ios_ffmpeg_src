@@ -227,5 +227,5 @@ av_cold void ff_dcaadpcm_free(DCAADPCMEncContext *s)
     if (!s)
         return;
 
-    av_freep(&s->private_data);
+    zn_av_freep(&s->private_data);
 }

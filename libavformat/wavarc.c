@@ -78,7 +78,7 @@ static int wavarc_read_header(AVFormatContext *s)
     if (fmt_len < 12)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     par = st->codecpar;
@@ -109,7 +109,7 @@ static int wavarc_read_header(AVFormatContext *s)
     if (AV_RL32(par->extradata + 28) != MKTAG('f','m','t',' '))
         return AVERROR_INVALIDDATA;
 
-    av_channel_layout_default(&par->ch_layout, AV_RL16(par->extradata + 38));
+    zn_av_channel_layout_default(&par->ch_layout, AV_RL16(par->extradata + 38));
     par->sample_rate = AV_RL32(par->extradata + 40);
     avpriv_set_pts_info(st, 64, 1, par->sample_rate);
     st->start_time = 0;

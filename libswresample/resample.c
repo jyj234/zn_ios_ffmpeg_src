@@ -43,8 +43,8 @@ static int build_filter(ResampleContext *c, void *filter, double factor, int tap
     int ph, i;
     int ph_nb = phase_count % 2 ? phase_count : phase_count / 2 + 1;
     double x, y, w, t, s;
-    double *tab = av_malloc_array(tap_count+1,  sizeof(*tab));
-    double *sin_lut = av_malloc_array(ph_nb, sizeof(*sin_lut));
+    double *tab = zn_av_malloc_array(tap_count+1,  sizeof(*tab));
+    double *sin_lut = zn_av_malloc_array(ph_nb, sizeof(*sin_lut));
     const int center= (tap_count-1)/2;
     double norm = 0;
     int ret = AVERROR(ENOMEM);
@@ -168,8 +168,8 @@ static int build_filter(ResampleContext *c, void *filter, double factor, int tap
 
     ret = 0;
 fail:
-    av_free(tab);
-    av_free(sin_lut);
+    zn_av_free(tab);
+    zn_av_free(sin_lut);
     return ret;
 }
 
@@ -177,8 +177,8 @@ static void resample_free(ResampleContext **cc){
     ResampleContext *c = *cc;
     if(!c)
         return;
-    av_freep(&c->filter_bank);
-    av_freep(cc);
+    zn_av_freep(&c->filter_bank);
+    zn_av_freep(cc);
 }
 
 static ResampleContext *resample_init(ResampleContext *c, int out_rate, int in_rate, int filter_size, int phase_shift, int linear,
@@ -242,7 +242,7 @@ static ResampleContext *resample_init(ResampleContext *c, int out_rate, int in_r
         c->factor        = factor;
         c->filter_length = filter_length;
         c->filter_alloc  = FFALIGN(c->filter_length, 8);
-        c->filter_bank   = av_calloc(c->filter_alloc, (phase_count+1)*c->felem_size);
+        c->filter_bank   = zn_av_calloc(c->filter_alloc, (phase_count+1)*c->felem_size);
         c->filter_type   = filter_type;
         c->kaiser_beta   = kaiser_beta;
         c->phase_count_compensation = phase_count_compensation;
@@ -272,8 +272,8 @@ static ResampleContext *resample_init(ResampleContext *c, int out_rate, int in_r
 
     return c;
 error:
-    av_freep(&c->filter_bank);
-    av_free(c);
+    zn_av_freep(&c->filter_bank);
+    zn_av_free(c);
     return NULL;
 }
 
@@ -289,14 +289,14 @@ static int rebuild_filter_bank_with_compensation(ResampleContext *c)
 
     av_assert0(!c->frac && !c->dst_incr_mod);
 
-    new_filter_bank = av_calloc(c->filter_alloc, (phase_count + 1) * c->felem_size);
+    new_filter_bank = zn_av_calloc(c->filter_alloc, (phase_count + 1) * c->felem_size);
     if (!new_filter_bank)
         return AVERROR(ENOMEM);
 
     ret = build_filter(c, new_filter_bank, c->factor, c->filter_length, c->filter_alloc,
                        phase_count, 1 << c->filter_shift, c->filter_type, c->kaiser_beta);
     if (ret < 0) {
-        av_freep(&new_filter_bank);
+        zn_av_freep(&new_filter_bank);
         return ret;
     }
     memcpy(new_filter_bank + (c->filter_alloc*phase_count+1)*c->felem_size, new_filter_bank, (c->filter_alloc-1)*c->felem_size);
@@ -305,7 +305,7 @@ static int rebuild_filter_bank_with_compensation(ResampleContext *c)
     if (!av_reduce(&new_src_incr, &new_dst_incr, c->src_incr,
                    c->dst_incr * (int64_t)(phase_count/c->phase_count), INT32_MAX/2))
     {
-        av_freep(&new_filter_bank);
+        zn_av_freep(&new_filter_bank);
         return AVERROR(EINVAL);
     }
 
@@ -320,7 +320,7 @@ static int rebuild_filter_bank_with_compensation(ResampleContext *c)
     c->dst_incr_mod   = c->dst_incr % c->src_incr;
     c->index         *= phase_count / c->phase_count;
     c->phase_count    = phase_count;
-    av_freep(&c->filter_bank);
+    zn_av_freep(&c->filter_bank);
     c->filter_bank = new_filter_bank;
     return 0;
 }

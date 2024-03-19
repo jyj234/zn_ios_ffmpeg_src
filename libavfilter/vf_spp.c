@@ -352,8 +352,8 @@ static int config_input(AVFilterLink *inlink)
     s->hsub = desc->log2_chroma_w;
     s->vsub = desc->log2_chroma_h;
     s->temp_linesize = FFALIGN(inlink->w + 16, 16);
-    s->temp = av_malloc_array(s->temp_linesize, h * sizeof(*s->temp));
-    s->src  = av_malloc_array(s->temp_linesize, h * sizeof(*s->src) * 2);
+    s->temp = zn_av_malloc_array(s->temp_linesize, h * sizeof(*s->temp));
+    s->src  = zn_av_malloc_array(s->temp_linesize, h * sizeof(*s->src) * 2);
 
     if (!s->temp || !s->src)
         return AVERROR(ENOMEM);
@@ -379,12 +379,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (!s->qp && (s->use_bframe_qp || in->pict_type != AV_PICTURE_TYPE_B)) {
         ret = ff_qp_table_extract(in, &qp_table, &qp_stride, NULL, &s->qscale_type);
         if (ret < 0) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return ret;
         }
 
         if (!s->use_bframe_qp && in->pict_type != AV_PICTURE_TYPE_B) {
-            av_freep(&s->non_b_qp_table);
+            zn_av_freep(&s->non_b_qp_table);
             s->non_b_qp_table  = qp_table;
             s->non_b_qp_stride = qp_stride;
         }
@@ -408,7 +408,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
                 out = ff_get_video_buffer(outlink, aligned_w, aligned_h);
                 if (!out) {
-                    av_frame_free(&in);
+                    zn_av_frame_free(&in);
                     ret = AVERROR(ENOMEM);
                     goto finish;
                 }
@@ -432,12 +432,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             av_image_copy_plane(out->data[3], out->linesize[3],
                                 in ->data[3], in ->linesize[3],
                                 inlink->w, inlink->h);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
     ret = ff_filter_frame(outlink, out);
 finish:
     if (qp_table != s->non_b_qp_table)
-        av_freep(&qp_table);
+        zn_av_freep(&qp_table);
     return ret;
 }
 
@@ -471,10 +471,10 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     SPPContext *s = ctx->priv;
 
-    av_freep(&s->temp);
-    av_freep(&s->src);
-    av_freep(&s->dct);
-    av_freep(&s->non_b_qp_table);
+    zn_av_freep(&s->temp);
+    zn_av_freep(&s->src);
+    zn_av_freep(&s->dct);
+    zn_av_freep(&s->non_b_qp_table);
 }
 
 static const AVFilterPad spp_inputs[] = {

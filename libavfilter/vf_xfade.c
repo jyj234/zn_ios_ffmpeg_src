@@ -2312,8 +2312,8 @@ static int xfade_activate(AVFilterContext *avctx)
                 s->passthrough = 1;
             }
             ret = xfade_frame(avctx, s->xf[0], s->xf[1]);
-            av_frame_free(&s->xf[0]);
-            av_frame_free(&s->xf[1]);
+            zn_av_frame_free(&s->xf[0]);
+            zn_av_frame_free(&s->xf[1]);
             return ret;
         }
 

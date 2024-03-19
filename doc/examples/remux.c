@@ -65,25 +65,25 @@ int main(int argc, char **argv)
     in_filename  = argv[1];
     out_filename = argv[2];
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         fprintf(stderr, "Could not allocate AVPacket\n");
         return 1;
     }
 
-    if ((ret = avformat_open_input(&ifmt_ctx, in_filename, 0, 0)) < 0) {
+    if ((ret = zn_avformat_open_input(&ifmt_ctx, in_filename, 0, 0)) < 0) {
         fprintf(stderr, "Could not open input file '%s'", in_filename);
         goto end;
     }
 
-    if ((ret = avformat_find_stream_info(ifmt_ctx, 0)) < 0) {
+    if ((ret = zn_avformat_find_stream_info(ifmt_ctx, 0)) < 0) {
         fprintf(stderr, "Failed to retrieve input stream information");
         goto end;
     }
 
-    av_dump_format(ifmt_ctx, 0, in_filename, 0);
+    zn_av_dump_format(ifmt_ctx, 0, in_filename, 0);
 
-    avformat_alloc_output_context2(&ofmt_ctx, NULL, NULL, out_filename);
+    zn_avformat_alloc_output_context2(&ofmt_ctx, NULL, NULL, out_filename);
     if (!ofmt_ctx) {
         fprintf(stderr, "Could not create output context\n");
         ret = AVERROR_UNKNOWN;
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     }
 
     stream_mapping_size = ifmt_ctx->nb_streams;
-    stream_mapping = av_calloc(stream_mapping_size, sizeof(*stream_mapping));
+    stream_mapping = zn_av_calloc(stream_mapping_size, sizeof(*stream_mapping));
     if (!stream_mapping) {
         ret = AVERROR(ENOMEM);
         goto end;
@@ -113,31 +113,31 @@ int main(int argc, char **argv)
 
         stream_mapping[i] = stream_index++;
 
-        out_stream = avformat_new_stream(ofmt_ctx, NULL);
+        out_stream = zn_avformat_new_stream(ofmt_ctx, NULL);
         if (!out_stream) {
             fprintf(stderr, "Failed allocating output stream\n");
             ret = AVERROR_UNKNOWN;
             goto end;
         }
 
-        ret = avcodec_parameters_copy(out_stream->codecpar, in_codecpar);
+        ret = zn_avcodec_parameters_copy(out_stream->codecpar, in_codecpar);
         if (ret < 0) {
             fprintf(stderr, "Failed to copy codec parameters\n");
             goto end;
         }
         out_stream->codecpar->codec_tag = 0;
     }
-    av_dump_format(ofmt_ctx, 0, out_filename, 1);
+    zn_av_dump_format(ofmt_ctx, 0, out_filename, 1);
 
     if (!(ofmt->flags & AVFMT_NOFILE)) {
-        ret = avio_open(&ofmt_ctx->pb, out_filename, AVIO_FLAG_WRITE);
+        ret = zn_avio_open(&ofmt_ctx->pb, out_filename, AVIO_FLAG_WRITE);
         if (ret < 0) {
             fprintf(stderr, "Could not open output file '%s'", out_filename);
             goto end;
         }
     }
 
-    ret = avformat_write_header(ofmt_ctx, NULL);
+    ret = zn_avformat_write_header(ofmt_ctx, NULL);
     if (ret < 0) {
         fprintf(stderr, "Error occurred when opening output file\n");
         goto end;
@@ -146,14 +146,14 @@ int main(int argc, char **argv)
     while (1) {
         AVStream *in_stream, *out_stream;
 
-        ret = av_read_frame(ifmt_ctx, pkt);
+        ret = zn_av_read_frame(ifmt_ctx, pkt);
         if (ret < 0)
             break;
 
         in_stream  = ifmt_ctx->streams[pkt->stream_index];
         if (pkt->stream_index >= stream_mapping_size ||
             stream_mapping[pkt->stream_index] < 0) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             continue;
         }
 
@@ -166,8 +166,8 @@ int main(int argc, char **argv)
         pkt->pos = -1;
         log_packet(ofmt_ctx, pkt, "out");
 
-        ret = av_interleaved_write_frame(ofmt_ctx, pkt);
-        /* pkt is now blank (av_interleaved_write_frame() takes ownership of
+        ret = zn_av_interleaved_write_frame(ofmt_ctx, pkt);
+        /* pkt is now blank (zn_av_interleaved_write_frame() takes ownership of
          * its contents and resets pkt), so that no unreferencing is necessary.
          * This would be different if one used av_write_frame(). */
         if (ret < 0) {
@@ -176,21 +176,21 @@ int main(int argc, char **argv)
         }
     }
 
-    av_write_trailer(ofmt_ctx);
+    zn_av_write_trailer(ofmt_ctx);
 end:
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
 
-    avformat_close_input(&ifmt_ctx);
+    zn_avformat_close_input(&ifmt_ctx);
 
     /* close output */
     if (ofmt_ctx && !(ofmt->flags & AVFMT_NOFILE))
-        avio_closep(&ofmt_ctx->pb);
-    avformat_free_context(ofmt_ctx);
+        zn_avio_closep(&ofmt_ctx->pb);
+    zn_avformat_free_context(ofmt_ctx);
 
-    av_freep(&stream_mapping);
+    zn_av_freep(&stream_mapping);
 
     if (ret < 0 && ret != AVERROR_EOF) {
-        fprintf(stderr, "Error occurred: %s\n", av_err2str(ret));
+        fprintf(stderr, "Error occurred: %s\n", zn_av_err2str(ret));
         return 1;
     }
 

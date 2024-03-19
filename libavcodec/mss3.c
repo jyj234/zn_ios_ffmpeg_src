@@ -818,9 +818,9 @@ static av_cold int mss3_decode_end(AVCodecContext *avctx)
     MSS3Context * const c = avctx->priv_data;
     int i;
 
-    av_frame_free(&c->pic);
+    zn_av_frame_free(&c->pic);
     for (i = 0; i < 3; i++)
-        av_freep(&c->dct_coder[i].prev_dc);
+        zn_av_freep(&c->dct_coder[i].prev_dc);
 
     return 0;
 }
@@ -852,7 +852,7 @@ static av_cold int mss3_decode_init(AVCodecContext *avctx)
         }
     }
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 

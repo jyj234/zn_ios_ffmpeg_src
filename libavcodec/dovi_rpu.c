@@ -96,7 +96,7 @@ int ff_dovi_attach_side_data(DOVIContext *s, AVFrame *frame)
 
     buf = av_buffer_create((uint8_t *) dovi, dovi_size, NULL, NULL, 0);
     if (!buf) {
-        av_free(dovi);
+        zn_av_free(dovi);
         return AVERROR(ENOMEM);
     }
 

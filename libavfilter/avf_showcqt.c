@@ -139,29 +139,29 @@ static void common_uninit(ShowCQTContext *s)
                 = s->alloc_time = s->bar_time = s->axis_time = s->sono_time = 0;
     /* axis_frame may be non reference counted frame */
     if (s->axis_frame && !s->axis_frame->buf[0]) {
-        av_freep(s->axis_frame->data);
+        zn_av_freep(s->axis_frame->data);
         for (k = 0; k < 4; k++)
             s->axis_frame->data[k] = NULL;
     }
 
-    av_frame_free(&s->axis_frame);
-    av_frame_free(&s->sono_frame);
+    zn_av_frame_free(&s->axis_frame);
+    zn_av_frame_free(&s->sono_frame);
     av_tx_uninit(&s->fft_ctx);
     if (s->coeffs)
         for (k = 0; k < s->cqt_len; k++)
-            av_freep(&s->coeffs[k].val);
-    av_freep(&s->coeffs);
-    av_freep(&s->fft_data);
-    av_freep(&s->fft_input);
-    av_freep(&s->fft_result);
-    av_freep(&s->cqt_result);
-    av_freep(&s->attack_data);
-    av_freep(&s->c_buf);
-    av_freep(&s->h_buf);
-    av_freep(&s->rcp_h_buf);
-    av_freep(&s->freq);
-    av_freep(&s->sono_v_buf);
-    av_freep(&s->bar_v_buf);
+            zn_av_freep(&s->coeffs[k].val);
+    zn_av_freep(&s->coeffs);
+    zn_av_freep(&s->fft_data);
+    zn_av_freep(&s->fft_input);
+    zn_av_freep(&s->fft_result);
+    zn_av_freep(&s->cqt_result);
+    zn_av_freep(&s->attack_data);
+    zn_av_freep(&s->c_buf);
+    zn_av_freep(&s->h_buf);
+    zn_av_freep(&s->rcp_h_buf);
+    zn_av_freep(&s->freq);
+    zn_av_freep(&s->sono_v_buf);
+    zn_av_freep(&s->bar_v_buf);
 }
 
 static double *create_freq_table(double base, double end, int n)
@@ -171,7 +171,7 @@ static double *create_freq_table(double base, double end, int n)
     double *freq;
     int x;
 
-    freq = av_malloc_array(n, sizeof(*freq));
+    freq = zn_av_malloc_array(n, sizeof(*freq));
     if (!freq)
         return NULL;
 
@@ -236,8 +236,8 @@ static int init_volume(ShowCQTContext *s)
     AVExpr *sono = NULL, *bar = NULL;
     int x, ret = AVERROR(ENOMEM);
 
-    s->sono_v_buf = av_malloc_array(s->cqt_len, sizeof(*s->sono_v_buf));
-    s->bar_v_buf = av_malloc_array(s->cqt_len, sizeof(*s->bar_v_buf));
+    s->sono_v_buf = zn_av_malloc_array(s->cqt_len, sizeof(*s->sono_v_buf));
+    s->bar_v_buf = zn_av_malloc_array(s->cqt_len, sizeof(*s->bar_v_buf));
     if (!s->sono_v_buf || !s->bar_v_buf)
         goto error;
 
@@ -262,8 +262,8 @@ static int init_volume(ShowCQTContext *s)
     return 0;
 
 error:
-    av_freep(&s->sono_v_buf);
-    av_freep(&s->bar_v_buf);
+    zn_av_freep(&s->sono_v_buf);
+    zn_av_freep(&s->bar_v_buf);
     av_expr_free(sono);
     av_expr_free(bar);
     return ret;
@@ -308,7 +308,7 @@ static int init_cqt(ShowCQTContext *s)
         goto error;
 
     ret = AVERROR(ENOMEM);
-    if (!(s->coeffs = av_calloc(s->cqt_len, sizeof(*s->coeffs))))
+    if (!(s->coeffs = zn_av_calloc(s->cqt_len, sizeof(*s->coeffs))))
         goto error;
 
     for (k = 0; k < s->cqt_len; k++) {
@@ -329,7 +329,7 @@ static int init_cqt(ShowCQTContext *s)
         s->coeffs[m].start = start & ~(s->cqt_align - 1);
         s->coeffs[m].len = (end | (s->cqt_align - 1)) + 1 - s->coeffs[m].start;
         nb_cqt_coeffs += s->coeffs[m].len;
-        if (!(s->coeffs[m].val = av_calloc(s->coeffs[m].len, sizeof(*s->coeffs[m].val))))
+        if (!(s->coeffs[m].val = zn_av_calloc(s->coeffs[m].len, sizeof(*s->coeffs[m].val))))
             goto error;
 
         for (x = start; x <= end; x++) {
@@ -353,22 +353,22 @@ error:
     av_expr_free(expr);
     if (s->coeffs)
         for (k = 0; k < s->cqt_len; k++)
-            av_freep(&s->coeffs[k].val);
-    av_freep(&s->coeffs);
+            zn_av_freep(&s->coeffs[k].val);
+    zn_av_freep(&s->coeffs);
     return ret;
 }
 
 static AVFrame *alloc_frame_empty(enum AVPixelFormat format, int w, int h)
 {
     AVFrame *out;
-    out = av_frame_alloc();
+    out = zn_av_frame_alloc();
     if (!out)
         return NULL;
     out->format = format;
     out->width = w;
     out->height = h;
-    if (av_frame_get_buffer(out, 0) < 0) {
-        av_frame_free(&out);
+    if (zn_av_frame_get_buffer(out, 0) < 0) {
+        zn_av_frame_free(&out);
         return NULL;
     }
     if (format == AV_PIX_FMT_RGB24 || format == AV_PIX_FMT_RGBA) {
@@ -414,7 +414,7 @@ static int init_axis_from_file(ShowCQTContext *s)
         goto error;
 
     ret = AVERROR(ENOMEM);
-    if (!(s->axis_frame = av_frame_alloc()))
+    if (!(s->axis_frame = zn_av_frame_alloc()))
         goto error;
 
     if ((ret = ff_scale_image(s->axis_frame->data, s->axis_frame->linesize, s->width, s->axis_h,
@@ -425,12 +425,12 @@ static int init_axis_from_file(ShowCQTContext *s)
     s->axis_frame->width = s->width;
     s->axis_frame->height = s->axis_h;
     s->axis_frame->format = convert_axis_pixel_format(s->format);
-    av_freep(tmp_data);
+    zn_av_freep(tmp_data);
     return 0;
 
 error:
-    av_frame_free(&s->axis_frame);
-    av_freep(tmp_data);
+    zn_av_frame_free(&s->axis_frame);
+    zn_av_freep(tmp_data);
     return ret;
 }
 
@@ -481,7 +481,7 @@ static int init_axis_color(ShowCQTContext *s, AVFrame *tmp, int half)
 
     if ((ret = av_expr_parse(&expr, s->fontcolor, var_names, func_names, funcs, NULL, NULL, 0, s->ctx)) < 0) {
         if (freq != s->freq)
-            av_freep(&freq);
+            zn_av_freep(&freq);
         return ret;
     }
 
@@ -500,7 +500,7 @@ static int init_axis_color(ShowCQTContext *s, AVFrame *tmp, int half)
 
     av_expr_free(expr);
     if (freq != s->freq)
-        av_freep(&freq);
+        zn_av_freep(&freq);
     return 0;
 }
 
@@ -688,7 +688,7 @@ static int init_axis_from_font(ShowCQTContext *s)
     if (!(tmp = alloc_frame_empty(AV_PIX_FMT_RGBA, width, height)))
         goto fail;
 
-    if (!(s->axis_frame = av_frame_alloc()))
+    if (!(s->axis_frame = zn_av_frame_alloc()))
         goto fail;
 
     if (render_freetype(s, tmp, s->fontfile) < 0 &&
@@ -707,15 +707,15 @@ static int init_axis_from_font(ShowCQTContext *s)
                               width, height, AV_PIX_FMT_RGBA, s->ctx)) < 0)
         goto fail;
 
-    av_frame_free(&tmp);
+    zn_av_frame_free(&tmp);
     s->axis_frame->width = s->width;
     s->axis_frame->height = s->axis_h;
     s->axis_frame->format = convert_axis_pixel_format(s->format);
     return 0;
 
 fail:
-    av_frame_free(&tmp);
-    av_frame_free(&s->axis_frame);
+    zn_av_frame_free(&tmp);
+    zn_av_frame_free(&s->axis_frame);
     return ret;
 }
 
@@ -1382,10 +1382,10 @@ static int config_output(AVFilterLink *outlink)
     av_log(ctx, AV_LOG_VERBOSE, "fft_len = %d, cqt_len = %d.\n", s->fft_len, s->cqt_len);
 
     ret = av_tx_init(&s->fft_ctx, &s->tx_fn, AV_TX_FLOAT_FFT, 0, s->fft_len, &scale, 0);
-    s->fft_data = av_calloc(s->fft_len, sizeof(*s->fft_data));
-    s->fft_input = av_calloc(FFALIGN(s->fft_len + 64, 256), sizeof(*s->fft_input));
-    s->fft_result = av_calloc(FFALIGN(s->fft_len + 64, 256), sizeof(*s->fft_result));
-    s->cqt_result = av_malloc_array(s->cqt_len, sizeof(*s->cqt_result));
+    s->fft_data = zn_av_calloc(s->fft_len, sizeof(*s->fft_data));
+    s->fft_input = zn_av_calloc(FFALIGN(s->fft_len + 64, 256), sizeof(*s->fft_input));
+    s->fft_result = zn_av_calloc(FFALIGN(s->fft_len + 64, 256), sizeof(*s->fft_result));
+    s->cqt_result = zn_av_malloc_array(s->cqt_len, sizeof(*s->cqt_result));
     if (!s->fft_ctx || !s->fft_data || !s->fft_result || !s->cqt_result)
         return AVERROR(ENOMEM);
 
@@ -1394,7 +1394,7 @@ static int config_output(AVFilterLink *outlink)
         int k;
 
         s->remaining_fill_max = FFMIN(s->remaining_fill_max, ceil(inlink->sample_rate * s->attack));
-        s->attack_data = av_malloc_array(s->remaining_fill_max, sizeof(*s->attack_data));
+        s->attack_data = zn_av_malloc_array(s->remaining_fill_max, sizeof(*s->attack_data));
         if (!s->attack_data)
             return AVERROR(ENOMEM);
 
@@ -1454,9 +1454,9 @@ static int config_output(AVFilterLink *outlink)
             return AVERROR(ENOMEM);
     }
 
-    s->h_buf = av_malloc_array(s->cqt_len, sizeof (*s->h_buf));
-    s->rcp_h_buf = av_malloc_array(s->width, sizeof(*s->rcp_h_buf));
-    s->c_buf = av_malloc_array(s->width, sizeof(*s->c_buf));
+    s->h_buf = zn_av_malloc_array(s->cqt_len, sizeof (*s->h_buf));
+    s->rcp_h_buf = zn_av_malloc_array(s->width, sizeof(*s->rcp_h_buf));
+    s->c_buf = zn_av_malloc_array(s->width, sizeof(*s->c_buf));
     if (!s->h_buf || !s->rcp_h_buf || !s->c_buf)
         return AVERROR(ENOMEM);
 
@@ -1525,7 +1525,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
             }
             ret = plot_cqt(ctx, &out);
             if (ret < 0) {
-                av_frame_free(&insamples);
+                zn_av_frame_free(&insamples);
                 return ret;
             }
             remaining -= s->remaining_fill;
@@ -1537,7 +1537,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
                 got_frame = 1;
                 ret = ff_filter_frame(outlink, out);
                 if (ret < 0) {
-                    av_frame_free(&insamples);
+                    zn_av_frame_free(&insamples);
                     return ret;
                 }
                 out = NULL;
@@ -1558,7 +1558,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
     }
     if (!got_frame)
         ff_filter_set_ready(ctx, 100);
-    av_frame_free(&insamples);
+    zn_av_frame_free(&insamples);
     return 0;
 }
 

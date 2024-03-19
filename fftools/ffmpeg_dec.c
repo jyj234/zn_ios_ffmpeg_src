@@ -103,14 +103,14 @@ void dec_free(Decoder **pdec)
 
     dec_thread_stop(dec);
 
-    av_frame_free(&dec->frame);
-    av_packet_free(&dec->pkt);
+    zn_av_frame_free(&dec->frame);
+    zn_av_packet_free(&dec->pkt);
 
     for (int i = 0; i < FF_ARRAY_ELEMS(dec->sub_prev); i++)
-        av_frame_free(&dec->sub_prev[i]);
-    av_frame_free(&dec->sub_heartbeat);
+        zn_av_frame_free(&dec->sub_prev[i]);
+    zn_av_frame_free(&dec->sub_heartbeat);
 
-    av_freep(pdec);
+    zn_av_freep(pdec);
 }
 
 static int dec_alloc(Decoder **pdec)
@@ -123,11 +123,11 @@ static int dec_alloc(Decoder **pdec)
     if (!dec)
         return AVERROR(ENOMEM);
 
-    dec->frame = av_frame_alloc();
+    dec->frame = zn_av_frame_alloc();
     if (!dec->frame)
         goto fail;
 
-    dec->pkt = av_packet_alloc();
+    dec->pkt = zn_av_packet_alloc();
     if (!dec->pkt)
         goto fail;
 
@@ -155,7 +155,7 @@ static int send_frame_to_filters(InputStream *ist, AVFrame *decoded_frame)
             ret = 0; /* ignore */
         if (ret < 0) {
             av_log(NULL, AV_LOG_ERROR,
-                   "Failed to inject frame into filter network: %s\n", av_err2str(ret));
+                   "Failed to inject frame into filter network: %s\n", zn_av_err2str(ret));
             break;
         }
     }
@@ -429,7 +429,7 @@ static int process_subtitle(InputStream *ist, AVFrame *frame)
         ret = ifilter_sub2video(ist->filters[i], frame);
         if (ret < 0) {
             av_log(ist, AV_LOG_ERROR, "Error sending a subtitle for filtering: %s\n",
-                   av_err2str(ret));
+                   zn_av_err2str(ret));
             return ret;
         }
     }
@@ -484,18 +484,18 @@ static int transcode_subtitles(InputStream *ist, const AVPacket *pkt,
     int ret;
 
     if (!pkt) {
-        flush_pkt = av_packet_alloc();
+        flush_pkt = zn_av_packet_alloc();
         if (!flush_pkt)
             return AVERROR(ENOMEM);
     }
 
     ret = avcodec_decode_subtitle2(ist->dec_ctx, &subtitle, &got_output,
                                    pkt ? pkt : flush_pkt);
-    av_packet_free(&flush_pkt);
+    zn_av_packet_free(&flush_pkt);
 
     if (ret < 0) {
         av_log(ist, AV_LOG_ERROR, "Error decoding subtitles: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         ist->decode_errors++;
         return exit_on_error ? ret : 0;
     }
@@ -562,17 +562,17 @@ static int packet_decode(InputStream *ist, AVPacket *pkt, AVFrame *frame)
         pkt->dts = AV_NOPTS_VALUE;
     }
 
-    ret = avcodec_send_packet(dec, pkt);
+    ret = zn_avcodec_send_packet(dec, pkt);
     if (ret < 0 && !(ret == AVERROR_EOF && !pkt)) {
         // In particular, we don't expect AVERROR(EAGAIN), because we read all
-        // decoded frames with avcodec_receive_frame() until done.
+        // decoded frames with zn_avcodec_receive_frame() until done.
         if (ret == AVERROR(EAGAIN)) {
             av_log(ist, AV_LOG_FATAL, "A decoder returned an unexpected error code. "
                                       "This is a bug, please report it.\n");
             return AVERROR_BUG;
         }
         av_log(ist, AV_LOG_ERROR, "Error submitting %s to decoder: %s\n",
-               pkt ? "packet" : "EOF", av_err2str(ret));
+               pkt ? "packet" : "EOF", zn_av_err2str(ret));
 
         if (ret != AVERROR_EOF) {
             ist->decode_errors++;
@@ -589,7 +589,7 @@ static int packet_decode(InputStream *ist, AVPacket *pkt, AVFrame *frame)
         av_frame_unref(frame);
 
         update_benchmark(NULL);
-        ret = avcodec_receive_frame(dec, frame);
+        ret = zn_avcodec_receive_frame(dec, frame);
         update_benchmark("decode_%s %d.%d", type_desc,
                          ist->file_index, ist->index);
 
@@ -599,7 +599,7 @@ static int packet_decode(InputStream *ist, AVPacket *pkt, AVFrame *frame)
         } else if (ret == AVERROR_EOF) {
             return ret;
         } else if (ret < 0) {
-            av_log(ist, AV_LOG_ERROR, "Decoding error: %s\n", av_err2str(ret));
+            av_log(ist, AV_LOG_ERROR, "Decoding error: %s\n", zn_av_err2str(ret));
             ist->decode_errors++;
 
             if (exit_on_error)
@@ -661,8 +661,8 @@ static void dec_thread_set_name(const InputStream *ist)
 
 static void dec_thread_uninit(DecThreadContext *dt)
 {
-    av_packet_free(&dt->pkt);
-    av_frame_free(&dt->frame);
+    zn_av_packet_free(&dt->pkt);
+    zn_av_frame_free(&dt->frame);
 
     memset(dt, 0, sizeof(*dt));
 }
@@ -671,11 +671,11 @@ static int dec_thread_init(DecThreadContext *dt)
 {
     memset(dt, 0, sizeof(*dt));
 
-    dt->frame = av_frame_alloc();
+    dt->frame = zn_av_frame_alloc();
     if (!dt->frame)
         goto fail;
 
-    dt->pkt = av_packet_alloc();
+    dt->pkt = zn_av_packet_alloc();
     if (!dt->pkt)
         goto fail;
 
@@ -711,7 +711,7 @@ static void *decoder_thread(void *arg)
 
         ret = packet_decode(ist, dt.pkt->buf ? dt.pkt : NULL, dt.frame);
 
-        av_packet_unref(dt.pkt);
+        zn_av_packet_unref(dt.pkt);
         av_frame_unref(dt.frame);
 
         if (ret == AVERROR_EOF) {
@@ -736,7 +736,7 @@ static void *decoder_thread(void *arg)
             avcodec_flush_buffers(ist->dec_ctx);
         } else if (ret < 0) {
             av_log(ist, AV_LOG_ERROR, "Error processing packet in decoder: %s\n",
-                   av_err2str(ret));
+                   zn_av_err2str(ret));
             break;
         }
 
@@ -780,7 +780,7 @@ int dec_packet(InputStream *ist, const AVPacket *pkt, int no_eof)
 
     // send the packet/flush request/EOF to the decoder thread
     if (pkt || no_eof) {
-        av_packet_unref(d->pkt);
+        zn_av_packet_unref(d->pkt);
 
         if (pkt) {
             ret = av_packet_ref(d->pkt, pkt);
@@ -821,7 +821,7 @@ finish:
     thread_ret = dec_thread_stop(d);
     if (thread_ret < 0) {
         av_log(ist, AV_LOG_ERROR, "Decoder thread returned error: %s\n",
-               av_err2str(thread_ret));
+               zn_av_err2str(thread_ret));
         ret = err_merge(ret, thread_ret);
     }
     // non-EOF errors here are all fatal
@@ -872,7 +872,7 @@ static int dec_thread_start(InputStream *ist)
     if (ret) {
         ret = AVERROR(ret);
         av_log(ist, AV_LOG_ERROR, "pthread_create() failed: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto fail;
     }
 
@@ -1087,11 +1087,11 @@ int dec_open(InputStream *ist)
 
     if (codec->type == AVMEDIA_TYPE_SUBTITLE && ist->fix_sub_duration) {
         for (int i = 0; i < FF_ARRAY_ELEMS(d->sub_prev); i++) {
-            d->sub_prev[i] = av_frame_alloc();
+            d->sub_prev[i] = zn_av_frame_alloc();
             if (!d->sub_prev[i])
                 return AVERROR(ENOMEM);
         }
-        d->sub_heartbeat = av_frame_alloc();
+        d->sub_heartbeat = zn_av_frame_alloc();
         if (!d->sub_heartbeat)
             return AVERROR(ENOMEM);
     }
@@ -1120,13 +1120,13 @@ int dec_open(InputStream *ist)
     if (ret < 0) {
         av_log(ist, AV_LOG_ERROR,
                "Hardware device setup failed for decoder: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         return ret;
     }
 
-    if ((ret = avcodec_open2(ist->dec_ctx, codec, &ist->decoder_opts)) < 0) {
+    if ((ret = zn_avcodec_open2(ist->dec_ctx, codec, &ist->decoder_opts)) < 0) {
         av_log(ist, AV_LOG_ERROR, "Error while opening decoder: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         return ret;
     }
 
@@ -1137,7 +1137,7 @@ int dec_open(InputStream *ist)
     ret = dec_thread_start(ist);
     if (ret < 0) {
         av_log(ist, AV_LOG_ERROR, "Error starting decoder thread: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         return ret;
     }
 

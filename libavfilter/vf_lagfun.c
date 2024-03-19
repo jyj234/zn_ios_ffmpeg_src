@@ -150,7 +150,7 @@ static int config_output(AVFilterLink *outlink)
     s->planeheight[0] = s->planeheight[3] = inlink->h;
 
     for (int p = 0; p < s->nb_planes; p++) {
-        s->old[p] = av_calloc(s->planewidth[p] * s->planeheight[p], sizeof(*s->old[0]));
+        s->old[p] = zn_av_calloc(s->planewidth[p] * s->planeheight[p], sizeof(*s->old[0]));
         if (!s->old[p])
             return AVERROR(ENOMEM);
     }
@@ -168,7 +168,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -178,7 +178,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, s->lagfun[!!ctx->is_disabled], &td, NULL,
                       FFMIN(s->planeheight[1], ff_filter_get_nb_threads(ctx)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -187,7 +187,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     LagfunContext *s = ctx->priv;
 
     for (int p = 0; p < s->nb_planes; p++)
-        av_freep(&s->old[p]);
+        zn_av_freep(&s->old[p]);
 }
 
 #define OFFSET(x) offsetof(LagfunContext, x)

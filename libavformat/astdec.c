@@ -43,7 +43,7 @@ static int ast_read_header(AVFormatContext *s)
     int depth;
     AVStream *st;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

@@ -945,8 +945,8 @@ static av_cold int prores_encode_init(AVCodecContext *avctx)
 static av_cold int prores_encode_close(AVCodecContext *avctx)
 {
     ProresContext* ctx = avctx->priv_data;
-    av_freep(&ctx->fill_y);
-    av_freep(&ctx->fill_a);
+    zn_av_freep(&ctx->fill_y);
+    zn_av_freep(&ctx->fill_a);
 
     return 0;
 }

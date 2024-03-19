@@ -222,10 +222,10 @@ static int check_tag(AVIOContext *s, int offset, unsigned int len)
 static void free_geobtag(void *obj)
 {
     ID3v2ExtraMetaGEOB *geob = obj;
-    av_freep(&geob->mime_type);
-    av_freep(&geob->file_name);
-    av_freep(&geob->description);
-    av_freep(&geob->data);
+    zn_av_freep(&geob->mime_type);
+    zn_av_freep(&geob->file_name);
+    zn_av_freep(&geob->description);
+    zn_av_freep(&geob->data);
 }
 
 /**
@@ -310,7 +310,7 @@ static int decode_str(AVFormatContext *s, AVIOContext *pb, int encoding,
 
     dynsize = avio_close_dyn_buf(dynbuf, dst);
     if (dynsize <= 0) {
-        av_freep(dst);
+        zn_av_freep(dst);
         return AVERROR(ENOMEM);
     }
     *maxread = left;
@@ -342,19 +342,19 @@ static void read_ttag(AVFormatContext *s, AVIOContext *pb, int taglen,
     if (!(strcmp(key, "TCON") && strcmp(key, "TCO"))                         &&
         (sscanf(dst, "(%d)", &genre) == 1 || sscanf(dst, "%d", &genre) == 1) &&
         genre <= ID3v1_GENRE_MAX) {
-        av_freep(&dst);
+        zn_av_freep(&dst);
         dst = av_strdup(ff_id3v1_genre_str[genre]);
     } else if (!(strcmp(key, "TXXX") && strcmp(key, "TXX"))) {
         /* dst now contains the key, need to get value */
         key = dst;
         if (decode_str(s, pb, encoding, &dst, &taglen) < 0) {
             av_log(s, AV_LOG_ERROR, "Error reading frame %s, skipped\n", key);
-            av_freep(&key);
+            zn_av_freep(&key);
             return;
         }
         dict_flags |= AV_DICT_DONT_STRDUP_KEY;
     } else if (!*dst)
-        av_freep(&dst);
+        zn_av_freep(&dst);
 
     if (dst)
         av_dict_set(metadata, key, dst, dict_flags);
@@ -392,7 +392,7 @@ static void read_uslt(AVFormatContext *s, AVIOContext *pb, int taglen,
                                        descriptor[0] ? "-" : "",
                                        lang);
     if (!key) {
-        av_free(text);
+        zn_av_free(text);
         goto error;
     }
 
@@ -403,7 +403,7 @@ static void read_uslt(AVFormatContext *s, AVIOContext *pb, int taglen,
 error:
     if (!ok)
         av_log(s, AV_LOG_ERROR, "Error reading lyrics, skipped\n");
-    av_free(descriptor);
+    zn_av_free(descriptor);
 }
 
 /**
@@ -430,7 +430,7 @@ static void read_comment(AVFormatContext *s, AVIOContext *pb, int taglen,
     }
 
     if (dst && !*dst)
-        av_freep(&dst);
+        zn_av_freep(&dst);
 
     if (dst) {
         key = (const char *) dst;
@@ -440,7 +440,7 @@ static void read_comment(AVFormatContext *s, AVIOContext *pb, int taglen,
     if (decode_str(s, pb, encoding, &dst, &taglen) < 0) {
         av_log(s, AV_LOG_ERROR, "Error reading comment frame, skipped\n");
         if (dict_flags & AV_DICT_DONT_STRDUP_KEY)
-            av_freep((void*)&key);
+            zn_av_freep((void*)&key);
         return;
     }
 
@@ -529,7 +529,7 @@ static void read_geobtag(AVFormatContext *s, AVIOContext *pb, int taglen,
 fail:
     av_log(s, AV_LOG_ERROR, "Error reading frame %s, skipped\n", tag);
     free_geobtag(geob_data);
-    av_free(new_extra);
+    zn_av_free(new_extra);
     return;
 }
 
@@ -585,7 +585,7 @@ static void free_apic(void *obj)
 {
     ID3v2ExtraMetaAPIC *apic = obj;
     av_buffer_unref(&apic->buf);
-    av_freep(&apic->description);
+    zn_av_freep(&apic->description);
 }
 
 static void rstrip_spaces(char *buf)
@@ -680,14 +680,14 @@ static void read_apic(AVFormatContext *s, AVIOContext *pb, int taglen,
 fail:
     if (apic)
         free_apic(apic);
-    av_freep(&new_extra);
+    zn_av_freep(&new_extra);
     avio_seek(pb, end, SEEK_SET);
 }
 
 static void free_chapter(void *obj)
 {
     ID3v2ExtraMetaCHAP *chap = obj;
-    av_freep(&chap->element_id);
+    zn_av_freep(&chap->element_id);
     av_dict_free(&chap->meta);
 }
 
@@ -742,14 +742,14 @@ static void read_chapter(AVFormatContext *s, AVIOContext *pb, int len,
 
 fail:
     free_chapter(chap);
-    av_freep(&new_extra);
+    zn_av_freep(&new_extra);
 }
 
 static void free_priv(void *obj)
 {
     ID3v2ExtraMetaPRIV *priv = obj;
-    av_freep(&priv->owner);
-    av_freep(&priv->data);
+    zn_av_freep(&priv->owner);
+    zn_av_freep(&priv->data);
 }
 
 static void read_priv(AVFormatContext *s, AVIOContext *pb, int taglen,
@@ -783,7 +783,7 @@ static void read_priv(AVFormatContext *s, AVIOContext *pb, int taglen,
 
 fail:
     free_priv(priv);
-    av_freep(&meta);
+    zn_av_freep(&meta);
 }
 
 typedef struct ID3v2EMFunc {
@@ -1072,8 +1072,8 @@ error:
         av_log(s, AV_LOG_INFO, "ID3v2.%d tag skipped, cannot handle %s\n",
                version, reason);
     avio_seek(pb, end, SEEK_SET);
-    av_free(buffer);
-    av_free(uncompressed_buffer);
+    zn_av_free(buffer);
+    zn_av_free(uncompressed_buffer);
     return;
 }
 
@@ -1151,7 +1151,7 @@ void ff_id3v2_free_extra_meta(ID3v2ExtraMeta **extra_meta)
         if ((extra_func = get_extra_meta_func(current->tag, 1)))
             extra_func->free(&current->data);
         next = current->next;
-        av_freep(&current);
+        zn_av_freep(&current);
         current = next;
     }
 
@@ -1241,7 +1241,7 @@ int ff_id3v2_parse_priv_dict(AVDictionary **metadata, ID3v2ExtraMeta *extra_meta
             }
 
             if ((ret = av_bprint_finalize(&bprint, &escaped)) < 0) {
-                av_free(key);
+                zn_av_free(key);
                 return ret;
             }
 

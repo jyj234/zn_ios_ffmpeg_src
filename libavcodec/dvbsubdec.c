@@ -208,14 +208,14 @@ static void delete_region_display_list(DVBSubContext *ctx, DVBSubRegion *region)
 
                     *obj2_ptr = obj2->next;
 
-                    av_freep(&obj2);
+                    zn_av_freep(&obj2);
                 }
             }
         }
 
         region->display_list = display->region_list_next;
 
-        av_freep(&display);
+        zn_av_freep(&display);
     }
 
 }
@@ -227,7 +227,7 @@ static void delete_cluts(DVBSubContext *ctx)
 
         ctx->clut_list = clut->next;
 
-        av_freep(&clut);
+        zn_av_freep(&clut);
     }
 }
 
@@ -238,7 +238,7 @@ static void delete_objects(DVBSubContext *ctx)
 
         ctx->object_list = object->next;
 
-        av_freep(&object);
+        zn_av_freep(&object);
     }
 }
 
@@ -251,8 +251,8 @@ static void delete_regions(DVBSubContext *ctx)
 
         delete_region_display_list(ctx, region);
 
-        av_freep(&region->pbuf);
-        av_freep(&region);
+        zn_av_freep(&region->pbuf);
+        zn_av_freep(&region);
     }
 }
 
@@ -363,13 +363,13 @@ static av_cold int dvbsub_close_decoder(AVCodecContext *avctx)
 
     delete_cluts(ctx);
 
-    av_freep(&ctx->display_definition);
+    zn_av_freep(&ctx->display_definition);
 
     while (ctx->display_list) {
         display = ctx->display_list;
         ctx->display_list = display->next;
 
-        av_freep(&display);
+        zn_av_freep(&display);
     }
 
     return 0;
@@ -765,7 +765,7 @@ static int save_subtitle_set(AVCodecContext *avctx, AVSubtitle *sub, int *got_ou
     }
     if (sub->num_rects > 0) {
 
-        sub->rects = av_calloc(sub->num_rects, sizeof(*sub->rects));
+        sub->rects = zn_av_calloc(sub->num_rects, sizeof(*sub->rects));
         if (!sub->rects) {
             ret = AVERROR(ENOMEM);
             goto fail;
@@ -849,12 +849,12 @@ fail:
         for (i=0; i < sub->num_rects; i++) {
             rect = sub->rects[i];
             if (rect) {
-                av_freep(&rect->data[0]);
-                av_freep(&rect->data[1]);
+                zn_av_freep(&rect->data[0]);
+                zn_av_freep(&rect->data[1]);
             }
-            av_freep(&sub->rects[i]);
+            zn_av_freep(&sub->rects[i]);
         }
-        av_freep(&sub->rects);
+        zn_av_freep(&sub->rects);
     }
     sub->num_rects = 0;
     return ret;
@@ -1191,7 +1191,7 @@ static int dvbsub_parse_region_segment(AVCodecContext *avctx,
     }
 
     if (region->width * region->height != region->buf_size) {
-        av_free(region->pbuf);
+        zn_av_free(region->pbuf);
 
         region->buf_size = region->width * region->height;
 
@@ -1268,7 +1268,7 @@ static int dvbsub_parse_region_segment(AVCodecContext *avctx,
         if (display->x_pos >= region->width ||
             display->y_pos >= region->height) {
             av_log(avctx, AV_LOG_ERROR, "Object outside region\n");
-            av_free(display);
+            zn_av_free(display);
             return AVERROR_INVALIDDATA;
         }
 
@@ -1375,7 +1375,7 @@ static int dvbsub_parse_page_segment(AVCodecContext *avctx,
 
         tmp_display_list = display->next;
 
-        av_freep(&display);
+        zn_av_freep(&display);
     }
 
     return 0;

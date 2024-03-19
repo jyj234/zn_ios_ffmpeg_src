@@ -52,7 +52,7 @@ static int fwse_read_header(AVFormatContext *s)
     avio_skip(pb, 4);
     start_offset = avio_rl32(pb);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -63,7 +63,7 @@ static int fwse_read_header(AVFormatContext *s)
     channels         = avio_rl32(pb);
     if (channels != 1 && channels != 2)
         return AVERROR_INVALIDDATA;
-    av_channel_layout_default(&par->ch_layout, channels);
+    zn_av_channel_layout_default(&par->ch_layout, channels);
     st->duration = avio_rl32(pb);
     par->sample_rate = avio_rl32(pb);
     if (par->sample_rate <= 0 || par->sample_rate > INT_MAX)

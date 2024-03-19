@@ -68,12 +68,12 @@ void tq_free(ThreadQueue **ptq)
 
     objpool_free(&tq->obj_pool);
 
-    av_freep(&tq->finished);
+    zn_av_freep(&tq->finished);
 
     pthread_cond_destroy(&tq->cond);
     pthread_mutex_destroy(&tq->lock);
 
-    av_freep(ptq);
+    zn_av_freep(ptq);
 }
 
 ThreadQueue *tq_alloc(unsigned int nb_streams, size_t queue_size,
@@ -88,18 +88,18 @@ ThreadQueue *tq_alloc(unsigned int nb_streams, size_t queue_size,
 
     ret = pthread_cond_init(&tq->cond, NULL);
     if (ret) {
-        av_freep(&tq);
+        zn_av_freep(&tq);
         return NULL;
     }
 
     ret = pthread_mutex_init(&tq->lock, NULL);
     if (ret) {
         pthread_cond_destroy(&tq->cond);
-        av_freep(&tq);
+        zn_av_freep(&tq);
         return NULL;
     }
 
-    tq->finished = av_calloc(nb_streams, sizeof(*tq->finished));
+    tq->finished = zn_av_calloc(nb_streams, sizeof(*tq->finished));
     if (!tq->finished)
         goto fail;
     tq->nb_streams = nb_streams;

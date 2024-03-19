@@ -497,7 +497,7 @@ static int avi_write_header(AVFormatContext *s)
                     if (!str)
                         return AVERROR(ENOMEM);
                     ff_riff_write_info_tag(s->pb, "strn", str);
-                    av_free(str);
+                    zn_av_free(str);
                 }
             }
         }
@@ -849,7 +849,7 @@ static int avi_write_packet(AVFormatContext *s, AVPacket *pkt)
 
 fail:
             if (reshuffle_ret)
-                av_packet_free(&pkt);
+                zn_av_packet_free(&pkt);
             return ret;
         }
     }
@@ -982,8 +982,8 @@ static void avi_deinit(AVFormatContext *s)
         if (!avist)
             continue;
         for (int j = 0; j < avist->indexes.ents_allocated / AVI_INDEX_CLUSTER_SIZE; j++)
-            av_freep(&avist->indexes.cluster[j]);
-        av_freep(&avist->indexes.cluster);
+            zn_av_freep(&avist->indexes.cluster[j]);
+        zn_av_freep(&avist->indexes.cluster);
         avist->indexes.ents_allocated = avist->indexes.entry = 0;
     }
 }

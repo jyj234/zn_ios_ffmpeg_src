@@ -163,7 +163,7 @@ static int read_tag(const uint8_t *line, AVDictionary **m)
     if (!(key = unescape(line, p - line)))
         return AVERROR(ENOMEM);
     if (!(value = unescape(p + 1, strlen(p + 1)))) {
-        av_free(key);
+        zn_av_free(key);
         return AVERROR(ENOMEM);
     }
 
@@ -182,7 +182,7 @@ static int read_header(AVFormatContext *s)
         get_bprint_line(s->pb, &bp);
 
         if (!memcmp(bp.str, ID_STREAM, strlen(ID_STREAM))) {
-            AVStream *st = avformat_new_stream(s, NULL);
+            AVStream *st = zn_avformat_new_stream(s, NULL);
 
             if (!st)
                 goto nomem;

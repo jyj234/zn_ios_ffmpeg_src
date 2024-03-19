@@ -222,9 +222,9 @@ static int parse_command(Command *cmd, int cmd_count, int interval_count,
     return 1;
 
 fail:
-    av_freep(&cmd->target);
-    av_freep(&cmd->command);
-    av_freep(&cmd->arg);
+    zn_av_freep(&cmd->target);
+    zn_av_freep(&cmd->command);
+    zn_av_freep(&cmd->arg);
     return ret;
 }
 
@@ -346,7 +346,7 @@ static int parse_interval(Interval *interval, int interval_count,
                          interval_count, buf, log_ctx);
 
 end:
-    av_free(intervalstr);
+    zn_av_free(intervalstr);
     return ret;
 }
 
@@ -476,13 +476,13 @@ static av_cold void uninit(AVFilterContext *ctx)
         Interval *interval = &s->intervals[i];
         for (j = 0; j < interval->nb_commands; j++) {
             Command *cmd = &interval->commands[j];
-            av_freep(&cmd->target);
-            av_freep(&cmd->command);
-            av_freep(&cmd->arg);
+            zn_av_freep(&cmd->target);
+            zn_av_freep(&cmd->command);
+            zn_av_freep(&cmd->arg);
         }
-        av_freep(&interval->commands);
+        zn_av_freep(&interval->commands);
     }
-    av_freep(&s->intervals);
+    zn_av_freep(&s->intervals);
 }
 
 static int filter_frame(AVFilterLink *inlink, AVFrame *ref)
@@ -551,13 +551,13 @@ FF_ENABLE_DEPRECATION_WARNINGS
                         if ((ret = av_expr_parse_and_eval(&res, cmd->arg, var_names, var_values,
                                                           NULL, NULL, NULL, NULL, NULL, 0, NULL)) < 0) {
                             av_log(ctx, AV_LOG_ERROR, "Invalid expression '%s' for command argument.\n", cmd->arg);
-                            av_frame_free(&ref);
+                            zn_av_frame_free(&ref);
                             return AVERROR(EINVAL);
                         }
 
                         cmd_arg = av_asprintf("%g", res);
                         if (!cmd_arg) {
-                            av_frame_free(&ref);
+                            zn_av_frame_free(&ref);
                             return AVERROR(ENOMEM);
                         }
                     }
@@ -570,9 +570,9 @@ FF_ENABLE_DEPRECATION_WARNINGS
                                                       AVFILTER_CMD_FLAG_ONE);
                     av_log(ctx, AV_LOG_VERBOSE,
                            "Command reply for command #%d: ret:%s res:%s\n",
-                           cmd->index, av_err2str(ret), buf);
+                           cmd->index, zn_av_err2str(ret), buf);
                     if (cmd->flags & COMMAND_FLAG_EXPR)
-                        av_freep(&cmd_arg);
+                        zn_av_freep(&cmd_arg);
                 }
             }
         }

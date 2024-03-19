@@ -37,11 +37,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ret = av_frame_copy(out, in);
     if (ret < 0)
         goto fail;
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

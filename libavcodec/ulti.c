@@ -52,7 +52,7 @@ static av_cold int ulti_decode_init(AVCodecContext *avctx)
     avctx->pix_fmt = AV_PIX_FMT_YUV410P;
     s->ulti_codebook = ulti_codebook;
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
@@ -63,7 +63,7 @@ static av_cold int ulti_decode_end(AVCodecContext *avctx)
 {
     UltimotionDecodeContext *s = avctx->priv_data;
 
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 
     return 0;
 }

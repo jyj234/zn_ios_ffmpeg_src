@@ -64,7 +64,7 @@ static int read_close(AVFormatContext *s)
 {
     JVDemuxContext *jv = s->priv_data;
 
-    av_freep(&jv->frames);
+    zn_av_freep(&jv->frames);
 
     return 0;
 }
@@ -80,8 +80,8 @@ static int read_header(AVFormatContext *s)
 
     avio_skip(pb, 80);
 
-    ast = avformat_new_stream(s, NULL);
-    vst = avformat_new_stream(s, NULL);
+    ast = zn_avformat_new_stream(s, NULL);
+    vst = zn_avformat_new_stream(s, NULL);
     if (!ast || !vst)
         return AVERROR(ENOMEM);
     asti = ffstream(ast);

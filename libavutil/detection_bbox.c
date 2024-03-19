@@ -59,7 +59,7 @@ AVDetectionBBoxHeader *av_detection_bbox_create_side_data(AVFrame *frame, uint32
         return NULL;
     buf = av_buffer_create((uint8_t *)header, size, NULL, NULL, 0);
     if (!buf) {
-        av_freep(&header);
+        zn_av_freep(&header);
         return NULL;
     }
 

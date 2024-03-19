@@ -87,7 +87,7 @@ typedef struct SegmentContext {
     int64_t clocktime_wrap_duration; //< wrapping duration considered for starting a new segment
     int64_t last_val;      ///< remember last time for wrap around detection
     int cut_pending;
-    int header_written;    ///< whether we've already called avformat_write_header
+    int header_written;    ///< whether we've already called zn_avformat_write_header
 
     char *entry_prefix;    ///< prefix to add to list entry filenames
     int list_type;         ///< set the list type
@@ -151,7 +151,7 @@ static int segment_mux_init(AVFormatContext *s)
     int i;
     int ret;
 
-    ret = avformat_alloc_output_context2(&seg->avf, seg->oformat, NULL, NULL);
+    ret = zn_avformat_alloc_output_context2(&seg->avf, seg->oformat, NULL, NULL);
     if (ret < 0)
         return ret;
     oc = seg->avf;
@@ -240,7 +240,7 @@ static int segment_start(AVFormatContext *s, int write_header)
     int err = 0;
 
     if (write_header) {
-        avformat_free_context(oc);
+        zn_avformat_free_context(oc);
         seg->avf = NULL;
         if ((err = segment_mux_init(s)) < 0)
             return err;
@@ -268,7 +268,7 @@ static int segment_start(AVFormatContext *s, int write_header)
         AVDictionary *options = NULL;
         av_dict_copy(&options, seg->format_options, 0);
         av_dict_set(&options, "fflags", "-autobsf", 0);
-        err = avformat_write_header(oc, &options);
+        err = zn_avformat_write_header(oc, &options);
         av_dict_free(&options);
         if (err < 0)
             return err;
@@ -340,7 +340,7 @@ static void segment_list_print_entry(AVIOContext      *list_ioctx,
             return;
         }
         avio_printf(list_ioctx, "file %s\n", buf);
-        av_free(buf);
+        zn_av_free(buf);
         break;
     }
     default:
@@ -365,7 +365,7 @@ static int segment_end(AVFormatContext *s, int write_trailer, int is_last)
 
     av_write_frame(oc, NULL); /* Flush any buffered data (fragmented mp4) */
     if (write_trailer)
-        ret = av_write_trailer(oc);
+        ret = zn_av_write_trailer(oc);
 
     if (ret < 0)
         av_log(s, AV_LOG_ERROR, "Failure occurred when ending segment '%s'\n",
@@ -392,8 +392,8 @@ static int segment_end(AVFormatContext *s, int write_trailer, int is_last)
             if (seg->list_size && seg->segment_count >= seg->list_size) {
                 entry = seg->segment_list_entries;
                 seg->segment_list_entries = seg->segment_list_entries->next;
-                av_freep(&entry->filename);
-                av_freep(&entry);
+                zn_av_freep(&entry->filename);
+                zn_av_freep(&entry);
             }
 
             if ((ret = segment_list_open(s)) < 0)
@@ -427,7 +427,7 @@ static int segment_end(AVFormatContext *s, int write_trailer, int is_last)
                         av_log(s, AV_LOG_WARNING, "Could not increment global timecode, error occurred during timecode creation.\n");
                         break;
                     }
-                    tc.start += (int)((seg->cur_entry.end_time - seg->cur_entry.start_time) * av_q2d(rate));/* increment timecode */
+                    tc.start += (int)((seg->cur_entry.end_time - seg->cur_entry.start_time) * zn_av_q2d(rate));/* increment timecode */
                     av_dict_set(&s->metadata, "timecode",
                                 av_timecode_make_string(&tc, buf, 0), 0);
                     break;
@@ -447,7 +447,7 @@ static int segment_end(AVFormatContext *s, int write_trailer, int is_last)
                         av_log(s, AV_LOG_WARNING, "Could not increment stream %d timecode, error occurred during timecode creation.\n", i);
                         continue;
                     }
-                st_tc.start += (int)((seg->cur_entry.end_time - seg->cur_entry.start_time) * av_q2d(st_rate));    // increment timecode
+                st_tc.start += (int)((seg->cur_entry.end_time - seg->cur_entry.start_time) * zn_av_q2d(st_rate));    // increment timecode
                 av_dict_set(&s->streams[i]->metadata, "timecode", av_timecode_make_string(&st_tc, st_buf, 0), 0);
                 }
             }
@@ -478,7 +478,7 @@ static int parse_times(void *log_ctx, int64_t **times, int *nb_times,
         if (*p == ',')
             (*nb_times)++;
 
-    *times = av_malloc_array(*nb_times, sizeof(**times));
+    *times = zn_av_malloc_array(*nb_times, sizeof(**times));
     if (!*times) {
         av_log(log_ctx, AV_LOG_ERROR, "Could not allocate forced times array\n");
         FAIL(AVERROR(ENOMEM));
@@ -514,7 +514,7 @@ static int parse_times(void *log_ctx, int64_t **times, int *nb_times,
     }
 
 end:
-    av_free(times_str1);
+    zn_av_free(times_str1);
     return ret;
 }
 
@@ -529,7 +529,7 @@ static int parse_frames(void *log_ctx, int **frames, int *nb_frames,
         if (*p == ',')
             (*nb_frames)++;
 
-    *frames = av_malloc_array(*nb_frames, sizeof(**frames));
+    *frames = zn_av_malloc_array(*nb_frames, sizeof(**frames));
     if (!*frames) {
         av_log(log_ctx, AV_LOG_ERROR, "Could not allocate forced frames array\n");
         return AVERROR(ENOMEM);
@@ -575,9 +575,9 @@ static int open_null_ctx(AVIOContext **ctx)
     uint8_t *buf = av_malloc(buf_size);
     if (!buf)
         return AVERROR(ENOMEM);
-    *ctx = avio_alloc_context(buf, buf_size, 1, NULL, NULL, NULL, NULL);
+    *ctx = zn_avio_alloc_context(buf, buf_size, 1, NULL, NULL, NULL, NULL);
     if (!*ctx) {
-        av_free(buf);
+        zn_av_free(buf);
         return AVERROR(ENOMEM);
     }
     return 0;
@@ -585,8 +585,8 @@ static int open_null_ctx(AVIOContext **ctx)
 
 static void close_null_ctxp(AVIOContext **pb)
 {
-    av_freep(&(*pb)->buffer);
-    avio_context_free(pb);
+    zn_av_freep(&(*pb)->buffer);
+    zn_avio_context_free(pb);
 }
 
 static int select_reference_stream(AVFormatContext *s)
@@ -657,18 +657,18 @@ static void seg_free(AVFormatContext *s)
             close_null_ctxp(&seg->avf->pb);
         else
             ff_format_io_close(s, &seg->avf->pb);
-        avformat_free_context(seg->avf);
+        zn_avformat_free_context(seg->avf);
         seg->avf = NULL;
     }
-    av_freep(&seg->times);
-    av_freep(&seg->frames);
-    av_freep(&seg->cur_entry.filename);
+    zn_av_freep(&seg->times);
+    zn_av_freep(&seg->frames);
+    zn_av_freep(&seg->cur_entry.filename);
 
     cur = seg->segment_list_entries;
     while (cur) {
         SegmentListEntry *next = cur->next;
-        av_freep(&cur->filename);
-        av_free(cur);
+        zn_av_freep(&cur->filename);
+        zn_av_free(cur);
         cur = next;
     }
 }
@@ -753,7 +753,7 @@ static int seg_init(AVFormatContext *s)
 
     seg->reference_stream_first_pts = AV_NOPTS_VALUE;
 
-    seg->oformat = av_guess_format(seg->format, s->url, NULL);
+    seg->oformat = zn_av_guess_format(seg->format, s->url, NULL);
 
     if (!seg->oformat)
         return AVERROR_MUXER_NOT_FOUND;
@@ -803,7 +803,7 @@ static int seg_init(AVFormatContext *s)
 
     av_assert0(s->nb_streams == oc->nb_streams);
     if (ret == AVSTREAM_INIT_IN_WRITE_HEADER) {
-        ret = avformat_write_header(oc, NULL);
+        ret = zn_avformat_write_header(oc, NULL);
         if (ret < 0)
             return ret;
         seg->header_written = 1;
@@ -828,7 +828,7 @@ static int seg_write_header(AVFormatContext *s)
     int ret;
 
     if (!seg->header_written) {
-        ret = avformat_write_header(oc, NULL);
+        ret = zn_avformat_write_header(oc, NULL);
         if (ret < 0)
             return ret;
     }
@@ -930,7 +930,7 @@ calc_times:
                         end_pts - seg->time_delta, AV_TIME_BASE_Q) >= 0))) {
         /* sanitize end time in case last packet didn't have a defined duration */
         if (seg->cur_entry.last_duration == 0)
-            seg->cur_entry.end_time = (double)pkt->pts * av_q2d(st->time_base);
+            seg->cur_entry.end_time = (double)pkt->pts * zn_av_q2d(st->time_base);
 
         if ((ret = segment_end(s, seg->individual_header_trailer, 0)) < 0)
             goto fail;
@@ -940,7 +940,7 @@ calc_times:
 
         seg->cut_pending = 0;
         seg->cur_entry.index = seg->segment_idx + seg->segment_idx_wrap * seg->segment_idx_wrap_nb;
-        seg->cur_entry.start_time = (double)pkt->pts * av_q2d(st->time_base);
+        seg->cur_entry.start_time = (double)pkt->pts * zn_av_q2d(st->time_base);
         seg->cur_entry.start_pts = av_rescale_q(pkt->pts, st->time_base, AV_TIME_BASE_Q);
         seg->cur_entry.end_time = seg->cur_entry.start_time;
 
@@ -951,7 +951,7 @@ calc_times:
     if (pkt->stream_index == seg->reference_stream_index) {
         if (pkt->pts != AV_NOPTS_VALUE)
             seg->cur_entry.end_time =
-                FFMAX(seg->cur_entry.end_time, (double)(pkt->pts + pkt->duration) * av_q2d(st->time_base));
+                FFMAX(seg->cur_entry.end_time, (double)(pkt->pts + pkt->duration) * zn_av_q2d(st->time_base));
         seg->cur_entry.last_duration = pkt->duration;
     }
 
@@ -1009,7 +1009,7 @@ static int seg_write_trailer(struct AVFormatContext *s)
         if ((ret = open_null_ctx(&oc->pb)) < 0)
             return ret;
         seg->is_nullctx = 1;
-        ret = av_write_trailer(oc);
+        ret = zn_av_write_trailer(oc);
     } else {
         ret = segment_end(s, 1, 1);
     }

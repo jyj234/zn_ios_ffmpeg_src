@@ -64,7 +64,7 @@ static int ape_tag_read_field(AVFormatContext *s)
         uint8_t filename[1024];
         enum AVCodecID id;
         int ret;
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
 
@@ -97,7 +97,7 @@ static int ape_tag_read_field(AVFormatContext *s)
             return AVERROR(ENOMEM);
         c = avio_read(pb, value, size);
         if (c < 0) {
-            av_free(value);
+            zn_av_free(value);
             return c;
         }
         value[c] = 0;

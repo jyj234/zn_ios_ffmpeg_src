@@ -499,21 +499,21 @@ static int config_input_ref(AVFilterLink *inlink)
     }
 
     for (int i = 0; i < NUM_DATA_BUFS; i++) {
-        if (!(s->data_buf[i] = av_calloc(s->width, s->height * sizeof(float))))
+        if (!(s->data_buf[i] = zn_av_calloc(s->width, s->height * sizeof(float))))
             return AVERROR(ENOMEM);
     }
 
-    if (!(s->ref_data = av_calloc(s->width, s->height * sizeof(float))))
+    if (!(s->ref_data = zn_av_calloc(s->width, s->height * sizeof(float))))
         return AVERROR(ENOMEM);
 
-    if (!(s->main_data = av_calloc(s->width, s->height * sizeof(float))))
+    if (!(s->main_data = zn_av_calloc(s->width, s->height * sizeof(float))))
         return AVERROR(ENOMEM);
 
-    if (!(s->temp = av_calloc(s->nb_threads, sizeof(s->temp[0]))))
+    if (!(s->temp = zn_av_calloc(s->nb_threads, sizeof(s->temp[0]))))
         return AVERROR(ENOMEM);
 
     for (int i = 0; i < s->nb_threads; i++) {
-        if (!(s->temp[i] = av_calloc(s->width, sizeof(float))))
+        if (!(s->temp[i] = zn_av_calloc(s->width, sizeof(float))))
             return AVERROR(ENOMEM);
     }
 
@@ -592,15 +592,15 @@ static av_cold void uninit(AVFilterContext *ctx)
     }
 
     for (int i = 0; i < NUM_DATA_BUFS; i++)
-        av_freep(&s->data_buf[i]);
+        zn_av_freep(&s->data_buf[i]);
 
-    av_freep(&s->ref_data);
-    av_freep(&s->main_data);
+    zn_av_freep(&s->ref_data);
+    zn_av_freep(&s->main_data);
 
     for (int i = 0; i < s->nb_threads && s->temp; i++)
-        av_freep(&s->temp[i]);
+        zn_av_freep(&s->temp[i]);
 
-    av_freep(&s->temp);
+    zn_av_freep(&s->temp);
 
     ff_framesync_uninit(&s->fs);
 }

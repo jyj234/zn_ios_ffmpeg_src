@@ -126,8 +126,8 @@ static int mjpeg2jpeg_filter(AVBSFContext *ctx, AVPacket *out)
 
 fail:
     if (ret < 0)
-        av_packet_unref(out);
-    av_packet_free(&in);
+        zn_av_packet_unref(out);
+    zn_av_packet_free(&in);
     return ret;
 }
 

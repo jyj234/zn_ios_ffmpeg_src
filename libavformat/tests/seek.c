@@ -57,7 +57,7 @@ static void ts_str(char buffer[60], int64_t ts, AVRational base)
 int main(int argc, char **argv)
 {
     const char *filename;
-    AVFormatContext *ic = avformat_alloc_context();
+    AVFormatContext *ic = zn_avformat_alloc_context();
     int i, ret, stream_id;
     int j;
     int64_t timestamp;
@@ -99,14 +99,14 @@ int main(int argc, char **argv)
 
     filename = argv[1];
 
-    ret = avformat_open_input(&ic, filename, NULL, &format_opts);
+    ret = zn_avformat_open_input(&ic, filename, NULL, &format_opts);
     av_dict_free(&format_opts);
     if (ret < 0) {
         fprintf(stderr, "cannot open %s\n", filename);
         return 1;
     }
 
-    ret = avformat_find_stream_info(ic, NULL);
+    ret = zn_avformat_find_stream_info(ic, NULL);
     if (ret < 0) {
         fprintf(stderr, "%s: could not find codec parameters\n", filename);
         return 1;
@@ -123,14 +123,14 @@ int main(int argc, char **argv)
 
         if(ret>=0){
             for(j=0; j<frame_count; j++) {
-            ret= av_read_frame(ic, &pkt);
+            ret= zn_av_read_frame(ic, &pkt);
             if(ret>=0){
                 char dts_buf[60];
                 st= ic->streams[pkt.stream_index];
                 ts_str(dts_buf, pkt.dts, st->time_base);
                 ts_str(ts_buf,  pkt.pts, st->time_base);
                 printf("ret:%-10s st:%2d flags:%d dts:%s pts:%s pos:%7" PRId64 " size:%6d", ret_str(ret), pkt.stream_index, pkt.flags, dts_buf, ts_buf, pkt.pos, pkt.size);
-                av_packet_unref(&pkt);
+                zn_av_packet_unref(&pkt);
             } else
                 printf("ret:%s", ret_str(ret)); // necessary to avoid trailing whitespace
             printf("\n");
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
         printf("ret:%-10s st:%2d flags:%d  ts:%s\n", ret_str(ret), stream_id, i&1, ts_buf);
     }
 
-    avformat_close_input(&ic);
+    zn_avformat_close_input(&ic);
 
     return 0;
 }

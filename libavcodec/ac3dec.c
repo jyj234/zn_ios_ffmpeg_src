@@ -406,7 +406,7 @@ static int set_downmix_coeffs(AC3DecodeContext *s)
     float downmix_coeffs[2][AC3_MAX_CHANNELS];
 
     if (!s->downmix_coeffs[0]) {
-        s->downmix_coeffs[0] = av_malloc_array(2 * AC3_MAX_CHANNELS,
+        s->downmix_coeffs[0] = zn_av_malloc_array(2 * AC3_MAX_CHANNELS,
                                                sizeof(**s->downmix_coeffs));
         if (!s->downmix_coeffs[0])
             return AVERROR(ENOMEM);
@@ -1866,8 +1866,8 @@ static av_cold int ac3_decode_end(AVCodecContext *avctx)
     AC3DecodeContext *s = avctx->priv_data;
     av_tx_uninit(&s->tx_256);
     av_tx_uninit(&s->tx_128);
-    av_freep(&s->fdsp);
-    av_freep(&s->downmix_coeffs[0]);
+    zn_av_freep(&s->fdsp);
+    zn_av_freep(&s->downmix_coeffs[0]);
 
     return 0;
 }

@@ -247,7 +247,7 @@ fail:
     ffio_free_dyn_buf(&sps_pb);
     ffio_free_dyn_buf(&pps_pb);
     ffio_free_dyn_buf(&sps_ext_pb);
-    av_free(start);
+    zn_av_free(start);
 
     return ret;
 }
@@ -480,6 +480,6 @@ int ff_avc_decode_sps(H264SPS *sps, const uint8_t *buf, int buf_size)
 
     ret = 0;
  end:
-    av_free(rbsp_buf);
+    zn_av_free(rbsp_buf);
     return ret;
 }

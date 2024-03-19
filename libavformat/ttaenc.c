@@ -129,7 +129,7 @@ static void tta_queue_flush(AVFormatContext *s)
     while (tta->queue.head) {
         avpriv_packet_list_get(&tta->queue, pkt);
         avio_write(s->pb, pkt->data, pkt->size);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 }
 

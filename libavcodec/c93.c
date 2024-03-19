@@ -51,8 +51,8 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     C93DecoderContext * const c93 = avctx->priv_data;
 
-    av_frame_free(&c93->pictures[0]);
-    av_frame_free(&c93->pictures[1]);
+    zn_av_frame_free(&c93->pictures[0]);
+    zn_av_frame_free(&c93->pictures[1]);
 
     return 0;
 }
@@ -62,8 +62,8 @@ static av_cold int decode_init(AVCodecContext *avctx)
     C93DecoderContext *s = avctx->priv_data;
     avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
-    s->pictures[0] = av_frame_alloc();
-    s->pictures[1] = av_frame_alloc();
+    s->pictures[0] = zn_av_frame_alloc();
+    s->pictures[1] = zn_av_frame_alloc();
     if (!s->pictures[0] || !s->pictures[1])
         return AVERROR(ENOMEM);
 

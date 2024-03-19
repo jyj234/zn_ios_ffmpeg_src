@@ -60,7 +60,7 @@ static int64_t read_ts(const char *s)
 static int realtext_read_header(AVFormatContext *s)
 {
     RealTextContext *rt = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     AVBPrint buf;
     char c = 0;
     int res = 0, duration = read_ts("60"); // default duration is 60 seconds

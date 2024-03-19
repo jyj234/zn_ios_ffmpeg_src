@@ -209,8 +209,8 @@ static int decode_slice_header(const FFV1Context *f, FFV1Context *fs)
         context_count = f->context_count[idx];
 
         if (p->context_count < context_count) {
-            av_freep(&p->state);
-            av_freep(&p->vlc_state);
+            zn_av_freep(&p->state);
+            zn_av_freep(&p->vlc_state);
         }
         p->context_count = context_count;
     }
@@ -280,17 +280,17 @@ static int decode_slice(AVCodecContext *c, void *arg)
             PlaneContext *psrc = &fssrc->plane[i];
             PlaneContext *pdst = &fsdst->plane[i];
 
-            av_free(pdst->state);
-            av_free(pdst->vlc_state);
+            zn_av_free(pdst->state);
+            zn_av_free(pdst->vlc_state);
             memcpy(pdst, psrc, sizeof(*pdst));
             pdst->state = NULL;
             pdst->vlc_state = NULL;
 
             if (fssrc->ac) {
-                pdst->state = av_malloc_array(CONTEXT_SIZE,  psrc->context_count);
+                pdst->state = zn_av_malloc_array(CONTEXT_SIZE,  psrc->context_count);
                 memcpy(pdst->state, psrc->state, CONTEXT_SIZE * psrc->context_count);
             } else {
-                pdst->vlc_state = av_malloc_array(sizeof(*pdst->vlc_state), psrc->context_count);
+                pdst->vlc_state = zn_av_malloc_array(sizeof(*pdst->vlc_state), psrc->context_count);
                 memcpy(pdst->vlc_state, psrc->vlc_state, sizeof(*pdst->vlc_state) * psrc->context_count);
             }
         }
@@ -840,8 +840,8 @@ static int read_header(FFV1Context *f)
             if (f->version <= 2) {
                 av_assert0(context_count >= 0);
                 if (p->context_count < context_count) {
-                    av_freep(&p->state);
-                    av_freep(&p->vlc_state);
+                    zn_av_freep(&p->state);
+                    zn_av_freep(&p->vlc_state);
                 }
                 p->context_count = context_count;
             }
@@ -858,8 +858,8 @@ static av_cold int decode_init(AVCodecContext *avctx)
     if ((ret = ff_ffv1_common_init(avctx)) < 0)
         return ret;
 
-    f->picture.f      = av_frame_alloc();
-    f->last_picture.f = av_frame_alloc();
+    f->picture.f      = zn_av_frame_alloc();
+    f->last_picture.f = zn_av_frame_alloc();
     if (!f->picture.f || !f->last_picture.f)
         return AVERROR(ENOMEM);
 
@@ -965,7 +965,7 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *rframe,
                 int64_t ts = avpkt->pts != AV_NOPTS_VALUE ? avpkt->pts : avpkt->dts;
                 av_log(f->avctx, AV_LOG_ERROR, "slice CRC mismatch %X!", crc);
                 if (ts != AV_NOPTS_VALUE && avctx->pkt_timebase.num) {
-                    av_log(f->avctx, AV_LOG_ERROR, "at %f seconds\n", ts*av_q2d(avctx->pkt_timebase));
+                    av_log(f->avctx, AV_LOG_ERROR, "at %f seconds\n", ts*zn_av_q2d(avctx->pkt_timebase));
                 } else if (ts != AV_NOPTS_VALUE) {
                     av_log(f->avctx, AV_LOG_ERROR, "at %"PRId64"\n", ts);
                 } else {
@@ -1107,12 +1107,12 @@ static av_cold int ffv1_decode_close(AVCodecContext *avctx)
 
     if (s->picture.f) {
         ff_thread_release_ext_buffer(&s->picture);
-        av_frame_free(&s->picture.f);
+        zn_av_frame_free(&s->picture.f);
     }
 
     if (s->last_picture.f) {
         ff_thread_release_ext_buffer(&s->last_picture);
-        av_frame_free(&s->last_picture.f);
+        zn_av_frame_free(&s->last_picture.f);
     }
     return ff_ffv1_close(avctx);
 }

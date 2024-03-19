@@ -288,7 +288,7 @@ static void match_framerate(AVFormatContext *avctx)
     ACameraMetadata_const_entry available_framerates;
     int found = 0;
     int current_best_match = -1;
-    int requested_framerate = av_q2d(ctx->framerate);
+    int requested_framerate = zn_av_q2d(ctx->framerate);
 
     ACameraMetadata_getConstEntry(ctx->camera_metadata,
                                   ACAMERA_CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
@@ -449,7 +449,7 @@ static void image_available(void *context, AImageReader *reader)
     ret = av_new_packet(&pkt, pkt_buffer_size);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR,
-               "Failed to create new av packet, error: %s.\n", av_err2str(ret));
+               "Failed to create new av packet, error: %s.\n", zn_av_err2str(ret));
         goto error;
     }
 
@@ -466,7 +466,7 @@ error:
     if (ret < 0) {
         if (ret != AVERROR(EAGAIN)) {
             av_log(avctx, AV_LOG_ERROR,
-                   "Error while processing new image, error: %s.\n", av_err2str(ret));
+                   "Error while processing new image, error: %s.\n", zn_av_err2str(ret));
             av_thread_message_queue_set_err_recv(ctx->input_queue, ret);
             atomic_store(&ctx->exit, 1);
         } else {
@@ -475,7 +475,7 @@ error:
                    ctx->input_queue_size);
         }
         if (pkt_buffer_size) {
-            av_packet_unref(&pkt);
+            zn_av_packet_unref(&pkt);
         }
     }
 
@@ -668,7 +668,7 @@ static int add_video_stream(AVFormatContext *avctx)
     AVStream *st;
     AVCodecParameters *codecpar;
 
-    st = avformat_new_stream(avctx, NULL);
+    st = zn_avformat_new_stream(avctx, NULL);
     if (!st) {
         return AVERROR(ENOMEM);
     }
@@ -751,7 +751,7 @@ static int android_camera_read_close(AVFormatContext *avctx)
         ctx->camera_metadata = NULL;
     }
 
-    av_freep(&ctx->camera_id);
+    zn_av_freep(&ctx->camera_id);
 
     if (ctx->camera_mgr) {
         ACameraManager_delete(ctx->camera_mgr);
@@ -762,7 +762,7 @@ static int android_camera_read_close(AVFormatContext *avctx)
         AVPacket pkt;
         av_thread_message_queue_set_err_send(ctx->input_queue, AVERROR_EOF);
         while (av_thread_message_queue_recv(ctx->input_queue, &pkt, AV_THREAD_MESSAGE_NONBLOCK) >= 0) {
-            av_packet_unref(&pkt);
+            zn_av_packet_unref(&pkt);
         }
         av_thread_message_queue_free(&ctx->input_queue);
     }
@@ -781,7 +781,7 @@ static int android_camera_read_header(AVFormatContext *avctx)
     ret = av_thread_message_queue_alloc(&ctx->input_queue, ctx->input_queue_size, sizeof(AVPacket));
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR,
-               "Failed to allocate input queue, error: %s.\n", av_err2str(ret));
+               "Failed to allocate input queue, error: %s.\n", zn_av_err2str(ret));
         goto error;
     }
 

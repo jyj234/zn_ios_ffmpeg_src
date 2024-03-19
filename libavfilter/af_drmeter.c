@@ -59,7 +59,7 @@ static int config_output(AVFilterLink *outlink)
 {
     DRMeterContext *s = outlink->src->priv;
 
-    s->chstats = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->chstats));
+    s->chstats = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->chstats));
     if (!s->chstats)
         return AVERROR(ENOMEM);
     s->nb_channels = outlink->ch_layout.nb_channels;
@@ -177,7 +177,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     if (s->nb_channels)
         print_stats(ctx);
-    av_freep(&s->chstats);
+    zn_av_freep(&s->chstats);
 }
 
 static const AVFilterPad drmeter_inputs[] = {

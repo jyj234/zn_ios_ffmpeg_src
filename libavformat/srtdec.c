@@ -129,7 +129,7 @@ static int srt_read_header(AVFormatContext *s)
 {
     SRTContext *srt = s->priv_data;
     AVBPrint buf;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     int res = 0;
     char line[4096], line_cache[4096];
     int has_event_info = 0;

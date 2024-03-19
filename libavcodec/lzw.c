@@ -117,7 +117,7 @@ av_cold void ff_lzw_decode_open(LZWState **p)
 
 av_cold void ff_lzw_decode_close(LZWState **p)
 {
-    av_freep(p);
+    zn_av_freep(p);
 }
 
 /**

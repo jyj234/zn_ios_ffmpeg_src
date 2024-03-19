@@ -180,7 +180,7 @@ static int flac_finish_header(struct AVFormatContext *s)
         if (!pkt)
             continue;
         ret = flac_write_picture(s, pkt);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0 && (s->error_recognition & AV_EF_EXPLODE))
             return ret;
     }
@@ -312,7 +312,7 @@ static int flac_queue_flush(AVFormatContext *s)
         avpriv_packet_list_get(&c->queue, pkt);
         if (write && (ret = flac_write_audio_packet(s, pkt)) < 0)
             write = 0;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
     return ret;
 }
@@ -351,7 +351,7 @@ static void flac_deinit(struct AVFormatContext *s)
 
     avpriv_packet_list_free(&c->queue);
     for (unsigned i = 0; i < s->nb_streams; i++)
-        av_packet_free((AVPacket **)&s->streams[i]->priv_data);
+        zn_av_packet_free((AVPacket **)&s->streams[i]->priv_data);
 }
 
 static int flac_write_packet(struct AVFormatContext *s, AVPacket *pkt)

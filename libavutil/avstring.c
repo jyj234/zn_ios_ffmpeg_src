@@ -132,7 +132,7 @@ char *av_asprintf(const char *fmt, ...)
     len = vsnprintf(p, len + 1, fmt, va);
     va_end(va);
     if (len < 0)
-        av_freep(&p);
+        zn_av_freep(&p);
 
 end:
     return p;

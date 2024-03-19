@@ -925,5 +925,5 @@ int av_cold ff_celt_pvq_init(CeltPVQ **pvq, int encode)
 
 void av_cold ff_celt_pvq_uninit(CeltPVQ **pvq)
 {
-    av_freep(pvq);
+    zn_av_freep(pvq);
 }

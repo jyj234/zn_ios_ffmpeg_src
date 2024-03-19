@@ -254,7 +254,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, inpicref);
@@ -278,7 +278,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
     emms_c();
 
     if (inpicref != out)
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&inpicref);
     return ff_filter_frame(outlink, out);
 }
 
@@ -319,7 +319,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < 4; i++)
-        av_freep(&n->param[i].noise);
+        zn_av_freep(&n->param[i].noise);
 }
 
 static const AVFilterPad noise_inputs[] = {

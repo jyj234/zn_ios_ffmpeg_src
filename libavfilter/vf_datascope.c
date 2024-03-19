@@ -319,7 +319,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -373,7 +373,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, s->filter, &td, NULL,
                       FFMIN(ff_filter_get_nb_threads(ctx), FFMAX(outlink->w / 20, 1)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -577,7 +577,7 @@ static int pixscope_filter_frame(AVFilterLink *inlink, AVFrame *in)
     char text[128];
 
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -703,7 +703,7 @@ static int pixscope_filter_frame(AVFilterLink *inlink, AVFrame *in)
         draw_text(&s->draw, out, s->colors[i], X + 28, Y + s->ww + 15 * (i + 6), text, 0);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -811,7 +811,7 @@ static void oscilloscope_uninit(AVFilterContext *ctx)
 {
     OscilloscopeContext *s = ctx->priv;
 
-    av_freep(&s->values);
+    zn_av_freep(&s->values);
 }
 
 static void draw_line(FFDrawContext *draw, int x0, int y0, int x1, int y1,
@@ -968,7 +968,7 @@ static int oscilloscope_config_input(AVFilterLink *inlink)
     s->max = (1 << s->draw.desc->comp[0].depth);
     size = hypot(inlink->w, inlink->h);
 
-    s->values = av_calloc(size, sizeof(*s->values));
+    s->values = zn_av_calloc(size, sizeof(*s->values));
     if (!s->values)
         return AVERROR(ENOMEM);
 

@@ -83,7 +83,7 @@ static int alloc_hevc_header_structs(FFVulkanDecodeContext *s,
     }
 
     if (buf_size > s->hevc_headers_size) {
-        av_freep(&s->hevc_headers);
+        zn_av_freep(&s->hevc_headers);
         s->hevc_headers_size = 0;
         s->hevc_headers = av_mallocz(buf_size);
         if (!s->hevc_headers)

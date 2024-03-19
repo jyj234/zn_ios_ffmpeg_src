@@ -1703,8 +1703,8 @@ static av_cold int flac_encode_close(AVCodecContext *avctx)
 {
     FlacEncodeContext *s = avctx->priv_data;
 
-    av_freep(&s->md5ctx);
-    av_freep(&s->md5_buffer);
+    zn_av_freep(&s->md5ctx);
+    zn_av_freep(&s->md5_buffer);
     ff_lpc_end(&s->lpc_ctx);
     return 0;
 }

@@ -178,14 +178,14 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
         s->pattern_pos = 0;
 
     if (!len) { // do not output any field from this frame
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&inpicref);
         return 0;
     }
 
     if (s->occupied) {
         ret = ff_inlink_make_frame_writable(inlink, &s->frame[nout]);
         if (ret < 0) {
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
             return ret;
         }
         for (i = 0; i < s->nb_planes; i++) {
@@ -224,7 +224,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         // output THIS image as-is
         ret = ff_inlink_make_frame_writable(inlink, &s->frame[nout]);
         if (ret < 0) {
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
             return ret;
         }
         for (i = 0; i < s->nb_planes; i++)
@@ -259,7 +259,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         int tff        = frame ? !!(frame->flags & AV_FRAME_FLAG_TOP_FIELD_FIRST) : 0;
 
         if (!frame) {
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
             return AVERROR(ENOMEM);
         }
 
@@ -283,7 +283,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                                 s->ts_unit.den);
         ret = ff_filter_frame(outlink, frame);
     }
-    av_frame_free(&inpicref);
+    zn_av_frame_free(&inpicref);
 
     return ret;
 }
@@ -293,9 +293,9 @@ static av_cold void uninit(AVFilterContext *ctx)
     TelecineContext *s = ctx->priv;
     int i;
 
-    av_frame_free(&s->temp);
+    zn_av_frame_free(&s->temp);
     for (i = 0; i < s->out_cnt; i++)
-        av_frame_free(&s->frame[i]);
+        zn_av_frame_free(&s->frame[i]);
 }
 
 static const AVFilterPad telecine_inputs[] = {

@@ -95,9 +95,9 @@ static av_cold void uninit(AVFilterContext *ctx)
         );
     }
 
-    av_freep(&s->prev_frame);
-    av_freep(&s->gradient_matrix);
-    av_freep(&s->motion_matrix);
+    zn_av_freep(&s->prev_frame);
+    zn_av_freep(&s->gradient_matrix);
+    zn_av_freep(&s->motion_matrix);
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -115,9 +115,9 @@ static int config_input(AVFilterLink *inlink)
     av_image_fill_max_pixsteps(max_pixsteps, NULL, desc);
 
     // free previous buffers in case they are allocated already
-    av_freep(&s->prev_frame);
-    av_freep(&s->gradient_matrix);
-    av_freep(&s->motion_matrix);
+    zn_av_freep(&s->prev_frame);
+    zn_av_freep(&s->gradient_matrix);
+    zn_av_freep(&s->motion_matrix);
 
     s->pixel_depth = max_pixsteps[0];
     s->width = inlink->w;

@@ -235,16 +235,16 @@ static void free_segment_dynarray(struct segment **segments, int n_segments)
 {
     int i;
     for (i = 0; i < n_segments; i++) {
-        av_freep(&segments[i]->key);
-        av_freep(&segments[i]->url);
-        av_freep(&segments[i]);
+        zn_av_freep(&segments[i]->key);
+        zn_av_freep(&segments[i]->url);
+        zn_av_freep(&segments[i]);
     }
 }
 
 static void free_segment_list(struct playlist *pls)
 {
     free_segment_dynarray(pls->segments, pls->n_segments);
-    av_freep(&pls->segments);
+    zn_av_freep(&pls->segments);
     pls->n_segments = 0;
 }
 
@@ -252,11 +252,11 @@ static void free_init_section_list(struct playlist *pls)
 {
     int i;
     for (i = 0; i < pls->n_init_sections; i++) {
-        av_freep(&pls->init_sections[i]->key);
-        av_freep(&pls->init_sections[i]->url);
-        av_freep(&pls->init_sections[i]);
+        zn_av_freep(&pls->init_sections[i]->key);
+        zn_av_freep(&pls->init_sections[i]->url);
+        zn_av_freep(&pls->init_sections[i]);
     }
-    av_freep(&pls->init_sections);
+    zn_av_freep(&pls->init_sections);
     pls->n_init_sections = 0;
 }
 
@@ -267,25 +267,25 @@ static void free_playlist_list(HLSContext *c)
         struct playlist *pls = c->playlists[i];
         free_segment_list(pls);
         free_init_section_list(pls);
-        av_freep(&pls->main_streams);
-        av_freep(&pls->renditions);
-        av_freep(&pls->id3_buf);
+        zn_av_freep(&pls->main_streams);
+        zn_av_freep(&pls->renditions);
+        zn_av_freep(&pls->id3_buf);
         av_dict_free(&pls->id3_initial);
         ff_id3v2_free_extra_meta(&pls->id3_deferred_extra);
-        av_freep(&pls->init_sec_buf);
-        av_packet_free(&pls->pkt);
-        av_freep(&pls->pb.pub.buffer);
+        zn_av_freep(&pls->init_sec_buf);
+        zn_av_packet_free(&pls->pkt);
+        zn_av_freep(&pls->pb.pub.buffer);
         ff_format_io_close(c->ctx, &pls->input);
         pls->input_read_done = 0;
         ff_format_io_close(c->ctx, &pls->input_next);
         pls->input_next_requested = 0;
         if (pls->ctx) {
             pls->ctx->pb = NULL;
-            avformat_close_input(&pls->ctx);
+            zn_avformat_close_input(&pls->ctx);
         }
-        av_free(pls);
+        zn_av_free(pls);
     }
-    av_freep(&c->playlists);
+    zn_av_freep(&c->playlists);
     c->n_playlists = 0;
 }
 
@@ -294,10 +294,10 @@ static void free_variant_list(HLSContext *c)
     int i;
     for (i = 0; i < c->n_variants; i++) {
         struct variant *var = c->variants[i];
-        av_freep(&var->playlists);
-        av_free(var);
+        zn_av_freep(&var->playlists);
+        zn_av_free(var);
     }
-    av_freep(&c->variants);
+    zn_av_freep(&c->variants);
     c->n_variants = 0;
 }
 
@@ -305,8 +305,8 @@ static void free_rendition_list(HLSContext *c)
 {
     int i;
     for (i = 0; i < c->n_renditions; i++)
-        av_freep(&c->renditions[i]);
-    av_freep(&c->renditions);
+        zn_av_freep(&c->renditions[i]);
+    zn_av_freep(&c->renditions);
     c->n_renditions = 0;
 }
 
@@ -316,15 +316,15 @@ static struct playlist *new_playlist(HLSContext *c, const char *url,
     struct playlist *pls = av_mallocz(sizeof(struct playlist));
     if (!pls)
         return NULL;
-    pls->pkt = av_packet_alloc();
+    pls->pkt = zn_av_packet_alloc();
     if (!pls->pkt) {
-        av_free(pls);
+        zn_av_free(pls);
         return NULL;
     }
     ff_make_absolute_url(pls->url, sizeof(pls->url), base, url);
     if (!pls->url[0]) {
-        av_packet_free(&pls->pkt);
-        av_free(pls);
+        zn_av_packet_free(&pls->pkt);
+        zn_av_free(pls);
         return NULL;
     }
     pls->seek_timestamp = AV_NOPTS_VALUE;
@@ -433,13 +433,13 @@ static struct segment *new_init_section(struct playlist *pls,
     } else {
         ff_make_absolute_url(tmp_str, sizeof(tmp_str), url_base, info->uri);
         if (!tmp_str[0]) {
-            av_free(sec);
+            zn_av_free(sec);
             return NULL;
         }
     }
     sec->url = av_strdup(ptr);
     if (!sec->url) {
-        av_free(sec);
+        zn_av_free(sec);
         return NULL;
     }
 
@@ -698,7 +698,7 @@ static int open_url(AVFormatContext *s, AVIOContext **pb, const char *url,
             if (ret != AVERROR_EOF)
                 av_log(s, AV_LOG_WARNING,
                     "keepalive request failed for '%s' with error: '%s' when opening url, retrying with new connection\n",
-                    url, av_err2str(ret));
+                    url, zn_av_err2str(ret));
             av_dict_copy(&tmp, *opts, 0);
             av_dict_copy(&tmp, opts2, 0);
             ret = s->io_open(s, pb, url, AVIO_FLAG_READ, &tmp);
@@ -757,7 +757,7 @@ static int parse_playlist(HLSContext *c, const char *url,
             if (ret != AVERROR_EOF)
                 av_log(c->ctx, AV_LOG_WARNING,
                     "keepalive request failed for '%s' with error: '%s' when parsing playlist\n",
-                    url, av_err2str(ret));
+                    url, zn_av_err2str(ret));
             in = NULL;
         }
     }
@@ -881,13 +881,13 @@ static int parse_playlist(HLSContext *c, const char *url,
             if (key_type != KEY_NONE) {
                 ff_make_absolute_url(tmp_str, sizeof(tmp_str), url, key);
                 if (!tmp_str[0]) {
-                    av_free(cur_init_section);
+                    zn_av_free(cur_init_section);
                     ret = AVERROR_INVALIDDATA;
                     goto fail;
                 }
                 cur_init_section->key = av_strdup(tmp_str);
                 if (!cur_init_section->key) {
-                    av_free(cur_init_section);
+                    zn_av_free(cur_init_section);
                     ret = AVERROR(ENOMEM);
                     goto fail;
                 }
@@ -954,12 +954,12 @@ static int parse_playlist(HLSContext *c, const char *url,
                     ff_make_absolute_url(tmp_str, sizeof(tmp_str), url, key);
                     if (!tmp_str[0]) {
                         ret = AVERROR_INVALIDDATA;
-                        av_free(seg);
+                        zn_av_free(seg);
                         goto fail;
                     }
                     seg->key = av_strdup(tmp_str);
                     if (!seg->key) {
-                        av_free(seg);
+                        zn_av_free(seg);
                         ret = AVERROR(ENOMEM);
                         goto fail;
                     }
@@ -971,14 +971,14 @@ static int parse_playlist(HLSContext *c, const char *url,
                 if (!tmp_str[0]) {
                     ret = AVERROR_INVALIDDATA;
                     if (seg->key)
-                        av_free(seg->key);
-                    av_free(seg);
+                        zn_av_free(seg->key);
+                    zn_av_free(seg);
                     goto fail;
                 }
                 seg->url = av_strdup(tmp_str);
                 if (!seg->url) {
-                    av_free(seg->key);
-                    av_free(seg);
+                    zn_av_free(seg->key);
+                    zn_av_free(seg);
                     ret = AVERROR(ENOMEM);
                     goto fail;
                 }
@@ -1024,13 +1024,13 @@ static int parse_playlist(HLSContext *c, const char *url,
                    prev_start_seq_no, pls->start_seq_no);
         }
         free_segment_dynarray(prev_segments, prev_n_segments);
-        av_freep(&prev_segments);
+        zn_av_freep(&prev_segments);
     }
     if (pls)
         pls->last_load_time = av_gettime_relative();
 
 fail:
-    av_free(new_url);
+    zn_av_free(new_url);
     if (close_in)
         ff_format_io_close(c->ctx, &in);
     c->ctx->ctx_flags = c->ctx->ctx_flags & ~(unsigned)AVFMTCTX_UNSEEKABLE;
@@ -1586,7 +1586,7 @@ reload:
         int r = av_opt_get(v->input, "http_version", AV_OPT_SEARCH_CHILDREN, &http_version_opt);
         if (r >= 0) {
             c->http_multiple = (!strncmp((const char *)http_version_opt, "1.1", 3) || !strncmp((const char *)http_version_opt, "2.0", 3));
-            av_freep(&http_version_opt);
+            zn_av_freep(&http_version_opt);
         }
     }
 
@@ -1838,7 +1838,7 @@ static int set_stream_info_from_input_stream(AVStream *st, struct playlist *pls,
 {
     int err;
 
-    err = avcodec_parameters_copy(st->codecpar, ist->codecpar);
+    err = zn_avcodec_parameters_copy(st->codecpar, ist->codecpar);
     if (err < 0)
         return err;
 
@@ -1864,7 +1864,7 @@ static int update_streams_from_subdemuxer(AVFormatContext *s, struct playlist *p
 
     while (pls->n_main_streams < pls->ctx->nb_streams) {
         int ist_idx = pls->n_main_streams;
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         AVStream *ist = pls->ctx->streams[ist_idx];
 
         if (!st)
@@ -1913,7 +1913,7 @@ static int hls_close(AVFormatContext *s)
     free_rendition_list(c);
 
     if (c->crypto_ctx.aes_ctx)
-        av_free(c->crypto_ctx.aes_ctx);
+        zn_av_free(c->crypto_ctx.aes_ctx);
 
     av_dict_free(&c->avio_opts);
     ff_format_io_close(c->ctx, &c->playlist_pb);
@@ -1956,7 +1956,7 @@ static int hls_read_header(AVFormatContext *s)
             struct playlist *pls = c->playlists[i];
             pls->m3u8_hold_counters = 0;
             if ((ret = parse_playlist(c, pls->url, pls, NULL)) < 0) {
-                av_log(s, AV_LOG_WARNING, "parse_playlist error %s [%s]\n", av_err2str(ret), pls->url);
+                av_log(s, AV_LOG_WARNING, "parse_playlist error %s [%s]\n", zn_av_err2str(ret), pls->url);
                 pls->broken = 1;
                 if (c->n_playlists > 1)
                     continue;
@@ -2023,7 +2023,7 @@ static int hls_read_header(AVFormatContext *s)
         AVDictionary *options = NULL;
         struct segment *seg = NULL;
 
-        if (!(pls->ctx = avformat_alloc_context()))
+        if (!(pls->ctx = zn_avformat_alloc_context()))
             return AVERROR(ENOMEM);
 
         if (pls->n_segments == 0)
@@ -2036,7 +2036,7 @@ static int hls_read_header(AVFormatContext *s)
         /*
          * If this is a live stream and this playlist looks like it is one segment
          * behind, try to sync it up so that every substream starts at the same
-         * time position (so e.g. avformat_find_stream_info() will see packets from
+         * time position (so e.g. zn_avformat_find_stream_info() will see packets from
          * all active streams within the first few seconds). This is not very generic,
          * though, as the sequence numbers are technically independent.
          */
@@ -2047,7 +2047,7 @@ static int hls_read_header(AVFormatContext *s)
 
         pls->read_buffer = av_malloc(INITIAL_BUFFER_SIZE);
         if (!pls->read_buffer){
-            avformat_free_context(pls->ctx);
+            zn_avformat_free_context(pls->ctx);
             pls->ctx = NULL;
             return AVERROR(ENOMEM);
         }
@@ -2066,7 +2066,7 @@ static int hls_read_header(AVFormatContext *s)
             if ((ret = avio_read(&pls->pb.pub, buf, HLS_MAX_ID3_TAGS_DATA_LEN)) < 0) {
                 /* Fail if error was not end of file */
                 if (ret != AVERROR_EOF) {
-                    avformat_free_context(pls->ctx);
+                    zn_avformat_free_context(pls->ctx);
                     pls->ctx = NULL;
                     return ret;
                 }
@@ -2107,16 +2107,16 @@ static int hls_read_header(AVFormatContext *s)
             ret = av_probe_input_buffer(&pls->pb.pub, &in_fmt, url, NULL, 0, 0);
             if (ret < 0) {
                 /* Free the ctx - it isn't initialized properly at this point,
-                * so avformat_close_input shouldn't be called. If
-                * avformat_open_input fails below, it frees and zeros the
+                * so zn_avformat_close_input shouldn't be called. If
+                * zn_avformat_open_input fails below, it frees and zeros the
                 * context, so it doesn't need any special treatment like this. */
                 av_log(s, AV_LOG_ERROR, "Error when loading first segment '%s'\n", url);
-                avformat_free_context(pls->ctx);
+                zn_avformat_free_context(pls->ctx);
                 pls->ctx = NULL;
-                av_free(url);
+                zn_av_free(url);
                 return ret;
             }
-            av_free(url);
+            zn_av_free(url);
         }
 
         if (seg && seg->key_type == KEY_SAMPLE_AES) {
@@ -2127,7 +2127,7 @@ static int hls_read_header(AVFormatContext *s)
             } else if (!c->crypto_ctx.aes_ctx) {
                 c->crypto_ctx.aes_ctx = av_aes_alloc();
                 if (!c->crypto_ctx.aes_ctx) {
-                    avformat_free_context(pls->ctx);
+                    zn_avformat_free_context(pls->ctx);
                     pls->ctx = NULL;
                     return AVERROR(ENOMEM);
                 }
@@ -2143,7 +2143,7 @@ static int hls_read_header(AVFormatContext *s)
 
         av_dict_copy(&options, c->seg_format_opts, 0);
 
-        ret = avformat_open_input(&pls->ctx, pls->segments[0]->url, in_fmt, &options);
+        ret = zn_avformat_open_input(&pls->ctx, pls->segments[0]->url, in_fmt, &options);
         av_dict_free(&options);
         if (ret < 0)
             return ret;
@@ -2161,7 +2161,7 @@ static int hls_read_header(AVFormatContext *s)
         /*
          * For ID3 timestamped raw audio streams we need to detect the packet
          * durations to calculate timestamps in fill_timing_for_id3_timestamped_stream(),
-         * but for other streams we can rely on our user calling avformat_find_stream_info()
+         * but for other streams we can rely on our user calling zn_avformat_find_stream_info()
          * on us if they want to.
          */
         if (pls->is_id3_timestamped || (pls->n_renditions > 0 && pls->renditions[0]->type == AVMEDIA_TYPE_AUDIO)) {
@@ -2169,7 +2169,7 @@ static int hls_read_header(AVFormatContext *s)
                 pls->ctx->nb_streams == 1)
                 ret = ff_hls_senc_parse_audio_setup_info(pls->ctx->streams[0], &pls->audio_setup_info);
             else
-                ret = avformat_find_stream_info(pls->ctx, NULL);
+                ret = zn_avformat_find_stream_info(pls->ctx, NULL);
 
             if (ret < 0)
                 return ret;
@@ -2298,7 +2298,7 @@ static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)
                 int64_t ts_diff;
                 AVRational tb;
                 struct segment *seg = NULL;
-                ret = av_read_frame(pls->ctx, pls->pkt);
+                ret = zn_av_read_frame(pls->ctx, pls->pkt);
                 if (ret < 0) {
                     if (!avio_feof(&pls->pb.pub) && ret != AVERROR_EOF)
                         return ret;
@@ -2345,7 +2345,7 @@ static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)
                         break;
                     }
                 }
-                av_packet_unref(pls->pkt);
+                zn_av_packet_unref(pls->pkt);
             }
         }
         /* Check if this stream has the packet with the lowest dts */
@@ -2373,7 +2373,7 @@ static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)
 
         ret = update_streams_from_subdemuxer(s, pls);
         if (ret < 0) {
-            av_packet_unref(pls->pkt);
+            zn_av_packet_unref(pls->pkt);
             return ret;
         }
 
@@ -2397,7 +2397,7 @@ static int hls_read_packet(AVFormatContext *s, AVPacket *pkt)
         if (pls->pkt->stream_index >= pls->n_main_streams) {
             av_log(s, AV_LOG_ERROR, "stream index inconsistency: index %d, %d main streams, %d subdemuxer streams\n",
                    pls->pkt->stream_index, pls->n_main_streams, pls->ctx->nb_streams);
-            av_packet_unref(pls->pkt);
+            zn_av_packet_unref(pls->pkt);
             return AVERROR_BUG;
         }
 
@@ -2487,7 +2487,7 @@ static int hls_read_seek(AVFormatContext *s, int stream_index,
         pls->input_read_done = 0;
         ff_format_io_close(pls->parent, &pls->input_next);
         pls->input_next_requested = 0;
-        av_packet_unref(pls->pkt);
+        zn_av_packet_unref(pls->pkt);
         pb->eof_reached = 0;
         /* Clear any buffered data */
         pb->buf_end = pb->buf_ptr = pb->buffer;

@@ -147,7 +147,7 @@ static int rpl_read_header(AVFormatContext *s)
     // video headers
     video_format = read_line_and_int(pb, &error);
     if (video_format) {
-        vst = avformat_new_stream(s, NULL);
+        vst = zn_avformat_new_stream(s, NULL);
         if (!vst)
             return AVERROR(ENOMEM);
         vst->codecpar->codec_type      = AVMEDIA_TYPE_VIDEO;
@@ -195,7 +195,7 @@ static int rpl_read_header(AVFormatContext *s)
     av_strlcpy(audio_codec, endptr, RPL_LINE_LENGTH);
     if (audio_format) {
         int channels;
-        ast = avformat_new_stream(s, NULL);
+        ast = zn_avformat_new_stream(s, NULL);
         if (!ast)
             return AVERROR(ENOMEM);
         ast->codecpar->codec_type      = AVMEDIA_TYPE_AUDIO;

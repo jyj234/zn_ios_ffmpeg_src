@@ -141,7 +141,7 @@ static int avs_read_audio_packet(AVFormatContext * s, AVPacket * pkt)
     if (ret < 0)
         return ret;
     if (size != (int)size) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR(EDOM);
     }
 
@@ -191,7 +191,7 @@ static int avs_read_packet(AVFormatContext * s, AVPacket * pkt)
 
             case AVS_VIDEO:
                 if (!avs->st_video) {
-                    avs->st_video = avformat_new_stream(s, NULL);
+                    avs->st_video = zn_avformat_new_stream(s, NULL);
                     if (!avs->st_video)
                         return AVERROR(ENOMEM);
                     avs->st_video->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -210,7 +210,7 @@ static int avs_read_packet(AVFormatContext * s, AVPacket * pkt)
 
             case AVS_AUDIO:
                 if (!avs->st_audio) {
-                    avs->st_audio = avformat_new_stream(s, NULL);
+                    avs->st_audio = zn_avformat_new_stream(s, NULL);
                     if (!avs->st_audio)
                         return AVERROR(ENOMEM);
                     avs->st_audio->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

@@ -1061,12 +1061,12 @@ static int ebml_read_ascii(AVIOContext *pb, int size,
         if (!(res = av_malloc(size + 1)))
             return AVERROR(ENOMEM);
         if ((ret = avio_read(pb, (uint8_t *) res, size)) != size) {
-            av_free(res);
+            zn_av_free(res);
             return ret < 0 ? ret : NEEDS_CHECKING;
         }
         (res)[size] = '\0';
     }
-    av_free(*str);
+    zn_av_free(*str);
     *str = res;
 
     return 0;
@@ -1575,7 +1575,7 @@ static void ebml_free(EbmlSyntax *syntax, void *data)
         switch (syntax[i].type) {
         case EBML_STR:
         case EBML_UTF8:
-            av_freep(data_off);
+            zn_av_freep(data_off);
             break;
         case EBML_BIN:
             av_buffer_unref(&((EbmlBin *) data_off)->buf);
@@ -1588,7 +1588,7 @@ static void ebml_free(EbmlSyntax *syntax, void *data)
                 for (j = 0; j < list->nb_elem;
                      j++, ptr += syntax[i].list_elem_size)
                     ebml_free(syntax[i].def.n, ptr);
-                av_freep(&list->elem);
+                zn_av_freep(&list->elem);
                 list->nb_elem = 0;
                 list->alloc_elem_size = 0;
             } else
@@ -1797,7 +1797,7 @@ static int matroska_decode_buffer(uint8_t **buf, int *buf_size,
     return 0;
 
 failed:
-    av_free(pkt_data);
+    zn_av_free(pkt_data);
     return result;
 }
 
@@ -2087,7 +2087,7 @@ static int matroska_parse_content_encodings(MatroskaTrackEncoding *encodings,
                                                          track->codec_priv.size + AV_INPUT_BUFFER_PADDING_SIZE,
                                                          NULL, NULL, 0);
                 if (!track->codec_priv.buf) {
-                    av_freep(&track->codec_priv.data);
+                    zn_av_freep(&track->codec_priv.data);
                     track->codec_priv.size = 0;
                     return AVERROR(ENOMEM);
                 }
@@ -2259,7 +2259,7 @@ static int mkv_stereo3d_conv(AVStream *st, MatroskaVideoStereoModeType stereo_mo
 
     if (!av_packet_side_data_add(&st->codecpar->coded_side_data, &st->codecpar->nb_coded_side_data,
                                  AV_PKT_DATA_STEREO3D, stereo, sizeof(*stereo), 0)) {
-        av_freep(&stereo);
+        zn_av_freep(&stereo);
         return AVERROR(ENOMEM);
     }
 
@@ -2312,7 +2312,7 @@ static int mkv_parse_video_color(AVStream *st, const MatroskaTrack *track) {
             return AVERROR(ENOMEM);
         if (!av_packet_side_data_add(&st->codecpar->coded_side_data, &st->codecpar->nb_coded_side_data,
                                      AV_PKT_DATA_CONTENT_LIGHT_LEVEL, metadata, size, 0)) {
-            av_freep(&metadata);
+            zn_av_freep(&metadata);
             return AVERROR(ENOMEM);
         }
         metadata->MaxCLL  = color->max_cll;
@@ -2478,7 +2478,7 @@ static int mkv_parse_video_projection(AVStream *st, const MatroskaTrack *track,
 
     if (!av_packet_side_data_add(&st->codecpar->coded_side_data, &st->codecpar->nb_coded_side_data,
                                  AV_PKT_DATA_SPHERICAL, spherical, spherical_size, 0)) {
-        av_freep(&spherical);
+        zn_av_freep(&spherical);
         return AVERROR(ENOMEM);
     }
 
@@ -2773,7 +2773,7 @@ static int mka_parse_audio_codec(MatroskaTrack *track, AVCodecParameters *par,
             par->block_align  = track->audio.sub_packet_size;
             *extradata_offset = 78;
         }
-        track->audio.buf = av_malloc_array(track->audio.sub_packet_h,
+        track->audio.buf = zn_av_malloc_array(track->audio.sub_packet_h,
                                             track->audio.frame_size);
         if (!track->audio.buf)
             return AVERROR(ENOMEM);
@@ -3147,9 +3147,9 @@ static int matroska_parse_tracks(AVFormatContext *s)
             }
         }
 
-        st = track->stream = avformat_new_stream(s, NULL);
+        st = track->stream = zn_avformat_new_stream(s, NULL);
         if (!st) {
-            av_free(key_id_base64);
+            zn_av_free(key_id_base64);
             return AVERROR(ENOMEM);
         }
         par = st->codecpar;
@@ -3337,7 +3337,7 @@ static int matroska_read_header(AVFormatContext *s)
               attachments[j].bin.data && attachments[j].bin.size > 0)) {
             av_log(matroska->ctx, AV_LOG_ERROR, "incomplete attachment\n");
         } else {
-            AVStream *st = avformat_new_stream(s, NULL);
+            AVStream *st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 break;
             av_dict_set(&st->metadata, "filename", attachments[j].filename, 0);
@@ -3596,7 +3596,7 @@ static int matroska_parse_rm_audio(MatroskaDemuxContext *matroska,
         pkt->stream_index         = st->index;
         ret = avpriv_packet_list_put(&matroska->queue, pkt, NULL, 0);
         if (ret < 0) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return AVERROR(ENOMEM);
         }
     }
@@ -3685,7 +3685,7 @@ static int matroska_parse_wavpack(MatroskaTrack *track,
     return 0;
 
 fail:
-    av_freep(&dst);
+    zn_av_freep(&dst);
     return ret;
 }
 
@@ -3787,7 +3787,7 @@ static int matroska_parse_webvtt(MatroskaDemuxContext *matroska,
                                       AV_PKT_DATA_WEBVTT_IDENTIFIER,
                                       id_len);
         if (!buf) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return AVERROR(ENOMEM);
         }
         memcpy(buf, id, id_len);
@@ -3798,7 +3798,7 @@ static int matroska_parse_webvtt(MatroskaDemuxContext *matroska,
                                       AV_PKT_DATA_WEBVTT_SETTINGS,
                                       settings_len);
         if (!buf) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return AVERROR(ENOMEM);
         }
         memcpy(buf, settings, settings_len);
@@ -3818,7 +3818,7 @@ static int matroska_parse_webvtt(MatroskaDemuxContext *matroska,
 
     err = avpriv_packet_list_put(&matroska->queue, pkt, NULL, 0);
     if (err < 0) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR(ENOMEM);
     }
 
@@ -3893,7 +3893,7 @@ static int matroska_parse_block_additional(MatroskaDemuxContext *matroska,
                                                 bytestream2_get_bytes_left(&bc))) < 0 ||
             (res = av_packet_add_side_data(pkt, AV_PKT_DATA_DYNAMIC_HDR10_PLUS,
                                            (uint8_t *)hdrplus, hdrplus_size)) < 0) {
-            av_free(hdrplus);
+            zn_av_free(hdrplus);
             return res;
         }
 
@@ -3934,7 +3934,7 @@ static int matroska_parse_frame(MatroskaDemuxContext *matroska,
             goto fail;
         }
         if (!buf)
-            av_freep(&data);
+            zn_av_freep(&data);
         buf = NULL;
     }
 
@@ -3947,7 +3947,7 @@ static int matroska_parse_frame(MatroskaDemuxContext *matroska,
             goto fail;
         }
         if (!buf)
-            av_freep(&data);
+            zn_av_freep(&data);
         buf = NULL;
     }
 
@@ -3990,7 +3990,7 @@ static int matroska_parse_frame(MatroskaDemuxContext *matroska,
         res = matroska_parse_block_additional(matroska, track, pkt, more->additional.data,
                                               more->additional.size, more->additional_id);
         if (res < 0) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return res;
         }
     }
@@ -4000,7 +4000,7 @@ static int matroska_parse_frame(MatroskaDemuxContext *matroska,
                                                      AV_PKT_DATA_SKIP_SAMPLES,
                                                      10);
         if (!side_data) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return AVERROR(ENOMEM);
         }
         discard_padding = av_rescale_q(discard_padding,
@@ -4022,7 +4022,7 @@ static int matroska_parse_frame(MatroskaDemuxContext *matroska,
 
     res = avpriv_packet_list_put(&matroska->queue, pkt, NULL, 0);
     if (res < 0) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR(ENOMEM);
     }
 
@@ -4031,7 +4031,7 @@ static int matroska_parse_frame(MatroskaDemuxContext *matroska,
 no_output:
 fail:
     if (!buf)
-        av_free(pkt_data);
+        zn_av_free(pkt_data);
     return res;
 }
 
@@ -4157,7 +4157,7 @@ static int matroska_parse_block(MatroskaDemuxContext *matroska, AVBufferRef *buf
                                           out_data, out_size,
                                           timecode, pos);
             if (!buf)
-                av_free(out_data);
+                zn_av_free(out_data);
             if (res)
                 return res;
         } else if (st->codecpar->codec_id == AV_CODEC_ID_WEBVTT) {
@@ -4166,7 +4166,7 @@ static int matroska_parse_block(MatroskaDemuxContext *matroska, AVBufferRef *buf
                                         timecode, lace_duration,
                                         pos);
             if (!buf)
-                av_free(out_data);
+                zn_av_free(out_data);
             if (res)
                 return res;
         } else {
@@ -4339,7 +4339,7 @@ static int matroska_read_close(AVFormatContext *s)
 
     for (n = 0; n < matroska->tracks.nb_elem; n++)
         if (tracks[n].type == MATROSKA_TRACK_TYPE_AUDIO)
-            av_freep(&tracks[n].audio.buf);
+            zn_av_freep(&tracks[n].audio.buf);
     ebml_free(matroska_segment, matroska);
 
     return 0;

@@ -444,7 +444,7 @@ static int qsv_load_plugins(mfxSession session, const char *load_plugins,
         if (*load_plugins)
             load_plugins++;
 load_plugin_fail:
-        av_freep(&plugin);
+        zn_av_freep(&plugin);
         if (err < 0)
             return err;
     }
@@ -745,7 +745,7 @@ static void mids_buf_free(void *opaque, uint8_t *data)
 {
     AVBufferRef *hw_frames_ref = opaque;
     av_buffer_unref(&hw_frames_ref);
-    av_freep(&data);
+    zn_av_freep(&data);
 }
 
 static AVBufferRef *qsv_create_mids(AVBufferRef *hw_frames_ref)
@@ -762,7 +762,7 @@ static AVBufferRef *qsv_create_mids(AVBufferRef *hw_frames_ref)
     if (!hw_frames_ref1)
         return NULL;
 
-    mids = av_calloc(nb_surfaces, sizeof(*mids));
+    mids = zn_av_calloc(nb_surfaces, sizeof(*mids));
     if (!mids) {
         av_buffer_unref(&hw_frames_ref1);
         return NULL;
@@ -772,7 +772,7 @@ static AVBufferRef *qsv_create_mids(AVBufferRef *hw_frames_ref)
                                 mids_buf_free, hw_frames_ref1, 0);
     if (!mids_buf) {
         av_buffer_unref(&hw_frames_ref1);
-        av_freep(&mids);
+        zn_av_freep(&mids);
         return NULL;
     }
 
@@ -797,7 +797,7 @@ static int qsv_setup_mids(mfxFrameAllocResponse *resp, AVBufferRef *hw_frames_re
     // the allocated size of the array is two larger than the number of
     // surfaces, we store the references to the frames context and the
     // QSVMid array there
-    resp->mids = av_calloc(nb_surfaces + 2, sizeof(*resp->mids));
+    resp->mids = zn_av_calloc(nb_surfaces + 2, sizeof(*resp->mids));
     if (!resp->mids)
         return AVERROR(ENOMEM);
 
@@ -807,14 +807,14 @@ static int qsv_setup_mids(mfxFrameAllocResponse *resp, AVBufferRef *hw_frames_re
 
     resp->mids[resp->NumFrameActual] = (mfxMemId)av_buffer_ref(hw_frames_ref);
     if (!resp->mids[resp->NumFrameActual]) {
-        av_freep(&resp->mids);
+        zn_av_freep(&resp->mids);
         return AVERROR(ENOMEM);
     }
 
     resp->mids[resp->NumFrameActual + 1] = av_buffer_ref(mids_buf);
     if (!resp->mids[resp->NumFrameActual + 1]) {
         av_buffer_unref((AVBufferRef**)&resp->mids[resp->NumFrameActual]);
-        av_freep(&resp->mids);
+        zn_av_freep(&resp->mids);
         return AVERROR(ENOMEM);
     }
 
@@ -914,7 +914,7 @@ static mfxStatus qsv_frame_free(mfxHDL pthis, mfxFrameAllocResponse *resp)
 {
     av_buffer_unref((AVBufferRef**)&resp->mids[resp->NumFrameActual]);
     av_buffer_unref((AVBufferRef**)&resp->mids[resp->NumFrameActual + 1]);
-    av_freep(&resp->mids);
+    zn_av_freep(&resp->mids);
     return MFX_ERR_NONE;
 }
 
@@ -929,13 +929,13 @@ static mfxStatus qsv_frame_lock(mfxHDL pthis, mfxMemId mid, mfxFrameData *ptr)
         return MFX_ERR_UNDEFINED_BEHAVIOR;
 
     /* Allocate a system memory frame that will hold the mapped data. */
-    qsv_mid->locked_frame = av_frame_alloc();
+    qsv_mid->locked_frame = zn_av_frame_alloc();
     if (!qsv_mid->locked_frame)
         return MFX_ERR_MEMORY_ALLOC;
     qsv_mid->locked_frame->format  = hw_frames_ctx->sw_format;
 
     /* wrap the provided handle in a hwaccel AVFrame */
-    qsv_mid->hw_frame = av_frame_alloc();
+    qsv_mid->hw_frame = zn_av_frame_alloc();
     if (!qsv_mid->hw_frame)
         goto fail;
 
@@ -970,8 +970,8 @@ static mfxStatus qsv_frame_lock(mfxHDL pthis, mfxMemId mid, mfxFrameData *ptr)
 
     return MFX_ERR_NONE;
 fail:
-    av_frame_free(&qsv_mid->hw_frame);
-    av_frame_free(&qsv_mid->locked_frame);
+    zn_av_frame_free(&qsv_mid->hw_frame);
+    zn_av_frame_free(&qsv_mid->locked_frame);
     return MFX_ERR_MEMORY_ALLOC;
 }
 
@@ -979,8 +979,8 @@ static mfxStatus qsv_frame_unlock(mfxHDL pthis, mfxMemId mid, mfxFrameData *ptr)
 {
     QSVMid *qsv_mid = mid;
 
-    av_frame_free(&qsv_mid->locked_frame);
-    av_frame_free(&qsv_mid->hw_frame);
+    zn_av_frame_free(&qsv_mid->locked_frame);
+    zn_av_frame_free(&qsv_mid->hw_frame);
 
     return MFX_ERR_NONE;
 }

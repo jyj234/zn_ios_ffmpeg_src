@@ -227,15 +227,15 @@ static void image_ctx_free(ImageContext *img)
 {
     int i, j;
 
-    av_free(img->color_cache);
+    zn_av_free(img->color_cache);
     if (img->role != IMAGE_ROLE_ARGB && !img->is_alpha_primary)
-        av_frame_free(&img->frame);
+        zn_av_frame_free(&img->frame);
     if (img->huffman_groups) {
         for (i = 0; i < img->nb_huffman_groups; i++) {
             for (j = 0; j < HUFFMAN_CODES_PER_META_CODE; j++)
                 ff_vlc_free(&img->huffman_groups[i * HUFFMAN_CODES_PER_META_CODE + j].vlc);
         }
-        av_free(img->huffman_groups);
+        zn_av_free(img->huffman_groups);
     }
     memset(img, 0, sizeof(*img));
 }
@@ -280,7 +280,7 @@ static int huff_reader_build_canonical(HuffReader *r, const uint8_t *code_length
     if (max_code_length == 0 || max_code_length > MAX_HUFFMAN_CODE_LENGTH)
         return AVERROR(EINVAL);
 
-    codes = av_malloc_array(alphabet_size, sizeof(*codes));
+    codes = zn_av_malloc_array(alphabet_size, sizeof(*codes));
     if (!codes)
         return AVERROR(ENOMEM);
 
@@ -296,7 +296,7 @@ static int huff_reader_build_canonical(HuffReader *r, const uint8_t *code_length
         code <<= 1;
     }
     if (!r->nb_symbols) {
-        av_free(codes);
+        zn_av_free(codes);
         return AVERROR_INVALIDDATA;
     }
 
@@ -304,12 +304,12 @@ static int huff_reader_build_canonical(HuffReader *r, const uint8_t *code_length
                    code_lengths, sizeof(*code_lengths), sizeof(*code_lengths),
                    codes, sizeof(*codes), sizeof(*codes), VLC_INIT_OUTPUT_LE);
     if (ret < 0) {
-        av_free(codes);
+        zn_av_free(codes);
         return ret;
     }
     r->simple = 0;
 
-    av_free(codes);
+    zn_av_free(codes);
     return 0;
 }
 
@@ -416,7 +416,7 @@ static int read_huffman_code_normal(WebPContext *s, HuffReader *hc,
 
 finish:
     ff_vlc_free(&code_len_hc.vlc);
-    av_free(code_lengths);
+    zn_av_free(code_lengths);
     return ret;
 }
 
@@ -560,7 +560,7 @@ static int decode_entropy_coded_image(WebPContext *s, enum ImageRole role,
     img->role = role;
 
     if (!img->frame) {
-        img->frame = av_frame_alloc();
+        img->frame = zn_av_frame_alloc();
         if (!img->frame)
             return AVERROR(ENOMEM);
     }
@@ -572,7 +572,7 @@ static int decode_entropy_coded_image(WebPContext *s, enum ImageRole role,
     if (role == IMAGE_ROLE_ARGB && !img->is_alpha_primary) {
         ret = ff_thread_get_buffer(s->avctx, img->frame, 0);
     } else
-        ret = av_frame_get_buffer(img->frame, 1);
+        ret = zn_av_frame_get_buffer(img->frame, 1);
     if (ret < 0)
         return ret;
 
@@ -583,7 +583,7 @@ static int decode_entropy_coded_image(WebPContext *s, enum ImageRole role,
                    img->color_cache_bits);
             return AVERROR_INVALIDDATA;
         }
-        img->color_cache = av_calloc(1 << img->color_cache_bits,
+        img->color_cache = zn_av_calloc(1 << img->color_cache_bits,
                                      sizeof(*img->color_cache));
         if (!img->color_cache)
             return AVERROR(ENOMEM);
@@ -598,7 +598,7 @@ static int decode_entropy_coded_image(WebPContext *s, enum ImageRole role,
             return ret;
         img->nb_huffman_groups = s->nb_huffman_groups;
     }
-    img->huffman_groups = av_calloc(img->nb_huffman_groups,
+    img->huffman_groups = zn_av_calloc(img->nb_huffman_groups,
                                     HUFFMAN_CODES_PER_META_CODE *
                                     sizeof(*img->huffman_groups));
     if (!img->huffman_groups)
@@ -1031,7 +1031,7 @@ static int apply_color_indexing_transform(WebPContext *s)
                 }
             }
         }
-        av_free(line);
+        zn_av_free(line);
         s->reduced_width = s->width; // we are back to full size
     }
 
@@ -1257,18 +1257,18 @@ static int vp8_lossy_decode_alpha(AVCodecContext *avctx, AVFrame *p,
         uint8_t *ap, *pp;
         int alpha_got_frame = 0;
 
-        s->alpha_frame = av_frame_alloc();
+        s->alpha_frame = zn_av_frame_alloc();
         if (!s->alpha_frame)
             return AVERROR(ENOMEM);
 
         ret = vp8_lossless_decode_frame(avctx, s->alpha_frame, &alpha_got_frame,
                                         data_start, data_size, 1);
         if (ret < 0) {
-            av_frame_free(&s->alpha_frame);
+            zn_av_frame_free(&s->alpha_frame);
             return ret;
         }
         if (!alpha_got_frame) {
-            av_frame_free(&s->alpha_frame);
+            zn_av_frame_free(&s->alpha_frame);
             return AVERROR_INVALIDDATA;
         }
 
@@ -1282,7 +1282,7 @@ static int vp8_lossy_decode_alpha(AVCodecContext *avctx, AVFrame *p,
                 ap += 4;
             }
         }
-        av_frame_free(&s->alpha_frame);
+        zn_av_frame_free(&s->alpha_frame);
     }
 
     /* apply alpha filtering */
@@ -1312,7 +1312,7 @@ static int vp8_lossy_decode_frame(AVCodecContext *avctx, AVFrame *p,
         return AVERROR_PATCHWELCOME;
     }
 
-    av_packet_unref(s->pkt);
+    zn_av_packet_unref(s->pkt);
     s->pkt->data = data_start;
     s->pkt->size = data_size;
 
@@ -1536,7 +1536,7 @@ static av_cold int webp_decode_init(AVCodecContext *avctx)
 {
     WebPContext *s = avctx->priv_data;
 
-    s->pkt = av_packet_alloc();
+    s->pkt = zn_av_packet_alloc();
     if (!s->pkt)
         return AVERROR(ENOMEM);
 
@@ -1547,7 +1547,7 @@ static av_cold int webp_decode_close(AVCodecContext *avctx)
 {
     WebPContext *s = avctx->priv_data;
 
-    av_packet_free(&s->pkt);
+    zn_av_packet_free(&s->pkt);
 
     if (s->initialized)
         return ff_vp8_decode_free(avctx);

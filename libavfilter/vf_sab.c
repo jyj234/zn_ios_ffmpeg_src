@@ -127,8 +127,8 @@ static void close_filter_param(FilterParam *f)
         sws_freeContext(f->pre_filter_context);
         f->pre_filter_context = NULL;
     }
-    av_freep(&f->pre_filter_buf);
-    av_freep(&f->dist_coeff);
+    zn_av_freep(&f->pre_filter_buf);
+    zn_av_freep(&f->dist_coeff);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
@@ -174,7 +174,7 @@ static int open_filter_param(FilterParam *f, int width, int height, unsigned int
     vec = sws_getGaussianVec(f->radius, f->quality);
     f->dist_width    = vec->length;
     f->dist_linesize = FFALIGN(vec->length, 8);
-    f->dist_coeff    = av_malloc_array(f->dist_width, f->dist_linesize * sizeof(*f->dist_coeff));
+    f->dist_coeff    = zn_av_malloc_array(f->dist_width, f->dist_linesize * sizeof(*f->dist_coeff));
     if (!f->dist_coeff) {
         sws_freeVec(vec);
         return AVERROR(ENOMEM);
@@ -280,7 +280,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
 
     outpic = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!outpic) {
-        av_frame_free(&inpic);
+        zn_av_frame_free(&inpic);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(outpic, inpic);
@@ -294,7 +294,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
         blur(outpic->data[2], outpic->linesize[2], inpic->data[2], inpic->linesize[2], cw, ch, &s->chroma);
     }
 
-    av_frame_free(&inpic);
+    zn_av_frame_free(&inpic);
     return ff_filter_frame(outlink, outpic);
 }
 

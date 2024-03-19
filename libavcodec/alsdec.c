@@ -380,7 +380,7 @@ static av_cold int read_specific_config(ALSDecContext *ctx)
         if (get_bits_left(&gb) < bits_needed)
             return AVERROR_INVALIDDATA;
 
-        if (!(sconf->chan_pos = av_malloc_array(avctx->ch_layout.nb_channels, sizeof(*sconf->chan_pos))))
+        if (!(sconf->chan_pos = zn_av_malloc_array(avctx->ch_layout.nb_channels, sizeof(*sconf->chan_pos))))
             return AVERROR(ENOMEM);
 
         ctx->cs_switch = 1;
@@ -1939,46 +1939,46 @@ static av_cold int decode_end(AVCodecContext *avctx)
     ALSDecContext *ctx = avctx->priv_data;
     int i;
 
-    av_freep(&ctx->sconf.chan_pos);
+    zn_av_freep(&ctx->sconf.chan_pos);
 
     ff_bgmc_end(&ctx->bgmc_lut, &ctx->bgmc_lut_status);
 
-    av_freep(&ctx->const_block);
-    av_freep(&ctx->shift_lsbs);
-    av_freep(&ctx->opt_order);
-    av_freep(&ctx->store_prev_samples);
-    av_freep(&ctx->use_ltp);
-    av_freep(&ctx->ltp_lag);
-    av_freep(&ctx->ltp_gain);
-    av_freep(&ctx->ltp_gain_buffer);
-    av_freep(&ctx->quant_cof);
-    av_freep(&ctx->lpc_cof);
-    av_freep(&ctx->quant_cof_buffer);
-    av_freep(&ctx->lpc_cof_buffer);
-    av_freep(&ctx->lpc_cof_reversed_buffer);
-    av_freep(&ctx->prev_raw_samples);
-    av_freep(&ctx->raw_samples);
-    av_freep(&ctx->raw_buffer);
-    av_freep(&ctx->chan_data);
-    av_freep(&ctx->chan_data_buffer);
-    av_freep(&ctx->reverted_channels);
-    av_freep(&ctx->crc_buffer);
+    zn_av_freep(&ctx->const_block);
+    zn_av_freep(&ctx->shift_lsbs);
+    zn_av_freep(&ctx->opt_order);
+    zn_av_freep(&ctx->store_prev_samples);
+    zn_av_freep(&ctx->use_ltp);
+    zn_av_freep(&ctx->ltp_lag);
+    zn_av_freep(&ctx->ltp_gain);
+    zn_av_freep(&ctx->ltp_gain_buffer);
+    zn_av_freep(&ctx->quant_cof);
+    zn_av_freep(&ctx->lpc_cof);
+    zn_av_freep(&ctx->quant_cof_buffer);
+    zn_av_freep(&ctx->lpc_cof_buffer);
+    zn_av_freep(&ctx->lpc_cof_reversed_buffer);
+    zn_av_freep(&ctx->prev_raw_samples);
+    zn_av_freep(&ctx->raw_samples);
+    zn_av_freep(&ctx->raw_buffer);
+    zn_av_freep(&ctx->chan_data);
+    zn_av_freep(&ctx->chan_data_buffer);
+    zn_av_freep(&ctx->reverted_channels);
+    zn_av_freep(&ctx->crc_buffer);
     if (ctx->mlz) {
-        av_freep(&ctx->mlz->dict);
-        av_freep(&ctx->mlz);
+        zn_av_freep(&ctx->mlz->dict);
+        zn_av_freep(&ctx->mlz);
     }
-    av_freep(&ctx->acf);
-    av_freep(&ctx->last_acf_mantissa);
-    av_freep(&ctx->shift_value);
-    av_freep(&ctx->last_shift_value);
+    zn_av_freep(&ctx->acf);
+    zn_av_freep(&ctx->last_acf_mantissa);
+    zn_av_freep(&ctx->shift_value);
+    zn_av_freep(&ctx->last_shift_value);
     if (ctx->raw_mantissa) {
         for (i = 0; i < avctx->ch_layout.nb_channels; i++) {
-            av_freep(&ctx->raw_mantissa[i]);
+            zn_av_freep(&ctx->raw_mantissa[i]);
         }
-        av_freep(&ctx->raw_mantissa);
+        zn_av_freep(&ctx->raw_mantissa);
     }
-    av_freep(&ctx->larray);
-    av_freep(&ctx->nbits);
+    zn_av_freep(&ctx->larray);
+    zn_av_freep(&ctx->nbits);
 
     return 0;
 }
@@ -2044,13 +2044,13 @@ static av_cold int decode_init(AVCodecContext *avctx)
     if (num_buffers * (uint64_t)num_buffers > INT_MAX) // protect chan_data_buffer allocation
         return AVERROR_INVALIDDATA;
 
-    ctx->quant_cof        = av_malloc_array(num_buffers, sizeof(*ctx->quant_cof));
-    ctx->lpc_cof          = av_malloc_array(num_buffers, sizeof(*ctx->lpc_cof));
-    ctx->quant_cof_buffer = av_malloc_array(num_buffers * sconf->max_order,
+    ctx->quant_cof        = zn_av_malloc_array(num_buffers, sizeof(*ctx->quant_cof));
+    ctx->lpc_cof          = zn_av_malloc_array(num_buffers, sizeof(*ctx->lpc_cof));
+    ctx->quant_cof_buffer = zn_av_malloc_array(num_buffers * sconf->max_order,
                                             sizeof(*ctx->quant_cof_buffer));
-    ctx->lpc_cof_buffer   = av_malloc_array(num_buffers * sconf->max_order,
+    ctx->lpc_cof_buffer   = zn_av_malloc_array(num_buffers * sconf->max_order,
                                             sizeof(*ctx->lpc_cof_buffer));
-    ctx->lpc_cof_reversed_buffer = av_malloc_array(sconf->max_order,
+    ctx->lpc_cof_reversed_buffer = zn_av_malloc_array(sconf->max_order,
                                                    sizeof(*ctx->lpc_cof_buffer));
 
     if (!ctx->quant_cof              || !ctx->lpc_cof        ||
@@ -2067,14 +2067,14 @@ static av_cold int decode_init(AVCodecContext *avctx)
     }
 
     // allocate and assign lag and gain data buffer for ltp mode
-    ctx->const_block     = av_malloc_array(num_buffers, sizeof(*ctx->const_block));
-    ctx->shift_lsbs      = av_malloc_array(num_buffers, sizeof(*ctx->shift_lsbs));
-    ctx->opt_order       = av_malloc_array(num_buffers, sizeof(*ctx->opt_order));
-    ctx->store_prev_samples = av_malloc_array(num_buffers, sizeof(*ctx->store_prev_samples));
-    ctx->use_ltp         = av_calloc(num_buffers, sizeof(*ctx->use_ltp));
-    ctx->ltp_lag         = av_malloc_array(num_buffers, sizeof(*ctx->ltp_lag));
-    ctx->ltp_gain        = av_malloc_array(num_buffers, sizeof(*ctx->ltp_gain));
-    ctx->ltp_gain_buffer = av_malloc_array(num_buffers * 5, sizeof(*ctx->ltp_gain_buffer));
+    ctx->const_block     = zn_av_malloc_array(num_buffers, sizeof(*ctx->const_block));
+    ctx->shift_lsbs      = zn_av_malloc_array(num_buffers, sizeof(*ctx->shift_lsbs));
+    ctx->opt_order       = zn_av_malloc_array(num_buffers, sizeof(*ctx->opt_order));
+    ctx->store_prev_samples = zn_av_malloc_array(num_buffers, sizeof(*ctx->store_prev_samples));
+    ctx->use_ltp         = zn_av_calloc(num_buffers, sizeof(*ctx->use_ltp));
+    ctx->ltp_lag         = zn_av_malloc_array(num_buffers, sizeof(*ctx->ltp_lag));
+    ctx->ltp_gain        = zn_av_malloc_array(num_buffers, sizeof(*ctx->ltp_gain));
+    ctx->ltp_gain_buffer = zn_av_malloc_array(num_buffers * 5, sizeof(*ctx->ltp_gain_buffer));
 
     if (!ctx->const_block || !ctx->shift_lsbs ||
         !ctx->opt_order || !ctx->store_prev_samples ||
@@ -2089,10 +2089,10 @@ static av_cold int decode_init(AVCodecContext *avctx)
 
     // allocate and assign channel data buffer for mcc mode
     if (sconf->mc_coding) {
-        ctx->chan_data_buffer  = av_calloc(num_buffers * num_buffers,
+        ctx->chan_data_buffer  = zn_av_calloc(num_buffers * num_buffers,
                                            sizeof(*ctx->chan_data_buffer));
-        ctx->chan_data         = av_calloc(num_buffers, sizeof(*ctx->chan_data));
-        ctx->reverted_channels = av_malloc_array(num_buffers,
+        ctx->chan_data         = zn_av_calloc(num_buffers, sizeof(*ctx->chan_data));
+        ctx->reverted_channels = zn_av_malloc_array(num_buffers,
                                                  sizeof(*ctx->reverted_channels));
 
         if (!ctx->chan_data_buffer || !ctx->chan_data || !ctx->reverted_channels) {
@@ -2109,14 +2109,14 @@ static av_cold int decode_init(AVCodecContext *avctx)
     }
 
     if (sconf->floating) {
-        ctx->acf               = av_malloc_array(channels, sizeof(*ctx->acf));
-        ctx->shift_value       = av_malloc_array(channels, sizeof(*ctx->shift_value));
-        ctx->last_shift_value  = av_malloc_array(channels, sizeof(*ctx->last_shift_value));
-        ctx->last_acf_mantissa = av_malloc_array(channels, sizeof(*ctx->last_acf_mantissa));
-        ctx->raw_mantissa      = av_calloc(channels, sizeof(*ctx->raw_mantissa));
+        ctx->acf               = zn_av_malloc_array(channels, sizeof(*ctx->acf));
+        ctx->shift_value       = zn_av_malloc_array(channels, sizeof(*ctx->shift_value));
+        ctx->last_shift_value  = zn_av_malloc_array(channels, sizeof(*ctx->last_shift_value));
+        ctx->last_acf_mantissa = zn_av_malloc_array(channels, sizeof(*ctx->last_acf_mantissa));
+        ctx->raw_mantissa      = zn_av_calloc(channels, sizeof(*ctx->raw_mantissa));
 
-        ctx->larray = av_malloc_array(ctx->cur_frame_length * 4, sizeof(*ctx->larray));
-        ctx->nbits  = av_malloc_array(ctx->cur_frame_length, sizeof(*ctx->nbits));
+        ctx->larray = zn_av_malloc_array(ctx->cur_frame_length * 4, sizeof(*ctx->larray));
+        ctx->nbits  = zn_av_malloc_array(ctx->cur_frame_length, sizeof(*ctx->nbits));
         ctx->mlz    = av_mallocz(sizeof(*ctx->mlz));
 
         if (!ctx->mlz || !ctx->acf || !ctx->shift_value || !ctx->last_shift_value
@@ -2131,16 +2131,16 @@ static av_cold int decode_init(AVCodecContext *avctx)
         ff_mlz_flush_dict(ctx->mlz);
 
         for (c = 0; c < channels; ++c) {
-            ctx->raw_mantissa[c] = av_calloc(ctx->cur_frame_length, sizeof(**ctx->raw_mantissa));
+            ctx->raw_mantissa[c] = zn_av_calloc(ctx->cur_frame_length, sizeof(**ctx->raw_mantissa));
         }
     }
 
     channel_size      = sconf->frame_length + sconf->max_order;
 
     // allocate previous raw sample buffer
-    ctx->prev_raw_samples = av_malloc_array(sconf->max_order, sizeof(*ctx->prev_raw_samples));
-    ctx->raw_buffer       = av_calloc(channels * channel_size, sizeof(*ctx->raw_buffer));
-    ctx->raw_samples      = av_malloc_array(channels, sizeof(*ctx->raw_samples));
+    ctx->prev_raw_samples = zn_av_malloc_array(sconf->max_order, sizeof(*ctx->prev_raw_samples));
+    ctx->raw_buffer       = zn_av_calloc(channels * channel_size, sizeof(*ctx->raw_buffer));
+    ctx->raw_samples      = zn_av_malloc_array(channels, sizeof(*ctx->raw_samples));
     if (!ctx->prev_raw_samples || !ctx->raw_buffer|| !ctx->raw_samples) {
         av_log(avctx, AV_LOG_ERROR, "Allocating buffer memory failed.\n");
         return AVERROR(ENOMEM);
@@ -2154,7 +2154,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     // allocate crc buffer
     if (HAVE_BIGENDIAN != sconf->msb_first && sconf->crc_enabled &&
         (avctx->err_recognition & (AV_EF_CRCCHECK|AV_EF_CAREFUL))) {
-        ctx->crc_buffer = av_malloc_array(ctx->cur_frame_length *
+        ctx->crc_buffer = zn_av_malloc_array(ctx->cur_frame_length *
                                           channels *
                                           av_get_bytes_per_sample(avctx->sample_fmt),
                                           sizeof(*ctx->crc_buffer));

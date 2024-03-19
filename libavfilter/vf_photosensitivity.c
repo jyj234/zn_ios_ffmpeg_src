@@ -231,7 +231,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     fixed_badness = new_badness;
     if (new_badness < s->badness_threshold || !s->last_frame_av || s->bypass) {
         factor = 1; /* for metadata */
-        av_frame_free(&s->last_frame_av);
+        zn_av_frame_free(&s->last_frame_av);
         s->last_frame_av = src = in;
         s->last_frame_e = ef;
         s->history[s->history_pos] = this_badness;
@@ -243,7 +243,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         } else {
             res = ff_inlink_make_frame_writable(inlink, &s->last_frame_av);
             if (res) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return res;
             }
             blend_frame(ctx, s->last_frame_av, in, factor);
@@ -265,7 +265,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     out = ff_get_video_buffer(outlink, in->width, in->height);
     if (!out) {
         if (free_in == 1)
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -287,7 +287,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
     av_frame_copy(out, src);
     if (free_in == 1)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -295,7 +295,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     PhotosensitivityContext *s = ctx->priv;
 
-    av_frame_free(&s->last_frame_av);
+    zn_av_frame_free(&s->last_frame_av);
 }
 
 static const AVFilterPad inputs[] = {

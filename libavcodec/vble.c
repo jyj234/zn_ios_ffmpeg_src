@@ -172,7 +172,7 @@ static int vble_decode_frame(AVCodecContext *avctx, AVFrame *pic,
 static av_cold int vble_decode_close(AVCodecContext *avctx)
 {
     VBLEContext *ctx = avctx->priv_data;
-    av_freep(&ctx->val);
+    zn_av_freep(&ctx->val);
 
     return 0;
 }
@@ -191,7 +191,7 @@ static av_cold int vble_decode_init(AVCodecContext *avctx)
     ctx->size = av_image_get_buffer_size(avctx->pix_fmt,
                                          avctx->width, avctx->height, 1);
 
-    ctx->val = av_malloc_array(ctx->size, sizeof(*ctx->val));
+    ctx->val = zn_av_malloc_array(ctx->size, sizeof(*ctx->val));
 
     if (!ctx->val) {
         av_log(avctx, AV_LOG_ERROR, "Could not allocate values buffer.\n");

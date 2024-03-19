@@ -264,7 +264,7 @@ static int intlist_write(PutBitContext *pb, int *buf, int entries, int base_2_pa
     int step = 256, pos = 0, dominant = 0, any = 0;
     int *copy, *bits;
 
-    copy = av_calloc(entries, sizeof(*copy));
+    copy = zn_av_calloc(entries, sizeof(*copy));
     if (!copy)
         return AVERROR(ENOMEM);
 
@@ -290,10 +290,10 @@ static int intlist_write(PutBitContext *pb, int *buf, int entries, int base_2_pa
             max = abs(copy[i]);
     }
 
-    bits = av_calloc(entries*max, sizeof(*bits));
+    bits = zn_av_calloc(entries*max, sizeof(*bits));
     if (!bits)
     {
-        av_free(copy);
+        zn_av_free(copy);
         return AVERROR(ENOMEM);
     }
 
@@ -349,8 +349,8 @@ static int intlist_write(PutBitContext *pb, int *buf, int entries, int base_2_pa
         if (buf[i])
             put_bits(pb, 1, buf[i] < 0);
 
-    av_free(bits);
-    av_free(copy);
+    zn_av_free(bits);
+    zn_av_free(copy);
 
     return 0;
 }
@@ -360,7 +360,7 @@ static int intlist_read(GetBitContext *gb, int *buf, int entries, int base_2_par
     int i, low_bits = 0, x = 0;
     int n_zeros = 0, step = 256, dominant = 0;
     int pos = 0, level = 0;
-    int *bits = av_calloc(entries, sizeof(*bits));
+    int *bits = zn_av_calloc(entries, sizeof(*bits));
 
     if (!bits)
         return AVERROR(ENOMEM);
@@ -441,7 +441,7 @@ static int intlist_read(GetBitContext *gb, int *buf, int entries, int base_2_par
 
         pos++;
     }
-    av_free(bits);
+    zn_av_free(bits);
 
     // read signs
     for (i = 0; i < entries; i++)
@@ -634,7 +634,7 @@ static av_cold int sonic_encode_init(AVCodecContext *avctx)
     }
 
     // generate taps
-    s->tap_quant = av_calloc(s->num_taps, sizeof(*s->tap_quant));
+    s->tap_quant = zn_av_calloc(s->num_taps, sizeof(*s->tap_quant));
     if (!s->tap_quant)
         return AVERROR(ENOMEM);
 
@@ -648,24 +648,24 @@ static av_cold int sonic_encode_init(AVCodecContext *avctx)
     s->frame_size = s->channels*s->block_align*s->downsampling;
 
     s->tail_size = s->num_taps*s->channels;
-    s->tail = av_calloc(s->tail_size, sizeof(*s->tail));
+    s->tail = zn_av_calloc(s->tail_size, sizeof(*s->tail));
     if (!s->tail)
         return AVERROR(ENOMEM);
 
-    s->predictor_k = av_calloc(s->num_taps, sizeof(*s->predictor_k) );
+    s->predictor_k = zn_av_calloc(s->num_taps, sizeof(*s->predictor_k) );
     if (!s->predictor_k)
         return AVERROR(ENOMEM);
 
-    coded_samples = av_calloc(s->block_align, s->channels * sizeof(**s->coded_samples));
+    coded_samples = zn_av_calloc(s->block_align, s->channels * sizeof(**s->coded_samples));
     if (!coded_samples)
         return AVERROR(ENOMEM);
     for (i = 0; i < s->channels; i++, coded_samples += s->block_align)
         s->coded_samples[i] = coded_samples;
 
-    s->int_samples = av_calloc(s->frame_size, sizeof(*s->int_samples));
+    s->int_samples = zn_av_calloc(s->frame_size, sizeof(*s->int_samples));
 
     s->window_size = ((2*s->tail_size)+s->frame_size);
-    s->window = av_calloc(s->window_size, 2 * sizeof(*s->window));
+    s->window = zn_av_calloc(s->window_size, 2 * sizeof(*s->window));
     if (!s->window || !s->int_samples)
         return AVERROR(ENOMEM);
 
@@ -707,12 +707,12 @@ static av_cold int sonic_encode_close(AVCodecContext *avctx)
 {
     SonicContext *s = avctx->priv_data;
 
-    av_freep(&s->coded_samples[0]);
-    av_freep(&s->predictor_k);
-    av_freep(&s->tail);
-    av_freep(&s->tap_quant);
-    av_freep(&s->window);
-    av_freep(&s->int_samples);
+    zn_av_freep(&s->coded_samples[0]);
+    zn_av_freep(&s->predictor_k);
+    zn_av_freep(&s->tail);
+    zn_av_freep(&s->tap_quant);
+    zn_av_freep(&s->window);
+    zn_av_freep(&s->int_samples);
 
     return 0;
 }
@@ -938,28 +938,28 @@ static av_cold int sonic_decode_init(AVCodecContext *avctx)
         s->version, s->minor_version, s->lossless, s->decorrelation, s->num_taps, s->block_align, s->frame_size, s->downsampling);
 
     // generate taps
-    s->tap_quant = av_calloc(s->num_taps, sizeof(*s->tap_quant));
+    s->tap_quant = zn_av_calloc(s->num_taps, sizeof(*s->tap_quant));
     if (!s->tap_quant)
         return AVERROR(ENOMEM);
 
     for (i = 0; i < s->num_taps; i++)
         s->tap_quant[i] = ff_sqrt(i+1);
 
-    s->predictor_k = av_calloc(s->num_taps, sizeof(*s->predictor_k));
+    s->predictor_k = zn_av_calloc(s->num_taps, sizeof(*s->predictor_k));
 
-    tmp = av_calloc(s->num_taps, s->channels * sizeof(**s->predictor_state));
+    tmp = zn_av_calloc(s->num_taps, s->channels * sizeof(**s->predictor_state));
     if (!tmp)
         return AVERROR(ENOMEM);
     for (i = 0; i < s->channels; i++, tmp += s->num_taps)
         s->predictor_state[i] = tmp;
 
-    tmp = av_calloc(s->block_align, s->channels * sizeof(**s->coded_samples));
+    tmp = zn_av_calloc(s->block_align, s->channels * sizeof(**s->coded_samples));
     if (!tmp)
         return AVERROR(ENOMEM);
     for (i = 0; i < s->channels; i++, tmp += s->block_align)
         s->coded_samples[i]   = tmp;
 
-    s->int_samples = av_calloc(s->frame_size, sizeof(*s->int_samples));
+    s->int_samples = zn_av_calloc(s->frame_size, sizeof(*s->int_samples));
     if (!s->int_samples)
         return AVERROR(ENOMEM);
 
@@ -971,11 +971,11 @@ static av_cold int sonic_decode_close(AVCodecContext *avctx)
 {
     SonicContext *s = avctx->priv_data;
 
-    av_freep(&s->int_samples);
-    av_freep(&s->tap_quant);
-    av_freep(&s->predictor_k);
-    av_freep(&s->predictor_state[0]);
-    av_freep(&s->coded_samples[0]);
+    zn_av_freep(&s->int_samples);
+    zn_av_freep(&s->tap_quant);
+    zn_av_freep(&s->predictor_k);
+    zn_av_freep(&s->predictor_state[0]);
+    zn_av_freep(&s->coded_samples[0]);
 
     return 0;
 }

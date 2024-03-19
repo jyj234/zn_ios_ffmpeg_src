@@ -94,7 +94,7 @@ static void fixstride(AVFilterLink *link, AVFrame *f)
                    dst->format, dst->width, dst->height);
     av_frame_unref(f);
     av_frame_move_ref(f, dst);
-    av_frame_free(&dst);
+    zn_av_frame_free(&dst);
 }
 
 int ff_yadif_filter_frame(AVFilterLink *link, AVFrame *frame)
@@ -110,7 +110,7 @@ int ff_yadif_filter_frame(AVFilterLink *link, AVFrame *frame)
         return_frame(ctx, 1);
 
     if (yadif->prev)
-        av_frame_free(&yadif->prev);
+        zn_av_frame_free(&yadif->prev);
     yadif->prev = yadif->cur;
     yadif->cur  = yadif->next;
     yadif->next = frame;
@@ -148,7 +148,7 @@ int ff_yadif_filter_frame(AVFilterLink *link, AVFrame *frame)
             return AVERROR(ENOMEM);
 
         ff_ccfifo_inject(&yadif->cc_fifo, yadif->out);
-        av_frame_free(&yadif->prev);
+        zn_av_frame_free(&yadif->prev);
         if (yadif->out->pts != AV_NOPTS_VALUE)
             yadif->out->pts *= 2;
         yadif->out->duration *= 2;

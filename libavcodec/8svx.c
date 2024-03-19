@@ -117,7 +117,7 @@ static int eightsvx_decode_frame(AVCodecContext *avctx, AVFrame *frame,
             return AVERROR(ENOMEM);
         if (channels == 2) {
             if (!(esc->data[1] = av_malloc(chan_size))) {
-                av_freep(&esc->data[0]);
+                zn_av_freep(&esc->data[0]);
                 return AVERROR(ENOMEM);
             }
         }
@@ -178,8 +178,8 @@ static av_cold int eightsvx_decode_close(AVCodecContext *avctx)
 {
     EightSvxContext *esc = avctx->priv_data;
 
-    av_freep(&esc->data[0]);
-    av_freep(&esc->data[1]);
+    zn_av_freep(&esc->data[0]);
+    zn_av_freep(&esc->data[1]);
     esc->data_size = 0;
     esc->data_idx = 0;
 

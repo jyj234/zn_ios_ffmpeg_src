@@ -113,7 +113,7 @@ int main(void)
         }
     }
 
-    av_free(temp);
+    zn_av_free(temp);
 
     return ret;
 }

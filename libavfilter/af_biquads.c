@@ -1022,7 +1022,7 @@ static int config_filter(AVFilterLink *outlink, int reset)
     if (!s->cache[0])
         s->cache[0] = ff_get_audio_buffer(outlink, 4 * sizeof(double));
     if (!s->clip)
-        s->clip = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->clip));
+        s->clip = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->clip));
     if (!s->cache[0] || !s->clip)
         return AVERROR(ENOMEM);
     if (reset) {
@@ -1304,9 +1304,9 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf, int eof)
     if (s->bypass)
         return ff_filter_frame(outlink, buf);
 
-    ret = av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
+    ret = zn_av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
     if (ret < 0) {
-        av_frame_free(&buf);
+        zn_av_frame_free(&buf);
         return ret;
     }
     if (strcmp(s->ch_layout_str, "all"))
@@ -1318,7 +1318,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf, int eof)
     } else {
         out_buf = ff_get_audio_buffer(outlink, s->block_samples > 0 ? s->block_samples : buf->nb_samples);
         if (!out_buf) {
-            av_frame_free(&buf);
+            zn_av_frame_free(&buf);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out_buf, buf);
@@ -1350,12 +1350,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf, int eof)
     }
 
     if (buf != out_buf)
-        av_frame_free(&buf);
+        zn_av_frame_free(&buf);
 
     if (!drop)
         return ff_filter_frame(outlink, out_buf);
     else {
-        av_frame_free(&out_buf);
+        zn_av_frame_free(&out_buf);
         ff_filter_set_ready(ctx, 10);
         return 0;
     }
@@ -1425,10 +1425,10 @@ static av_cold void uninit(AVFilterContext *ctx)
     BiquadsContext *s = ctx->priv;
 
     for (int i = 0; i < 3; i++)
-        av_frame_free(&s->block[i]);
-    av_frame_free(&s->cache[0]);
-    av_frame_free(&s->cache[1]);
-    av_freep(&s->clip);
+        zn_av_frame_free(&s->block[i]);
+    zn_av_frame_free(&s->cache[0]);
+    zn_av_frame_free(&s->cache[1]);
+    zn_av_freep(&s->clip);
     av_channel_layout_uninit(&s->ch_layout);
 }
 

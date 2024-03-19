@@ -218,7 +218,7 @@ static int libsmbc_read_dir(URLContext *h, AVIODirEntry **next)
         skip_entry = 0;
         dirent = smbc_readdir(libsmbc->dh);
         if (!dirent) {
-            av_freep(next);
+            zn_av_freep(next);
             return 0;
         }
         switch (dirent->smbc_type) {
@@ -252,7 +252,7 @@ static int libsmbc_read_dir(URLContext *h, AVIODirEntry **next)
 
     entry->name = av_strdup(dirent->name);
     if (!entry->name) {
-        av_freep(next);
+        zn_av_freep(next);
         return AVERROR(ENOMEM);
     }
 
@@ -268,7 +268,7 @@ static int libsmbc_read_dir(URLContext *h, AVIODirEntry **next)
             entry->access_timestamp =  INT64_C(1000000) * st.st_atime;
             entry->status_change_timestamp = INT64_C(1000000) * st.st_ctime;
         }
-        av_free(url);
+        zn_av_free(url);
     }
 
     return 0;

@@ -117,16 +117,16 @@ static int read_header_gme(AVFormatContext *s)
         av_log(s, AV_LOG_ERROR, "File size is larger than max_size option "
                "value %"PRIi64", consider increasing the max_size option\n",
                gme->max_size);
-        av_freep(&buf);
+        zn_av_freep(&buf);
         return AVERROR_BUFFER_TOO_SMALL;
     }
 
     if (gme_open_data(buf, sz, &gme->music_emu, gme->sample_rate)) {
         gme->music_emu = NULL; /* Just for safety */
-        av_freep(&buf);
+        zn_av_freep(&buf);
         return AVERROR_INVALIDDATA;
     }
-    av_freep(&buf);
+    zn_av_freep(&buf);
 
     ret = load_metadata(s, &duration);
     if (ret < 0)
@@ -134,7 +134,7 @@ static int read_header_gme(AVFormatContext *s)
     if (gme_start_track(gme->music_emu, gme->track_index))
         return AVERROR_UNKNOWN;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 64, 1, 1000);

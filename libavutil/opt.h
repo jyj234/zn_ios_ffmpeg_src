@@ -104,7 +104,7 @@
  * void free_test_struct(test_struct **foo)
  * {
  *     av_opt_free(*foo);
- *     av_freep(foo);
+ *     zn_av_freep(foo);
  * }
  * @endcode
  *
@@ -210,7 +210,7 @@
  *
  * Similarly av_opt_get() will read any option type and convert it to a string
  * which will be returned. Do not forget that the string is allocated, so you
- * have to free it with av_free().
+ * have to free it with zn_av_free().
  *
  * In some cases it may be more convenient to put all options into an
  * AVDictionary and call av_opt_set_dict() on it. A specific case of this
@@ -514,8 +514,8 @@ int av_opt_set_dict2(void *obj, struct AVDictionary **options, int search_flags)
  * @param pairs_sep    a 0-terminated list of characters used to separate
  *                     two pairs from each other, for example ':' or ','
  * @param flags        flags; see the AV_OPT_FLAG_* values below
- * @param rkey         parsed key; must be freed using av_free()
- * @param rval         parsed value; must be freed using av_free()
+ * @param rkey         parsed key; must be freed using zn_av_free()
+ * @param rval         parsed value; must be freed using zn_av_free()
  *
  * @return  >=0 for success, or a negative value corresponding to an
  *          AVERROR code in case of error; in particular:
@@ -602,7 +602,7 @@ int av_opt_eval_q     (void *obj, const AVOption *o, const char *val, AVRational
  *
  * @note Options found with AV_OPT_SEARCH_CHILDREN flag may not be settable
  * directly with av_opt_set(). Use special calls which take an options
- * AVDictionary (e.g. avformat_open_input()) to set options found with this
+ * AVDictionary (e.g. zn_avformat_open_input()) to set options found with this
  * flag.
  */
 const AVOption *av_opt_find(void *obj, const char *name, const char *unit,
@@ -741,7 +741,7 @@ int av_opt_set_dict_val(void *obj, const char *name, const AVDictionary *val, in
  * @return >=0 on success, a negative error code otherwise
  */
 /**
- * @note the returned string will be av_malloc()ed and must be av_free()ed by the caller
+ * @note the returned string will be av_malloc()ed and must be zn_av_free()ed by the caller
  *
  * @note if AV_OPT_ALLOW_NULL is set in search_flags in av_opt_get, and the
  * option is of type AV_OPT_TYPE_STRING, AV_OPT_TYPE_BINARY or AV_OPT_TYPE_DICT

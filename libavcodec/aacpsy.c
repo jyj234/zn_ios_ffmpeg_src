@@ -370,9 +370,9 @@ static av_cold int psy_3gpp_init(FFPsyContext *ctx) {
         }
     }
 
-    pctx->ch = av_calloc(ctx->avctx->ch_layout.nb_channels, sizeof(*pctx->ch));
+    pctx->ch = zn_av_calloc(ctx->avctx->ch_layout.nb_channels, sizeof(*pctx->ch));
     if (!pctx->ch) {
-        av_freep(&ctx->model_priv_data);
+        zn_av_freep(&ctx->model_priv_data);
         return AVERROR(ENOMEM);
     }
 
@@ -859,8 +859,8 @@ static av_cold void psy_3gpp_end(FFPsyContext *apc)
 {
     AacPsyContext *pctx = (AacPsyContext*) apc->model_priv_data;
     if (pctx)
-        av_freep(&pctx->ch);
-    av_freep(&apc->model_priv_data);
+        zn_av_freep(&pctx->ch);
+    zn_av_freep(&apc->model_priv_data);
 }
 
 static void lame_apply_block_type(AacPsyChannel *ctx, FFPsyWindowInfo *wi, int uselongblock)

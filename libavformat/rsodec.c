@@ -54,7 +54,7 @@ static int rso_read_header(AVFormatContext *s)
     }
 
     /* now we are ready: build format streams */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

@@ -807,8 +807,8 @@ static av_cold int flac_decode_close(AVCodecContext *avctx)
 {
     FLACContext *s = avctx->priv_data;
 
-    av_freep(&s->decoded_buffer);
-    av_freep(&s->decoded_buffer_33bps);
+    zn_av_freep(&s->decoded_buffer);
+    zn_av_freep(&s->decoded_buffer_33bps);
 
     return 0;
 }

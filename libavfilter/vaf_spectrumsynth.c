@@ -188,19 +188,19 @@ static int config_output(AVFilterLink *outlink)
         return ret;
     }
 
-    s->fft_in = av_calloc(s->channels, sizeof(*s->fft_in));
+    s->fft_in = zn_av_calloc(s->channels, sizeof(*s->fft_in));
     if (!s->fft_in)
         return AVERROR(ENOMEM);
-    s->fft_out = av_calloc(s->channels, sizeof(*s->fft_out));
+    s->fft_out = zn_av_calloc(s->channels, sizeof(*s->fft_out));
     if (!s->fft_out)
         return AVERROR(ENOMEM);
 
     for (ch = 0; ch < s->channels; ch++) {
-        s->fft_in[ch] = av_calloc(FFALIGN(s->win_size, av_cpu_max_align()), sizeof(**s->fft_in));
+        s->fft_in[ch] = zn_av_calloc(FFALIGN(s->win_size, av_cpu_max_align()), sizeof(**s->fft_in));
         if (!s->fft_in[ch])
             return AVERROR(ENOMEM);
 
-        s->fft_out[ch] = av_calloc(FFALIGN(s->win_size, av_cpu_max_align()), sizeof(**s->fft_out));
+        s->fft_out[ch] = zn_av_calloc(FFALIGN(s->win_size, av_cpu_max_align()), sizeof(**s->fft_out));
         if (!s->fft_out[ch])
             return AVERROR(ENOMEM);
     }
@@ -385,8 +385,8 @@ static int try_push_frame(AVFilterContext *ctx, int x)
 
                 out = ff_get_audio_buffer(outlink, s->win_size);
                 if (!out) {
-                    av_frame_free(&s->magnitude);
-                    av_frame_free(&s->phase);
+                    zn_av_frame_free(&s->magnitude);
+                    zn_av_frame_free(&s->phase);
                     return AVERROR(ENOMEM);
                 }
 
@@ -449,8 +449,8 @@ static int try_push_frames(AVFilterContext *ctx)
         av_assert0(0);
     }
 
-    av_frame_free(&s->magnitude);
-    av_frame_free(&s->phase);
+    zn_av_frame_free(&s->magnitude);
+    zn_av_frame_free(&s->phase);
     return ret;
 }
 
@@ -498,23 +498,23 @@ static av_cold void uninit(AVFilterContext *ctx)
     SpectrumSynthContext *s = ctx->priv;
     int i;
 
-    av_frame_free(&s->magnitude);
-    av_frame_free(&s->phase);
-    av_frame_free(&s->buffer);
+    zn_av_frame_free(&s->magnitude);
+    zn_av_frame_free(&s->phase);
+    zn_av_frame_free(&s->buffer);
 
     av_tx_uninit(&s->fft);
 
     if (s->fft_in) {
         for (i = 0; i < s->channels; i++)
-            av_freep(&s->fft_in[i]);
+            zn_av_freep(&s->fft_in[i]);
     }
     if (s->fft_out) {
         for (i = 0; i < s->channels; i++)
-            av_freep(&s->fft_out[i]);
+            zn_av_freep(&s->fft_out[i]);
     }
-    av_freep(&s->fft_in);
-    av_freep(&s->fft_out);
-    av_freep(&s->window_func_lut);
+    zn_av_freep(&s->fft_in);
+    zn_av_freep(&s->fft_out);
+    zn_av_freep(&s->window_func_lut);
 }
 
 static const AVFilterPad spectrumsynth_inputs[] = {

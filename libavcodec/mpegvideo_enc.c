@@ -467,9 +467,9 @@ av_cold int ff_mpv_encode_init(AVCodecContext *avctx)
     }
 
     if (!s->fixed_qscale &&
-        avctx->bit_rate * av_q2d(avctx->time_base) >
+        avctx->bit_rate * zn_av_q2d(avctx->time_base) >
             avctx->bit_rate_tolerance) {
-        double nbt = avctx->bit_rate * av_q2d(avctx->time_base) * 5;
+        double nbt = avctx->bit_rate * zn_av_q2d(avctx->time_base) * 5;
         av_log(avctx, AV_LOG_WARNING,
                "bitrate tolerance %d too small for bitrate %"PRId64", overriding\n", avctx->bit_rate_tolerance, avctx->bit_rate);
         if (nbt <= INT_MAX) {
@@ -821,7 +821,7 @@ av_cold int ff_mpv_encode_init(AVCodecContext *avctx)
         !FF_ALLOCZ_TYPED_ARRAY(s->q_inter_matrix16,        32) ||
         !FF_ALLOCZ_TYPED_ARRAY(s->input_picture,           MAX_B_FRAMES + 1) ||
         !FF_ALLOCZ_TYPED_ARRAY(s->reordered_input_picture, MAX_B_FRAMES + 1) ||
-        !(s->new_picture = av_frame_alloc()))
+        !(s->new_picture = zn_av_frame_alloc()))
         return AVERROR(ENOMEM);
 
     /* Allocate MV tables; the MV and MB tables will be copied
@@ -852,7 +852,7 @@ av_cold int ff_mpv_encode_init(AVCodecContext *avctx)
         !(s->mb_mean = av_mallocz(mb_array_size)))
         return AVERROR(ENOMEM);
 
-#define ALLOCZ_ARRAYS(p, mult, numb) ((p) = av_calloc(numb, mult * sizeof(*(p))))
+#define ALLOCZ_ARRAYS(p, mult, numb) ((p) = zn_av_calloc(numb, mult * sizeof(*(p))))
     if (s->codec_id == AV_CODEC_ID_MPEG4 ||
         (s->avctx->flags & AV_CODEC_FLAG_INTERLACED_ME)) {
         int16_t (*tmp1)[2];
@@ -959,7 +959,7 @@ av_cold int ff_mpv_encode_init(AVCodecContext *avctx)
 
     if (s->b_frame_strategy == 2) {
         for (i = 0; i < s->max_b_frames + 2; i++) {
-            s->tmp_frames[i] = av_frame_alloc();
+            s->tmp_frames[i] = zn_av_frame_alloc();
             if (!s->tmp_frames[i])
                 return AVERROR(ENOMEM);
 
@@ -967,7 +967,7 @@ av_cold int ff_mpv_encode_init(AVCodecContext *avctx)
             s->tmp_frames[i]->width  = s->width  >> s->brd_scale;
             s->tmp_frames[i]->height = s->height >> s->brd_scale;
 
-            ret = av_frame_get_buffer(s->tmp_frames[i], 0);
+            ret = zn_av_frame_get_buffer(s->tmp_frames[i], 0);
             if (ret < 0)
                 return ret;
         }
@@ -994,42 +994,42 @@ av_cold int ff_mpv_encode_end(AVCodecContext *avctx)
     ff_mpv_common_end(s);
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->tmp_frames); i++)
-        av_frame_free(&s->tmp_frames[i]);
+        zn_av_frame_free(&s->tmp_frames[i]);
 
-    av_frame_free(&s->new_picture);
+    zn_av_frame_free(&s->new_picture);
 
-    av_freep(&avctx->stats_out);
+    zn_av_freep(&avctx->stats_out);
 
-    av_freep(&s->p_mv_table_base);
-    av_freep(&s->b_forw_mv_table_base);
-    av_freep(&s->b_back_mv_table_base);
-    av_freep(&s->b_bidir_forw_mv_table_base);
-    av_freep(&s->b_bidir_back_mv_table_base);
-    av_freep(&s->b_direct_mv_table_base);
-    av_freep(&s->b_field_mv_table_base);
-    av_freep(&s->b_field_select_table[0][0]);
-    av_freep(&s->p_field_select_table[0]);
+    zn_av_freep(&s->p_mv_table_base);
+    zn_av_freep(&s->b_forw_mv_table_base);
+    zn_av_freep(&s->b_back_mv_table_base);
+    zn_av_freep(&s->b_bidir_forw_mv_table_base);
+    zn_av_freep(&s->b_bidir_back_mv_table_base);
+    zn_av_freep(&s->b_direct_mv_table_base);
+    zn_av_freep(&s->b_field_mv_table_base);
+    zn_av_freep(&s->b_field_select_table[0][0]);
+    zn_av_freep(&s->p_field_select_table[0]);
 
-    av_freep(&s->mb_type);
-    av_freep(&s->lambda_table);
+    zn_av_freep(&s->mb_type);
+    zn_av_freep(&s->lambda_table);
 
-    av_freep(&s->cplx_tab);
-    av_freep(&s->bits_tab);
+    zn_av_freep(&s->cplx_tab);
+    zn_av_freep(&s->bits_tab);
 
-    if(s->q_chroma_intra_matrix   != s->q_intra_matrix  ) av_freep(&s->q_chroma_intra_matrix);
-    if(s->q_chroma_intra_matrix16 != s->q_intra_matrix16) av_freep(&s->q_chroma_intra_matrix16);
+    if(s->q_chroma_intra_matrix   != s->q_intra_matrix  ) zn_av_freep(&s->q_chroma_intra_matrix);
+    if(s->q_chroma_intra_matrix16 != s->q_intra_matrix16) zn_av_freep(&s->q_chroma_intra_matrix16);
     s->q_chroma_intra_matrix=   NULL;
     s->q_chroma_intra_matrix16= NULL;
-    av_freep(&s->q_intra_matrix);
-    av_freep(&s->q_inter_matrix);
-    av_freep(&s->q_intra_matrix16);
-    av_freep(&s->q_inter_matrix16);
-    av_freep(&s->input_picture);
-    av_freep(&s->reordered_input_picture);
-    av_freep(&s->dct_offset);
-    av_freep(&s->mb_var);
-    av_freep(&s->mc_mb_var);
-    av_freep(&s->mb_mean);
+    zn_av_freep(&s->q_intra_matrix);
+    zn_av_freep(&s->q_inter_matrix);
+    zn_av_freep(&s->q_intra_matrix16);
+    zn_av_freep(&s->q_inter_matrix16);
+    zn_av_freep(&s->input_picture);
+    zn_av_freep(&s->reordered_input_picture);
+    zn_av_freep(&s->dct_offset);
+    zn_av_freep(&s->mb_var);
+    zn_av_freep(&s->mc_mb_var);
+    zn_av_freep(&s->mb_mean);
 
     return 0;
 }
@@ -1304,15 +1304,15 @@ static int encode_frame(AVCodecContext *c, const AVFrame *frame, AVPacket *pkt)
     int ret;
     int size = 0;
 
-    ret = avcodec_send_frame(c, frame);
+    ret = zn_avcodec_send_frame(c, frame);
     if (ret < 0)
         return ret;
 
     do {
-        ret = avcodec_receive_packet(c, pkt);
+        ret = zn_avcodec_receive_packet(c, pkt);
         if (ret >= 0) {
             size += pkt->size;
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
         } else if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF)
             return ret;
     } while (ret >= 0);
@@ -1333,7 +1333,7 @@ static int estimate_best_b_count(MpegEncContext *s)
 
     av_assert0(scale >= 0 && scale <= 3);
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt)
         return AVERROR(ENOMEM);
 
@@ -1386,7 +1386,7 @@ static int estimate_best_b_count(MpegEncContext *s)
         if (!s->input_picture[j])
             break;
 
-        c = avcodec_alloc_context3(NULL);
+        c = zn_avcodec_alloc_context3(NULL);
         if (!c) {
             ret = AVERROR(ENOMEM);
             goto fail;
@@ -1404,7 +1404,7 @@ static int estimate_best_b_count(MpegEncContext *s)
         c->time_base    = s->avctx->time_base;
         c->max_b_frames = s->max_b_frames;
 
-        ret = avcodec_open2(c, s->avctx->codec, NULL);
+        ret = zn_avcodec_open2(c, s->avctx->codec, NULL);
         if (ret < 0)
             goto fail;
 
@@ -1453,14 +1453,14 @@ static int estimate_best_b_count(MpegEncContext *s)
 
 fail:
         avcodec_free_context(&c);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0) {
             best_b_count = ret;
             break;
         }
     }
 
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
 
     return best_b_count;
 }
@@ -1921,7 +1921,7 @@ vbv_retry:
 
             int vbv_delay, min_delay;
             double inbits  = avctx->rc_max_rate *
-                             av_q2d(avctx->time_base);
+                             zn_av_q2d(avctx->time_base);
             int    minbits = s->frame_bits - 8 *
                              (s->vbv_delay_pos - 1);
             double bits    = s->rc_context.buffer_index + minbits - inbits;
@@ -1955,7 +1955,7 @@ vbv_retry:
             ret = av_packet_add_side_data(pkt, AV_PKT_DATA_CPB_PROPERTIES,
                                           (uint8_t*)props, props_size);
             if (ret < 0) {
-                av_freep(&props);
+                zn_av_freep(&props);
                 return ret;
             }
         }
@@ -2841,7 +2841,7 @@ int ff_mpv_reallocate_putbitbuffer(MpegEncContext *s, size_t threshold, size_t s
             return AVERROR(ENOMEM);
 
         memcpy(new_buffer, s->avctx->internal->byte_buffer, s->avctx->internal->byte_buffer_size);
-        av_free(s->avctx->internal->byte_buffer);
+        zn_av_free(s->avctx->internal->byte_buffer);
         s->avctx->internal->byte_buffer      = new_buffer;
         s->avctx->internal->byte_buffer_size = new_buffer_size;
         rebase_put_bits(&s->pb, new_buffer, new_buffer_size);
@@ -3617,8 +3617,8 @@ static int encode_picture(MpegEncContext *s)
     }
 
     if (s->out_format != FMT_MJPEG) {
-        if(s->q_chroma_intra_matrix   != s->q_intra_matrix  ) av_freep(&s->q_chroma_intra_matrix);
-        if(s->q_chroma_intra_matrix16 != s->q_intra_matrix16) av_freep(&s->q_chroma_intra_matrix16);
+        if(s->q_chroma_intra_matrix   != s->q_intra_matrix  ) zn_av_freep(&s->q_chroma_intra_matrix);
+        if(s->q_chroma_intra_matrix16 != s->q_intra_matrix16) zn_av_freep(&s->q_chroma_intra_matrix16);
         s->q_chroma_intra_matrix   = s->q_intra_matrix;
         s->q_chroma_intra_matrix16 = s->q_intra_matrix16;
     }

@@ -82,7 +82,7 @@ static int read_ts(char **line, int64_t *pts_start, int64_t *duration)
 static int mpl2_read_header(AVFormatContext *s)
 {
     MPL2Context *mpl2 = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

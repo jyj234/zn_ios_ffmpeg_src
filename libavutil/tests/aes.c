@@ -69,7 +69,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    av_free(b);
+    zn_av_free(b);
 
     if (argc > 1 && !strcmp(argv[1], "-t")) {
         struct AVAES *ae, *ad;
@@ -79,8 +79,8 @@ int main(int argc, char **argv)
         ad = av_aes_alloc();
 
         if (!ae || !ad) {
-            av_free(ae);
-            av_free(ad);
+            zn_av_free(ae);
+            zn_av_free(ad);
             return 1;
         }
 
@@ -114,8 +114,8 @@ int main(int argc, char **argv)
                 }
             }
         }
-        av_free(ae);
-        av_free(ad);
+        zn_av_free(ae);
+        zn_av_free(ad);
     }
     return err;
 }

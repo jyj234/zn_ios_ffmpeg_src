@@ -104,7 +104,7 @@ static int streamhash_init(struct AVFormatContext *s)
     int res, i;
     struct HashContext *c = s->priv_data;
     c->per_stream = 1;
-    c->hashes = av_calloc(s->nb_streams, sizeof(*c->hashes));
+    c->hashes = zn_av_calloc(s->nb_streams, sizeof(*c->hashes));
     if (!c->hashes)
         return AVERROR(ENOMEM);
     for (i = 0; i < s->nb_streams; i++) {
@@ -169,7 +169,7 @@ static void hash_free(struct AVFormatContext *s)
             av_hash_freep(&c->hashes[i]);
         }
     }
-    av_freep(&c->hashes);
+    zn_av_freep(&c->hashes);
 }
 
 #if CONFIG_HASH_MUXER

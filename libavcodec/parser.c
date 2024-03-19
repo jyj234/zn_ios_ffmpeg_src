@@ -76,8 +76,8 @@ found:
 
 err_out:
     if (s)
-        av_freep(&s->priv_data);
-    av_free(s);
+        zn_av_freep(&s->priv_data);
+    zn_av_free(s);
     return NULL;
 }
 
@@ -195,8 +195,8 @@ void av_parser_close(AVCodecParserContext *s)
     if (s) {
         if (s->parser->parser_close)
             s->parser->parser_close(s);
-        av_freep(&s->priv_data);
-        av_free(s);
+        zn_av_freep(&s->priv_data);
+        zn_av_free(s);
     }
 }
 
@@ -289,5 +289,5 @@ void ff_parse_close(AVCodecParserContext *s)
 {
     ParseContext *pc = s->priv_data;
 
-    av_freep(&pc->buffer);
+    zn_av_freep(&pc->buffer);
 }

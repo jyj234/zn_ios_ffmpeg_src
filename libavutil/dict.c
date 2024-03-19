@@ -115,8 +115,8 @@ int av_dict_set(AVDictionary **pm, const char *key, const char *value,
 
     if (tag) {
         if (flags & AV_DICT_DONT_OVERWRITE) {
-            av_free(copy_key);
-            av_free(copy_value);
+            zn_av_free(copy_key);
+            zn_av_free(copy_value);
             return 0;
         }
         if (copy_value && flags & AV_DICT_APPEND) {
@@ -127,11 +127,11 @@ int av_dict_set(AVDictionary **pm, const char *key, const char *value,
             if (!newval)
                 goto enomem;
             memcpy(newval + oldlen, copy_value, new_part_len + 1);
-            av_freep(&copy_value);
+            zn_av_freep(&copy_value);
             copy_value = newval;
         } else
-            av_free(tag->value);
-        av_free(tag->key);
+            zn_av_free(tag->value);
+        zn_av_free(tag->key);
         *tag = m->elems[--m->count];
     } else if (copy_value) {
         AVDictionaryEntry *tmp = av_realloc_array(m->elems,
@@ -146,10 +146,10 @@ int av_dict_set(AVDictionary **pm, const char *key, const char *value,
         m->count++;
     } else {
         if (!m->count) {
-            av_freep(&m->elems);
-            av_freep(pm);
+            zn_av_freep(&m->elems);
+            zn_av_freep(pm);
         }
-        av_freep(&copy_key);
+        zn_av_freep(&copy_key);
     }
 
     return 0;
@@ -158,11 +158,11 @@ enomem:
     err = AVERROR(ENOMEM);
 err_out:
     if (m && !m->count) {
-        av_freep(&m->elems);
-        av_freep(pm);
+        zn_av_freep(&m->elems);
+        zn_av_freep(pm);
     }
-    av_free(copy_key);
-    av_free(copy_value);
+    zn_av_free(copy_key);
+    zn_av_free(copy_value);
     return err;
 }
 
@@ -193,8 +193,8 @@ static int parse_key_value_pair(AVDictionary **pm, const char **buf,
     else
         ret = AVERROR(EINVAL);
 
-    av_freep(&key);
-    av_freep(&val);
+    zn_av_freep(&key);
+    zn_av_freep(&val);
 
     return ret;
 }
@@ -228,12 +228,12 @@ void av_dict_free(AVDictionary **pm)
 
     if (m) {
         while (m->count--) {
-            av_freep(&m->elems[m->count].key);
-            av_freep(&m->elems[m->count].value);
+            zn_av_freep(&m->elems[m->count].key);
+            zn_av_freep(&m->elems[m->count].value);
         }
-        av_freep(&m->elems);
+        zn_av_freep(&m->elems);
     }
-    av_freep(pm);
+    zn_av_freep(pm);
 }
 
 int av_dict_copy(AVDictionary **dst, const AVDictionary *src, int flags)

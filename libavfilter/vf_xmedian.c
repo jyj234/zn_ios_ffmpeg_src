@@ -100,7 +100,7 @@ static av_cold int init(AVFilterContext *ctx)
         s->index = s->radius * 2.f * s->percentile;
     else
         s->index = av_clip(s->radius * 2.f * s->percentile, 1, s->nb_inputs - 1);
-    s->frames = av_calloc(s->nb_inputs, sizeof(*s->frames));
+    s->frames = zn_av_calloc(s->nb_inputs, sizeof(*s->frames));
     if (!s->frames)
         return AVERROR(ENOMEM);
 
@@ -270,11 +270,11 @@ static int config_output(AVFilterLink *outlink)
     s->height[1] = s->height[2] = AV_CEIL_RSHIFT(inlink->h, s->desc->log2_chroma_h);
     s->height[0] = s->height[3] = inlink->h;
 
-    s->data = av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->data));
+    s->data = zn_av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->data));
     if (!s->data)
         return AVERROR(ENOMEM);
 
-    s->linesize = av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->linesize));
+    s->linesize = zn_av_calloc(s->nb_threads * s->nb_inputs, sizeof(*s->linesize));
     if (!s->linesize)
         return AVERROR(ENOMEM);
 
@@ -315,10 +315,10 @@ static av_cold void uninit(AVFilterContext *ctx)
     ff_framesync_uninit(&s->fs);
 
     for (int i = 0; i < s->nb_frames && s->frames && !s->xmedian; i++)
-        av_frame_free(&s->frames[i]);
-    av_freep(&s->frames);
-    av_freep(&s->data);
-    av_freep(&s->linesize);
+        zn_av_frame_free(&s->frames[i]);
+    zn_av_freep(&s->frames);
+    zn_av_freep(&s->data);
+    zn_av_freep(&s->linesize);
 }
 
 static int activate(AVFilterContext *ctx)
@@ -408,7 +408,7 @@ static int tmedian_filter_frame(AVFilterLink *inlink, AVFrame *in)
         if (s->nb_frames < s->nb_inputs)
             return 0;
     } else {
-        av_frame_free(&s->frames[0]);
+        zn_av_frame_free(&s->frames[0]);
         memmove(&s->frames[0], &s->frames[1], sizeof(*s->frames) * (s->nb_inputs - 1));
         s->frames[s->nb_inputs - 1] = in;
     }

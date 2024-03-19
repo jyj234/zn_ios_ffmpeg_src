@@ -37,7 +37,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     RepeatFieldsContext *s = ctx->priv;
 
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 }
 
 static const enum AVPixelFormat pixel_fmts_eq[] = {
@@ -88,7 +88,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (!s->frame) {
         s->frame = av_frame_clone(in);
         if (!s->frame) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         s->frame->pts = AV_NOPTS_VALUE;
@@ -108,7 +108,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
         new = av_frame_clone(in);
         if (!new) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
 
@@ -117,7 +117,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         if (in->repeat_pict) {
             ret = ff_inlink_make_frame_writable(inlink, &s->frame);
             if (ret < 0) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return ret;
             }
             update_pts(outlink, s->frame, in->pts, 2);
@@ -132,7 +132,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         for (i = 0; i < s->nb_planes; i++) {
             ret = ff_inlink_make_frame_writable(inlink, &s->frame);
             if (ret < 0) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return ret;
             }
             av_image_copy_plane(s->frame->data[i] + s->frame->linesize[i], s->frame->linesize[i] * 2,
@@ -147,7 +147,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
             new = av_frame_clone(in);
             if (!new) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return AVERROR(ENOMEM);
             }
 
@@ -156,7 +156,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         } else {
             ret = ff_inlink_make_frame_writable(inlink, &s->frame);
             if (ret < 0) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return ret;
             }
             update_pts(outlink, s->frame, in->pts, 1);
@@ -170,7 +170,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     s->state = state;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ret;
 }
 

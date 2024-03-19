@@ -329,5 +329,5 @@ av_cold int ff_lpc_init(LPCContext *s, int blocksize, int max_order,
 
 av_cold void ff_lpc_end(LPCContext *s)
 {
-    av_freep(&s->windowed_buffer);
+    zn_av_freep(&s->windowed_buffer);
 }

@@ -171,12 +171,12 @@ static int vp9_superframe_filter(AVBSFContext *ctx, AVPacket *pkt)
         goto done;
 
     for (n = 0; n < s->n_cache; n++)
-        av_packet_unref(s->cache[n]);
+        zn_av_packet_unref(s->cache[n]);
     s->n_cache = 0;
 
 done:
     if (res < 0)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     return res;
 }
 
@@ -187,7 +187,7 @@ static int vp9_superframe_init(AVBSFContext *ctx)
 
     // alloc cache packets
     for (n = 0; n < MAX_CACHE; n++) {
-        s->cache[n] = av_packet_alloc();
+        s->cache[n] = zn_av_packet_alloc();
         if (!s->cache[n])
             return AVERROR(ENOMEM);
     }
@@ -202,7 +202,7 @@ static void vp9_superframe_flush(AVBSFContext *ctx)
 
     // unref cached data
     for (n = 0; n < s->n_cache; n++)
-        av_packet_unref(s->cache[n]);
+        zn_av_packet_unref(s->cache[n]);
     s->n_cache = 0;
 }
 
@@ -213,7 +213,7 @@ static void vp9_superframe_close(AVBSFContext *ctx)
 
     // free cached data
     for (n = 0; n < MAX_CACHE; n++)
-        av_packet_free(&s->cache[n]);
+        zn_av_packet_free(&s->cache[n]);
 }
 
 static const enum AVCodecID codec_ids[] = {

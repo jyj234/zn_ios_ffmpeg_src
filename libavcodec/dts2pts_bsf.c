@@ -109,7 +109,7 @@ static int dec_poc(void *opaque, void *elem)
 static int free_node(void *opaque, void *elem)
 {
     DTS2PTSNode *node = elem;
-    av_free(node);
+    zn_av_free(node);
     return 0;
 }
 
@@ -125,7 +125,7 @@ static int alloc_and_insert_node(AVBSFContext *ctx, int64_t ts, int64_t duration
             return AVERROR(ENOMEM);
         poc_node = av_malloc(sizeof(*poc_node));
         if (!poc_node) {
-            av_free(node);
+            zn_av_free(node);
             return AVERROR(ENOMEM);
         }
         if (i && ts != AV_NOPTS_VALUE)
@@ -134,8 +134,8 @@ static int alloc_and_insert_node(AVBSFContext *ctx, int64_t ts, int64_t duration
         ret = av_tree_insert(&s->root, poc_node, cmp_insert, &node);
         if (ret && ret != poc_node) {
             *ret = *poc_node;
-            av_free(poc_node);
-            av_free(node);
+            zn_av_free(poc_node);
+            zn_av_free(node);
         }
     }
     return 0;
@@ -343,7 +343,7 @@ static int h264_filter(AVBSFContext *ctx)
 fail:
     ff_cbs_fragment_reset(au);
     if (!queued)
-        av_packet_free(&in);
+        zn_av_packet_free(&in);
 
     return ret;
 }
@@ -439,7 +439,7 @@ static int dts2pts_filter(AVBSFContext *ctx, AVPacket *out)
     ret = av_fifo_read(s->fifo, &frame, 1);
     av_assert2(ret >= 0);
     av_packet_move_ref(out, frame.pkt);
-    av_packet_free(&frame.pkt);
+    zn_av_packet_free(&frame.pkt);
 
     // Search the timestamp for the requested POC and set PTS
     poc_node = av_tree_find(s->root, &frame, cmp_find, (void **)next);
@@ -458,8 +458,8 @@ static int dts2pts_filter(AVBSFContext *ctx, AVPacket *out)
                 if (!poc_node || poc_node->dts != out->pts)
                     continue;
                 av_tree_insert(&s->root, poc_node, cmp_insert, &node);
-                av_free(poc_node);
-                av_free(node);
+                zn_av_free(poc_node);
+                zn_av_free(node);
                 poc_node = av_tree_find(s->root, &dup, cmp_find, NULL);
             }
         }
@@ -473,7 +473,7 @@ static int dts2pts_filter(AVBSFContext *ctx, AVPacket *out)
             ret = alloc_and_insert_node(ctx, out->pts, out->duration,
                                         frame.poc, frame.poc_diff, frame.gop);
             if (ret < 0) {
-                av_packet_unref(out);
+                zn_av_packet_unref(out);
                 return ret;
             }
             if (!ret)
@@ -502,7 +502,7 @@ static void dts2pts_flush(AVBSFContext *ctx)
     s->gop = 0;
 
     while (s->fifo && av_fifo_read(s->fifo, &frame, 1) >= 0)
-        av_packet_free(&frame.pkt);
+        zn_av_packet_free(&frame.pkt);
 
     av_tree_enumerate(s->root, NULL, NULL, free_node);
     av_tree_destroy(s->root);

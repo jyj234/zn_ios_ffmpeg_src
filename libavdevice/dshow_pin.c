@@ -238,7 +238,7 @@ static void ff_dshow_pin_Free(DShowPin *this)
 {
     if (!this)
         return;
-    av_freep(&this->imemvtbl);
+    zn_av_freep(&this->imemvtbl);
     if (this->type.pbFormat) {
         CoTaskMemFree(this->type.pbFormat);
         this->type.pbFormat = NULL;

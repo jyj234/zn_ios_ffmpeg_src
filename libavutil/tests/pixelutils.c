@@ -175,8 +175,8 @@ int main(void)
         for (align = 0; align < 3; align++) {
             int size1, size2;
 
-            av_freep(&buf1);
-            av_freep(&buf2);
+            zn_av_freep(&buf1);
+            zn_av_freep(&buf2);
 
             size1 = size2 = 1 << (i << 1);
 
@@ -202,7 +202,7 @@ int main(void)
     }
 
 end:
-    av_free(buf1);
-    av_free(buf2);
+    zn_av_free(buf1);
+    zn_av_free(buf2);
     return ret;
 }

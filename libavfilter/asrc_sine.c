@@ -175,7 +175,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     av_expr_free(sine->samples_per_frame_expr);
     sine->samples_per_frame_expr = NULL;
-    av_freep(&sine->sin);
+    zn_av_freep(&sine->sin);
 }
 
 static av_cold int query_formats(AVFilterContext *ctx)
@@ -211,8 +211,8 @@ static int activate(AVFilterContext *ctx)
     double values[VAR_VARS_NB] = {
         [VAR_N]   = outlink->frame_count_in,
         [VAR_PTS] = sine->pts,
-        [VAR_T]   = sine->pts * av_q2d(outlink->time_base),
-        [VAR_TB]  = av_q2d(outlink->time_base),
+        [VAR_T]   = sine->pts * zn_av_q2d(outlink->time_base),
+        [VAR_TB]  = zn_av_q2d(outlink->time_base),
     };
     int i, nb_samples = lrint(av_expr_eval(sine->samples_per_frame_expr, values, sine));
     int16_t *samples;

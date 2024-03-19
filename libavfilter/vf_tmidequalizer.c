@@ -227,7 +227,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         s->cur_frame = s->radius;
         s->del_frame = 0;
     } else {
-        av_frame_free(&s->frames[s->del_frame]);
+        zn_av_frame_free(&s->frames[s->del_frame]);
         s->frames[s->del_frame] = in;
 
         for (int p = 0; p < s->nb_planes; p++) {
@@ -346,18 +346,18 @@ static int config_input(AVFilterLink *inlink)
 
     for (int p = 0; p < s->nb_planes; p++) {
         for (int n = 0; n < s->nb_frames; n++) {
-            s->histogram[p][n] = av_calloc(s->histogram_size, sizeof(float));
+            s->histogram[p][n] = zn_av_calloc(s->histogram_size, sizeof(float));
             if (!s->histogram[p][n])
                 return AVERROR(ENOMEM);
         }
 
-        s->change[p] = av_calloc(s->histogram_size, sizeof(float));
+        s->change[p] = zn_av_calloc(s->histogram_size, sizeof(float));
         if (!s->change[p])
             return AVERROR(ENOMEM);
     }
 
     if (!s->frames)
-        s->frames = av_calloc(s->nb_frames, sizeof(*s->frames));
+        s->frames = zn_av_calloc(s->nb_frames, sizeof(*s->frames));
     if (!s->frames)
         return AVERROR(ENOMEM);
 
@@ -386,8 +386,8 @@ static void free_histograms(AVFilterContext *ctx, int x, int nb_frames)
     TMidEqualizerContext *s = ctx->priv;
 
     for (int n = 0; n < nb_frames; n++)
-        av_freep(&s->histogram[x][n]);
-    av_freep(&s->change[x]);
+        zn_av_freep(&s->histogram[x][n]);
+    zn_av_freep(&s->change[x]);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
@@ -400,8 +400,8 @@ static av_cold void uninit(AVFilterContext *ctx)
     free_histograms(ctx, 3, s->nb_frames);
 
     for (int i = 0; i < s->nb_frames && s->frames; i++)
-        av_frame_free(&s->frames[i]);
-    av_freep(&s->frames);
+        zn_av_frame_free(&s->frames[i]);
+    zn_av_freep(&s->frames);
 }
 
 static const AVFilterPad tmidequalizer_inputs[] = {

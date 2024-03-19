@@ -167,14 +167,14 @@ static int device_open(AVFormatContext *ctx, const char* device_path)
     if (fd < 0) {
         err = AVERROR(errno);
         av_log(ctx, AV_LOG_ERROR, "Cannot open video device %s: %s\n",
-               device_path, av_err2str(err));
+               device_path, zn_av_err2str(err));
         return err;
     }
 
     if (v4l2_ioctl(fd, VIDIOC_QUERYCAP, &cap) < 0) {
         err = AVERROR(errno);
         av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_QUERYCAP): %s\n",
-               av_err2str(err));
+               zn_av_err2str(err));
         goto fail;
     }
 
@@ -337,7 +337,7 @@ static void list_standards(AVFormatContext *ctx)
             if (ret == AVERROR(EINVAL)) {
                 break;
             } else {
-                av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_ENUMSTD): %s\n", av_err2str(ret));
+                av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_ENUMSTD): %s\n", zn_av_err2str(ret));
                 return;
             }
         }
@@ -358,7 +358,7 @@ static int mmap_init(AVFormatContext *ctx)
 
     if (v4l2_ioctl(s->fd, VIDIOC_REQBUFS, &req) < 0) {
         res = AVERROR(errno);
-        av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_REQBUFS): %s\n", av_err2str(res));
+        av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_REQBUFS): %s\n", zn_av_err2str(res));
         return res;
     }
 
@@ -367,15 +367,15 @@ static int mmap_init(AVFormatContext *ctx)
         return AVERROR(ENOMEM);
     }
     s->buffers = req.count;
-    s->buf_start = av_malloc_array(s->buffers, sizeof(void *));
+    s->buf_start = zn_av_malloc_array(s->buffers, sizeof(void *));
     if (!s->buf_start) {
         av_log(ctx, AV_LOG_ERROR, "Cannot allocate buffer pointers\n");
         return AVERROR(ENOMEM);
     }
-    s->buf_len = av_malloc_array(s->buffers, sizeof(unsigned int));
+    s->buf_len = zn_av_malloc_array(s->buffers, sizeof(unsigned int));
     if (!s->buf_len) {
         av_log(ctx, AV_LOG_ERROR, "Cannot allocate buffer sizes\n");
-        av_freep(&s->buf_start);
+        zn_av_freep(&s->buf_start);
         return AVERROR(ENOMEM);
     }
 
@@ -387,7 +387,7 @@ static int mmap_init(AVFormatContext *ctx)
         };
         if (v4l2_ioctl(s->fd, VIDIOC_QUERYBUF, &buf) < 0) {
             res = AVERROR(errno);
-            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_QUERYBUF): %s\n", av_err2str(res));
+            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_QUERYBUF): %s\n", zn_av_err2str(res));
             return res;
         }
 
@@ -404,7 +404,7 @@ static int mmap_init(AVFormatContext *ctx)
 
         if (s->buf_start[i] == MAP_FAILED) {
             res = AVERROR(errno);
-            av_log(ctx, AV_LOG_ERROR, "mmap: %s\n", av_err2str(res));
+            av_log(ctx, AV_LOG_ERROR, "mmap: %s\n", zn_av_err2str(res));
             return res;
         }
     }
@@ -418,7 +418,7 @@ static int enqueue_buffer(struct video_data *s, struct v4l2_buffer *buf)
 
     if (v4l2_ioctl(s->fd, VIDIOC_QBUF, buf) < 0) {
         res = AVERROR(errno);
-        av_log(NULL, AV_LOG_ERROR, "ioctl(VIDIOC_QBUF): %s\n", av_err2str(res));
+        av_log(NULL, AV_LOG_ERROR, "ioctl(VIDIOC_QBUF): %s\n", zn_av_err2str(res));
     } else {
         atomic_fetch_add(&s->buffers_queued, 1);
     }
@@ -435,7 +435,7 @@ static void mmap_release_buffer(void *opaque, uint8_t *data)
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = buf_descriptor->index;
-    av_free(buf_descriptor);
+    zn_av_free(buf_descriptor);
 
     enqueue_buffer(s, &buf);
 }
@@ -521,7 +521,7 @@ static int mmap_read_frame(AVFormatContext *ctx, AVPacket *pkt)
 
         res = AVERROR(errno);
         av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_DQBUF): %s\n",
-               av_err2str(res));
+               zn_av_err2str(res));
         return res;
     }
 
@@ -570,7 +570,7 @@ static int mmap_read_frame(AVFormatContext *ctx, AVPacket *pkt)
 
         res = enqueue_buffer(s, &buf);
         if (res) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return res;
         }
     } else {
@@ -597,7 +597,7 @@ static int mmap_read_frame(AVFormatContext *ctx, AVPacket *pkt)
         if (!pkt->buf) {
             av_log(ctx, AV_LOG_ERROR, "Failed to create a buffer\n");
             enqueue_buffer(s, &buf);
-            av_freep(&buf_descriptor);
+            zn_av_freep(&buf_descriptor);
             return AVERROR(ENOMEM);
         }
     }
@@ -623,7 +623,7 @@ static int mmap_start(AVFormatContext *ctx)
         if (v4l2_ioctl(s->fd, VIDIOC_QBUF, &buf) < 0) {
             res = AVERROR(errno);
             av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_QBUF): %s\n",
-                   av_err2str(res));
+                   zn_av_err2str(res));
             return res;
         }
     }
@@ -633,7 +633,7 @@ static int mmap_start(AVFormatContext *ctx)
     if (v4l2_ioctl(s->fd, VIDIOC_STREAMON, &type) < 0) {
         res = AVERROR(errno);
         av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_STREAMON): %s\n",
-               av_err2str(res));
+               zn_av_err2str(res));
         return res;
     }
 
@@ -653,8 +653,8 @@ static void mmap_close(struct video_data *s)
     for (i = 0; i < s->buffers; i++) {
         v4l2_munmap(s->buf_start[i], s->buf_len[i]);
     }
-    av_freep(&s->buf_start);
-    av_freep(&s->buf_len);
+    zn_av_freep(&s->buf_start);
+    zn_av_freep(&s->buf_len);
 }
 
 static int v4l2_set_parameters(AVFormatContext *ctx)
@@ -694,7 +694,7 @@ static int v4l2_set_parameters(AVFormatContext *ctx)
 
             if (v4l2_ioctl(s->fd, VIDIOC_S_STD, &standard.id) < 0) {
                 ret = AVERROR(errno);
-                av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_S_STD): %s\n", av_err2str(ret));
+                av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_S_STD): %s\n", zn_av_err2str(ret));
                 return ret;
             }
         } else {
@@ -718,7 +718,7 @@ static int v4l2_set_parameters(AVFormatContext *ctx)
                     tpf = &streamparm.parm.capture.timeperframe;
                     break;
                 }
-                av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_ENUMSTD): %s\n", av_err2str(ret));
+                av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_ENUMSTD): %s\n", zn_av_err2str(ret));
                 return ret;
             }
             if (standard.id == s->std_id) {
@@ -735,7 +735,7 @@ static int v4l2_set_parameters(AVFormatContext *ctx)
     streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (v4l2_ioctl(s->fd, VIDIOC_G_PARM, &streamparm) < 0) {
         ret = AVERROR(errno);
-        av_log(ctx, AV_LOG_WARNING, "ioctl(VIDIOC_G_PARM): %s\n", av_err2str(ret));
+        av_log(ctx, AV_LOG_WARNING, "ioctl(VIDIOC_G_PARM): %s\n", zn_av_err2str(ret));
     } else if (framerate_q.num && framerate_q.den) {
         if (streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME) {
             tpf = &streamparm.parm.capture.timeperframe;
@@ -748,7 +748,7 @@ static int v4l2_set_parameters(AVFormatContext *ctx)
             if (v4l2_ioctl(s->fd, VIDIOC_S_PARM, &streamparm) < 0) {
                 ret = AVERROR(errno);
                 av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_S_PARM): %s\n",
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
                 return ret;
             }
 
@@ -845,7 +845,7 @@ static int v4l2_read_header(AVFormatContext *ctx)
     enum AVPixelFormat pix_fmt = AV_PIX_FMT_NONE;
     struct v4l2_input input = { 0 };
 
-    st = avformat_new_stream(ctx, NULL);
+    st = zn_avformat_new_stream(ctx, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -865,14 +865,14 @@ static int v4l2_read_header(AVFormatContext *ctx)
         av_log(ctx, AV_LOG_DEBUG, "Selecting input_channel: %d\n", s->channel);
         if (v4l2_ioctl(s->fd, VIDIOC_S_INPUT, &s->channel) < 0) {
             res = AVERROR(errno);
-            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_S_INPUT): %s\n", av_err2str(res));
+            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_S_INPUT): %s\n", zn_av_err2str(res));
             goto fail;
         }
     } else {
         /* get current video input */
         if (v4l2_ioctl(s->fd, VIDIOC_G_INPUT, &s->channel) < 0) {
             res = AVERROR(errno);
-            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_G_INPUT): %s\n", av_err2str(res));
+            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_G_INPUT): %s\n", zn_av_err2str(res));
             goto fail;
         }
     }
@@ -881,7 +881,7 @@ static int v4l2_read_header(AVFormatContext *ctx)
     input.index = s->channel;
     if (v4l2_ioctl(s->fd, VIDIOC_ENUMINPUT, &input) < 0) {
         res = AVERROR(errno);
-        av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_ENUMINPUT): %s\n", av_err2str(res));
+        av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_ENUMINPUT): %s\n", zn_av_err2str(res));
         goto fail;
     }
     s->std_id = input.std;
@@ -927,7 +927,7 @@ static int v4l2_read_header(AVFormatContext *ctx)
         if (v4l2_ioctl(s->fd, VIDIOC_G_FMT, &fmt) < 0) {
             res = AVERROR(errno);
             av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_G_FMT): %s\n",
-                   av_err2str(res));
+                   zn_av_err2str(res));
             goto fail;
         }
 
@@ -982,7 +982,7 @@ static int v4l2_read_header(AVFormatContext *ctx)
     st->codecpar->width = s->width;
     st->codecpar->height = s->height;
     if (st->avg_frame_rate.den)
-        st->codecpar->bit_rate = s->frame_size * av_q2d(st->avg_frame_rate) * 8;
+        st->codecpar->bit_rate = s->frame_size * zn_av_q2d(st->avg_frame_rate) * 8;
 
     return 0;
 
@@ -1038,7 +1038,7 @@ static int v4l2_get_device_list(AVFormatContext *ctx, AVDeviceInfoList *device_l
     dir = opendir("/dev");
     if (!dir) {
         ret = AVERROR(errno);
-        av_log(ctx, AV_LOG_ERROR, "Couldn't open the directory: %s\n", av_err2str(ret));
+        av_log(ctx, AV_LOG_ERROR, "Couldn't open the directory: %s\n", zn_av_err2str(ret));
         return ret;
     }
     while ((entry = readdir(dir))) {
@@ -1062,7 +1062,7 @@ static int v4l2_get_device_list(AVFormatContext *ctx, AVDeviceInfoList *device_l
 
         if (v4l2_ioctl(fd, VIDIOC_QUERYCAP, &cap) < 0) {
             ret = AVERROR(errno);
-            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_QUERYCAP): %s\n", av_err2str(ret));
+            av_log(ctx, AV_LOG_ERROR, "ioctl(VIDIOC_QUERYCAP): %s\n", zn_av_err2str(ret));
             goto fail;
         }
 
@@ -1087,9 +1087,9 @@ static int v4l2_get_device_list(AVFormatContext *ctx, AVDeviceInfoList *device_l
 
       fail:
         if (device) {
-            av_freep(&device->device_name);
-            av_freep(&device->device_description);
-            av_freep(&device);
+            zn_av_freep(&device->device_name);
+            zn_av_freep(&device->device_description);
+            zn_av_freep(&device);
         }
         v4l2_close(fd);
         break;

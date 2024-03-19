@@ -59,7 +59,7 @@ static av_cold int hcom_init(AVCodecContext *avctx)
     s->delta_compression = AV_RB32(avctx->extradata + 2);
     s->sample = s->first_sample = avctx->extradata[avctx->extradata_size - 1];
 
-    s->dict = av_calloc(s->dict_entries, sizeof(*s->dict));
+    s->dict = zn_av_calloc(s->dict_entries, sizeof(*s->dict));
     if (!s->dict)
         return AVERROR(ENOMEM);
     for (int i = 0; i < s->dict_entries; i++) {
@@ -129,7 +129,7 @@ static av_cold int hcom_close(AVCodecContext *avctx)
 {
     HCOMContext *s = avctx->priv_data;
 
-    av_freep(&s->dict);
+    zn_av_freep(&s->dict);
 
     return 0;
 }

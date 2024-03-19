@@ -43,7 +43,7 @@ int ff_raw_read_partial_packet(AVFormatContext *s, AVPacket *pkt)
     pkt->stream_index = 0;
     ret = avio_read_partial(s->pb, pkt->data, size);
     if (ret < 0) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return ret;
     }
     av_shrink_packet(pkt, ret);
@@ -52,7 +52,7 @@ int ff_raw_read_partial_packet(AVFormatContext *s, AVPacket *pkt)
 
 int ff_raw_audio_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -73,7 +73,7 @@ int ff_raw_video_read_header(AVFormatContext *s)
     int ret = 0;
 
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -93,7 +93,7 @@ fail:
 
 int ff_raw_subtitle_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_SUBTITLE;
@@ -104,7 +104,7 @@ int ff_raw_subtitle_read_header(AVFormatContext *s)
 
 static int raw_data_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_DATA;

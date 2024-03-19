@@ -34,11 +34,11 @@
  * Audio resampling, sample format conversion and mixing library.
  *
  * Interaction with lswr is done through SwrContext, which is
- * allocated with swr_alloc() or swr_alloc_set_opts2(). It is opaque, so all parameters
+ * allocated with swr_alloc() or zn_swr_alloc_set_opts2(). It is opaque, so all parameters
  * must be set with the @ref avoptions API.
  *
  * The first thing you will need to do in order to use lswr is to allocate
- * SwrContext. This can be done with swr_alloc() or swr_alloc_set_opts2(). If you
+ * SwrContext. This can be done with swr_alloc() or zn_swr_alloc_set_opts2(). If you
  * are using the former, you must set options through the @ref avoptions API.
  * The latter function provides the same feature, but it allows you to set some
  * common options in the same statement.
@@ -57,10 +57,10 @@
  * av_opt_set_sample_fmt(swr, "out_sample_fmt", AV_SAMPLE_FMT_S16,  0);
  * @endcode
  *
- * The same job can be done using swr_alloc_set_opts2() as well:
+ * The same job can be done using zn_swr_alloc_set_opts2() as well:
  * @code
  * SwrContext *swr = NULL;
- * int ret = swr_alloc_set_opts2(&swr,         // we're allocating a new context
+ * int ret = zn_swr_alloc_set_opts2(&swr,         // we're allocating a new context
  *                       &(AVChannelLayout)AV_CHANNEL_LAYOUT_STEREO, // out_ch_layout
  *                       AV_SAMPLE_FMT_S16,    // out_sample_fmt
  *                       44100,                // out_sample_rate
@@ -71,19 +71,19 @@
  *                       NULL);                // log_ctx
  * @endcode
  *
- * Once all values have been set, it must be initialized with swr_init(). If
+ * Once all values have been set, it must be initialized with zn_swr_init(). If
  * you need to change the conversion parameters, you can change the parameters
  * using @ref avoptions, as described above in the first example; or by using
- * swr_alloc_set_opts2(), but with the first argument the allocated context.
- * You must then call swr_init() again.
+ * zn_swr_alloc_set_opts2(), but with the first argument the allocated context.
+ * You must then call zn_swr_init() again.
  *
- * The conversion itself is done by repeatedly calling swr_convert().
+ * The conversion itself is done by repeatedly calling zn_swr_convert().
  * Note that the samples may get buffered in swr if you provide insufficient
  * output space or if sample rate conversion is done, which requires "future"
  * samples. Samples that do not require future input can be retrieved at any
- * time by using swr_convert() (in_count can be set to 0).
+ * time by using zn_swr_convert() (in_count can be set to 0).
  * At the end of conversion the resampling buffer can be flushed by calling
- * swr_convert() with NULL in and 0 in_count.
+ * zn_swr_convert() with NULL in and 0 in_count.
  *
  * The samples used in the conversion process can be managed with the libavutil
  * @ref lavu_sampmanip "samples manipulation" API, including av_samples_alloc()
@@ -104,20 +104,20 @@
  *                                      in_samples, 44100, 48000, AV_ROUND_UP);
  *     av_samples_alloc(&output, NULL, 2, out_samples,
  *                      AV_SAMPLE_FMT_S16, 0);
- *     out_samples = swr_convert(swr, &output, out_samples,
+ *     out_samples = zn_swr_convert(swr, &output, out_samples,
  *                                      input, in_samples);
  *     handle_output(output, out_samples);
- *     av_freep(&output);
+ *     zn_av_freep(&output);
  * }
  * @endcode
  *
  * When the conversion is finished, the conversion
- * context and everything associated with it must be freed with swr_free().
+ * context and everything associated with it must be freed with zn_swr_free().
  * A swr_close() function is also available, but it exists mainly for
  * compatibility with libavresample, and is not required to be called.
  *
  * There will be no memory leak if the data is not completely flushed before
- * swr_free().
+ * zn_swr_free().
  */
 
 #include <stdint.h>
@@ -206,9 +206,9 @@ const AVClass *swr_get_class(void);
  * Allocate SwrContext.
  *
  * If you use this function you will need to set the parameters (manually or
- * with swr_alloc_set_opts2()) before calling swr_init().
+ * with zn_swr_alloc_set_opts2()) before calling zn_swr_init().
  *
- * @see swr_alloc_set_opts2(), swr_init(), swr_free()
+ * @see zn_swr_alloc_set_opts2(), zn_swr_init(), zn_swr_free()
  * @return NULL on error, allocated context otherwise
  */
 struct SwrContext *swr_alloc(void);
@@ -223,13 +223,13 @@ struct SwrContext *swr_alloc(void);
  * @param[in,out]   s Swr context to initialize
  * @return AVERROR error code in case of failure.
  */
-int swr_init(struct SwrContext *s);
+int zn_swr_init(struct SwrContext *s);
 
 /**
  * Check whether an swr context has been initialized or not.
  *
  * @param[in]       s Swr context to check
- * @see swr_init()
+ * @see zn_swr_init()
  * @return positive if it has been initialized, 0 if not initialized
  */
 int swr_is_initialized(struct SwrContext *s);
@@ -252,9 +252,9 @@ int swr_is_initialized(struct SwrContext *s);
  * @param log_offset      logging level offset
  * @param log_ctx         parent logging context, can be NULL
  *
- * @see swr_init(), swr_free()
+ * @see zn_swr_init(), zn_swr_free()
  * @return NULL on error, allocated context otherwise
- * @deprecated use @ref swr_alloc_set_opts2()
+ * @deprecated use @ref zn_swr_alloc_set_opts2()
  */
 attribute_deprecated
 struct SwrContext *swr_alloc_set_opts(struct SwrContext *s,
@@ -267,7 +267,7 @@ struct SwrContext *swr_alloc_set_opts(struct SwrContext *s,
  * Allocate SwrContext if needed and set/reset common parameters.
  *
  * This function does not require *ps to be allocated with swr_alloc(). On the
- * other hand, swr_alloc() can use swr_alloc_set_opts2() to set the parameters
+ * other hand, swr_alloc() can use zn_swr_alloc_set_opts2() to set the parameters
  * on the allocated context.
  *
  * @param ps              Pointer to an existing Swr context if available, or to NULL if not.
@@ -281,11 +281,11 @@ struct SwrContext *swr_alloc_set_opts(struct SwrContext *s,
  * @param log_offset      logging level offset
  * @param log_ctx         parent logging context, can be NULL
  *
- * @see swr_init(), swr_free()
+ * @see zn_swr_init(), zn_swr_free()
  * @return 0 on success, a negative AVERROR code on error.
  *         On error, the Swr context is freed and *ps set to NULL.
  */
-int swr_alloc_set_opts2(struct SwrContext **ps,
+int zn_swr_alloc_set_opts2(struct SwrContext **ps,
                         const AVChannelLayout *out_ch_layout, enum AVSampleFormat out_sample_fmt, int out_sample_rate,
                         const AVChannelLayout *in_ch_layout, enum AVSampleFormat  in_sample_fmt, int  in_sample_rate,
                         int log_offset, void *log_ctx);
@@ -301,13 +301,13 @@ int swr_alloc_set_opts2(struct SwrContext **ps,
  *
  * @param[in] s a pointer to a pointer to Swr context
  */
-void swr_free(struct SwrContext **s);
+void zn_swr_free(struct SwrContext **s);
 
 /**
  * Closes the context so that swr_is_initialized() returns 0.
  *
- * The context can be brought back to life by running swr_init(),
- * swr_init() can also be used without swr_close().
+ * The context can be brought back to life by running zn_swr_init(),
+ * zn_swr_init() can also be used without swr_close().
  * This function is mainly provided for simplifying the usecase
  * where one tries to support libavresample and libswresample.
  *
@@ -340,7 +340,7 @@ void swr_close(struct SwrContext *s);
  *
  * @return number of samples output per channel, negative value on error
  */
-int swr_convert(struct SwrContext *s, uint8_t **out, int out_count,
+int zn_swr_convert(struct SwrContext *s, uint8_t **out, int out_count,
                                 const uint8_t **in , int in_count);
 
 /**
@@ -376,7 +376,7 @@ int64_t swr_next_pts(struct SwrContext *s, int64_t pts);
  * internally called when needed in swr_next_pts().
  *
  * @param[in,out] s             allocated Swr context. If it is not initialized,
- *                              or SWR_FLAG_RESAMPLE is not set, swr_init() is
+ *                              or SWR_FLAG_RESAMPLE is not set, zn_swr_init() is
  *                              called with the flag set.
  * @param[in]     sample_delta  delta in PTS per sample
  * @param[in]     compensation_distance number of samples to compensate for
@@ -385,7 +385,7 @@ int64_t swr_next_pts(struct SwrContext *s, int64_t pts);
  *            @li @c compensation_distance is less than 0,
  *            @li @c compensation_distance is 0 but sample_delta is not,
  *            @li compensation unsupported by resampler, or
- *            @li swr_init() fails when called.
+ *            @li zn_swr_init() fails when called.
  */
 int swr_set_compensation(struct SwrContext *s, int sample_delta, int compensation_distance);
 
@@ -534,19 +534,19 @@ int swr_inject_silence(struct SwrContext *s, int count);
 int64_t swr_get_delay(struct SwrContext *s, int64_t base);
 
 /**
- * Find an upper bound on the number of samples that the next swr_convert
+ * Find an upper bound on the number of samples that the next zn_swr_convert
  * call will output, if called with in_samples of input samples. This
  * depends on the internal state, and anything changing the internal state
- * (like further swr_convert() calls) will may change the number of samples
+ * (like further zn_swr_convert() calls) will may change the number of samples
  * swr_get_out_samples() returns for the same number of input samples.
  *
  * @param in_samples    number of input samples.
- * @note any call to swr_inject_silence(), swr_convert(), swr_next_pts()
+ * @note any call to swr_inject_silence(), zn_swr_convert(), swr_next_pts()
  *       or swr_set_compensation() invalidates this limit
  * @note it is recommended to pass the correct available buffer size
- *       to all functions like swr_convert() even if swr_get_out_samples()
+ *       to all functions like zn_swr_convert() even if swr_get_out_samples()
  *       indicates that less would be used.
- * @returns an upper bound on the number of samples that the next swr_convert
+ * @returns an upper bound on the number of samples that the next zn_swr_convert
  *          will output or a negative value to indicate an error
  */
 int swr_get_out_samples(struct SwrContext *s, int in_samples);
@@ -595,18 +595,18 @@ const char *swresample_license(void);
  * Input and output AVFrames must have channel_layout, sample_rate and format set.
  *
  * If the output AVFrame does not have the data pointers allocated the nb_samples
- * field will be set using av_frame_get_buffer()
+ * field will be set using zn_av_frame_get_buffer()
  * is called to allocate the frame.
  *
  * The output AVFrame can be NULL or have fewer allocated samples than required.
  * In this case, any remaining samples not written to the output will be added
  * to an internal FIFO buffer, to be returned at the next call to this function
- * or to swr_convert().
+ * or to zn_swr_convert().
  *
  * If converting sample rate, there may be data remaining in the internal
  * resampling delay buffer. swr_get_delay() tells the number of
  * remaining samples. To get this data as output, call this function or
- * swr_convert() with NULL input.
+ * zn_swr_convert() with NULL input.
  *
  * If the SwrContext configuration does not match the output and
  * input AVFrame settings the conversion does not take place and depending on
@@ -614,7 +614,7 @@ const char *swresample_license(void);
  * or the result of a bitwise-OR of them is returned.
  *
  * @see swr_delay()
- * @see swr_convert()
+ * @see zn_swr_convert()
  * @see swr_get_delay()
  *
  * @param swr             audio resample context
@@ -623,7 +623,7 @@ const char *swresample_license(void);
  * @return                0 on success, AVERROR on failure or nonmatching
  *                        configuration.
  */
-int swr_convert_frame(SwrContext *swr,
+int zn_swr_convert_frame(SwrContext *swr,
                       AVFrame *output, const AVFrame *input);
 
 /**

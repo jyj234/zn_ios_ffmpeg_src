@@ -73,11 +73,11 @@ static av_cold int osq_close(AVCodecContext *avctx)
 {
     OSQContext *s = avctx->priv_data;
 
-    av_freep(&s->bitstream);
+    zn_av_freep(&s->bitstream);
     s->bitstream_size = 0;
 
     for (int ch = 0; ch < FF_ARRAY_ELEMS(s->decode_buffer); ch++)
-        av_freep(&s->decode_buffer[ch]);
+        zn_av_freep(&s->decode_buffer[ch]);
 
     return 0;
 }
@@ -121,12 +121,12 @@ static av_cold int osq_init(AVCodecContext *avctx)
     s->frame_samples = AV_RL16(avctx->extradata + 8);
     s->max_framesize = (s->frame_samples * 16 + 1024) * avctx->ch_layout.nb_channels;
 
-    s->bitstream = av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE, sizeof(*s->bitstream));
+    s->bitstream = zn_av_calloc(s->max_framesize + AV_INPUT_BUFFER_PADDING_SIZE, sizeof(*s->bitstream));
     if (!s->bitstream)
         return AVERROR(ENOMEM);
 
     for (int ch = 0; ch < avctx->ch_layout.nb_channels; ch++) {
-        s->decode_buffer[ch] = av_calloc(s->frame_samples + OFFSET,
+        s->decode_buffer[ch] = zn_av_calloc(s->frame_samples + OFFSET,
                                          sizeof(*s->decode_buffer[ch]));
         if (!s->decode_buffer[ch])
             return AVERROR(ENOMEM);
@@ -431,7 +431,7 @@ static int osq_receive_frame(AVCodecContext *avctx, AVFrame *frame)
         s->pkt_offset += size;
 
         if (s->pkt_offset == s->pkt->size) {
-            av_packet_unref(s->pkt);
+            zn_av_packet_unref(s->pkt);
             s->pkt_offset = 0;
         }
     }
@@ -465,7 +465,7 @@ static int osq_receive_frame(AVCodecContext *avctx, AVFrame *frame)
 fail:
     s->bitstream_size = 0;
     s->pkt_offset = 0;
-    av_packet_unref(s->pkt);
+    zn_av_packet_unref(s->pkt);
 
     return ret;
 }

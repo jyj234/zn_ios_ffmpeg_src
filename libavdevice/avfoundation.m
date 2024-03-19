@@ -300,8 +300,8 @@ static void destroy_context(AVFContext* ctx)
     ctx->avf_delegate    = NULL;
     ctx->avf_audio_delegate = NULL;
 
-    av_freep(&ctx->url);
-    av_freep(&ctx->audio_buffer);
+    zn_av_freep(&ctx->url);
+    zn_av_freep(&ctx->audio_buffer);
 
     pthread_mutex_destroy(&ctx->frame_lock);
 
@@ -342,7 +342,7 @@ static int configure_video_device(AVFormatContext *s, AVCaptureDevice *video_dev
 {
     AVFContext *ctx = (AVFContext*)s->priv_data;
 
-    double framerate = av_q2d(ctx->framerate);
+    double framerate = zn_av_q2d(ctx->framerate);
     NSObject *range = nil;
     NSObject *format = nil;
     NSObject *selected_range = nil;
@@ -632,7 +632,7 @@ static int get_video_config(AVFormatContext *s)
     CVImageBufferRef image_buffer;
     CMBlockBufferRef block_buffer;
     CGSize image_buffer_size;
-    AVStream* stream = avformat_new_stream(s, NULL);
+    AVStream* stream = zn_avformat_new_stream(s, NULL);
 
     if (!stream) {
         return 1;
@@ -678,7 +678,7 @@ static int get_audio_config(AVFormatContext *s)
 {
     AVFContext *ctx = (AVFContext*)s->priv_data;
     CMFormatDescriptionRef format_desc;
-    AVStream* stream = avformat_new_stream(s, NULL);
+    AVStream* stream = zn_avformat_new_stream(s, NULL);
 
     if (!stream) {
         return 1;
@@ -706,7 +706,7 @@ static int get_audio_config(AVFormatContext *s)
 
     stream->codecpar->codec_type     = AVMEDIA_TYPE_AUDIO;
     stream->codecpar->sample_rate    = basic_desc->mSampleRate;
-    av_channel_layout_default(&stream->codecpar->ch_layout, basic_desc->mChannelsPerFrame);
+    zn_av_channel_layout_default(&stream->codecpar->ch_layout, basic_desc->mChannelsPerFrame);
 
     ctx->audio_channels        = basic_desc->mChannelsPerFrame;
     ctx->audio_bits_per_sample = basic_desc->mBitsPerChannel;
@@ -1173,7 +1173,7 @@ static int avf_read_packet(AVFormatContext *s, AVPacket *pkt)
                     for (sample = 0; sample < num_samples; sample++)                   \
                         for (c = 0; c < ctx->audio_channels; c++)                      \
                             *dest++ = src[c][sample] << shift;                         \
-                    av_freep(&src);                                                    \
+                    zn_av_freep(&src);                                                    \
                 }
 
                 if (ctx->audio_bits_per_sample <= 16) {

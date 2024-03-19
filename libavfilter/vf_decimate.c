@@ -185,7 +185,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         }
         if (++dm->fid != dm->cycle)
             return 0;
-        av_frame_free(&dm->last);
+        zn_av_frame_free(&dm->last);
         dm->last = av_frame_clone(in);
         dm->fid = 0;
 
@@ -225,8 +225,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     for (i = 0; i < dm->cycle && dm->queue[i].frame; i++) {
         if (i == drop) {
             if (dm->ppsrc)
-                av_frame_free(&dm->clean_src[i]);
-            av_frame_free(&dm->queue[i].frame);
+                zn_av_frame_free(&dm->clean_src[i]);
+            zn_av_frame_free(&dm->queue[i].frame);
         } else {
             AVFrame *frame = dm->queue[i].frame;
             dm->queue[i].frame = NULL;
@@ -234,7 +234,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                 dm->start_pts = av_rescale_q(frame->pts, dm->in_tb, outlink->time_base);
 
             if (dm->ppsrc) {
-                av_frame_free(&frame);
+                zn_av_frame_free(&frame);
                 frame = dm->clean_src[i];
                 if (!frame)
                     continue;
@@ -351,18 +351,18 @@ static av_cold void decimate_uninit(AVFilterContext *ctx)
     int i;
     DecimateContext *dm = ctx->priv;
 
-    av_frame_free(&dm->last);
-    av_freep(&dm->bdiffs);
+    zn_av_frame_free(&dm->last);
+    zn_av_freep(&dm->bdiffs);
     if (dm->queue) {
         for (i = 0; i < dm->cycle; i++)
-            av_frame_free(&dm->queue[i].frame);
+            zn_av_frame_free(&dm->queue[i].frame);
     }
-    av_freep(&dm->queue);
+    zn_av_freep(&dm->queue);
     if (dm->clean_src) {
         for (i = 0; i < dm->cycle; i++)
-            av_frame_free(&dm->clean_src[i]);
+            zn_av_frame_free(&dm->clean_src[i]);
     }
-    av_freep(&dm->clean_src);
+    zn_av_freep(&dm->clean_src);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -399,8 +399,8 @@ static int config_output(AVFilterLink *outlink)
     dm->nxblocks  = (w + dm->blockx/2 - 1) / (dm->blockx/2);
     dm->nyblocks  = (h + dm->blocky/2 - 1) / (dm->blocky/2);
     dm->bdiffsize = dm->nxblocks * dm->nyblocks;
-    dm->bdiffs    = av_malloc_array(dm->bdiffsize, sizeof(*dm->bdiffs));
-    dm->queue     = av_calloc(dm->cycle, sizeof(*dm->queue));
+    dm->bdiffs    = zn_av_malloc_array(dm->bdiffsize, sizeof(*dm->bdiffs));
+    dm->queue     = zn_av_calloc(dm->cycle, sizeof(*dm->queue));
     dm->in_tb     = inlink->time_base;
     dm->nondec_tb = av_inv_q(fps);
     dm->dec_tb    = av_mul_q(dm->nondec_tb, (AVRational){dm->cycle, dm->cycle - 1});
@@ -409,7 +409,7 @@ static int config_output(AVFilterLink *outlink)
         return AVERROR(ENOMEM);
 
     if (dm->ppsrc) {
-        dm->clean_src = av_calloc(dm->cycle, sizeof(*dm->clean_src));
+        dm->clean_src = zn_av_calloc(dm->cycle, sizeof(*dm->clean_src));
         if (!dm->clean_src)
             return AVERROR(ENOMEM);
     }

@@ -701,7 +701,7 @@ static av_cold int magy_decode_end(AVCodecContext *avctx)
     int i;
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->slices); i++) {
-        av_freep(&s->slices[i]);
+        zn_av_freep(&s->slices[i]);
         s->slices_size[i] = 0;
         ff_vlc_free(&s->vlc[i]);
         ff_vlc_free_multi(&s->multi[i]);

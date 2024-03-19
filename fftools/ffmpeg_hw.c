@@ -85,7 +85,7 @@ static char *hw_device_default_name(enum AVHWDeviceType type)
             break;
     }
     if (index >= index_limit) {
-        av_freep(&name);
+        zn_av_freep(&name);
         return NULL;
     }
     return name;
@@ -225,9 +225,9 @@ int hw_device_init_from_string(const char *arg, HWDevice **dev_out)
     name = NULL;
     err = 0;
 done:
-    av_freep(&type_name);
-    av_freep(&name);
-    av_freep(&device);
+    zn_av_freep(&type_name);
+    zn_av_freep(&name);
+    zn_av_freep(&device);
     av_dict_free(&options);
     return err;
 invalid:
@@ -280,7 +280,7 @@ int hw_device_init_from_type(enum AVHWDeviceType type,
     return 0;
 
 fail:
-    av_freep(&name);
+    zn_av_freep(&name);
     av_buffer_unref(&device_ref);
     return err;
 }
@@ -289,11 +289,11 @@ void hw_device_free_all(void)
 {
     int i;
     for (i = 0; i < nb_hw_devices; i++) {
-        av_freep(&hw_devices[i]->name);
+        zn_av_freep(&hw_devices[i]->name);
         av_buffer_unref(&hw_devices[i]->device_ref);
-        av_freep(&hw_devices[i]);
+        zn_av_freep(&hw_devices[i]);
     }
-    av_freep(&hw_devices);
+    zn_av_freep(&hw_devices);
     nb_hw_devices = 0;
 }
 
@@ -309,7 +309,7 @@ int hwaccel_retrieve_data(AVCodecContext *avctx, AVFrame *input)
         return 0;
     }
 
-    output = av_frame_alloc();
+    output = zn_av_frame_alloc();
     if (!output)
         return AVERROR(ENOMEM);
 
@@ -330,12 +330,12 @@ int hwaccel_retrieve_data(AVCodecContext *avctx, AVFrame *input)
 
     av_frame_unref(input);
     av_frame_move_ref(input, output);
-    av_frame_free(&output);
+    zn_av_frame_free(&output);
 
     return 0;
 
 fail:
-    av_frame_free(&output);
+    zn_av_frame_free(&output);
     return err;
 }
 

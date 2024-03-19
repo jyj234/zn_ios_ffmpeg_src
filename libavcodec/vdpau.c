@@ -360,7 +360,7 @@ int ff_vdpau_common_end_frame(AVCodecContext *avctx, AVFrame *frame,
                            pic_ctx->bitstream_buffers_used,
                            pic_ctx->bitstream_buffers);
 
-    av_freep(&pic_ctx->bitstream_buffers);
+    zn_av_freep(&pic_ctx->bitstream_buffers);
 
     return vdpau_error(status);
 }

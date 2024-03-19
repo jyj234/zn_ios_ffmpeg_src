@@ -133,7 +133,7 @@ AVBufferRef *av_buffer_create(uint8_t *data, size_t size,
                               void *opaque, int flags);
 
 /**
- * Default free callback, which calls av_free() on the buffer data.
+ * Default free callback, which calls zn_av_free() on the buffer data.
  * This function is meant to be passed to av_buffer_create(), not called
  * directly.
  */

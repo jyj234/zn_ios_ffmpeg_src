@@ -57,7 +57,7 @@ SafeQueue *ff_safe_queue_create(void)
 
     sq->q = ff_queue_create();
     if (!sq->q) {
-        av_freep(&sq);
+        zn_av_freep(&sq);
         return NULL;
     }
 
@@ -74,7 +74,7 @@ void ff_safe_queue_destroy(SafeQueue *sq)
     ff_queue_destroy(sq->q);
     ff_mutex_destroy(&sq->mutex);
     dnn_cond_destroy(&sq->cond);
-    av_freep(&sq);
+    zn_av_freep(&sq);
 }
 
 size_t ff_safe_queue_size(SafeQueue *sq)

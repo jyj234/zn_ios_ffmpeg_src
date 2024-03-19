@@ -463,7 +463,7 @@ static void ogg_write_pages(AVFormatContext *s, int flush)
         ogg_write_page(s, &p->page,
                        flush == 1 && oggstream->page_count == 1 ? 4 : 0); // eos
         next = p->next;
-        av_freep(&p);
+        zn_av_freep(&p);
         p = next;
     }
     ogg->page_list = p;
@@ -733,14 +733,14 @@ static void ogg_free(AVFormatContext *s)
             st->codecpar->codec_id == AV_CODEC_ID_SPEEX ||
             st->codecpar->codec_id == AV_CODEC_ID_OPUS ||
             st->codecpar->codec_id == AV_CODEC_ID_VP8) {
-            av_freep(&oggstream->header[0]);
+            zn_av_freep(&oggstream->header[0]);
         }
-        av_freep(&oggstream->header[1]);
+        zn_av_freep(&oggstream->header[1]);
     }
 
     while (p) {
         OGGPageList *next = p->next;
-        av_free(p);
+        zn_av_free(p);
         p = next;
     }
     ogg->page_list = NULL;

@@ -63,7 +63,7 @@ static int epaf_read_header(AVFormatContext *s)
     if (channels <= 0 || channels > FF_SANE_NB_CHANNELS || sample_rate <= 0)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

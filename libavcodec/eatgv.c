@@ -59,7 +59,7 @@ static av_cold int tgv_decode_init(AVCodecContext *avctx)
     avctx->framerate = (AVRational){ 15, 1 };
     avctx->pix_fmt   = AV_PIX_FMT_PAL8;
 
-    s->last_frame = av_frame_alloc();
+    s->last_frame = zn_av_frame_alloc();
     if (!s->last_frame)
         return AVERROR(ENOMEM);
 
@@ -286,7 +286,7 @@ static int tgv_decode_frame(AVCodecContext *avctx, AVFrame *frame,
         s->width  = AV_RL16(&buf[0]);
         s->height = AV_RL16(&buf[2]);
         if (s->avctx->width != s->width || s->avctx->height != s->height) {
-            av_freep(&s->frame_buffer);
+            zn_av_freep(&s->frame_buffer);
             av_frame_unref(s->last_frame);
             if ((ret = ff_set_dimensions(s->avctx, s->width, s->height)) < 0)
                 return ret;
@@ -349,10 +349,10 @@ static int tgv_decode_frame(AVCodecContext *avctx, AVFrame *frame,
 static av_cold int tgv_decode_end(AVCodecContext *avctx)
 {
     TgvContext *s = avctx->priv_data;
-    av_frame_free(&s->last_frame);
-    av_freep(&s->frame_buffer);
-    av_freep(&s->mv_codebook);
-    av_freep(&s->block_codebook);
+    zn_av_frame_free(&s->last_frame);
+    zn_av_freep(&s->frame_buffer);
+    zn_av_freep(&s->mv_codebook);
+    zn_av_freep(&s->block_codebook);
     return 0;
 }
 

@@ -415,7 +415,7 @@ static int fic_decode_frame(AVCodecContext *avctx, AVFrame *rframe,
             break;
         }
     }
-    av_frame_free(&ctx->final_frame);
+    zn_av_frame_free(&ctx->final_frame);
     ctx->final_frame = av_frame_clone(ctx->frame);
     if (!ctx->final_frame) {
         av_log(avctx, AV_LOG_ERROR, "Could not clone frame buffer.\n");
@@ -446,9 +446,9 @@ static av_cold int fic_decode_close(AVCodecContext *avctx)
 {
     FICContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->slice_data);
-    av_frame_free(&ctx->final_frame);
-    av_frame_free(&ctx->frame);
+    zn_av_freep(&ctx->slice_data);
+    zn_av_frame_free(&ctx->final_frame);
+    zn_av_frame_free(&ctx->frame);
 
     return 0;
 }
@@ -465,7 +465,7 @@ static av_cold int fic_decode_init(AVCodecContext *avctx)
     avctx->pix_fmt             = AV_PIX_FMT_YUV420P;
     avctx->bits_per_raw_sample = 8;
 
-    ctx->frame = av_frame_alloc();
+    ctx->frame = zn_av_frame_alloc();
     if (!ctx->frame)
         return AVERROR(ENOMEM);
 

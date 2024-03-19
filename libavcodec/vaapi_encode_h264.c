@@ -709,7 +709,7 @@ static int vaapi_encode_h264_init_picture_params(AVCodecContext *avctx,
     if (priv->sei & SEI_A53_CC) {
         int err;
         size_t sei_a53cc_len;
-        av_freep(&priv->sei_a53cc_data);
+        zn_av_freep(&priv->sei_a53cc_data);
         err = ff_alloc_a53_sei(pic->input_image, 0, &priv->sei_a53cc_data, &sei_a53cc_len);
         if (err < 0)
             return err;
@@ -1268,8 +1268,8 @@ static av_cold int vaapi_encode_h264_close(AVCodecContext *avctx)
 
     ff_cbs_fragment_free(&priv->current_access_unit);
     ff_cbs_close(&priv->cbc);
-    av_freep(&priv->sei_identifier_string);
-    av_freep(&priv->sei_a53cc_data);
+    zn_av_freep(&priv->sei_identifier_string);
+    zn_av_freep(&priv->sei_a53cc_data);
 
     return ff_vaapi_encode_close(avctx);
 }

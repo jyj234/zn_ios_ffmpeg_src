@@ -1127,7 +1127,7 @@ typedef struct AVFilterPadParams {
     /**
      * An av_malloc()'ed string containing the pad label.
      *
-     * May be av_free()'d and set to NULL by the caller, in which case this pad
+     * May be zn_av_free()'d and set to NULL by the caller, in which case this pad
      * will be treated as unlabeled for linking.
      * May also be replaced by another av_malloc()'ed string.
      */
@@ -1148,7 +1148,7 @@ typedef struct AVFilterParams {
      * AVFilterParams.filter_name and instance_name.
      *
      * Callers may also create the filter context manually, then they should
-     * av_free() filter_name and set it to NULL. Such AVFilterParams instances
+     * zn_av_free() filter_name and set it to NULL. Such AVFilterParams instances
      * are then skipped by avfilter_graph_segment_create_filters().
      */
     AVFilterContext     *filter;
@@ -1160,7 +1160,7 @@ typedef struct AVFilterParams {
      * passed to avfilter_get_by_name() by
      * avfilter_graph_segment_create_filters().
      *
-     * Callers may av_free() this string and replace it with another one or
+     * Callers may zn_av_free() this string and replace it with another one or
      * NULL. If the caller creates the filter instance manually, this string
      * MUST be set to NULL.
      *
@@ -1173,7 +1173,7 @@ typedef struct AVFilterParams {
      * Name to be used for this filter instance.
      *
      * An av_malloc()'ed string, may be set by avfilter_graph_segment_parse() or
-     * left NULL. The caller may av_free() this string and replace with another
+     * left NULL. The caller may zn_av_free() this string and replace with another
      * one or NULL.
      *
      * Will be used by avfilter_graph_segment_create_filters() - passed as the
@@ -1240,7 +1240,7 @@ typedef struct AVFilterGraphSegment {
      * to all scale filters in this segment.
      *
      * May be set by avfilter_graph_segment_parse().
-     * The caller may free this string with av_free() and replace it with a
+     * The caller may free this string with zn_av_free() and replace it with a
      * different av_malloc()'ed string.
      */
     char *scale_sws_opts;
@@ -1469,7 +1469,7 @@ int avfilter_graph_queue_command(AVFilterGraph *graph, const char *target, const
  * @param graph    the graph to dump
  * @param options  formatting options; currently ignored
  * @return  a string, or NULL in case of memory allocation failure;
- *          the string must be freed using av_free
+ *          the string must be freed using zn_av_free
  */
 char *avfilter_graph_dump(AVFilterGraph *graph, const char *options);
 

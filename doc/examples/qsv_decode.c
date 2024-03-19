@@ -64,7 +64,7 @@ static int decode_packet(AVCodecContext *decoder_ctx,
 {
     int ret = 0;
 
-    ret = avcodec_send_packet(decoder_ctx, pkt);
+    ret = zn_avcodec_send_packet(decoder_ctx, pkt);
     if (ret < 0) {
         fprintf(stderr, "Error during decoding\n");
         return ret;
@@ -73,7 +73,7 @@ static int decode_packet(AVCodecContext *decoder_ctx,
     while (ret >= 0) {
         int i, j;
 
-        ret = avcodec_receive_frame(decoder_ctx, frame);
+        ret = zn_avcodec_receive_frame(decoder_ctx, frame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
             break;
         else if (ret < 0) {
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     }
 
     /* open the input file */
-    ret = avformat_open_input(&input_ctx, argv[1], NULL, NULL);
+    ret = zn_avformat_open_input(&input_ctx, argv[1], NULL, NULL);
     if (ret < 0) {
         fprintf(stderr, "Cannot open input file '%s': ", argv[1]);
         goto finish;
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
         goto finish;
     }
 
-    decoder_ctx = avcodec_alloc_context3(decoder);
+    decoder_ctx = zn_avcodec_alloc_context3(decoder);
     if (!decoder_ctx) {
         ret = AVERROR(ENOMEM);
         goto finish;
@@ -184,22 +184,22 @@ int main(int argc, char **argv)
     decoder_ctx->hw_device_ctx = av_buffer_ref(device_ref);
     decoder_ctx->get_format  = get_format;
 
-    ret = avcodec_open2(decoder_ctx, NULL, NULL);
+    ret = zn_avcodec_open2(decoder_ctx, NULL, NULL);
     if (ret < 0) {
         fprintf(stderr, "Error opening the decoder: ");
         goto finish;
     }
 
     /* open the output stream */
-    ret = avio_open(&output_ctx, argv[2], AVIO_FLAG_WRITE);
+    ret = zn_avio_open(&output_ctx, argv[2], AVIO_FLAG_WRITE);
     if (ret < 0) {
         fprintf(stderr, "Error opening the output context: ");
         goto finish;
     }
 
-    frame    = av_frame_alloc();
-    sw_frame = av_frame_alloc();
-    pkt      = av_packet_alloc();
+    frame    = zn_av_frame_alloc();
+    sw_frame = zn_av_frame_alloc();
+    pkt      = zn_av_packet_alloc();
     if (!frame || !sw_frame || !pkt) {
         ret = AVERROR(ENOMEM);
         goto finish;
@@ -207,14 +207,14 @@ int main(int argc, char **argv)
 
     /* actual decoding */
     while (ret >= 0) {
-        ret = av_read_frame(input_ctx, pkt);
+        ret = zn_av_read_frame(input_ctx, pkt);
         if (ret < 0)
             break;
 
         if (pkt->stream_index == video_st->index)
             ret = decode_packet(decoder_ctx, frame, sw_frame, pkt, output_ctx);
 
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 
     /* flush the decoder */
@@ -227,11 +227,11 @@ finish:
         fprintf(stderr, "%s\n", buf);
     }
 
-    avformat_close_input(&input_ctx);
+    zn_avformat_close_input(&input_ctx);
 
-    av_frame_free(&frame);
-    av_frame_free(&sw_frame);
-    av_packet_free(&pkt);
+    zn_av_frame_free(&frame);
+    zn_av_frame_free(&sw_frame);
+    zn_av_packet_free(&pkt);
 
     avcodec_free_context(&decoder_ctx);
 

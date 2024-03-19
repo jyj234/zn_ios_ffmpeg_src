@@ -128,7 +128,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     VolumeContext *vol = ctx->priv;
     av_expr_free(vol->volume_pexpr);
     av_opt_free(vol);
-    av_freep(&vol->fdsp);
+    zn_av_freep(&vol->fdsp);
 }
 
 static int query_formats(AVFilterContext *ctx)
@@ -300,7 +300,7 @@ static int config_output(AVFilterLink *outlink)
     vol->var_values[VAR_VOLUME] = NAN;
 
     vol->var_values[VAR_NB_CHANNELS] = inlink->ch_layout.nb_channels;
-    vol->var_values[VAR_TB]          = av_q2d(inlink->time_base);
+    vol->var_values[VAR_TB]          = zn_av_q2d(inlink->time_base);
     vol->var_values[VAR_SAMPLE_RATE] = inlink->sample_rate;
 
     av_log(inlink->src, AV_LOG_VERBOSE, "tb:%f sample_rate:%f nb_channels:%f\n",
@@ -407,13 +407,13 @@ FF_ENABLE_DEPRECATION_WARNINGS
     } else {
         out_buf = ff_get_audio_buffer(outlink, nb_samples);
         if (!out_buf) {
-            av_frame_free(&buf);
+            zn_av_frame_free(&buf);
             return AVERROR(ENOMEM);
         }
         ret = av_frame_copy_props(out_buf, buf);
         if (ret < 0) {
-            av_frame_free(&out_buf);
-            av_frame_free(&buf);
+            zn_av_frame_free(&out_buf);
+            zn_av_frame_free(&buf);
             return ret;
         }
     }
@@ -448,7 +448,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     }
 
     if (buf != out_buf)
-        av_frame_free(&buf);
+        zn_av_frame_free(&buf);
 
 end:
     vol->var_values[VAR_NB_CONSUMED_SAMPLES] += out_buf->nb_samples;

@@ -240,7 +240,7 @@ typedef struct AVFilmGrainParams {
 
 /**
  * Allocate an AVFilmGrainParams structure and set its fields to
- * default values. The resulting struct can be freed using av_freep().
+ * default values. The resulting struct can be freed using zn_av_freep().
  * If size is not NULL it will be set to the number of bytes allocated.
  *
  * @return An AVFilmGrainParams filled with default values or NULL

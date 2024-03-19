@@ -206,12 +206,12 @@ static av_cold int magy_encode_init(AVCodecContext *avctx)
     s->nb_slices = FFMAX(1, s->nb_slices);
     s->slice_height = FFALIGN((avctx->height + s->nb_slices - 1) / s->nb_slices, 1 << s->vshift[1]);
     s->nb_slices = (avctx->height + s->slice_height - 1) / s->slice_height;
-    s->slices = av_calloc(s->nb_slices * s->planes, sizeof(*s->slices));
+    s->slices = zn_av_calloc(s->nb_slices * s->planes, sizeof(*s->slices));
     if (!s->slices)
         return AVERROR(ENOMEM);
 
     if (s->correlate) {
-        s->decorrelate_buf[0] = av_calloc(2U * (s->nb_slices * s->slice_height), FFALIGN(avctx->width, av_cpu_max_align()));
+        s->decorrelate_buf[0] = zn_av_calloc(2U * (s->nb_slices * s->slice_height), FFALIGN(avctx->width, av_cpu_max_align()));
         if (!s->decorrelate_buf[0])
             return AVERROR(ENOMEM);
         s->decorrelate_buf[1] = s->decorrelate_buf[0] + (s->nb_slices * s->slice_height) * FFALIGN(avctx->width, av_cpu_max_align());
@@ -645,11 +645,11 @@ static av_cold int magy_encode_close(AVCodecContext *avctx)
     for (int i = 0; i < s->planes * s->nb_slices && s->slices; i++) {
         Slice *sl = &s->slices[i];
 
-        av_freep(&sl->slice);
-        av_freep(&sl->bitslice);
+        zn_av_freep(&sl->slice);
+        zn_av_freep(&sl->bitslice);
     }
-    av_freep(&s->slices);
-    av_freep(&s->decorrelate_buf);
+    zn_av_freep(&s->slices);
+    zn_av_freep(&s->decorrelate_buf);
 
     return 0;
 }

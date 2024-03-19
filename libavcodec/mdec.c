@@ -242,7 +242,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     MDECContext * const a = avctx->priv_data;
 
-    av_freep(&a->bitstream_buffer);
+    zn_av_freep(&a->bitstream_buffer);
     a->bitstream_buffer_size = 0;
 
     return 0;

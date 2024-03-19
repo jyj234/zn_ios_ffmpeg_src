@@ -40,7 +40,7 @@ static int fsb_read_header(AVFormatContext *s)
     unsigned format, version, c;
     int64_t offset;
     AVCodecParameters *par;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     int ret;
 
     avio_skip(pb, 3); // "FSB"

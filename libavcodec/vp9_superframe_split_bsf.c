@@ -104,7 +104,7 @@ static int vp9_superframe_split_filter(AVBSFContext *ctx, AVPacket *out)
         s->next_frame++;
 
         if (s->next_frame >= s->nb_frames)
-            av_packet_unref(s->buffer_pkt);
+            zn_av_packet_unref(s->buffer_pkt);
 
         ret = init_get_bits8(&gb, out->data, out->size);
         if (ret < 0)
@@ -131,8 +131,8 @@ passthrough:
     return 0;
 fail:
     if (ret < 0)
-        av_packet_unref(out);
-    av_packet_unref(s->buffer_pkt);
+        zn_av_packet_unref(out);
+    zn_av_packet_unref(s->buffer_pkt);
     return ret;
 }
 
@@ -140,7 +140,7 @@ static int vp9_superframe_split_init(AVBSFContext *ctx)
 {
     VP9SFSplitContext *s = ctx->priv_data;
 
-    s->buffer_pkt = av_packet_alloc();
+    s->buffer_pkt = zn_av_packet_alloc();
     if (!s->buffer_pkt)
         return AVERROR(ENOMEM);
 
@@ -150,13 +150,13 @@ static int vp9_superframe_split_init(AVBSFContext *ctx)
 static void vp9_superframe_split_flush(AVBSFContext *ctx)
 {
     VP9SFSplitContext *s = ctx->priv_data;
-    av_packet_unref(s->buffer_pkt);
+    zn_av_packet_unref(s->buffer_pkt);
 }
 
 static void vp9_superframe_split_uninit(AVBSFContext *ctx)
 {
     VP9SFSplitContext *s = ctx->priv_data;
-    av_packet_free(&s->buffer_pkt);
+    zn_av_packet_free(&s->buffer_pkt);
 }
 
 const FFBitStreamFilter ff_vp9_superframe_split_bsf = {

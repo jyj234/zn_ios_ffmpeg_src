@@ -204,8 +204,8 @@ static int config_input(AVFilterLink *inlink)
         s->num_psy_bins = s->fft_size / 8;
     }
 
-    s->window = av_calloc(s->fft_size, sizeof(*s->window));
-    s->inv_window = av_calloc(s->fft_size, sizeof(*s->inv_window));
+    s->window = zn_av_calloc(s->fft_size, sizeof(*s->window));
+    s->inv_window = zn_av_calloc(s->fft_size, sizeof(*s->inv_window));
     if (!s->window || !s->inv_window)
         return AVERROR(ENOMEM);
 
@@ -223,20 +223,20 @@ static int config_input(AVFilterLink *inlink)
 
     generate_hann_window(s->window, s->inv_window, s->fft_size);
 
-    s->margin_curve = av_calloc(s->fft_size / 2 + 1, sizeof(*s->margin_curve));
+    s->margin_curve = zn_av_calloc(s->fft_size / 2 + 1, sizeof(*s->margin_curve));
     if (!s->margin_curve)
         return AVERROR(ENOMEM);
 
     s->spread_table_rows = av_log2(s->num_psy_bins) * 2;
-    s->spread_table = av_calloc(s->spread_table_rows * s->num_psy_bins, sizeof(*s->spread_table));
+    s->spread_table = zn_av_calloc(s->spread_table_rows * s->num_psy_bins, sizeof(*s->spread_table));
     if (!s->spread_table)
         return AVERROR(ENOMEM);
 
-    s->spread_table_range = av_calloc(s->spread_table_rows * 2, sizeof(*s->spread_table_range));
+    s->spread_table_range = zn_av_calloc(s->spread_table_rows * 2, sizeof(*s->spread_table_range));
     if (!s->spread_table_range)
         return AVERROR(ENOMEM);
 
-    s->spread_table_index = av_calloc(s->num_psy_bins, sizeof(*s->spread_table_index));
+    s->spread_table_index = zn_av_calloc(s->num_psy_bins, sizeof(*s->spread_table_index));
     if (!s->spread_table_index)
         return AVERROR(ENOMEM);
 
@@ -246,8 +246,8 @@ static int config_input(AVFilterLink *inlink)
 
     s->channels = inlink->ch_layout.nb_channels;
 
-    s->tx_ctx = av_calloc(s->channels, sizeof(*s->tx_ctx));
-    s->itx_ctx = av_calloc(s->channels, sizeof(*s->itx_ctx));
+    s->tx_ctx = zn_av_calloc(s->channels, sizeof(*s->tx_ctx));
+    s->itx_ctx = zn_av_calloc(s->channels, sizeof(*s->itx_ctx));
     if (!s->tx_ctx || !s->itx_ctx)
         return AVERROR(ENOMEM);
 
@@ -564,7 +564,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     out->nb_samples = in->nb_samples;
     ret = ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     s->in = NULL;
     return ret < 0 ? ret : 0;
 }
@@ -603,20 +603,20 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioPsyClipContext *s = ctx->priv;
 
-    av_freep(&s->window);
-    av_freep(&s->inv_window);
-    av_freep(&s->spread_table);
-    av_freep(&s->spread_table_range);
-    av_freep(&s->spread_table_index);
-    av_freep(&s->margin_curve);
+    zn_av_freep(&s->window);
+    zn_av_freep(&s->inv_window);
+    zn_av_freep(&s->spread_table);
+    zn_av_freep(&s->spread_table_range);
+    zn_av_freep(&s->spread_table_index);
+    zn_av_freep(&s->margin_curve);
 
-    av_frame_free(&s->in_buffer);
-    av_frame_free(&s->in_frame);
-    av_frame_free(&s->out_dist_frame);
-    av_frame_free(&s->windowed_frame);
-    av_frame_free(&s->clipping_delta);
-    av_frame_free(&s->spectrum_buf);
-    av_frame_free(&s->mask_curve);
+    zn_av_frame_free(&s->in_buffer);
+    zn_av_frame_free(&s->in_frame);
+    zn_av_frame_free(&s->out_dist_frame);
+    zn_av_frame_free(&s->windowed_frame);
+    zn_av_frame_free(&s->clipping_delta);
+    zn_av_frame_free(&s->spectrum_buf);
+    zn_av_frame_free(&s->mask_curve);
 
     for (int ch = 0; ch < s->channels; ch++) {
         if (s->tx_ctx)
@@ -625,8 +625,8 @@ static av_cold void uninit(AVFilterContext *ctx)
             av_tx_uninit(&s->itx_ctx[ch]);
     }
 
-    av_freep(&s->tx_ctx);
-    av_freep(&s->itx_ctx);
+    zn_av_freep(&s->tx_ctx);
+    zn_av_freep(&s->itx_ctx);
 }
 
 static const AVFilterPad inputs[] = {

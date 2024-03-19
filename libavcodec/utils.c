@@ -53,7 +53,7 @@ void av_fast_padded_malloc(void *ptr, unsigned int *size, size_t min_size)
 {
     uint8_t **p = ptr;
     if (min_size > SIZE_MAX - AV_INPUT_BUFFER_PADDING_SIZE) {
-        av_freep(p);
+        zn_av_freep(p);
         *size = 0;
         return;
     }
@@ -66,7 +66,7 @@ void av_fast_padded_mallocz(void *ptr, unsigned int *size, size_t min_size)
 {
     uint8_t **p = ptr;
     if (min_size > SIZE_MAX - AV_INPUT_BUFFER_PADDING_SIZE) {
-        av_freep(p);
+        zn_av_freep(p);
         *size = 0;
         return;
     }
@@ -398,7 +398,7 @@ int avcodec_fill_audio_frame(AVFrame *frame, int nb_channels,
                                       (uint8_t *)(intptr_t)buf, nb_channels, frame->nb_samples,
                                       sample_fmt, align)) < 0) {
         if (frame->extended_data != frame->data)
-            av_freep(&frame->extended_data);
+            zn_av_freep(&frame->extended_data);
         return ret;
     }
     if (frame->extended_data != frame->data) {
@@ -425,10 +425,10 @@ const char *avcodec_get_name(enum AVCodecID id)
     if (cd)
         return cd->name;
     av_log(NULL, AV_LOG_WARNING, "Codec 0x%x is not in the full list.\n", id);
-    codec = avcodec_find_decoder(id);
+    codec = zn_avcodec_find_decoder(id);
     if (codec)
         return codec->name;
-    codec = avcodec_find_encoder(id);
+    codec = zn_avcodec_find_encoder(id);
     if (codec)
         return codec->name;
     return "unknown_codec";

@@ -245,11 +245,11 @@ static int get_input(AVFrame *frame, int frame_num)
     /* Set up the frame properties and allocate the buffer for the data. */
     frame->sample_rate    = INPUT_SAMPLERATE;
     frame->format         = INPUT_FORMAT;
-    av_channel_layout_copy(&frame->ch_layout, &INPUT_CHANNEL_LAYOUT);
+    zn_av_channel_layout_copy(&frame->ch_layout, &INPUT_CHANNEL_LAYOUT);
     frame->nb_samples     = FRAME_SIZE;
     frame->pts            = frame_num * FRAME_SIZE;
 
-    err = av_frame_get_buffer(frame, 0);
+    err = zn_av_frame_get_buffer(frame, 0);
     if (err < 0)
         return err;
 
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
     }
 
     /* Allocate the frame we will be using to store the data. */
-    frame  = av_frame_alloc();
+    frame  = zn_av_frame_alloc();
     if (!frame) {
         fprintf(stderr, "Error allocating the frame\n");
         return 1;
@@ -348,8 +348,8 @@ int main(int argc, char *argv[])
     }
 
     avfilter_graph_free(&graph);
-    av_frame_free(&frame);
-    av_freep(&md5);
+    zn_av_frame_free(&frame);
+    zn_av_freep(&md5);
 
     return 0;
 

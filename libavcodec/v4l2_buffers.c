@@ -454,7 +454,7 @@ int ff_v4l2_buffer_buf_to_avpkt(AVPacket *pkt, V4L2Buffer *avbuf)
 {
     int ret;
 
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     ret = v4l2_buf_to_bufref(avbuf, 0, &pkt->buf);
     if (ret)
         return ret;

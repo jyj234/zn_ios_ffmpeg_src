@@ -167,15 +167,15 @@ static int config_input(AVFilterLink *inlink)
     ShowVolumeContext *s = ctx->priv;
 
     s->nb_samples = FFMAX(1, av_rescale(inlink->sample_rate, s->frame_rate.den, s->frame_rate.num));
-    s->values = av_calloc(inlink->ch_layout.nb_channels * VAR_VARS_NB, sizeof(double));
+    s->values = zn_av_calloc(inlink->ch_layout.nb_channels * VAR_VARS_NB, sizeof(double));
     if (!s->values)
         return AVERROR(ENOMEM);
 
-    s->color_lut = av_calloc(s->w, sizeof(*s->color_lut) * inlink->ch_layout.nb_channels);
+    s->color_lut = zn_av_calloc(s->w, sizeof(*s->color_lut) * inlink->ch_layout.nb_channels);
     if (!s->color_lut)
         return AVERROR(ENOMEM);
 
-    s->max = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->max));
+    s->max = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->max));
     if (!s->max)
         return AVERROR(ENOMEM);
 
@@ -186,9 +186,9 @@ static int config_input(AVFilterLink *inlink)
     }
 
     if (s->draw_persistent_duration > 0.) {
-        s->persistent_max_frames = (int) FFMAX(av_q2d(s->frame_rate) * s->draw_persistent_duration, 1.);
-        s->max_persistent = av_calloc(inlink->ch_layout.nb_channels * s->persistent_max_frames, sizeof(*s->max_persistent));
-        s->nb_frames_max_display = av_calloc(inlink->ch_layout.nb_channels * s->persistent_max_frames, sizeof(*s->nb_frames_max_display));
+        s->persistent_max_frames = (int) FFMAX(zn_av_q2d(s->frame_rate) * s->draw_persistent_duration, 1.);
+        s->max_persistent = zn_av_calloc(inlink->ch_layout.nb_channels * s->persistent_max_frames, sizeof(*s->max_persistent));
+        s->nb_frames_max_display = zn_av_calloc(inlink->ch_layout.nb_channels * s->persistent_max_frames, sizeof(*s->nb_frames_max_display));
         if (!s->max_persistent ||
             !s->nb_frames_max_display)
             return AVERROR(ENOMEM);
@@ -330,10 +330,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
 
     if (!s->out || s->out->width  != outlink->w ||
                    s->out->height != outlink->h) {
-        av_frame_free(&s->out);
+        zn_av_frame_free(&s->out);
         s->out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!s->out) {
-            av_frame_free(&insamples);
+            zn_av_frame_free(&insamples);
             return AVERROR(ENOMEM);
         }
         clear_picture(s, outlink);
@@ -430,13 +430,13 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
         }
     }
 
-    av_frame_free(&insamples);
+    zn_av_frame_free(&insamples);
     out = av_frame_clone(s->out);
     if (!out)
         return AVERROR(ENOMEM);
     ret = ff_inlink_make_frame_writable(outlink, &out);
     if (ret < 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ret;
     }
 
@@ -487,13 +487,13 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ShowVolumeContext *s = ctx->priv;
 
-    av_frame_free(&s->out);
+    zn_av_frame_free(&s->out);
     av_expr_free(s->c_expr);
-    av_freep(&s->values);
-    av_freep(&s->color_lut);
-    av_freep(&s->max);
-    av_freep(&s->max_persistent);
-    av_freep(&s->nb_frames_max_display);
+    zn_av_freep(&s->values);
+    zn_av_freep(&s->color_lut);
+    zn_av_freep(&s->max);
+    zn_av_freep(&s->max_persistent);
+    zn_av_freep(&s->nb_frames_max_display);
 }
 
 static const AVFilterPad showvolume_inputs[] = {

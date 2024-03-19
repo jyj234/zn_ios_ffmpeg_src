@@ -63,7 +63,7 @@ AVFILTER_DEFINE_CLASS(find_rect);
 static AVFrame *downscale(AVFrame *in)
 {
     int x, y;
-    AVFrame *frame = av_frame_alloc();
+    AVFrame *frame = zn_av_frame_alloc();
     uint8_t *src, *dst;
     if (!frame)
         return NULL;
@@ -72,8 +72,8 @@ static AVFrame *downscale(AVFrame *in)
     frame->width  = (in->width + 1) / 2;
     frame->height = (in->height+ 1) / 2;
 
-    if (av_frame_get_buffer(frame, 0) < 0) {
-        av_frame_free(&frame);
+    if (zn_av_frame_get_buffer(frame, 0) < 0) {
+        zn_av_frame_free(&frame);
         return NULL;
     }
     src = in   ->data[0];
@@ -195,12 +195,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                         &best_x, &best_y, best_score);
 
     for (i=0; i<MAX_MIPMAPS; i++) {
-        av_frame_free(&foc->haystack_frame[i]);
+        zn_av_frame_free(&foc->haystack_frame[i]);
     }
 
     if (best_score > foc->threshold) {
         if (foc->discard) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return 0;
         } else {
             return ff_filter_frame(ctx->outputs[0], in);
@@ -208,7 +208,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     av_log(ctx, AV_LOG_INFO, "Found at n=%"PRId64" pts_time=%f x=%d y=%d with score=%f\n",
-           inlink->frame_count_out, TS2D(in->pts) * av_q2d(inlink->time_base),
+           inlink->frame_count_out, TS2D(in->pts) * zn_av_q2d(inlink->time_base),
            best_x, best_y, best_score);
     foc->last_x = best_x;
     foc->last_y = best_y;
@@ -230,13 +230,13 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < MAX_MIPMAPS; i++) {
-        av_frame_free(&foc->needle_frame[i]);
-        av_frame_free(&foc->haystack_frame[i]);
+        zn_av_frame_free(&foc->needle_frame[i]);
+        zn_av_frame_free(&foc->haystack_frame[i]);
     }
 
     if (foc->obj_frame)
-        av_freep(&foc->obj_frame->data[0]);
-    av_frame_free(&foc->obj_frame);
+        zn_av_freep(&foc->obj_frame->data[0]);
+    zn_av_frame_free(&foc->obj_frame);
 }
 
 static av_cold int init(AVFilterContext *ctx)
@@ -249,7 +249,7 @@ static av_cold int init(AVFilterContext *ctx)
         return AVERROR(EINVAL);
     }
 
-    foc->obj_frame = av_frame_alloc();
+    foc->obj_frame = zn_av_frame_alloc();
     if (!foc->obj_frame)
         return AVERROR(ENOMEM);
 

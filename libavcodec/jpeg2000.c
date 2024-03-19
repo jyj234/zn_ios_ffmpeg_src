@@ -60,7 +60,7 @@ static Jpeg2000TgtNode *ff_jpeg2000_tag_tree_init(int w, int h)
 
     tt_size = tag_tree_size(w, h);
 
-    t = res = av_calloc(tt_size, sizeof(*t));
+    t = res = zn_av_calloc(tt_size, sizeof(*t));
     if (!res)
         return NULL;
 
@@ -333,7 +333,7 @@ static int init_prec(AVCodecContext *avctx,
         return AVERROR(ENOMEM);
     }
     nb_codeblocks = prec->nb_codeblocks_width * prec->nb_codeblocks_height;
-    prec->cblk = av_calloc(nb_codeblocks, sizeof(*prec->cblk));
+    prec->cblk = zn_av_calloc(nb_codeblocks, sizeof(*prec->cblk));
     if (!prec->cblk)
         return AVERROR(ENOMEM);
     for (cblkno = 0; cblkno < nb_codeblocks; cblkno++) {
@@ -376,7 +376,7 @@ static int init_prec(AVCodecContext *avctx,
         cblk->length    = 0;
         cblk->npasses   = 0;
         if (av_codec_is_encoder(avctx->codec)) {
-            cblk->layers = av_calloc(codsty->nlayers, sizeof(*cblk->layers));
+            cblk->layers = zn_av_calloc(codsty->nlayers, sizeof(*cblk->layers));
             if (!cblk->layers)
                 return AVERROR(ENOMEM);
         }
@@ -448,7 +448,7 @@ static int init_band(AVCodecContext *avctx,
         return AVERROR(ENOMEM);
     }
     nb_precincts = reslevel->num_precincts_x * reslevel->num_precincts_y;
-    band->prec = av_calloc(nb_precincts, sizeof(*band->prec));
+    band->prec = zn_av_calloc(nb_precincts, sizeof(*band->prec));
     if (!band->prec)
         return AVERROR(ENOMEM);
 
@@ -496,17 +496,17 @@ int ff_jpeg2000_init_component(Jpeg2000Component *comp,
     if (codsty->transform == FF_DWT97) {
         csize += AV_INPUT_BUFFER_PADDING_SIZE / sizeof(*comp->f_data);
         comp->i_data = NULL;
-        comp->f_data = av_calloc(csize, sizeof(*comp->f_data));
+        comp->f_data = zn_av_calloc(csize, sizeof(*comp->f_data));
         if (!comp->f_data)
             return AVERROR(ENOMEM);
     } else {
         csize += AV_INPUT_BUFFER_PADDING_SIZE / sizeof(*comp->i_data);
         comp->f_data = NULL;
-        comp->i_data = av_calloc(csize, sizeof(*comp->i_data));
+        comp->i_data = zn_av_calloc(csize, sizeof(*comp->i_data));
         if (!comp->i_data)
             return AVERROR(ENOMEM);
     }
-    comp->reslevel = av_calloc(codsty->nreslevels, sizeof(*comp->reslevel));
+    comp->reslevel = zn_av_calloc(codsty->nreslevels, sizeof(*comp->reslevel));
     if (!comp->reslevel)
         return AVERROR(ENOMEM);
     /* LOOP on resolution levels */
@@ -554,7 +554,7 @@ int ff_jpeg2000_init_component(Jpeg2000Component *comp,
                                         reslevel->log2_prec_height) -
                 (reslevel->coord[1][0] >> reslevel->log2_prec_height);
 
-        reslevel->band = av_calloc(reslevel->nbands, sizeof(*reslevel->band));
+        reslevel->band = zn_av_calloc(reslevel->nbands, sizeof(*reslevel->band));
         if (!reslevel->band)
             return AVERROR(ENOMEM);
 
@@ -618,30 +618,30 @@ void ff_jpeg2000_cleanup(Jpeg2000Component *comp, Jpeg2000CodingStyle *codsty)
                     Jpeg2000Prec *prec = band->prec + precno;
                     int nb_code_blocks = prec->nb_codeblocks_height * prec->nb_codeblocks_width;
 
-                    av_freep(&prec->zerobits);
-                    av_freep(&prec->cblkincl);
+                    zn_av_freep(&prec->zerobits);
+                    zn_av_freep(&prec->cblkincl);
                     if (prec->cblk) {
                         int cblkno;
                         for (cblkno = 0; cblkno < nb_code_blocks; cblkno ++) {
                             Jpeg2000Cblk *cblk = &prec->cblk[cblkno];
-                            av_freep(&cblk->data);
-                            av_freep(&cblk->passes);
-                            av_freep(&cblk->lengthinc);
-                            av_freep(&cblk->data_start);
-                            av_freep(&cblk->layers);
+                            zn_av_freep(&cblk->data);
+                            zn_av_freep(&cblk->passes);
+                            zn_av_freep(&cblk->lengthinc);
+                            zn_av_freep(&cblk->data_start);
+                            zn_av_freep(&cblk->layers);
                         }
-                        av_freep(&prec->cblk);
+                        zn_av_freep(&prec->cblk);
                     }
                 }
             }
 
-            av_freep(&band->prec);
+            zn_av_freep(&band->prec);
         }
-        av_freep(&reslevel->band);
+        zn_av_freep(&reslevel->band);
     }
 
     ff_dwt_destroy(&comp->dwt);
-    av_freep(&comp->reslevel);
-    av_freep(&comp->i_data);
-    av_freep(&comp->f_data);
+    zn_av_freep(&comp->reslevel);
+    zn_av_freep(&comp->i_data);
+    zn_av_freep(&comp->f_data);
 }

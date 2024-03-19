@@ -307,11 +307,11 @@ static int ftp_passive_mode_epsv(FTPContext *s)
     s->server_data_port = atoi(start);
     ff_dlog(s, "Server data port: %d\n", s->server_data_port);
 
-    av_free(res);
+    zn_av_free(res);
     return 0;
 
   fail:
-    av_free(res);
+    zn_av_free(res);
     s->server_data_port = -1;
     return AVERROR(ENOSYS);
 }
@@ -353,11 +353,11 @@ static int ftp_passive_mode(FTPContext *s)
     s->server_data_port += atoi(start);
     ff_dlog(s, "Server data port: %d\n", s->server_data_port);
 
-    av_free(res);
+    zn_av_free(res);
     return 0;
 
   fail:
-    av_free(res);
+    zn_av_free(res);
     s->server_data_port = -1;
     return AVERROR(EIO);
 }
@@ -389,14 +389,14 @@ static int ftp_current_dir(FTPContext *s)
     *end = '\0';
     s->path = av_strdup(start);
 
-    av_free(res);
+    zn_av_free(res);
 
     if (!s->path)
         return AVERROR(ENOMEM);
     return 0;
 
   fail:
-    av_free(res);
+    zn_av_free(res);
     return AVERROR(EIO);
 }
 
@@ -415,11 +415,11 @@ static int ftp_file_size(FTPContext *s)
         s->filesize = strtoll(&res[4], NULL, 10);
     } else {
         s->filesize = -1;
-        av_free(res);
+        zn_av_free(res);
         return AVERROR(EIO);
     }
 
-    av_free(res);
+    zn_av_free(res);
     return 0;
 }
 
@@ -547,9 +547,9 @@ static int ftp_features(FTPContext *s)
     static const int feat_codes[] = {211, 0};
     static const int opts_codes[] = {200, 202, 451, 0};
 
-    av_freep(&s->features);
+    zn_av_freep(&s->features);
     if (ftp_send_command(s, feat_command, feat_codes, &s->features) != 211) {
-        av_freep(&s->features);
+        zn_av_freep(&s->features);
     }
 
     if (ftp_has_feature(s, "UTF8")) {
@@ -593,7 +593,7 @@ static int ftp_connect_control_connection(URLContext *h)
         if ((h->flags & AVIO_FLAG_WRITE) && av_stristr(response, "pure-ftpd")) {
             av_log(h, AV_LOG_WARNING, "Pure-FTPd server is used as an output protocol. It is known issue this implementation may produce incorrect content and it cannot be fixed at this moment.");
         }
-        av_free(response);
+        zn_av_free(response);
 
         if ((err = ftp_auth(s)) < 0) {
             av_log(h, AV_LOG_ERROR, "FTP authentication failed\n");
@@ -742,7 +742,7 @@ static int ftp_connect(URLContext *h, const char *url)
     newpath = av_append_path_component(s->path, path);
     if (!newpath)
         return AVERROR(ENOMEM);
-    av_free(s->path);
+    zn_av_free(s->path);
     s->path = newpath;
 
     return 0;
@@ -845,13 +845,13 @@ static int ftp_read(URLContext *h, unsigned char *buf, int size)
            err = ftp_status(s, &response, retr_codes);
            if (err == 226) {
                ftp_close_data_connection(s);
-               av_freep(&response);
+               zn_av_freep(&response);
                s->state = ENDOFFILE;
                return AVERROR_EOF;
            }
            /* 250 is not allowed, any other status means some kind of error */
-           av_log(h, AV_LOG_ERROR, "FTP transfer failed: %s\n", response ? response : (err < 0 ? av_err2str(err) : "?"));
-           av_freep(&response);
+           av_log(h, AV_LOG_ERROR, "FTP transfer failed: %s\n", response ? response : (err < 0 ? zn_av_err2str(err) : "?"));
+           zn_av_freep(&response);
            read = AVERROR(EIO);
         }
         if (read <= 0 && !h->is_streamed) {
@@ -907,11 +907,11 @@ static int ftp_close(URLContext *h)
     ff_dlog(h, "ftp protocol close\n");
 
     ftp_close_both_connections(s);
-    av_freep(&s->user);
-    av_freep(&s->password);
-    av_freep(&s->hostname);
-    av_freep(&s->path);
-    av_freep(&s->features);
+    zn_av_freep(&s->user);
+    zn_av_freep(&s->password);
+    zn_av_freep(&s->hostname);
+    zn_av_freep(&s->path);
+    zn_av_freep(&s->features);
 
     return 0;
 }
@@ -1086,7 +1086,7 @@ static int ftp_read_dir(URLContext *h, AVIODirEntry **next)
 static int ftp_close_dir(URLContext *h)
 {
     FTPContext *s = h->priv_data;
-    av_freep(&s->dir_buffer);
+    zn_av_freep(&s->dir_buffer);
     ffurl_closep(&s->conn_control);
     ffurl_closep(&s->conn_data);
     return 0;

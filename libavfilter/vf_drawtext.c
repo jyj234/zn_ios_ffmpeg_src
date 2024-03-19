@@ -684,20 +684,20 @@ static int shape_text(AVFilterContext *ctx)
     FriBidiStrIndex i,j;
 
     len = strlen(s->text);
-    if (!(unicodestr = av_malloc_array(len, sizeof(*unicodestr)))) {
+    if (!(unicodestr = zn_av_malloc_array(len, sizeof(*unicodestr)))) {
         goto out;
     }
     len = fribidi_charset_to_unicode(FRIBIDI_CHAR_SET_UTF8,
                                      s->text, len, unicodestr);
 
-    bidi_types = av_malloc_array(len, sizeof(*bidi_types));
+    bidi_types = zn_av_malloc_array(len, sizeof(*bidi_types));
     if (!bidi_types) {
         goto out;
     }
 
     fribidi_get_bidi_types(unicodestr, len, bidi_types);
 
-    embedding_levels = av_malloc_array(len, sizeof(*embedding_levels));
+    embedding_levels = zn_av_malloc_array(len, sizeof(*embedding_levels));
     if (!embedding_levels) {
         goto out;
     }
@@ -707,7 +707,7 @@ static int shape_text(AVFilterContext *ctx)
         goto out;
     }
 
-    ar_props = av_malloc_array(len, sizeof(*ar_props));
+    ar_props = zn_av_malloc_array(len, sizeof(*ar_props));
     if (!ar_props) {
         goto out;
     }
@@ -746,10 +746,10 @@ static int shape_text(AVFilterContext *ctx)
     ret = 0;
 
 out:
-    av_free(unicodestr);
-    av_free(embedding_levels);
-    av_free(ar_props);
-    av_free(bidi_types);
+    zn_av_free(unicodestr);
+    zn_av_free(embedding_levels);
+    zn_av_free(ar_props);
+    zn_av_free(bidi_types);
     return ret;
 }
 #endif
@@ -863,8 +863,8 @@ error:
     if (glyph && glyph->glyph)
         FT_Done_Glyph(glyph->glyph);
 
-    av_freep(&glyph);
-    av_freep(&node);
+    zn_av_freep(&glyph);
+    zn_av_freep(&node);
     return ret;
 }
 
@@ -881,7 +881,7 @@ static int string_to_array(const char *source, int *result, int result_size)
             result[counter++] = atoi(curval);
         } while ((curval = av_strtok(NULL, "|", &saveptr)) && counter < result_size);
     }
-    av_free(dup);
+    zn_av_free(dup);
     return counter;
 }
 
@@ -936,7 +936,7 @@ static av_cold int init(AVFilterContext *ctx)
     if (s->text_source == AV_FRAME_DATA_DETECTION_BBOXES) {
         if (s->text) {
             av_log(ctx, AV_LOG_WARNING, "Multiple texts provided, will use text_source only\n");
-            av_free(s->text);
+            zn_av_free(s->text);
         }
         s->text = av_mallocz(AV_DETECTION_BBOX_LABEL_NAME_MAX_SIZE *
                              (AV_NUM_DETECTION_BBOX_CLASSIFY + 1));
@@ -1028,7 +1028,7 @@ static int glyph_enu_free(void *opaque, void *elem)
             FT_Done_Glyph((FT_Glyph)glyph->border_bglyph[t]);
         }
     }
-    av_free(elem);
+    zn_av_free(elem);
     return 0;
 }
 
@@ -1070,7 +1070,7 @@ static int config_input(AVFilterLink *inlink)
 
     s->var_values[VAR_w]    = s->var_values[VAR_W] = s->var_values[VAR_MAIN_W] = inlink->w;
     s->var_values[VAR_h]    = s->var_values[VAR_H] = s->var_values[VAR_MAIN_H] = inlink->h;
-    s->var_values[VAR_SAR]  = inlink->sample_aspect_ratio.num ? av_q2d(inlink->sample_aspect_ratio) : 1;
+    s->var_values[VAR_SAR]  = inlink->sample_aspect_ratio.num ? zn_av_q2d(inlink->sample_aspect_ratio) : 1;
     s->var_values[VAR_DAR]  = (double)inlink->w / inlink->h * s->var_values[VAR_SAR];
     s->var_values[VAR_HSUB] = 1 << s->dc.hsub_max;
     s->var_values[VAR_VSUB] = 1 << s->dc.vsub_max;
@@ -1132,7 +1132,7 @@ static int command(AVFilterContext *ctx, const char *cmd, const char *arg, char 
 
         ctx->priv = old;
         uninit(ctx);
-        av_freep(&old);
+        zn_av_freep(&old);
 
         ctx->priv = new;
         return config_input(ctx->inputs[0]);
@@ -1156,7 +1156,7 @@ static int command(AVFilterContext *ctx, const char *cmd, const char *arg, char 
 
 fail:
     av_log(ctx, AV_LOG_ERROR, "Failed to process command. Continuing with existing parameters.\n");
-    av_freep(&new);
+    zn_av_freep(&new);
     return ret;
 }
 
@@ -1481,7 +1481,7 @@ static int expand_function(AVFilterContext *ctx, AVBPrint *bp, char **rtext)
             goto end;
         }
         if (argc == FF_ARRAY_ELEMS(argv))
-            av_freep(&argv[--argc]); /* error will be caught later */
+            zn_av_freep(&argv[--argc]); /* error will be caught later */
         if (*text == '}')
             break;
         text++;
@@ -1494,7 +1494,7 @@ static int expand_function(AVFilterContext *ctx, AVBPrint *bp, char **rtext)
 
 end:
     for (i = 0; i < argc; i++)
-        av_freep(&argv[i]);
+        zn_av_freep(&argv[i]);
     return ret;
 }
 
@@ -1821,7 +1821,7 @@ continue_on_failed2:
     metrics->max_y64 = max_y64;
 
 done:
-    av_free(textdup);
+    zn_av_free(textdup);
     return ret;
 }
 
@@ -1854,7 +1854,7 @@ static int draw_text(AVFilterContext *ctx, AVFrame *frame)
     av_bprint_clear(bp);
 
     if (s->basetime != AV_NOPTS_VALUE)
-        now= frame->pts*av_q2d(ctx->inputs[0]->time_base) + s->basetime/1000000;
+        now= frame->pts*zn_av_q2d(ctx->inputs[0]->time_base) + s->basetime/1000000;
 
     switch (s->exp_mode) {
     case EXP_NONE:
@@ -2093,11 +2093,11 @@ static int draw_text(AVFilterContext *ctx, AVFrame *frame)
     // FREE data structures
     for (int l = 0; l < s->line_count; ++l) {
         TextLine *line = &s->lines[l];
-        av_freep(&line->glyphs);
+        zn_av_freep(&line->glyphs);
         hb_destroy(&line->hb_data);
     }
-    av_freep(&s->lines);
-    av_freep(&s->tab_clusters);
+    zn_av_freep(&s->lines);
+    zn_av_freep(&s->tab_clusters);
 
     return 0;
 }
@@ -2126,13 +2126,13 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
 
     if (s->reload && !(inlink->frame_count_out % s->reload)) {
         if ((ret = load_textfile(ctx)) < 0) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return ret;
         }
 #if CONFIG_LIBFRIBIDI
         if (s->text_shaping)
             if ((ret = shape_text(ctx)) < 0) {
-                av_frame_free(&frame);
+                zn_av_frame_free(&frame);
                 return ret;
             }
 #endif
@@ -2140,7 +2140,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
 
     s->var_values[VAR_N] = inlink->frame_count_out + s->start_number;
     s->var_values[VAR_T] = frame->pts == AV_NOPTS_VALUE ?
-        NAN : frame->pts * av_q2d(inlink->time_base);
+        NAN : frame->pts * zn_av_q2d(inlink->time_base);
 
     s->var_values[VAR_PICT_TYPE] = frame->pict_type;
 #if FF_API_FRAME_PKT
@@ -2151,14 +2151,14 @@ FF_ENABLE_DEPRECATION_WARNINGS
 #endif
 #if FF_API_PKT_DURATION
 FF_DISABLE_DEPRECATION_WARNINGS
-    s->var_values[VAR_PKT_DURATION] = frame->pkt_duration * av_q2d(inlink->time_base);
+    s->var_values[VAR_PKT_DURATION] = frame->pkt_duration * zn_av_q2d(inlink->time_base);
 
     if (frame->pkt_duration)
-        s->var_values[VAR_DURATION] = frame->pkt_duration * av_q2d(inlink->time_base);
+        s->var_values[VAR_DURATION] = frame->pkt_duration * zn_av_q2d(inlink->time_base);
     else
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
-    s->var_values[VAR_DURATION] = frame->duration * av_q2d(inlink->time_base);
+    s->var_values[VAR_DURATION] = frame->duration * zn_av_q2d(inlink->time_base);
 
     s->metadata = frame->metadata;
 

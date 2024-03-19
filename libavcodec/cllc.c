@@ -472,7 +472,7 @@ static av_cold int cllc_decode_close(AVCodecContext *avctx)
 {
     CLLCContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->swapped_buf);
+    zn_av_freep(&ctx->swapped_buf);
 
     return 0;
 }

@@ -137,10 +137,10 @@ static av_cold int svc_encode_init(AVCodecContext *avctx)
     (*s->encoder)->GetDefaultParams(s->encoder, &param);
 
     if (avctx->framerate.num > 0 && avctx->framerate.den > 0) {
-        param.fMaxFrameRate = av_q2d(avctx->framerate);
+        param.fMaxFrameRate = zn_av_q2d(avctx->framerate);
     } else {
 FF_DISABLE_DEPRECATION_WARNINGS
-        param.fMaxFrameRate = 1.0 / av_q2d(avctx->time_base)
+        param.fMaxFrameRate = 1.0 / zn_av_q2d(avctx->time_base)
 #if FF_API_TICKS_PER_FRAME
                                   / FFMAX(avctx->ticks_per_frame, 1)
 #endif

@@ -107,8 +107,8 @@ static int config_input(AVFilterLink *inlink)
     s->depth = depth;
     s->nb_threads = ff_filter_get_nb_threads(ctx);
     s->time_base = inlink->time_base;
-    s->black_min_duration = s->black_min_duration_time / av_q2d(s->time_base);
-    s->counter = av_calloc(s->nb_threads, sizeof(*s->counter));
+    s->black_min_duration = s->black_min_duration_time / zn_av_q2d(s->time_base);
+    s->counter = zn_av_calloc(s->nb_threads, sizeof(*s->counter));
     if (!s->counter)
         return AVERROR(ENOMEM);
 
@@ -224,7 +224,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     BlackDetectContext *s = ctx->priv;
 
-    av_freep(&s->counter);
+    zn_av_freep(&s->counter);
 
     if (s->black_started) {
         // FIXME: black_end should be set to last_picref_pts + last_picref_duration

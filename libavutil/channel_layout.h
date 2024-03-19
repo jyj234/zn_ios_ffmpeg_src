@@ -292,13 +292,13 @@ typedef struct AVChannelCustom {
  * - default initialization with {0}, followed by setting all used fields
  *   correctly;
  * - by assigning one of the predefined AV_CHANNEL_LAYOUT_* initializers;
- * - with a constructor function, such as av_channel_layout_default(),
+ * - with a constructor function, such as zn_av_channel_layout_default(),
  *   av_channel_layout_from_mask() or av_channel_layout_from_string().
  *
  * The channel layout must be unitialized with av_channel_layout_uninit()
  *
  * Copying an AVChannelLayout via assigning is forbidden,
- * av_channel_layout_copy() must be used instead (and its return value should
+ * zn_av_channel_layout_copy() must be used instead (and its return value should
  * be checked)
  *
  * No new fields may be added to it without a major version bump, except for
@@ -500,7 +500,7 @@ int av_get_channel_layout_nb_channels(uint64_t channel_layout);
 /**
  * Return default channel layout for a given number of channels.
  *
- * @deprecated use av_channel_layout_default()
+ * @deprecated use zn_av_channel_layout_default()
  */
 attribute_deprecated
 int64_t av_get_default_channel_layout(int nb_channels);
@@ -651,7 +651,7 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
  * @param ch_layout the layout structure to be initialized
  * @param nb_channels number of channels
  */
-void av_channel_layout_default(AVChannelLayout *ch_layout, int nb_channels);
+void zn_av_channel_layout_default(AVChannelLayout *ch_layout, int nb_channels);
 
 /**
  * Iterate over all standard channel layouts.
@@ -682,7 +682,7 @@ void av_channel_layout_uninit(AVChannelLayout *channel_layout);
  * @param src source channel layout
  * @return 0 on success, a negative AVERROR on error.
  */
-int av_channel_layout_copy(AVChannelLayout *dst, const AVChannelLayout *src);
+int zn_av_channel_layout_copy(AVChannelLayout *dst, const AVChannelLayout *src);
 
 /**
  * Get a human-readable string describing the channel layout properties.

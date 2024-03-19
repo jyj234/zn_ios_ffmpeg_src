@@ -295,7 +295,7 @@ static int png_write_row(AVCodecContext *avctx, const uint8_t *data, int size)
 }
 
 #define AV_WB32_PNG(buf, n) AV_WB32(buf, lrint((n) * 100000))
-#define AV_WB32_PNG_D(buf, d) AV_WB32_PNG(buf, av_q2d(d))
+#define AV_WB32_PNG_D(buf, d) AV_WB32_PNG(buf, zn_av_q2d(d))
 static int png_get_chrm(enum AVColorPrimaries prim,  uint8_t *buf)
 {
     const AVColorPrimariesDesc *desc = av_csp_primaries_desc_from_id(prim);
@@ -565,9 +565,9 @@ static int encode_frame(AVCodecContext *avctx, const AVFrame *pict)
     ret = 0;
 
 the_end:
-    av_freep(&crow_base);
-    av_freep(&progressive_buf);
-    av_freep(&top_buf);
+    zn_av_freep(&crow_base);
+    zn_av_freep(&progressive_buf);
+    zn_av_freep(&top_buf);
     deflateReset(zstream);
     return ret;
 }
@@ -814,14 +814,14 @@ static int apng_encode_frame(AVCodecContext *avctx, const AVFrame *pict,
         return encode_frame(avctx, pict);
     }
 
-    diffFrame = av_frame_alloc();
+    diffFrame = zn_av_frame_alloc();
     if (!diffFrame)
         return AVERROR(ENOMEM);
 
     diffFrame->format = pict->format;
     diffFrame->width = pict->width;
     diffFrame->height = pict->height;
-    if ((ret = av_frame_get_buffer(diffFrame, 0)) < 0)
+    if ((ret = zn_av_frame_get_buffer(diffFrame, 0)) < 0)
         goto fail;
 
     original_bytestream = s->bytestream;
@@ -913,8 +913,8 @@ static int apng_encode_frame(AVCodecContext *avctx, const AVFrame *pict,
     ret = 0;
 
 fail:
-    av_freep(&temp_bytestream);
-    av_frame_free(&diffFrame);
+    zn_av_freep(&temp_bytestream);
+    zn_av_frame_free(&diffFrame);
     return ret;
 }
 
@@ -1031,19 +1031,19 @@ static int encode_apng(AVCodecContext *avctx, AVPacket *pkt,
 
     if (pict) {
         if (!s->last_frame) {
-            s->last_frame = av_frame_alloc();
+            s->last_frame = zn_av_frame_alloc();
             if (!s->last_frame)
                 return AVERROR(ENOMEM);
         } else if (s->last_frame_fctl.dispose_op != APNG_DISPOSE_OP_PREVIOUS) {
             if (!s->prev_frame) {
-                s->prev_frame = av_frame_alloc();
+                s->prev_frame = zn_av_frame_alloc();
                 if (!s->prev_frame)
                     return AVERROR(ENOMEM);
 
                 s->prev_frame->format = pict->format;
                 s->prev_frame->width = pict->width;
                 s->prev_frame->height = pict->height;
-                if ((ret = av_frame_get_buffer(s->prev_frame, 0)) < 0)
+                if ((ret = zn_av_frame_get_buffer(s->prev_frame, 0)) < 0)
                     return ret;
             }
 
@@ -1066,7 +1066,7 @@ static int encode_apng(AVCodecContext *avctx, AVPacket *pkt,
         s->last_frame_fctl = fctl_chunk;
         s->last_frame_packet_size = s->bytestream - s->bytestream_start;
     } else {
-        av_frame_free(&s->last_frame);
+        zn_av_frame_free(&s->last_frame);
     }
 
     return 0;
@@ -1164,10 +1164,10 @@ static av_cold int png_enc_close(AVCodecContext *avctx)
     PNGEncContext *s = avctx->priv_data;
 
     ff_deflate_end(&s->zstream);
-    av_frame_free(&s->last_frame);
-    av_frame_free(&s->prev_frame);
-    av_freep(&s->last_frame_packet);
-    av_freep(&s->extra_data);
+    zn_av_frame_free(&s->last_frame);
+    zn_av_frame_free(&s->prev_frame);
+    zn_av_freep(&s->last_frame_packet);
+    zn_av_freep(&s->extra_data);
     s->extra_data_size = 0;
     return 0;
 }

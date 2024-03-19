@@ -393,7 +393,7 @@ int av_hwframe_get_buffer(AVBufferRef *hwframe_ctx, AVFrame *frame, int flags);
  * AV_HWFRAME_TRANSFER_DIRECTION_TO)
  *
  * dst may be "clean" (i.e. with data/buf pointers unset), in which case the
- * data buffers will be allocated by this function using av_frame_get_buffer().
+ * data buffers will be allocated by this function using zn_av_frame_get_buffer().
  * If dst->format is set, then this format will be used, otherwise (when
  * dst->format is AV_PIX_FMT_NONE) the first acceptable format will be chosen.
  *
@@ -432,7 +432,7 @@ enum AVHWFrameTransferDirection {
  * @param dir the direction of the transfer
  * @param formats the pointer to the output format list will be written here.
  *                The list is terminated with AV_PIX_FMT_NONE and must be freed
- *                by the caller when no longer needed using av_free().
+ *                by the caller when no longer needed using zn_av_free().
  *                If this function returns successfully, the format list will
  *                have at least one item (not counting the terminator).
  *                On failure, the contents of this pointer are unspecified.
@@ -483,7 +483,7 @@ typedef struct AVHWFramesConstraints {
  * Allocate a HW-specific configuration structure for a given HW device.
  * After use, the user must free all members as required by the specific
  * hardware structure being used, then free the structure itself with
- * av_free().
+ * zn_av_free().
  *
  * @param device_ctx a reference to the associated AVHWDeviceContext.
  * @return The newly created HW-specific configuration structure on
@@ -546,7 +546,7 @@ enum {
  * This has a number of different possible effects, depending on the format
  * and origin of the src and dst frames.  On input, src should be a usable
  * frame with valid buffers and dst should be blank (typically as just created
- * by av_frame_alloc()).  src should have an associated hwframe context, and
+ * by zn_av_frame_alloc()).  src should have an associated hwframe context, and
  * dst may optionally have a format and associated hwframe context.
  *
  * If src was created by mapping a frame from the hwframe context of dst,

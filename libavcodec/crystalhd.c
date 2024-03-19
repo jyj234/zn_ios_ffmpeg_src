@@ -296,7 +296,7 @@ static av_cold int uninit(AVCodecContext *avctx)
        OpaqueList *node = priv->head;
        while (node) {
           OpaqueList *next = node->next;
-          av_free(node);
+          zn_av_free(node);
           node = next;
        }
     }
@@ -456,7 +456,7 @@ static inline CopyRet copy_frame(AVCodecContext *avctx,
         OpaqueList *node = opaque_list_pop(priv, output->PicInfo.timeStamp);
         if (node) {
             pkt_pts = node->reordered_opaque;
-            av_free(node);
+            zn_av_free(node);
         } else {
             /*
              * We will encounter a situation where a timestamp cannot be
@@ -740,7 +740,7 @@ static int crystalhd_receive_frame(AVCodecContext *avctx, AVFrame *frame)
     }
 
     ret = crystalhd_decode_packet(avctx, pkt);
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     // crystalhd_is_buffer_full() should avoid this.
     if (ret == AVERROR(EAGAIN)) {
         ret = AVERROR_EXTERNAL;

@@ -107,14 +107,14 @@ static av_cold int init(AVFilterContext *ctx)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     SignalstatsContext *s = ctx->priv;
-    av_frame_free(&s->frame_prev);
-    av_frame_free(&s->frame_sat);
-    av_frame_free(&s->frame_hue);
-    av_freep(&s->jobs_rets);
-    av_freep(&s->histy);
-    av_freep(&s->histu);
-    av_freep(&s->histv);
-    av_freep(&s->histsat);
+    zn_av_frame_free(&s->frame_prev);
+    zn_av_frame_free(&s->frame_sat);
+    zn_av_frame_free(&s->frame_hue);
+    zn_av_freep(&s->jobs_rets);
+    zn_av_freep(&s->histy);
+    zn_av_freep(&s->histu);
+    zn_av_freep(&s->histv);
+    zn_av_freep(&s->histsat);
 }
 
 // TODO: add more
@@ -135,7 +135,7 @@ static const enum AVPixelFormat pix_fmts[] = {
 
 static AVFrame *alloc_frame(enum AVPixelFormat pixfmt, int w, int h)
 {
-    AVFrame *frame = av_frame_alloc();
+    AVFrame *frame = zn_av_frame_alloc();
     if (!frame)
         return NULL;
 
@@ -143,8 +143,8 @@ static AVFrame *alloc_frame(enum AVPixelFormat pixfmt, int w, int h)
     frame->width  = w;
     frame->height = h;
 
-    if (av_frame_get_buffer(frame, 0) < 0) {
-        av_frame_free(&frame);
+    if (zn_av_frame_get_buffer(frame, 0) < 0) {
+        zn_av_frame_free(&frame);
         return NULL;
     }
 
@@ -161,10 +161,10 @@ static int config_output(AVFilterLink *outlink)
     s->vsub = desc->log2_chroma_h;
     s->depth = desc->comp[0].depth;
     s->maxsize = 1 << s->depth;
-    s->histy = av_malloc_array(s->maxsize, sizeof(*s->histy));
-    s->histu = av_malloc_array(s->maxsize, sizeof(*s->histu));
-    s->histv = av_malloc_array(s->maxsize, sizeof(*s->histv));
-    s->histsat = av_malloc_array(s->maxsize, sizeof(*s->histsat));
+    s->histy = zn_av_malloc_array(s->maxsize, sizeof(*s->histy));
+    s->histu = zn_av_malloc_array(s->maxsize, sizeof(*s->histu));
+    s->histv = zn_av_malloc_array(s->maxsize, sizeof(*s->histv));
+    s->histsat = zn_av_malloc_array(s->maxsize, sizeof(*s->histsat));
 
     if (!s->histy || !s->histu || !s->histv || !s->histsat)
         return AVERROR(ENOMEM);
@@ -179,7 +179,7 @@ static int config_output(AVFilterLink *outlink)
     s->cfs = s->chromaw * s->chromah;
 
     s->nb_jobs   = FFMAX(1, FFMIN(inlink->h, ff_filter_get_nb_threads(ctx)));
-    s->jobs_rets = av_malloc_array(s->nb_jobs, sizeof(*s->jobs_rets));
+    s->jobs_rets = zn_av_malloc_array(s->nb_jobs, sizeof(*s->jobs_rets));
     if (!s->jobs_rets)
         return AVERROR(ENOMEM);
 
@@ -590,13 +590,13 @@ static int filter_frame8(AVFilterLink *link, AVFrame *in)
     if (s->outfilter != FILTER_NONE) {
         out = av_frame_clone(in);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         ret = ff_inlink_make_frame_writable(link, &out);
         if (ret < 0) {
-            av_frame_free(&out);
-            av_frame_free(&in);
+            zn_av_frame_free(&out);
+            zn_av_frame_free(&in);
             return ret;
         }
     }
@@ -711,7 +711,7 @@ static int filter_frame8(AVFilterLink *link, AVFrame *in)
         }
     }
 
-    av_frame_free(&s->frame_prev);
+    zn_av_frame_free(&s->frame_prev);
     s->frame_prev = av_frame_clone(in);
 
 #define SET_META(key, fmt, val) do {                                \
@@ -764,7 +764,7 @@ static int filter_frame8(AVFilterLink *link, AVFrame *in)
     }
 
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -821,13 +821,13 @@ static int filter_frame16(AVFilterLink *link, AVFrame *in)
     if (s->outfilter != FILTER_NONE) {
         out = av_frame_clone(in);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         ret = ff_inlink_make_frame_writable(link, &out);
         if (ret < 0) {
-            av_frame_free(&out);
-            av_frame_free(&in);
+            zn_av_frame_free(&out);
+            zn_av_frame_free(&in);
             return ret;
         }
     }
@@ -942,7 +942,7 @@ static int filter_frame16(AVFilterLink *link, AVFrame *in)
         }
     }
 
-    av_frame_free(&s->frame_prev);
+    zn_av_frame_free(&s->frame_prev);
     s->frame_prev = av_frame_clone(in);
 
     SET_META("YMIN",    "%d", miny);
@@ -990,7 +990,7 @@ static int filter_frame16(AVFilterLink *link, AVFrame *in)
     }
 
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

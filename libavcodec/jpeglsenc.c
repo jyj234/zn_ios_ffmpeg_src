@@ -344,7 +344,7 @@ static int encode_picture_ls(AVCodecContext *avctx, AVPacket *pkt,
             in += p->linesize[0];
         }
     }
-    av_free(last);
+    zn_av_free(last);
     /* Now the actual image data has been written, which enables us to estimate
      * the needed packet size: For every 15 input bits, an escape bit might be
      * added below; and if put_bits_count % 15 is >= 8, then another bit might
@@ -449,7 +449,7 @@ static av_cold int encode_jpegls_close(AVCodecContext *avctx)
 {
     JPEGLSContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->buf);
+    zn_av_freep(&ctx->buf);
     return 0;
 }
 

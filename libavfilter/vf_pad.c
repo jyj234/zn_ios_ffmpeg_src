@@ -359,7 +359,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                                   FFMAX(inlink->w, s->w),
                                   FFMAX(inlink->h, s->h));
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
 
@@ -409,7 +409,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     out->height = s->h;
 
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

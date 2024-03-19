@@ -289,13 +289,13 @@ static int config_input(AVFilterLink *inlink)
 
     s->nb_planes = av_pix_fmt_count_planes(inlink->format);
     nb_threads = ff_filter_get_nb_threads(ctx);
-    s->work_line = av_calloc(nb_threads, sizeof(*s->work_line));
+    s->work_line = zn_av_calloc(nb_threads, sizeof(*s->work_line));
     if (!s->work_line)
         return AVERROR(ENOMEM);
     s->nb_threads = nb_threads;
 
     for (i = 0; i < s->nb_threads; i++) {
-        s->work_line[i] = av_calloc(FFALIGN(s->linesize[0], 32), sizeof(*s->work_line[0]));
+        s->work_line[i] = zn_av_calloc(FFALIGN(s->linesize[0], 32), sizeof(*s->work_line[0]));
         if (!s->work_line[i])
             return AVERROR(ENOMEM);
     }
@@ -523,7 +523,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     W3FDIFContext *s = ctx->priv;
     int ret;
 
-    av_frame_free(&s->prev);
+    zn_av_frame_free(&s->prev);
     s->prev = s->cur;
     s->cur  = s->next;
     s->next = frame;
@@ -542,7 +542,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         if (!out)
             return AVERROR(ENOMEM);
 
-        av_frame_free(&s->prev);
+        zn_av_frame_free(&s->prev);
         if (out->pts != AV_NOPTS_VALUE)
             out->pts *= 2;
         return ff_filter_frame(ctx->outputs[0], out);
@@ -585,14 +585,14 @@ static av_cold void uninit(AVFilterContext *ctx)
     W3FDIFContext *s = ctx->priv;
     int i;
 
-    av_frame_free(&s->prev);
-    av_frame_free(&s->cur );
-    av_frame_free(&s->next);
+    zn_av_frame_free(&s->prev);
+    zn_av_frame_free(&s->cur );
+    zn_av_frame_free(&s->next);
 
     for (i = 0; i < s->nb_threads; i++)
-        av_freep(&s->work_line[i]);
+        zn_av_freep(&s->work_line[i]);
 
-    av_freep(&s->work_line);
+    zn_av_freep(&s->work_line);
 }
 
 static const AVFilterPad w3fdif_inputs[] = {

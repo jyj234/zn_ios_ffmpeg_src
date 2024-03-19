@@ -241,21 +241,21 @@ static int activate(AVFilterContext *ctx)
 
     FF_FILTER_FORWARD_STATUS_BACK_ALL(ctx->outputs[0], ctx);
     if ((ret = ff_inlink_consume_frame(ctx->inputs[0], &in[0])) > 0) {
-        av_audio_fifo_write(s->fifo[0], (void **)in[0]->extended_data,
+        zn_av_audio_fifo_write(s->fifo[0], (void **)in[0]->extended_data,
                             in[0]->nb_samples);
-        av_frame_free(&in[0]);
+        zn_av_frame_free(&in[0]);
     }
     if (ret < 0)
         return ret;
     if ((ret = ff_inlink_consume_frame(ctx->inputs[1], &in[1])) > 0) {
-        av_audio_fifo_write(s->fifo[1], (void **)in[1]->extended_data,
+        zn_av_audio_fifo_write(s->fifo[1], (void **)in[1]->extended_data,
                             in[1]->nb_samples);
-        av_frame_free(&in[1]);
+        zn_av_frame_free(&in[1]);
     }
     if (ret < 0)
         return ret;
 
-    nb_samples = FFMIN(av_audio_fifo_size(s->fifo[0]), av_audio_fifo_size(s->fifo[1]));
+    nb_samples = FFMIN(zn_av_audio_fifo_size(s->fifo[0]), zn_av_audio_fifo_size(s->fifo[1]));
     if (nb_samples) {
         out = ff_get_audio_buffer(ctx->outputs[0], nb_samples);
         if (!out)
@@ -263,9 +263,9 @@ static int activate(AVFilterContext *ctx)
         for (i = 0; i < 2; i++) {
             in[i] = ff_get_audio_buffer(ctx->inputs[i], nb_samples);
             if (!in[i]) {
-                av_frame_free(&in[0]);
-                av_frame_free(&in[1]);
-                av_frame_free(&out);
+                zn_av_frame_free(&in[0]);
+                zn_av_frame_free(&in[1]);
+                zn_av_frame_free(&out);
                 return AVERROR(ENOMEM);
             }
             av_audio_fifo_read(s->fifo[i], (void **)in[i]->data, nb_samples);
@@ -280,8 +280,8 @@ static int activate(AVFilterContext *ctx)
                    s->level_in, s->level_sc,
                    ctx->inputs[0], ctx->inputs[1]);
 
-        av_frame_free(&in[0]);
-        av_frame_free(&in[1]);
+        zn_av_frame_free(&in[0]);
+        zn_av_frame_free(&in[1]);
 
         ret = ff_filter_frame(ctx->outputs[0], out);
         if (ret < 0)
@@ -290,9 +290,9 @@ static int activate(AVFilterContext *ctx)
     FF_FILTER_FORWARD_STATUS(ctx->inputs[0], ctx->outputs[0]);
     FF_FILTER_FORWARD_STATUS(ctx->inputs[1], ctx->outputs[0]);
     if (ff_outlink_frame_wanted(ctx->outputs[0])) {
-        if (!av_audio_fifo_size(s->fifo[0]))
+        if (!zn_av_audio_fifo_size(s->fifo[0]))
             ff_inlink_request_frame(ctx->inputs[0]);
-        if (!av_audio_fifo_size(s->fifo[1]))
+        if (!zn_av_audio_fifo_size(s->fifo[1]))
             ff_inlink_request_frame(ctx->inputs[1]);
     }
     return 0;
@@ -327,8 +327,8 @@ static int config_output(AVFilterLink *outlink)
 
     outlink->time_base   = ctx->inputs[0]->time_base;
 
-    s->fifo[0] = av_audio_fifo_alloc(ctx->inputs[0]->format, ctx->inputs[0]->ch_layout.nb_channels, 1024);
-    s->fifo[1] = av_audio_fifo_alloc(ctx->inputs[1]->format, ctx->inputs[1]->ch_layout.nb_channels, 1024);
+    s->fifo[0] = zn_av_audio_fifo_alloc(ctx->inputs[0]->format, ctx->inputs[0]->ch_layout.nb_channels, 1024);
+    s->fifo[1] = zn_av_audio_fifo_alloc(ctx->inputs[1]->format, ctx->inputs[1]->ch_layout.nb_channels, 1024);
     if (!s->fifo[0] || !s->fifo[1])
         return AVERROR(ENOMEM);
 
@@ -392,7 +392,7 @@ static int acompressor_filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -404,7 +404,7 @@ static int acompressor_filter_frame(AVFilterLink *inlink, AVFrame *in)
                inlink, inlink);
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

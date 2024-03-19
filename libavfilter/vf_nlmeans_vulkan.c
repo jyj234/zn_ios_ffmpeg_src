@@ -1019,15 +1019,15 @@ static int nlmeans_vulkan_filter_frame(AVFilterLink *link, AVFrame *in)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 
 fail:
     av_buffer_unref(&integral_buf);
     av_buffer_unref(&ws_buf);
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return err;
 }
 
@@ -1052,8 +1052,8 @@ static void nlmeans_vulkan_uninit(AVFilterContext *avctx)
 
     ff_vk_uninit(&s->vkctx);
 
-    av_freep(&s->xoffsets);
-    av_freep(&s->yoffsets);
+    zn_av_freep(&s->xoffsets);
+    zn_av_freep(&s->yoffsets);
 
     s->initialized = 0;
 }

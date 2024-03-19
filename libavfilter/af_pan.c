@@ -207,7 +207,7 @@ static av_cold int init(AVFilterContext *ctx)
 
     ret = 0;
 fail:
-    av_free(args);
+    zn_av_free(args);
     return ret;
 }
 
@@ -291,7 +291,7 @@ static int config_props(AVFilterLink *link)
     }
 
     // init libswresample context
-    ret = swr_alloc_set_opts2(&pan->swr,
+    ret = zn_swr_alloc_set_opts2(&pan->swr,
                               &pan->out_channel_layout, link->format, link->sample_rate,
                               &link->ch_layout, link->format, link->sample_rate,
                               0, ctx);
@@ -336,7 +336,7 @@ static int config_props(AVFilterLink *link)
         swr_set_matrix(pan->swr, pan->gain[0], pan->gain[1] - pan->gain[0]);
     }
 
-    r = swr_init(pan->swr);
+    r = zn_swr_init(pan->swr);
     if (r < 0)
         return r;
 
@@ -373,10 +373,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
     PanContext *pan = inlink->dst->priv;
 
     if (!outsamples) {
-        av_frame_free(&insamples);
+        zn_av_frame_free(&insamples);
         return AVERROR(ENOMEM);
     }
-    swr_convert(pan->swr, outsamples->extended_data, n,
+    zn_swr_convert(pan->swr, outsamples->extended_data, n,
                 (void *)insamples->extended_data, n);
     av_frame_copy_props(outsamples, insamples);
 #if FF_API_OLD_CHANNEL_LAYOUT
@@ -385,20 +385,20 @@ FF_DISABLE_DEPRECATION_WARNINGS
     outsamples->channels = outlink->ch_layout.nb_channels;
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
-    if ((ret = av_channel_layout_copy(&outsamples->ch_layout, &outlink->ch_layout)) < 0) {
-        av_frame_free(&outsamples);
-        av_frame_free(&insamples);
+    if ((ret = zn_av_channel_layout_copy(&outsamples->ch_layout, &outlink->ch_layout)) < 0) {
+        zn_av_frame_free(&outsamples);
+        zn_av_frame_free(&insamples);
         return ret;
     }
 
-    av_frame_free(&insamples);
+    zn_av_frame_free(&insamples);
     return ff_filter_frame(outlink, outsamples);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
 {
     PanContext *pan = ctx->priv;
-    swr_free(&pan->swr);
+    zn_swr_free(&pan->swr);
 }
 
 #define OFFSET(x) offsetof(PanContext, x)

@@ -258,7 +258,7 @@ static int scale_parse_expr(AVFilterContext *ctx, char *str_expr, AVExpr **pexpr
 
     av_expr_free(old_pexpr);
     old_pexpr = NULL;
-    av_freep(&old_str_expr);
+    zn_av_freep(&old_str_expr);
 
     return 0;
 
@@ -267,7 +267,7 @@ revert:
     *pexpr_ptr = NULL;
     if (old_str_expr) {
         av_opt_set(scale, var, old_str_expr, 0);
-        av_free(old_str_expr);
+        zn_av_free(old_str_expr);
     }
     if (old_pexpr)
         *pexpr_ptr = old_pexpr;
@@ -627,7 +627,7 @@ static int config_props(AVFilterLink *outlink)
            outlink->w, outlink->h, av_get_pix_fmt_name(outlink->format),
            outlink->sample_aspect_ratio.num, outlink->sample_aspect_ratio.den,
            flags_val);
-    av_freep(&flags_val);
+    zn_av_freep(&flags_val);
 
     return 0;
 
@@ -814,7 +814,7 @@ scale:
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     *frame_out = out;
@@ -895,9 +895,9 @@ scale:
         ret = sws_scale_frame(scale->sws, out, in);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     if (ret < 0)
-        av_frame_free(frame_out);
+        zn_av_frame_free(frame_out);
     return ret;
 }
 

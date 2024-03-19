@@ -139,7 +139,7 @@ static int config_input(AVFilterLink *link)
     s->var_values[VAR_IN_W]  = s->var_values[VAR_IW] = ctx->inputs[0]->w;
     s->var_values[VAR_IN_H]  = s->var_values[VAR_IH] = ctx->inputs[0]->h;
     s->var_values[VAR_A]     = (float) link->w / link->h;
-    s->var_values[VAR_SAR]   = link->sample_aspect_ratio.num ? av_q2d(link->sample_aspect_ratio) : 1;
+    s->var_values[VAR_SAR]   = link->sample_aspect_ratio.num ? zn_av_q2d(link->sample_aspect_ratio) : 1;
     s->var_values[VAR_DAR]   = s->var_values[VAR_A] * s->var_values[VAR_SAR];
     s->var_values[VAR_HSUB]  = 1<<pix_desc->log2_chroma_w;
     s->var_values[VAR_VSUB]  = 1<<pix_desc->log2_chroma_h;
@@ -262,7 +262,7 @@ static int filter_frame(AVFilterLink *link, AVFrame *frame)
 
     s->var_values[VAR_N] = link->frame_count_out;
     s->var_values[VAR_T] = frame->pts == AV_NOPTS_VALUE ?
-        NAN : frame->pts * av_q2d(link->time_base);
+        NAN : frame->pts * zn_av_q2d(link->time_base);
 #if FF_API_FRAME_PKT
 FF_DISABLE_DEPRECATION_WARNINGS
     s->var_values[VAR_POS] = frame->pkt_pos == -1 ?

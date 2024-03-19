@@ -166,7 +166,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     while (s->frames_count > 0) {
         frame = shift_frame(ctx, s);
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
     }
     ff_ccfifo_uninit(&s->cc_fifo);
 
@@ -183,7 +183,7 @@ static int config_props(AVFilterLink* outlink)
     double var_values[VARS_NB], res;
     int ret;
 
-    var_values[VAR_SOURCE_FPS]    = av_q2d(inlink->frame_rate);
+    var_values[VAR_SOURCE_FPS]    = zn_av_q2d(inlink->frame_rate);
     var_values[VAR_FPS_NTSC]      = ntsc_fps;
     var_values[VAR_FPS_PAL]       = pal_fps;
     var_values[VAR_FPS_FILM]      = film_fps;
@@ -275,7 +275,7 @@ static int write_frame(AVFilterContext *ctx, FPSContext *s, AVFilterLink *outlin
             av_log(ctx, AV_LOG_WARNING, "Discarding initial frame(s) with no "
                    "timestamp.\n");
             frame = shift_frame(ctx, s);
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             *again = 1;
             return 0;
         }
@@ -290,7 +290,7 @@ static int write_frame(AVFilterContext *ctx, FPSContext *s, AVFilterLink *outlin
         (s->status            && s->status_pts     <= s->next_pts)) {
 
         frame = shift_frame(ctx, s);
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         *again = 1;
         return 0;
 

@@ -78,7 +78,7 @@
  *
  * @code{.c}
  * void *av_malloc(size_t size) av_alloc_size(1);
- * void *av_calloc(size_t nmemb, size_t size) av_alloc_size(1, 2);
+ * void *zn_av_calloc(size_t nmemb, size_t size) av_alloc_size(1, 2);
  * @endcode
  *
  * @param ... One or two parameter indexes, separated by a comma
@@ -140,7 +140,7 @@ void *av_mallocz(size_t size) av_malloc_attrib av_alloc_size(1);
  *         be allocated
  * @see av_malloc()
  */
-av_alloc_size(1, 2) void *av_malloc_array(size_t nmemb, size_t size);
+av_alloc_size(1, 2) void *zn_av_malloc_array(size_t nmemb, size_t size);
 
 /**
  * Allocate a memory block for an array with av_mallocz().
@@ -153,9 +153,9 @@ av_alloc_size(1, 2) void *av_malloc_array(size_t nmemb, size_t size);
  *         be allocated
  *
  * @see av_mallocz()
- * @see av_malloc_array()
+ * @see zn_av_malloc_array()
  */
-void *av_calloc(size_t nmemb, size_t size) av_malloc_attrib av_alloc_size(1, 2);
+void *zn_av_calloc(size_t nmemb, size_t size) av_malloc_attrib av_alloc_size(1, 2);
 
 /**
  * Allocate, reallocate, or free a block of memory.
@@ -272,7 +272,7 @@ int av_reallocp_array(void *ptr, size_t nmemb, size_t size);
  * uint8_t *new_buf = av_fast_realloc(buf, &current_size, size_needed);
  * if (!new_buf) {
  *     // Allocation failed; clean up original buffer
- *     av_freep(&buf);
+ *     zn_av_freep(&buf);
  *     return AVERROR(ENOMEM);
  * }
  * @endcode
@@ -348,11 +348,11 @@ void av_fast_mallocz(void *ptr, unsigned int *size, size_t min_size);
  * @param ptr Pointer to the memory block which should be freed.
  *
  * @note `ptr = NULL` is explicitly allowed.
- * @note It is recommended that you use av_freep() instead, to prevent leaving
+ * @note It is recommended that you use zn_av_freep() instead, to prevent leaving
  *       behind dangling pointers.
- * @see av_freep()
+ * @see zn_av_freep()
  */
-void av_free(void *ptr);
+void zn_av_free(void *ptr);
 
 /**
  * Free a memory block which has been allocated with a function of av_malloc()
@@ -360,22 +360,22 @@ void av_free(void *ptr);
  *
  * @code{.c}
  * uint8_t *buf = av_malloc(16);
- * av_free(buf);
+ * zn_av_free(buf);
  * // buf now contains a dangling pointer to freed memory, and accidental
  * // dereference of buf will result in a use-after-free, which may be a
  * // security risk.
  *
  * uint8_t *buf = av_malloc(16);
- * av_freep(&buf);
+ * zn_av_freep(&buf);
  * // buf is now NULL, and accidental dereference will only result in a
  * // NULL-pointer dereference.
  * @endcode
  *
  * @param ptr Pointer to the pointer to the memory block which should be freed
  * @note `*ptr = NULL` is safe and leads to no action.
- * @see av_free()
+ * @see zn_av_free()
  */
-void av_freep(void *ptr);
+void zn_av_freep(void *ptr);
 
 /**
  * Duplicate a string.
@@ -464,7 +464,7 @@ void av_memcpy_backptr(uint8_t *dst, int back, int cnt);
  * // &to_be_added  == array[0]
  * // &to_be_added2 == array[1]
  *
- * av_freep(&array);
+ * zn_av_freep(&array);
  * @endcode
  *
  * The second system stores the value directly in a block of memory. As a
@@ -494,7 +494,7 @@ void av_memcpy_backptr(uint8_t *dst, int back, int cnt);
  * //  to_be_added  == array[0]
  * //  to_be_added2 == array[1]
  *
- * av_freep(&array);
+ * zn_av_freep(&array);
  * @endcode
  *
  * @{

@@ -293,13 +293,13 @@ static int scale_vulkan_filter_frame(AVFilterLink *link, AVFrame *in)
     if (s->vkctx.output_format != s->vkctx.input_format)
         out->chroma_location = AVCHROMA_LOC_TOPLEFT;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return err;
 }
 

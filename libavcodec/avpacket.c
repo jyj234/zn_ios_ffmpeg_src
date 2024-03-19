@@ -60,7 +60,7 @@ static void get_packet_defaults(AVPacket *pkt)
     pkt->time_base       = av_make_q(0, 1);
 }
 
-AVPacket *av_packet_alloc(void)
+AVPacket *zn_av_packet_alloc(void)
 {
     AVPacket *pkt = av_malloc(sizeof(AVPacket));
     if (!pkt)
@@ -71,13 +71,13 @@ AVPacket *av_packet_alloc(void)
     return pkt;
 }
 
-void av_packet_free(AVPacket **pkt)
+void zn_av_packet_free(AVPacket **pkt)
 {
     if (!pkt || !*pkt)
         return;
 
-    av_packet_unref(*pkt);
-    av_freep(pkt);
+    zn_av_packet_unref(*pkt);
+    zn_av_freep(pkt);
 }
 
 static int packet_alloc(AVBufferRef **buf, int size)
@@ -189,8 +189,8 @@ void av_packet_free_side_data(AVPacket *pkt)
 {
     int i;
     for (i = 0; i < pkt->side_data_elems; i++)
-        av_freep(&pkt->side_data[i].data);
-    av_freep(&pkt->side_data);
+        zn_av_freep(&pkt->side_data[i].data);
+    zn_av_freep(&pkt->side_data);
     pkt->side_data_elems = 0;
 }
 
@@ -204,7 +204,7 @@ int av_packet_add_side_data(AVPacket *pkt, enum AVPacketSideDataType type,
         AVPacketSideData *sd = &pkt->side_data[i];
 
         if (sd->type == type) {
-            av_free(sd->data);
+            zn_av_free(sd->data);
             sd->data = data;
             sd->size = size;
             return 0;
@@ -242,7 +242,7 @@ uint8_t *av_packet_new_side_data(AVPacket *pkt, enum AVPacketSideDataType type,
 
     ret = av_packet_add_side_data(pkt, type, data, size);
     if (ret < 0) {
-        av_freep(&data);
+        zn_av_freep(&data);
         return NULL;
     }
 
@@ -420,7 +420,7 @@ int av_packet_copy_props(AVPacket *dst, const AVPacket *src)
     return 0;
 }
 
-void av_packet_unref(AVPacket *pkt)
+void zn_av_packet_unref(AVPacket *pkt)
 {
     av_packet_free_side_data(pkt);
     av_buffer_unref(&pkt->opaque_ref);
@@ -460,19 +460,19 @@ int av_packet_ref(AVPacket *dst, const AVPacket *src)
 
     return 0;
 fail:
-    av_packet_unref(dst);
+    zn_av_packet_unref(dst);
     return ret;
 }
 
 AVPacket *av_packet_clone(const AVPacket *src)
 {
-    AVPacket *ret = av_packet_alloc();
+    AVPacket *ret = zn_av_packet_alloc();
 
     if (!ret)
         return ret;
 
     if (av_packet_ref(ret, src))
-        av_packet_free(&ret);
+        zn_av_packet_free(&ret);
 
     return ret;
 }
@@ -549,13 +549,13 @@ int avpriv_packet_list_put(PacketList *packet_buffer,
         get_packet_defaults(&pktl->pkt);
         ret = copy(&pktl->pkt, pkt);
         if (ret < 0) {
-            av_free(pktl);
+            zn_av_free(pktl);
             return ret;
         }
     } else {
         ret = av_packet_make_refcounted(pkt);
         if (ret < 0) {
-            av_free(pktl);
+            zn_av_free(pktl);
             return ret;
         }
         av_packet_move_ref(&pktl->pkt, pkt);
@@ -583,7 +583,7 @@ int avpriv_packet_list_get(PacketList *pkt_buffer,
     pkt_buffer->head = pktl->next;
     if (!pkt_buffer->head)
         pkt_buffer->tail = NULL;
-    av_freep(&pktl);
+    zn_av_freep(&pktl);
     return 0;
 }
 
@@ -594,8 +594,8 @@ void avpriv_packet_list_free(PacketList *pkt_buf)
     while (tmp) {
         PacketListEntry *pktl = tmp;
         tmp = pktl->next;
-        av_packet_unref(&pktl->pkt);
-        av_freep(&pktl);
+        zn_av_packet_unref(&pktl->pkt);
+        zn_av_freep(&pktl);
     }
     pkt_buf->head = pkt_buf->tail = NULL;
 }
@@ -668,7 +668,7 @@ static AVPacketSideData *packet_side_data_add(AVPacketSideData **psd, int *pnb_s
         if (sd[i].type != type)
             continue;
 
-        av_free(sd[i].data);
+        zn_av_free(sd[i].data);
         sd[i].data = data;
         sd[i].size = size;
         return &sd[i];
@@ -714,7 +714,7 @@ AVPacketSideData *av_packet_side_data_new(AVPacketSideData **psd, int *pnb_sd,
 
     sd = packet_side_data_add(psd, pnb_sd, type, data, size);
     if (!sd)
-        av_freep(&data);
+        zn_av_freep(&data);
 
     return sd;
 }
@@ -727,7 +727,7 @@ void av_packet_side_data_remove(AVPacketSideData *sd, int *pnb_sd,
     for (int i = nb_sd - 1; i >= 0; i--) {
         if (sd[i].type != type)
             continue;
-        av_free(sd[i].data);
+        zn_av_free(sd[i].data);
         sd[i] = sd[--nb_sd];
         break;
     }
@@ -741,8 +741,8 @@ void av_packet_side_data_free(AVPacketSideData **psd, int *pnb_sd)
     int nb_sd = *pnb_sd;
 
     for (int i = 0; i < nb_sd; i++)
-        av_free(sd[i].data);
+        zn_av_free(sd[i].data);
 
-    av_freep(psd);
+    zn_av_freep(psd);
     *pnb_sd = 0;
 }

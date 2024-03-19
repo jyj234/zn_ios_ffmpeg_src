@@ -71,7 +71,7 @@ static int xwma_read_header(AVFormatContext *s)
     if (tag != MKTAG('f', 'm', 't', ' '))
         return AVERROR_INVALIDDATA;
     size = avio_rl32(pb);
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -205,7 +205,7 @@ static int xwma_read_header(AVFormatContext *s)
             /* Allocate some temporary storage to keep the dpds data around.
              * for processing later on.
              */
-            dpds_table = av_malloc_array(dpds_table_size, sizeof(uint32_t));
+            dpds_table = zn_av_malloc_array(dpds_table_size, sizeof(uint32_t));
             if (!dpds_table) {
                 return AVERROR(ENOMEM);
             }
@@ -282,7 +282,7 @@ static int xwma_read_header(AVFormatContext *s)
     }
 
 fail:
-    av_free(dpds_table);
+    zn_av_free(dpds_table);
 
     return ret;
 }

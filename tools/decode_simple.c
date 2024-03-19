@@ -39,7 +39,7 @@ static int decode_read(DecodeContext *dc, int flush)
 
     while (ret >= 0 &&
            (dc->max_frames == 0 || dc->decoder->frame_num < dc->max_frames)) {
-        ret = avcodec_receive_frame(dc->decoder, dc->frame);
+        ret = zn_avcodec_receive_frame(dc->decoder, dc->frame);
         if (ret < 0) {
             if (ret == AVERROR_EOF) {
                 int err = dc->process_frame(dc, NULL);
@@ -66,25 +66,25 @@ int ds_run(DecodeContext *dc)
 {
     int ret;
 
-    ret = avcodec_open2(dc->decoder, NULL, &dc->decoder_opts);
+    ret = zn_avcodec_open2(dc->decoder, NULL, &dc->decoder_opts);
     if (ret < 0)
         return ret;
 
     while (ret >= 0) {
-        ret = av_read_frame(dc->demuxer, dc->pkt);
+        ret = zn_av_read_frame(dc->demuxer, dc->pkt);
         if (ret < 0)
             break;
         if (dc->pkt->stream_index != dc->stream->index) {
-            av_packet_unref(dc->pkt);
+            zn_av_packet_unref(dc->pkt);
             continue;
         }
 
-        ret = avcodec_send_packet(dc->decoder, dc->pkt);
+        ret = zn_avcodec_send_packet(dc->decoder, dc->pkt);
         if (ret < 0) {
             fprintf(stderr, "Error decoding: %d\n", ret);
             return ret;
         }
-        av_packet_unref(dc->pkt);
+        zn_av_packet_unref(dc->pkt);
 
         ret = decode_read(dc, 0);
         if (ret < 0) {
@@ -94,7 +94,7 @@ int ds_run(DecodeContext *dc)
             goto finish;
     }
 
-    avcodec_send_packet(dc->decoder, NULL);
+    zn_avcodec_send_packet(dc->decoder, NULL);
     ret = decode_read(dc, 1);
     if (ret < 0) {
         fprintf(stderr, "Error flushing: %d\n", ret);
@@ -109,11 +109,11 @@ void ds_free(DecodeContext *dc)
 {
     av_dict_free(&dc->decoder_opts);
 
-    av_frame_free(&dc->frame);
-    av_packet_free(&dc->pkt);
+    zn_av_frame_free(&dc->frame);
+    zn_av_packet_free(&dc->pkt);
 
     avcodec_free_context(&dc->decoder);
-    avformat_close_input(&dc->demuxer);
+    zn_avformat_close_input(&dc->demuxer);
 }
 
 int ds_open(DecodeContext *dc, const char *url, int stream_idx)
@@ -123,14 +123,14 @@ int ds_open(DecodeContext *dc, const char *url, int stream_idx)
 
     memset(dc, 0, sizeof(*dc));
 
-    dc->pkt   = av_packet_alloc();
-    dc->frame = av_frame_alloc();
+    dc->pkt   = zn_av_packet_alloc();
+    dc->frame = zn_av_frame_alloc();
     if (!dc->pkt || !dc->frame) {
         ret = AVERROR(ENOMEM);
         goto fail;
     }
 
-    ret = avformat_open_input(&dc->demuxer, url, NULL, NULL);
+    ret = zn_avformat_open_input(&dc->demuxer, url, NULL, NULL);
     if (ret < 0) {
         fprintf(stderr, "Error opening input file: %d\n", ret);
         return ret;
@@ -141,15 +141,15 @@ int ds_open(DecodeContext *dc, const char *url, int stream_idx)
 
     dc->stream = dc->demuxer->streams[stream_idx];
 
-    codec = avcodec_find_decoder(dc->stream->codecpar->codec_id);
+    codec = zn_avcodec_find_decoder(dc->stream->codecpar->codec_id);
     if (!codec)
         return AVERROR_DECODER_NOT_FOUND;
 
-    dc->decoder = avcodec_alloc_context3(codec);
+    dc->decoder = zn_avcodec_alloc_context3(codec);
     if (!dc->decoder)
         return AVERROR(ENOMEM);
 
-    ret = avcodec_parameters_to_context(dc->decoder, dc->stream->codecpar);
+    ret = zn_avcodec_parameters_to_context(dc->decoder, dc->stream->codecpar);
     if (ret < 0)
         goto fail;
 

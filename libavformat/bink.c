@@ -88,7 +88,7 @@ static int read_header(AVFormatContext *s)
     BinkDemuxContext *bink = s->priv_data;
     AVIOContext *pb = s->pb;
     uint32_t fps_num, fps_den;
-    AVStream *const vst  = avformat_new_stream(s, NULL);
+    AVStream *const vst  = zn_avformat_new_stream(s, NULL);
     FFStream *const vsti = ffstream(vst);
     unsigned int i;
     uint32_t pos, next_pos;
@@ -176,7 +176,7 @@ static int read_header(AVFormatContext *s)
         avio_skip(pb, 4 * bink->num_audio_tracks); /* max decoded size */
 
         for (i = 0; i < bink->num_audio_tracks; i++) {
-            AVStream *const ast = avformat_new_stream(s, NULL);
+            AVStream *const ast = zn_avformat_new_stream(s, NULL);
             if (!ast)
                 return AVERROR(ENOMEM);
             ast->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;

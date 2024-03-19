@@ -50,7 +50,7 @@ static int apac_read_header(AVFormatContext *s)
     chunk_size = avio_rl32(pb);
     pos = avio_tell(pb);
     avio_skip(pb, 2);
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;

@@ -152,7 +152,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
         }
     }
 
-    c->frame = av_frame_alloc();
+    c->frame = zn_av_frame_alloc();
     if (!c->frame)
         return AVERROR(ENOMEM);
 
@@ -163,8 +163,8 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     CamtasiaContext * const c = avctx->priv_data;
 
-    av_freep(&c->decomp_buf);
-    av_frame_free(&c->frame);
+    zn_av_freep(&c->decomp_buf);
+    zn_av_frame_free(&c->frame);
     ff_inflate_end(&c->zstream);
 
     return 0;

@@ -335,7 +335,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
 
-    c->prev = av_frame_alloc();
+    c->prev = zn_av_frame_alloc();
     if (!c->prev)
         return AVERROR(ENOMEM);
 
@@ -355,8 +355,8 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     DxaDecContext * const c = avctx->priv_data;
 
-    av_freep(&c->decomp_buf);
-    av_frame_free(&c->prev);
+    zn_av_freep(&c->decomp_buf);
+    zn_av_frame_free(&c->prev);
 
     return 0;
 }

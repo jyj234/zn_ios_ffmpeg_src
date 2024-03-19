@@ -37,7 +37,7 @@ static inline wchar_t *get_module_filename(HMODULE module)
         path_size = path_size ? FFMIN(2 * path_size, INT16_MAX + 1) : MAX_PATH;
         new_path = av_realloc_array(path, path_size, sizeof *path);
         if (!new_path) {
-            av_free(path);
+            zn_av_free(path);
             return NULL;
         }
         path = new_path;
@@ -48,7 +48,7 @@ static inline wchar_t *get_module_filename(HMODULE module)
     } while (path_len && path_size <= INT16_MAX && path_size <= path_len);
 
     if (!path_len) {
-        av_free(path);
+        zn_av_free(path);
         return NULL;
     }
     return path;
@@ -114,8 +114,8 @@ static inline HMODULE win32_dlopen(const char *name)
             module = LoadLibraryExW(path, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
         }
 exit:
-        av_free(path);
-        av_free(name_w);
+        zn_av_free(path);
+        zn_av_free(name_w);
         return module;
     }
 #endif
@@ -137,7 +137,7 @@ exit:
     module = LoadLibraryExW(name_w, NULL, LOAD_FLAGS);
 #undef LOAD_FLAGS
 #endif
-    av_free(name_w);
+    zn_av_free(name_w);
     return module;
 }
 #define dlopen(name, flags) win32_dlopen(name)

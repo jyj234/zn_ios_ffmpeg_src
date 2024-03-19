@@ -91,8 +91,8 @@ static int activate(AVFilterContext *ctx)
             }
         }
 
-        av_frame_free(&s->frames[0]);
-        av_frame_free(&s->frames[1]);
+        zn_av_frame_free(&s->frames[0]);
+        zn_av_frame_free(&s->frames[1]);
 
         ret = ff_filter_frame(ctx->outputs[0], out);
         if (ret < 0)
@@ -146,7 +146,7 @@ static av_cold int init(AVFilterContext *ctx)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioMultiplyContext *s = ctx->priv;
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
 }
 
 static const AVFilterPad inputs[] = {

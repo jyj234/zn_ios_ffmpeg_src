@@ -180,7 +180,7 @@ static int addroi_filter_frame(AVFilterLink *inlink, AVFrame *frame)
     return ff_filter_frame(outlink, frame);
 
 fail:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     return err;
 }
 

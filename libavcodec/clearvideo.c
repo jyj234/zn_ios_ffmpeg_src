@@ -713,9 +713,9 @@ static av_cold int clv_decode_init(AVCodecContext *avctx)
     c->mb_height       = FFALIGN(avctx->height, 16) >> 4;
     c->pmb_width       = (w + c->tile_size - 1) >> c->tile_shift;
     c->pmb_height      = (h + c->tile_size - 1) >> c->tile_shift;
-    c->pic             = av_frame_alloc();
-    c->prev            = av_frame_alloc();
-    c->mvi.mv          = av_calloc(c->pmb_width * 2, sizeof(*c->mvi.mv));
+    c->pic             = zn_av_frame_alloc();
+    c->prev            = zn_av_frame_alloc();
+    c->mvi.mv          = zn_av_calloc(c->pmb_width * 2, sizeof(*c->mvi.mv));
     if (!c->pic || !c->prev || !c->mvi.mv)
         return AVERROR(ENOMEM);
 
@@ -730,10 +730,10 @@ static av_cold int clv_decode_end(AVCodecContext *avctx)
 {
     CLVContext *const c = avctx->priv_data;
 
-    av_frame_free(&c->prev);
-    av_frame_free(&c->pic);
+    zn_av_frame_free(&c->prev);
+    zn_av_frame_free(&c->pic);
 
-    av_freep(&c->mvi.mv);
+    zn_av_freep(&c->mvi.mv);
 
     return 0;
 }

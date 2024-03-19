@@ -246,7 +246,7 @@ static int smacker_decode_header_tree(SmackVContext *smk, GetBitContext *gb, int
     ctx.last = last;
     ctx.length  = (size + 3) >> 2;
     ctx.current = 0;
-    ctx.values  = av_malloc_array(ctx.length + 3, sizeof(ctx.values[0]));
+    ctx.values  = zn_av_malloc_array(ctx.length + 3, sizeof(ctx.values[0]));
     if (!ctx.values) {
         err = AVERROR(ENOMEM);
         goto error;
@@ -536,12 +536,12 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     SmackVContext * const smk = avctx->priv_data;
 
-    av_freep(&smk->mmap_tbl);
-    av_freep(&smk->mclr_tbl);
-    av_freep(&smk->full_tbl);
-    av_freep(&smk->type_tbl);
+    zn_av_freep(&smk->mmap_tbl);
+    zn_av_freep(&smk->mclr_tbl);
+    zn_av_freep(&smk->full_tbl);
+    zn_av_freep(&smk->type_tbl);
 
-    av_frame_free(&smk->pic);
+    zn_av_frame_free(&smk->pic);
 
     return 0;
 }
@@ -556,7 +556,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
 
     avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 
@@ -583,7 +583,7 @@ static av_cold int smka_decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, channels);
     avctx->sample_fmt = avctx->bits_per_coded_sample == 8 ? AV_SAMPLE_FMT_U8 : AV_SAMPLE_FMT_S16;
 
     return 0;

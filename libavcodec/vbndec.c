@@ -169,7 +169,7 @@ static int vbn_decode_frame(AVCodecContext *avctx,
     ret = avpkt->size;
 
 out:
-    av_freep(&image_buf);
+    zn_av_freep(&image_buf);
     return ret;
 }
 

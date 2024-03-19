@@ -56,8 +56,8 @@ static av_cold int screenpresso_close(AVCodecContext *avctx)
 {
     ScreenpressoContext *ctx = avctx->priv_data;
 
-    av_frame_free(&ctx->current);
-    av_freep(&ctx->inflated_buf);
+    zn_av_frame_free(&ctx->current);
+    zn_av_freep(&ctx->inflated_buf);
 
     return 0;
 }
@@ -75,7 +75,7 @@ static av_cold int screenpresso_init(AVCodecContext *avctx)
     }
 
     /* Allocate current frame */
-    ctx->current = av_frame_alloc();
+    ctx->current = zn_av_frame_alloc();
     if (!ctx->current)
         return AVERROR(ENOMEM);
 

@@ -56,7 +56,7 @@ static int set_hwframe_ctx(AVCodecContext *ctx, AVBufferRef *hw_device_ctx)
     frames_ctx->initial_pool_size = 20;
     if ((err = av_hwframe_ctx_init(hw_frames_ref)) < 0) {
         fprintf(stderr, "Failed to initialize VAAPI frame context."
-                "Error code: %s\n",av_err2str(err));
+                "Error code: %s\n",zn_av_err2str(err));
         av_buffer_unref(&hw_frames_ref);
         return err;
     }
@@ -73,25 +73,25 @@ static int encode_write(AVCodecContext *avctx, AVFrame *frame, FILE *fout)
     int ret = 0;
     AVPacket *enc_pkt;
 
-    if (!(enc_pkt = av_packet_alloc()))
+    if (!(enc_pkt = zn_av_packet_alloc()))
         return AVERROR(ENOMEM);
 
-    if ((ret = avcodec_send_frame(avctx, frame)) < 0) {
-        fprintf(stderr, "Error code: %s\n", av_err2str(ret));
+    if ((ret = zn_avcodec_send_frame(avctx, frame)) < 0) {
+        fprintf(stderr, "Error code: %s\n", zn_av_err2str(ret));
         goto end;
     }
     while (1) {
-        ret = avcodec_receive_packet(avctx, enc_pkt);
+        ret = zn_avcodec_receive_packet(avctx, enc_pkt);
         if (ret)
             break;
 
         enc_pkt->stream_index = 0;
         ret = fwrite(enc_pkt->data, enc_pkt->size, 1, fout);
-        av_packet_unref(enc_pkt);
+        zn_av_packet_unref(enc_pkt);
     }
 
 end:
-    av_packet_free(&enc_pkt);
+    zn_av_packet_free(&enc_pkt);
     ret = ((ret == AVERROR(EAGAIN)) ? 0 : -1);
     return ret;
 }
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     err = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VAAPI,
                                  NULL, NULL, 0);
     if (err < 0) {
-        fprintf(stderr, "Failed to create a VAAPI device. Error code: %s\n", av_err2str(err));
+        fprintf(stderr, "Failed to create a VAAPI device. Error code: %s\n", zn_av_err2str(err));
         goto close;
     }
 
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
         goto close;
     }
 
-    if (!(avctx = avcodec_alloc_context3(codec))) {
+    if (!(avctx = zn_avcodec_alloc_context3(codec))) {
         err = AVERROR(ENOMEM);
         goto close;
     }
@@ -155,13 +155,13 @@ int main(int argc, char *argv[])
         goto close;
     }
 
-    if ((err = avcodec_open2(avctx, codec, NULL)) < 0) {
-        fprintf(stderr, "Cannot open video encoder codec. Error code: %s\n", av_err2str(err));
+    if ((err = zn_avcodec_open2(avctx, codec, NULL)) < 0) {
+        fprintf(stderr, "Cannot open video encoder codec. Error code: %s\n", zn_av_err2str(err));
         goto close;
     }
 
     while (1) {
-        if (!(sw_frame = av_frame_alloc())) {
+        if (!(sw_frame = zn_av_frame_alloc())) {
             err = AVERROR(ENOMEM);
             goto close;
         }
@@ -169,19 +169,19 @@ int main(int argc, char *argv[])
         sw_frame->width  = width;
         sw_frame->height = height;
         sw_frame->format = AV_PIX_FMT_NV12;
-        if ((err = av_frame_get_buffer(sw_frame, 0)) < 0)
+        if ((err = zn_av_frame_get_buffer(sw_frame, 0)) < 0)
             goto close;
         if ((err = fread((uint8_t*)(sw_frame->data[0]), size, 1, fin)) <= 0)
             break;
         if ((err = fread((uint8_t*)(sw_frame->data[1]), size/2, 1, fin)) <= 0)
             break;
 
-        if (!(hw_frame = av_frame_alloc())) {
+        if (!(hw_frame = zn_av_frame_alloc())) {
             err = AVERROR(ENOMEM);
             goto close;
         }
         if ((err = av_hwframe_get_buffer(avctx->hw_frames_ctx, hw_frame, 0)) < 0) {
-            fprintf(stderr, "Error code: %s.\n", av_err2str(err));
+            fprintf(stderr, "Error code: %s.\n", zn_av_err2str(err));
             goto close;
         }
         if (!hw_frame->hw_frames_ctx) {
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
         }
         if ((err = av_hwframe_transfer_data(hw_frame, sw_frame, 0)) < 0) {
             fprintf(stderr, "Error while transferring frame data to surface."
-                    "Error code: %s.\n", av_err2str(err));
+                    "Error code: %s.\n", zn_av_err2str(err));
             goto close;
         }
 
@@ -198,8 +198,8 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Failed to encode.\n");
             goto close;
         }
-        av_frame_free(&hw_frame);
-        av_frame_free(&sw_frame);
+        zn_av_frame_free(&hw_frame);
+        zn_av_frame_free(&sw_frame);
     }
 
     /* flush encoder */
@@ -212,8 +212,8 @@ close:
         fclose(fin);
     if (fout)
         fclose(fout);
-    av_frame_free(&sw_frame);
-    av_frame_free(&hw_frame);
+    zn_av_frame_free(&sw_frame);
+    zn_av_frame_free(&hw_frame);
     avcodec_free_context(&avctx);
     av_buffer_unref(&hw_device_ctx);
 

@@ -377,8 +377,8 @@ static av_cold int vmdvideo_decode_end(AVCodecContext *avctx)
 {
     VmdVideoContext *s = avctx->priv_data;
 
-    av_frame_free(&s->prev_frame);
-    av_freep(&s->unpack_buffer);
+    zn_av_frame_free(&s->prev_frame);
+    zn_av_freep(&s->unpack_buffer);
     s->unpack_buffer_size = 0;
 
     return 0;
@@ -423,7 +423,7 @@ static av_cold int vmdvideo_decode_init(AVCodecContext *avctx)
         palette32[i] |= palette32[i] >> 6 & 0x30303;
     }
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 

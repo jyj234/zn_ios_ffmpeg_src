@@ -103,7 +103,7 @@ static void shdc_uninit(FFVkSPIRVCompiler **ctx)
     s = *ctx;
 
     shaderc_compiler_release((shaderc_compiler_t)s->priv);
-    av_freep(ctx);
+    zn_av_freep(ctx);
 }
 
 FFVkSPIRVCompiler *ff_vk_shaderc_init(void)
@@ -118,7 +118,7 @@ FFVkSPIRVCompiler *ff_vk_shaderc_init(void)
 
     ret->priv           = (void *)shaderc_compiler_initialize();
     if (!ret->priv)
-        av_freep(&ret);
+        zn_av_freep(&ret);
 
     return ret;
 }

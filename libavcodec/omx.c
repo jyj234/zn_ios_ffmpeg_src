@@ -159,7 +159,7 @@ static av_cold OMXContext *omx_init(void *logctx, const char *libname, const cha
     if (libname) {
         ret = omx_try_load(omx_context, logctx, libname, prefix, NULL);
         if (ret < 0) {
-            av_free(omx_context);
+            zn_av_free(omx_context);
             return NULL;
         }
     } else {
@@ -167,7 +167,7 @@ static av_cold OMXContext *omx_init(void *logctx, const char *libname, const cha
             if (!(ret = omx_try_load(omx_context, logctx, nameptr[0], prefix, nameptr[1])))
                 break;
         if (!*nameptr) {
-            av_free(omx_context);
+            zn_av_free(omx_context);
             return NULL;
         }
     }
@@ -184,7 +184,7 @@ static av_cold void omx_deinit(OMXContext *omx_context)
         return;
     omx_context->ptr_Deinit();
     dlclose(omx_context->lib);
-    av_free(omx_context);
+    zn_av_free(omx_context);
 }
 
 typedef struct OMXCodecContext {
@@ -316,9 +316,9 @@ static OMX_ERRORTYPE empty_buffer_done(OMX_HANDLETYPE component, OMX_PTR app_dat
     if (s->input_zerocopy) {
         if (buffer->pAppPrivate) {
             if (buffer->pOutputPortPrivate)
-                av_free(buffer->pAppPrivate);
+                zn_av_free(buffer->pAppPrivate);
             else
-                av_frame_free((AVFrame**)&buffer->pAppPrivate);
+                zn_av_frame_free((AVFrame**)&buffer->pAppPrivate);
             buffer->pAppPrivate = NULL;
         }
     }
@@ -360,7 +360,7 @@ static av_cold int find_component(OMXContext *omx_context, void *logctx,
         av_log(logctx, AV_LOG_WARNING, "No component for role %s found\n", role);
         return AVERROR_ENCODER_NOT_FOUND;
     }
-    components = av_calloc(num, sizeof(*components));
+    components = zn_av_calloc(num, sizeof(*components));
     if (!components)
         return AVERROR(ENOMEM);
     for (i = 0; i < num; i++) {
@@ -374,8 +374,8 @@ static av_cold int find_component(OMXContext *omx_context, void *logctx,
     av_strlcpy(str, components[0], str_size);
 end:
     for (i = 0; i < num; i++)
-        av_free(components[i]);
-    av_free(components);
+        zn_av_free(components[i]);
+    zn_av_free(components);
     return ret;
 }
 
@@ -630,11 +630,11 @@ static av_cold void cleanup(OMXCodecContext *s)
 
         omx_deinit(s->omx_context);
         s->omx_context = NULL;
-        av_freep(&s->in_buffer_headers);
-        av_freep(&s->out_buffer_headers);
-        av_freep(&s->free_in_buffers);
-        av_freep(&s->done_out_buffers);
-        av_freep(&s->output_buf);
+        zn_av_freep(&s->in_buffer_headers);
+        zn_av_freep(&s->out_buffer_headers);
+        zn_av_freep(&s->free_in_buffers);
+        zn_av_freep(&s->done_out_buffers);
+        zn_av_freep(&s->output_buf);
     }
     ff_pthread_free(s, omx_codec_context_offsets);
 }
@@ -874,7 +874,7 @@ static int omx_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
             if (buffer->nFlags & OMX_BUFFERFLAG_ENDOFFRAME) {
                 memset(s->output_buf + s->output_buf_size, 0, AV_INPUT_BUFFER_PADDING_SIZE);
                 if ((ret = av_packet_from_data(pkt, s->output_buf, s->output_buf_size)) < 0) {
-                    av_freep(&s->output_buf);
+                    zn_av_freep(&s->output_buf);
                     s->output_buf_size = 0;
                     goto end;
                 }

@@ -332,7 +332,7 @@ static int avi_read_tag(AVFormatContext *s, AVStream *st, uint32_t tag,
     if (!value)
         return AVERROR(ENOMEM);
     if (avio_read(pb, value, size) != size) {
-        av_freep(&value);
+        zn_av_freep(&value);
         return AVERROR_INVALIDDATA;
     }
     value[size] = 0;
@@ -597,7 +597,7 @@ static int avi_read_header(AVFormatContext *s)
                 break;
             } else {
                 stream_index++;
-                st = avformat_new_stream(s, NULL);
+                st = zn_avformat_new_stream(s, NULL);
                 if (!st)
                     return AVERROR(ENOMEM);
 
@@ -636,7 +636,7 @@ static int avi_read_header(AVFormatContext *s)
 
                 avi->dv_demux = avpriv_dv_init_demux(s);
                 if (!avi->dv_demux) {
-                    av_free(ast);
+                    zn_av_free(ast);
                     return AVERROR(ENOMEM);
                 }
 
@@ -1115,7 +1115,7 @@ static int read_gab2_sub(AVFormatContext *s, AVStream *st, AVPacket *pkt)
         int size;
         AVProbeData pd;
         unsigned int desc_len;
-        AVIOContext *pb = avio_alloc_context(pkt->data + 7,
+        AVIOContext *pb = zn_avio_alloc_context(pkt->data + 7,
                                              pkt->size - 7,
                                              0, NULL, NULL, NULL, NULL);
         if (!pb)
@@ -1141,17 +1141,17 @@ static int read_gab2_sub(AVFormatContext *s, AVStream *st, AVPacket *pkt)
             goto error;
         memcpy(pd.buf, pb->buf_ptr, size);
         sub_demuxer = av_probe_input_format2(&pd, 1, &score);
-        av_freep(&pd.buf);
+        zn_av_freep(&pd.buf);
         if (!sub_demuxer)
             goto error;
 
         if (strcmp(sub_demuxer->name, "srt") && strcmp(sub_demuxer->name, "ass"))
             goto error;
 
-        if (!(ast->sub_pkt = av_packet_alloc()))
+        if (!(ast->sub_pkt = zn_av_packet_alloc()))
             goto error;
 
-        if (!(ast->sub_ctx = avformat_alloc_context()))
+        if (!(ast->sub_ctx = zn_avformat_alloc_context()))
             goto error;
 
         ast->sub_ctx->pb = pb;
@@ -1159,23 +1159,23 @@ static int read_gab2_sub(AVFormatContext *s, AVStream *st, AVPacket *pkt)
         if (ff_copy_whiteblacklists(ast->sub_ctx, s) < 0)
             goto error;
 
-        if (!avformat_open_input(&ast->sub_ctx, "", sub_demuxer, NULL)) {
+        if (!zn_avformat_open_input(&ast->sub_ctx, "", sub_demuxer, NULL)) {
             if (ast->sub_ctx->nb_streams != 1)
                 goto error;
             ff_read_packet(ast->sub_ctx, ast->sub_pkt);
-            avcodec_parameters_copy(st->codecpar, ast->sub_ctx->streams[0]->codecpar);
+            zn_avcodec_parameters_copy(st->codecpar, ast->sub_ctx->streams[0]->codecpar);
             time_base = ast->sub_ctx->streams[0]->time_base;
             avpriv_set_pts_info(st, 64, time_base.num, time_base.den);
         }
         ast->sub_buffer = pkt->buf;
         pkt->buf = NULL;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return 1;
 
 error:
-        av_packet_free(&ast->sub_pkt);
-        av_freep(&ast->sub_ctx);
-        avio_context_free(&pb);
+        zn_av_packet_free(&ast->sub_pkt);
+        zn_av_freep(&ast->sub_ctx);
+        zn_avio_context_free(&pb);
     }
     return 0;
 }
@@ -1521,7 +1521,7 @@ resync:
                                             pkt->data, pkt->size, pkt->pos);
             pkt->flags |= AV_PKT_FLAG_KEY;
             if (size < 0)
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
         } else if (st->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE &&
                    !st->codecpar->codec_tag && read_gab2_sub(s, st, pkt)) {
             ast->frame_offset++;
@@ -1575,7 +1575,7 @@ resync:
         }
 
         if (!avi->non_interleaved && pkt->pos >= 0 && ast->seek_pos > pkt->pos) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             goto resync;
         }
         ast->seek_pos= 0;
@@ -1693,7 +1693,7 @@ static int check_stream_max_drift(AVFormatContext *s)
 {
     int64_t min_pos, pos;
     int i;
-    int *idx = av_calloc(s->nb_streams, sizeof(*idx));
+    int *idx = zn_av_calloc(s->nb_streams, sizeof(*idx));
     if (!idx)
         return AVERROR(ENOMEM);
     for (min_pos = pos = 0; min_pos != INT64_MAX; pos = min_pos + 1LU) {
@@ -1739,11 +1739,11 @@ static int check_stream_max_drift(AVFormatContext *s)
         }
         if (av_sat_sub64(max_dts, min_dts) > 2 * AV_TIME_BASE ||
             max_buffer > 1024 * 1024 * 8 * 8) {
-            av_free(idx);
+            zn_av_free(idx);
             return 1;
         }
     }
-    av_free(idx);
+    zn_av_free(idx);
     return 0;
 }
 
@@ -1837,7 +1837,7 @@ static void seek_subtitle(AVStream *st, AVStream *st2, int64_t timestamp)
 {
     AVIStream *ast2 = st2->priv_data;
     int64_t ts2     = av_rescale_q(timestamp, st->time_base, st2->time_base);
-    av_packet_unref(ast2->sub_pkt);
+    zn_av_packet_unref(ast2->sub_pkt);
     if (avformat_seek_file(ast2->sub_ctx, 0, INT64_MIN, ts2, ts2, 0) >= 0 ||
         avformat_seek_file(ast2->sub_ctx, 0, ts2, ts2, INT64_MAX, 0) >= 0)
         ff_read_packet(ast2->sub_ctx, ast2->sub_pkt);
@@ -1984,15 +1984,15 @@ static int avi_read_close(AVFormatContext *s)
         AVIStream *ast = st->priv_data;
         if (ast) {
             if (ast->sub_ctx) {
-                av_freep(&ast->sub_ctx->pb);
-                avformat_close_input(&ast->sub_ctx);
+                zn_av_freep(&ast->sub_ctx->pb);
+                zn_avformat_close_input(&ast->sub_ctx);
             }
             av_buffer_unref(&ast->sub_buffer);
-            av_packet_free(&ast->sub_pkt);
+            zn_av_packet_free(&ast->sub_pkt);
         }
     }
 
-    av_freep(&avi->dv_demux);
+    zn_av_freep(&avi->dv_demux);
 
     return 0;
 }

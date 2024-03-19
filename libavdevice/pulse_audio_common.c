@@ -163,9 +163,9 @@ static void pulse_add_detected_device(PulseAudioDeviceList *info,
     return;
 
   fail:
-    av_freep(&new_device->device_description);
-    av_freep(&new_device->device_name);
-    av_free(new_device);
+    zn_av_freep(&new_device->device_description);
+    zn_av_freep(&new_device->device_name);
+    zn_av_free(new_device);
 
 }
 
@@ -243,7 +243,7 @@ int ff_pulse_audio_get_devices(AVDeviceInfoList *devices, const char *server, in
     }
 
   fail:
-    av_free(dev_list.default_device);
+    zn_av_free(dev_list.default_device);
     ff_pulse_audio_disconnect_context(&pa_ml, &pa_ctx);
     return dev_list.error_code;
 }

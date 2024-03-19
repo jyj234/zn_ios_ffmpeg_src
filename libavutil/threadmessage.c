@@ -55,25 +55,25 @@ int av_thread_message_queue_alloc(AVThreadMessageQueue **mq,
     if (!(rmq = av_mallocz(sizeof(*rmq))))
         return AVERROR(ENOMEM);
     if ((ret = pthread_mutex_init(&rmq->lock, NULL))) {
-        av_free(rmq);
+        zn_av_free(rmq);
         return AVERROR(ret);
     }
     if ((ret = pthread_cond_init(&rmq->cond_recv, NULL))) {
         pthread_mutex_destroy(&rmq->lock);
-        av_free(rmq);
+        zn_av_free(rmq);
         return AVERROR(ret);
     }
     if ((ret = pthread_cond_init(&rmq->cond_send, NULL))) {
         pthread_cond_destroy(&rmq->cond_recv);
         pthread_mutex_destroy(&rmq->lock);
-        av_free(rmq);
+        zn_av_free(rmq);
         return AVERROR(ret);
     }
     if (!(rmq->fifo = av_fifo_alloc2(nelem, elsize, 0))) {
         pthread_cond_destroy(&rmq->cond_send);
         pthread_cond_destroy(&rmq->cond_recv);
         pthread_mutex_destroy(&rmq->lock);
-        av_free(rmq);
+        zn_av_free(rmq);
         return AVERROR(ENOMEM);
     }
     rmq->elsize = elsize;
@@ -102,7 +102,7 @@ void av_thread_message_queue_free(AVThreadMessageQueue **mq)
         pthread_cond_destroy(&(*mq)->cond_send);
         pthread_cond_destroy(&(*mq)->cond_recv);
         pthread_mutex_destroy(&(*mq)->lock);
-        av_freep(mq);
+        zn_av_freep(mq);
     }
 #endif
 }

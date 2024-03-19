@@ -60,7 +60,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AMergeContext *s = ctx->priv;
 
-    av_freep(&s->in);
+    zn_av_freep(&s->in);
 }
 
 static int query_formats(AVFilterContext *ctx)
@@ -114,7 +114,7 @@ static int query_formats(AVFilterContext *ctx)
                "output layout will be determined by the number of distinct input channels\n");
         for (i = 0; i < nb_ch; i++)
             s->route[i] = i;
-        av_channel_layout_default(&outlayout, nb_ch);
+        zn_av_channel_layout_default(&outlayout, nb_ch);
         if (!KNOWN(&outlayout) && nb_ch)
             av_channel_layout_from_mask(&outlayout, 0xFFFFFFFFFFFFFFFFULL >> (64 - nb_ch));
     } else {
@@ -214,7 +214,7 @@ static void free_frames(int nb_inputs, AVFrame **input_frames)
 {
     int i;
     for (i = 0; i < nb_inputs; i++)
-        av_frame_free(&input_frames[i]);
+        zn_av_frame_free(&input_frames[i]);
 }
 
 static int try_push_frame(AVFilterContext *ctx, int nb_samples)
@@ -248,7 +248,7 @@ static int try_push_frame(AVFilterContext *ctx, int nb_samples)
                                     av_make_q(1, outlink->sample_rate),
                                     outlink->time_base);
 
-    if ((ret = av_channel_layout_copy(&outbuf->ch_layout, &outlink->ch_layout)) < 0)
+    if ((ret = zn_av_channel_layout_copy(&outbuf->ch_layout, &outlink->ch_layout)) < 0)
         return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT
 FF_DISABLE_DEPRECATION_WARNINGS
@@ -322,7 +322,7 @@ static av_cold int init(AVFilterContext *ctx)
     AMergeContext *s = ctx->priv;
     int i, ret;
 
-    s->in = av_calloc(s->nb_inputs, sizeof(*s->in));
+    s->in = zn_av_calloc(s->nb_inputs, sizeof(*s->in));
     if (!s->in)
         return AVERROR(ENOMEM);
     for (i = 0; i < s->nb_inputs; i++) {

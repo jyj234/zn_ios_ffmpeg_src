@@ -308,12 +308,12 @@ static int asf_read_value(AVFormatContext *s, const uint8_t *name,
         if (av_dict_set(met, name, buf, 0) < 0)
             av_log(s, AV_LOG_WARNING, "av_dict_set failed.\n");
     }
-    av_freep(&value);
+    zn_av_freep(&value);
 
     return 0;
 
 failed:
-    av_freep(&value);
+    zn_av_freep(&value);
     return ret;
 }
 static int asf_read_generic_value(AVIOContext *pb, int type, uint64_t *value)
@@ -414,7 +414,7 @@ static int asf_read_ext_content(AVFormatContext *s, const GUIDParseTable *g)
         val_len = avio_rl16(pb);
 
         ret = process_metadata(s, name, name_len, val_len, type, &s->metadata);
-        av_freep(&name);
+        zn_av_freep(&name);
         if (ret < 0)
             return ret;
     }
@@ -487,7 +487,7 @@ static int asf_read_metadata_obj(AVFormatContext *s, const GUIDParseTable *g)
         if (!strcmp(name, "AspectRatioX") || !strcmp(name, "AspectRatioY")) {
             ret = asf_store_aspect_ratio(s, st_num, name, type);
             if (ret < 0) {
-                av_freep(&name);
+                zn_av_freep(&name);
                 break;
             }
         } else {
@@ -495,12 +495,12 @@ static int asf_read_metadata_obj(AVFormatContext *s, const GUIDParseTable *g)
                 if ((ret = process_metadata(s, name, name_len, val_len, type,
                                             st_num ? &asf->asf_sd[st_num].asf_met
                                                    : &s->metadata)) < 0) {
-                    av_freep(&name);
+                    zn_av_freep(&name);
                     break;
                 }
             }
         }
-        av_freep(&name);
+        zn_av_freep(&name);
     }
 
     align_position(pb, asf->offset, size);
@@ -529,7 +529,7 @@ static int asf_read_content_desc(AVFormatContext *s, const GUIDParseTable *g)
         if (!ch)
             return(AVERROR(ENOMEM));
         asf_read_metadata(s, titles[i], len[i], ch, buflen[i]);
-        av_freep(&ch);
+        zn_av_freep(&ch);
     }
     align_position(pb, asf->offset, size);
 
@@ -652,7 +652,7 @@ static int asf_read_stream_properties(AVFormatContext *s, const GUIDParseTable *
             return 0;
         }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 32, 1, 1000); // pts should be dword, in milliseconds
@@ -667,7 +667,7 @@ static int asf_read_stream_properties(AVFormatContext *s, const GUIDParseTable *
     asf_st->indexed              = 0;
     st->id                       = flags & ASF_STREAM_NUM;
     asf_st->pkt.data_size        = 0;
-    asf_st->pkt.avpkt = av_packet_alloc();
+    asf_st->pkt.avpkt = zn_av_packet_alloc();
     if (!asf_st->pkt.avpkt)
         return AVERROR(ENOMEM);
     avio_skip(pb, 4); // skip reserved field
@@ -1029,7 +1029,7 @@ static void reset_packet(ASFPacket *asf_pkt)
     asf_pkt->duration  = 0;
     asf_pkt->flags     = 0;
     asf_pkt->dts       = 0;
-    av_packet_unref(asf_pkt->avpkt);
+    zn_av_packet_unref(asf_pkt->avpkt);
 }
 
 static int asf_read_replicated_data(AVFormatContext *s, ASFPacket *asf_pkt)
@@ -1312,10 +1312,10 @@ static int asf_deinterleave(AVFormatContext *s, ASFPacket *asf_pkt, int st_num)
         if (p > asf_pkt->avpkt->data + asf_pkt->data_size)
             break;
     }
-    av_packet_unref(asf_pkt->avpkt);
+    zn_av_packet_unref(asf_pkt->avpkt);
     ret = av_packet_from_data(asf_pkt->avpkt, data, asf_pkt->data_size);
     if (ret < 0)
-        av_free(data);
+        zn_av_free(data);
 
     return ret;
 }
@@ -1412,8 +1412,8 @@ static int asf_read_close(AVFormatContext *s)
     for (i = 0; i < ASF_MAX_STREAMS; i++) {
         av_dict_free(&asf->asf_sd[i].asf_met);
         if (i < asf->nb_streams) {
-            av_packet_free(&asf->asf_st[i]->pkt.avpkt);
-            av_freep(&asf->asf_st[i]);
+            zn_av_packet_free(&asf->asf_st[i]->pkt.avpkt);
+            zn_av_freep(&asf->asf_st[i]);
         }
     }
 
@@ -1462,7 +1462,7 @@ static int64_t asf_read_timestamp(AVFormatContext *s, int stream_index,
 {
     ASFContext *asf = s->priv_data;
     int64_t pkt_pos = *pos, pkt_offset, dts = AV_NOPTS_VALUE, data_end;
-    AVPacket *pkt = av_packet_alloc();
+    AVPacket *pkt = zn_av_packet_alloc();
     int n;
 
     if (!pkt)
@@ -1485,7 +1485,7 @@ static int64_t asf_read_timestamp(AVFormatContext *s, int stream_index,
 
         pkt_offset = avio_tell(s->pb);
         if ((ret = asf_read_packet(s, pkt)) < 0) {
-            av_packet_free(&pkt);
+            zn_av_packet_free(&pkt);
             dts = AV_NOPTS_VALUE;
             return ret;
         }
@@ -1511,11 +1511,11 @@ static int64_t asf_read_timestamp(AVFormatContext *s, int stream_index,
         }
         if (st_found)
             break;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
     *pos = pkt_pos;
 
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
     return dts;
 }
 

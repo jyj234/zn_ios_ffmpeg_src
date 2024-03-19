@@ -276,7 +276,7 @@ static int stack_init(AVFilterContext *avctx)
             return ret;
     }
 
-    sctx->regions = av_calloc(sctx->nb_inputs, sizeof(*sctx->regions));
+    sctx->regions = zn_av_calloc(sctx->nb_inputs, sizeof(*sctx->regions));
     if (!sctx->regions)
         return AVERROR(ENOMEM);
 
@@ -287,7 +287,7 @@ static av_cold void stack_uninit(AVFilterContext *avctx)
 {
     StackBaseContext *sctx = avctx->priv;
 
-    av_freep(&sctx->regions);
+    zn_av_freep(&sctx->regions);
     ff_framesync_uninit(&sctx->fs);
 }
 

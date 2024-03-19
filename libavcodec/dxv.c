@@ -1250,12 +1250,12 @@ static int dxv_close(AVCodecContext *avctx)
 {
     DXVContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->tex_data);
-    av_freep(&ctx->ctex_data);
-    av_freep(&ctx->op_data[0]);
-    av_freep(&ctx->op_data[1]);
-    av_freep(&ctx->op_data[2]);
-    av_freep(&ctx->op_data[3]);
+    zn_av_freep(&ctx->tex_data);
+    zn_av_freep(&ctx->ctex_data);
+    zn_av_freep(&ctx->op_data[0]);
+    zn_av_freep(&ctx->op_data[1]);
+    zn_av_freep(&ctx->op_data[2]);
+    zn_av_freep(&ctx->op_data[3]);
 
     return 0;
 }

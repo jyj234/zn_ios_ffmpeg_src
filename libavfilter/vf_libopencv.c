@@ -164,7 +164,7 @@ static int read_shape_from_file(int *cols, int *rows, int **values, const char *
         ret = AVERROR_INVALIDDATA;
         goto end;
     }
-    if (!(*values = av_calloc(sizeof(int) * *rows, *cols))) {
+    if (!(*values = zn_av_calloc(sizeof(int) * *rows, *cols))) {
         ret = AVERROR(ENOMEM);
         goto end;
     }
@@ -196,7 +196,7 @@ end:
             line[j] = 0;
             av_log(log_ctx, AV_LOG_DEBUG, "%3d: %s\n", i, line);
         }
-        av_free(line);
+        zn_av_free(line);
     }
 #endif
 
@@ -249,7 +249,7 @@ static int parse_iplconvkernel(IplConvKernel **kernel, char *buf, void *log_ctx)
     av_log(log_ctx, AV_LOG_VERBOSE, "Structuring element: w:%d h:%d x:%d y:%d shape:%s\n",
            rows, cols, anchor_x, anchor_y, shape_str);
 out:
-    av_freep(&values);
+    zn_av_freep(&values);
     return ret;
 }
 
@@ -278,7 +278,7 @@ static av_cold int dilate_init(AVFilterContext *ctx, const char *args)
                               (!kernel_str || !*kernel_str) ? default_kernel_str
                                                             : kernel_str,
                               ctx);
-    av_free(kernel_str);
+    zn_av_free(kernel_str);
     if (ret < 0)
         return ret;
 
@@ -361,7 +361,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     if (s->uninit)
         s->uninit(ctx);
-    av_freep(&s->priv);
+    zn_av_freep(&s->priv);
 }
 
 static int filter_frame(AVFilterLink *inlink, AVFrame *in)
@@ -374,7 +374,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -384,7 +384,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     s->end_frame_filter(ctx, &inimg, &outimg);
     fill_frame_from_iplimage(out, &outimg, inlink->format);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

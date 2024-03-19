@@ -61,7 +61,7 @@ static int vc1t_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
 
     /* init video codec */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

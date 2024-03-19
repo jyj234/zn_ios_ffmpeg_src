@@ -1194,9 +1194,9 @@ static av_cold int aac_encode_end(AVCodecContext *avctx)
     ff_lpc_end(&s->lpc);
     if (s->psypp)
         ff_psy_preprocess_end(s->psypp);
-    av_freep(&s->buffer.samples);
-    av_freep(&s->cpe);
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->buffer.samples);
+    zn_av_freep(&s->cpe);
+    zn_av_freep(&s->fdsp);
     ff_af_queue_close(&s->afq);
     return 0;
 }

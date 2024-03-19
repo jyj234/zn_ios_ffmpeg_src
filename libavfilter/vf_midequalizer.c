@@ -255,9 +255,9 @@ static int config_input0(AVFilterLink *inlink)
 
     s->histogram_size = 1 << desc->comp[0].depth;
 
-    s->histogram[0] = av_calloc(s->histogram_size, sizeof(float));
-    s->histogram[1] = av_calloc(s->histogram_size, sizeof(float));
-    s->cchange      = av_calloc(s->histogram_size, sizeof(unsigned));
+    s->histogram[0] = zn_av_calloc(s->histogram_size, sizeof(float));
+    s->histogram[1] = zn_av_calloc(s->histogram_size, sizeof(float));
+    s->cchange      = zn_av_calloc(s->histogram_size, sizeof(unsigned));
     if (!s->histogram[0] || !s->histogram[1] || !s->cchange)
         return AVERROR(ENOMEM);
 
@@ -336,9 +336,9 @@ static av_cold void uninit(AVFilterContext *ctx)
     MidEqualizerContext *s = ctx->priv;
 
     ff_framesync_uninit(&s->fs);
-    av_freep(&s->histogram[0]);
-    av_freep(&s->histogram[1]);
-    av_freep(&s->cchange);
+    zn_av_freep(&s->histogram[0]);
+    zn_av_freep(&s->histogram[1]);
+    zn_av_freep(&s->cchange);
 }
 
 static const AVFilterPad midequalizer_inputs[] = {

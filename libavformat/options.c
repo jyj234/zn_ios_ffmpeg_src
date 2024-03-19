@@ -163,7 +163,7 @@ static int io_close2_default(AVFormatContext *s, AVIOContext *pb)
     return avio_close(pb);
 }
 
-AVFormatContext *avformat_alloc_context(void)
+AVFormatContext *zn_avformat_alloc_context(void)
 {
     FFFormatContext *const si = av_mallocz(sizeof(*si));
     AVFormatContext *s;
@@ -183,10 +183,10 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
     av_opt_set_defaults(s);
 
-    si->pkt = av_packet_alloc();
-    si->parse_pkt = av_packet_alloc();
+    si->pkt = zn_av_packet_alloc();
+    si->parse_pkt = zn_av_packet_alloc();
     if (!si->pkt || !si->parse_pkt) {
-        avformat_free_context(s);
+        zn_avformat_free_context(s);
         return NULL;
     }
 
@@ -243,7 +243,7 @@ const AVClass *av_stream_get_class(void)
     return &stream_class;
 }
 
-AVStream *avformat_new_stream(AVFormatContext *s, const AVCodec *c)
+AVStream *zn_avformat_new_stream(AVFormatContext *s, const AVCodec *c)
 {
     FFFormatContext *const si = ffformatcontext(s);
     FFStream *sti;
@@ -271,7 +271,7 @@ AVStream *avformat_new_stream(AVFormatContext *s, const AVCodec *c)
     if (!st->codecpar)
         goto fail;
 
-    sti->avctx = avcodec_alloc_context3(NULL);
+    sti->avctx = zn_avcodec_alloc_context3(NULL);
     if (!sti->avctx)
         goto fail;
 

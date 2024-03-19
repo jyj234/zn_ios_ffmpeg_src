@@ -312,9 +312,9 @@ static int decode_hextile(VmncContext *c, uint8_t* dst, GetByteContext *gb,
 
 static void reset_buffers(VmncContext *c)
 {
-    av_freep(&c->curbits);
-    av_freep(&c->curmask);
-    av_freep(&c->screendta);
+    zn_av_freep(&c->curbits);
+    zn_av_freep(&c->curmask);
+    zn_av_freep(&c->screendta);
     c->cur_w = c->cur_h = 0;
     c->cur_hx = c->cur_hy = 0;
 
@@ -550,7 +550,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     }
     c->bpp2 = c->bpp / 8;
 
-    c->pic = av_frame_alloc();
+    c->pic = zn_av_frame_alloc();
     if (!c->pic)
         return AVERROR(ENOMEM);
 
@@ -561,11 +561,11 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     VmncContext * const c = avctx->priv_data;
 
-    av_frame_free(&c->pic);
+    zn_av_frame_free(&c->pic);
 
-    av_freep(&c->curbits);
-    av_freep(&c->curmask);
-    av_freep(&c->screendta);
+    zn_av_freep(&c->curbits);
+    zn_av_freep(&c->curmask);
+    zn_av_freep(&c->screendta);
     return 0;
 }
 

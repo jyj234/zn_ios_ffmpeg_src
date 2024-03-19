@@ -119,7 +119,7 @@ int main(void)
     }
 
     printf("Test encryption/decryption success.\n");
-    av_free(ctx);
+    zn_av_free(ctx);
 
     return 0;
 }

@@ -164,8 +164,8 @@ void ff_asfcrypt_dec(const uint8_t key[20], uint8_t *data, int len)
     des = av_des_alloc();
     rc4 = av_rc4_alloc();
     if (!des || !rc4) {
-        av_freep(&des);
-        av_freep(&rc4);
+        zn_av_freep(&des);
+        zn_av_freep(&rc4);
         return;
     }
 
@@ -191,6 +191,6 @@ void ff_asfcrypt_dec(const uint8_t key[20], uint8_t *data, int len)
     packetkey = multiswap_dec(ms_keys, ms_state, packetkey);
     AV_WL64(qwords, packetkey);
 
-    av_free(rc4);
-    av_free(des);
+    zn_av_free(rc4);
+    zn_av_free(des);
 }

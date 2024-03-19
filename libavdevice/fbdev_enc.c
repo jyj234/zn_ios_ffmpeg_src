@@ -63,19 +63,19 @@ static av_cold int fbdev_write_header(AVFormatContext *h)
         ret = AVERROR(errno);
         av_log(h, AV_LOG_ERROR,
                "Could not open framebuffer device '%s': %s\n",
-               device, av_err2str(ret));
+               device, zn_av_err2str(ret));
         return ret;
     }
 
     if (ioctl(fbdev->fd, FBIOGET_VSCREENINFO, &fbdev->varinfo) < 0) {
         ret = AVERROR(errno);
-        av_log(h, AV_LOG_ERROR, "FBIOGET_VSCREENINFO: %s\n", av_err2str(ret));
+        av_log(h, AV_LOG_ERROR, "FBIOGET_VSCREENINFO: %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
     if (ioctl(fbdev->fd, FBIOGET_FSCREENINFO, &fbdev->fixinfo) < 0) {
         ret = AVERROR(errno);
-        av_log(h, AV_LOG_ERROR, "FBIOGET_FSCREENINFO: %s\n", av_err2str(ret));
+        av_log(h, AV_LOG_ERROR, "FBIOGET_FSCREENINFO: %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
@@ -89,7 +89,7 @@ static av_cold int fbdev_write_header(AVFormatContext *h)
     fbdev->data = mmap(NULL, fbdev->fixinfo.smem_len, PROT_WRITE, MAP_SHARED, fbdev->fd, 0);
     if (fbdev->data == MAP_FAILED) {
         ret = AVERROR(errno);
-        av_log(h, AV_LOG_ERROR, "Error in mmap(): %s\n", av_err2str(ret));
+        av_log(h, AV_LOG_ERROR, "Error in mmap(): %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
@@ -117,7 +117,7 @@ static int fbdev_write_packet(AVFormatContext *h, AVPacket *pkt)
 
     if (ioctl(fbdev->fd, FBIOGET_VSCREENINFO, &fbdev->varinfo) < 0)
         av_log(h, AV_LOG_WARNING,
-               "Error refreshing variable info: %s\n", av_err2str(AVERROR(errno)));
+               "Error refreshing variable info: %s\n", zn_av_err2str(AVERROR(errno)));
 
     fb_pix_fmt = ff_get_pixfmt_from_fb_varinfo(&fbdev->varinfo);
 

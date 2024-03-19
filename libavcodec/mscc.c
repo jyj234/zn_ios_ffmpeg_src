@@ -245,9 +245,9 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     MSCCContext *s = avctx->priv_data;
 
-    av_freep(&s->decomp_buf);
+    zn_av_freep(&s->decomp_buf);
     s->decomp_size = 0;
-    av_freep(&s->uncomp_buf);
+    zn_av_freep(&s->uncomp_buf);
     s->uncomp_size = 0;
     ff_inflate_end(&s->zstream);
 

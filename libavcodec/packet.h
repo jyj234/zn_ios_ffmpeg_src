@@ -447,23 +447,23 @@ const char *av_packet_side_data_name(enum AVPacketSideDataType type);
  *
  * The semantics of data ownership depends on the buf field.
  * If it is set, the packet data is dynamically allocated and is
- * valid indefinitely until a call to av_packet_unref() reduces the
+ * valid indefinitely until a call to zn_av_packet_unref() reduces the
  * reference count to 0.
  *
  * If the buf field is not set av_packet_ref() would make a copy instead
  * of increasing the reference count.
  *
  * The side data is always allocated with av_malloc(), copied by
- * av_packet_ref() and freed by av_packet_unref().
+ * av_packet_ref() and freed by zn_av_packet_unref().
  *
  * sizeof(AVPacket) being a part of the public ABI is deprecated. once
  * av_init_packet() is removed, new packets will only be able to be allocated
- * with av_packet_alloc(), and new fields may be added to the end of the struct
+ * with zn_av_packet_alloc(), and new fields may be added to the end of the struct
  * with a minor bump.
  *
- * @see av_packet_alloc
+ * @see zn_av_packet_alloc
  * @see av_packet_ref
- * @see av_packet_unref
+ * @see zn_av_packet_unref
  */
 typedef struct AVPacket {
     /**
@@ -578,7 +578,7 @@ enum AVSideDataParamChangeFlags {
 
 /**
  * Allocate an AVPacket and set its fields to default values.  The resulting
- * struct must be freed using av_packet_free().
+ * struct must be freed using zn_av_packet_free().
  *
  * @return An AVPacket filled with default values or NULL on failure.
  *
@@ -587,16 +587,16 @@ enum AVSideDataParamChangeFlags {
  *
  * @see av_new_packet
  */
-AVPacket *av_packet_alloc(void);
+AVPacket *zn_av_packet_alloc(void);
 
 /**
  * Create a new packet that references the same data as src.
  *
- * This is a shortcut for av_packet_alloc()+av_packet_ref().
+ * This is a shortcut for zn_av_packet_alloc()+av_packet_ref().
  *
  * @return newly created AVPacket on success, NULL on error.
  *
- * @see av_packet_alloc
+ * @see zn_av_packet_alloc
  * @see av_packet_ref
  */
 AVPacket *av_packet_clone(const AVPacket *src);
@@ -608,7 +608,7 @@ AVPacket *av_packet_clone(const AVPacket *src);
  * @param pkt packet to be freed. The pointer will be set to NULL.
  * @note passing NULL is a no-op.
  */
-void av_packet_free(AVPacket **pkt);
+void zn_av_packet_free(AVPacket **pkt);
 
 #if FF_API_INIT_PACKET
 /**
@@ -619,8 +619,8 @@ void av_packet_free(AVPacket **pkt);
  *
  * @param pkt packet
  *
- * @see av_packet_alloc
- * @see av_packet_unref
+ * @see zn_av_packet_alloc
+ * @see zn_av_packet_unref
  *
  * @deprecated This function is deprecated. Once it's removed,
                sizeof(AVPacket) will not be a part of the ABI anymore.
@@ -756,13 +756,13 @@ void av_packet_free_side_data(AVPacket *pkt);
  *
  * All the other fields are copied from src.
  *
- * @see av_packet_unref
+ * @see zn_av_packet_unref
  *
  * @param dst Destination packet. Will be completely overwritten.
  * @param src Source packet
  *
  * @return 0 on success, a negative AVERROR on error. On error, dst
- *         will be blank (as if returned by av_packet_alloc()).
+ *         will be blank (as if returned by zn_av_packet_alloc()).
  */
 int av_packet_ref(AVPacket *dst, const AVPacket *src);
 
@@ -774,12 +774,12 @@ int av_packet_ref(AVPacket *dst, const AVPacket *src);
  *
  * @param pkt The packet to be unreferenced.
  */
-void av_packet_unref(AVPacket *pkt);
+void zn_av_packet_unref(AVPacket *pkt);
 
 /**
  * Move every field in src to dst and reset src.
  *
- * @see av_packet_unref
+ * @see zn_av_packet_unref
  *
  * @param src Source packet, will be reset
  * @param dst Destination packet

@@ -89,13 +89,13 @@ static void free_buffers(VP8Context *s)
             pthread_cond_destroy(&s->thread_data[i].cond);
             pthread_mutex_destroy(&s->thread_data[i].lock);
 #endif
-            av_freep(&s->thread_data[i].filter_strength);
+            zn_av_freep(&s->thread_data[i].filter_strength);
         }
-    av_freep(&s->thread_data);
-    av_freep(&s->macroblocks_base);
-    av_freep(&s->intra4x4_pred_mode_top);
-    av_freep(&s->top_nnz);
-    av_freep(&s->top_border);
+    zn_av_freep(&s->thread_data);
+    zn_av_freep(&s->macroblocks_base);
+    zn_av_freep(&s->intra4x4_pred_mode_top);
+    zn_av_freep(&s->top_nnz);
+    zn_av_freep(&s->top_border);
 
     s->macroblocks = NULL;
 }
@@ -2860,7 +2860,7 @@ av_cold int ff_vp8_decode_free(AVCodecContext *avctx)
 
     vp8_decode_flush_impl(avctx, 1);
     for (i = 0; i < FF_ARRAY_ELEMS(s->frames); i++)
-        av_frame_free(&s->frames[i].tf.f);
+        zn_av_frame_free(&s->frames[i].tf.f);
 
     return 0;
 }
@@ -2869,7 +2869,7 @@ static av_cold int vp8_init_frames(VP8Context *s)
 {
     int i;
     for (i = 0; i < FF_ARRAY_ELEMS(s->frames); i++) {
-        s->frames[i].tf.f = av_frame_alloc();
+        s->frames[i].tf.f = zn_av_frame_alloc();
         if (!s->frames[i].tf.f)
             return AVERROR(ENOMEM);
     }

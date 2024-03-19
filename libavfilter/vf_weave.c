@@ -144,8 +144,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
-        av_frame_free(&s->prev);
+        zn_av_frame_free(&in);
+        zn_av_frame_free(&s->prev);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -168,8 +168,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
         out->flags |= AV_FRAME_FLAG_TOP_FIELD_FIRST;
 
     if (!s->double_weave)
-        av_frame_free(&in);
-    av_frame_free(&s->prev);
+        zn_av_frame_free(&in);
+    zn_av_frame_free(&s->prev);
     if (s->double_weave)
         s->prev = in;
     return ff_filter_frame(outlink, out);
@@ -179,7 +179,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     WeaveContext *s = ctx->priv;
 
-    av_frame_free(&s->prev);
+    zn_av_frame_free(&s->prev);
 }
 
 static const AVFilterPad weave_inputs[] = {

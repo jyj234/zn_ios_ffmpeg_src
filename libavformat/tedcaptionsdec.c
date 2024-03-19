@@ -276,7 +276,7 @@ fail:
 static av_cold int tedcaptions_read_header(AVFormatContext *avf)
 {
     TEDCaptionsDemuxer *tc = avf->priv_data;
-    AVStream *st = avformat_new_stream(avf, NULL);
+    AVStream *st = zn_avformat_new_stream(avf, NULL);
     FFStream *sti;
     int ret, i;
     AVPacket *last;

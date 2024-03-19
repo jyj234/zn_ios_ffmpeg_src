@@ -78,20 +78,20 @@ static av_cold int vqc_decode_init(AVCodecContext * avctx)
     if (!s->vectors)
         return AVERROR(ENOMEM);
 
-    s->coeff = av_malloc_array(2 * avctx->width, sizeof(s->coeff[0]));
+    s->coeff = zn_av_malloc_array(2 * avctx->width, sizeof(s->coeff[0]));
     if (!s->coeff)
         return AVERROR(ENOMEM);
 
-    s->tmp1 = av_malloc_array(avctx->width / 2, sizeof(s->tmp1[0]));
+    s->tmp1 = zn_av_malloc_array(avctx->width / 2, sizeof(s->tmp1[0]));
     if (!s->tmp1)
         return AVERROR(ENOMEM);
 
-    s->tmp2 = av_malloc_array(avctx->width / 2, sizeof(s->tmp2[0]));
+    s->tmp2 = zn_av_malloc_array(avctx->width / 2, sizeof(s->tmp2[0]));
     if (!s->tmp2)
         return AVERROR(ENOMEM);
 
     avctx->pix_fmt = AV_PIX_FMT_YUV420P;
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
@@ -416,11 +416,11 @@ static av_cold int vqc_decode_end(AVCodecContext * avctx)
 {
     VqcContext *s = avctx->priv_data;
 
-    av_freep(&s->vectors);
-    av_freep(&s->coeff);
-    av_freep(&s->tmp1);
-    av_freep(&s->tmp2);
-    av_frame_free(&s->frame);
+    zn_av_freep(&s->vectors);
+    zn_av_freep(&s->coeff);
+    zn_av_freep(&s->tmp1);
+    zn_av_freep(&s->tmp2);
+    zn_av_frame_free(&s->frame);
 
     return 0;
 }

@@ -198,9 +198,9 @@ int av_bsf_send_packet(AVBSFContext *ctx, AVPacket *pkt);
  * @param ctx an initialized AVBSFContext
  * @param[out] pkt this struct will be filled with the contents of the filtered
  *                 packet. It is owned by the caller and must be freed using
- *                 av_packet_unref() when it is no longer needed.
+ *                 zn_av_packet_unref() when it is no longer needed.
  *                 This parameter should be "clean" (i.e. freshly allocated
- *                 with av_packet_alloc() or unreffed with av_packet_unref())
+ *                 with zn_av_packet_alloc() or unreffed with zn_av_packet_unref())
  *                 when this function is called. If this function returns
  *                 successfully, the contents of pkt will be completely
  *                 overwritten by the returned data. On failure, pkt is not

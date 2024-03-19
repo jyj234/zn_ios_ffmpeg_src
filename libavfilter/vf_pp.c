@@ -127,7 +127,7 @@ static int pp_filter_frame(AVFilterLink *inlink, AVFrame *inbuf)
 
     outbuf = ff_get_video_buffer(outlink, aligned_w, aligned_h);
     if (!outbuf) {
-        av_frame_free(&inbuf);
+        zn_av_frame_free(&inbuf);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(outbuf, inbuf);
@@ -136,8 +136,8 @@ static int pp_filter_frame(AVFilterLink *inlink, AVFrame *inbuf)
 
     ret = ff_qp_table_extract(inbuf, &qp_table, &qstride, NULL, NULL);
     if (ret < 0) {
-        av_frame_free(&inbuf);
-        av_frame_free(&outbuf);
+        zn_av_frame_free(&inbuf);
+        zn_av_frame_free(&outbuf);
         return ret;
     }
 
@@ -150,8 +150,8 @@ static int pp_filter_frame(AVFilterLink *inlink, AVFrame *inbuf)
                    pp->pp_ctx,
                    outbuf->pict_type | (qp_table ? PP_PICT_TYPE_QP2 : 0));
 
-    av_frame_free(&inbuf);
-    av_freep(&qp_table);
+    zn_av_frame_free(&inbuf);
+    zn_av_freep(&qp_table);
     return ff_filter_frame(outlink, outbuf);
 }
 

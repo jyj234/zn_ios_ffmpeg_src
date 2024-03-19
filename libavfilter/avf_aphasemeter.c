@@ -257,7 +257,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     if (s->do_video && (!s->out || s->out->width  != outlink->w ||
                                    s->out->height != outlink->h)) {
-        av_frame_free(&s->out);
+        zn_av_frame_free(&s->out);
         s->out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!s->out) {
             ret = AVERROR(ENOMEM);
@@ -348,7 +348,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     s->in = NULL;
     return ff_filter_frame(aoutlink, in);
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     s->in = NULL;
     return ret;
 }
@@ -391,7 +391,7 @@ static av_cold void uninit(AVFilterContext *ctx)
         update_mono_detection(s, NULL, 0);
         update_out_phase_detection(s, NULL, 0);
     }
-    av_frame_free(&s->out);
+    zn_av_frame_free(&s->out);
 }
 
 static av_cold int init(AVFilterContext *ctx)

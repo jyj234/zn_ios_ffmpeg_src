@@ -756,7 +756,7 @@ the name of a standard channel layout (e.g. @samp{mono},
 @item
 a number of channels, in decimal, followed by 'c', yielding the default channel
 layout for that number of channels (see the function
-@code{av_channel_layout_default}). Note that not all channel counts have a
+@code{zn_av_channel_layout_default}). Note that not all channel counts have a
 default layout.
 
 @item

@@ -102,7 +102,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     SCDetContext *s = ctx->priv;
 
-    av_frame_free(&s->prev_picref);
+    zn_av_frame_free(&s->prev_picref);
 }
 
 static double get_scene_score(AVFilterContext *ctx, AVFrame *frame)
@@ -130,7 +130,7 @@ static double get_scene_score(AVFilterContext *ctx, AVFrame *frame)
         diff = fabs(mafd - s->prev_mafd);
         ret  = av_clipf(FFMIN(mafd, diff), 0, 100.);
         s->prev_mafd = mafd;
-        av_frame_free(&prev_picref);
+        zn_av_frame_free(&prev_picref);
     }
     s->prev_picref = av_frame_clone(frame);
     return ret;
@@ -173,7 +173,7 @@ static int activate(AVFilterContext *ctx)
             if (s->scene_score >= s->threshold)
                 return ff_filter_frame(outlink, frame);
             else {
-                av_frame_free(&frame);
+                zn_av_frame_free(&frame);
             }
         } else
             return ff_filter_frame(outlink, frame);

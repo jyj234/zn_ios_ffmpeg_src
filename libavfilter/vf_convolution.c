@@ -687,7 +687,7 @@ static int param_init(AVFilterContext *ctx)
                     s->matrix_length[i]++;
                 }
 
-                av_freep(&orig);
+                zn_av_freep(&orig);
                 if (!(s->matrix_length[i] & 1)) {
                     av_log(ctx, AV_LOG_ERROR, "number of matrix elements must be odd\n");
                     return AVERROR(EINVAL);
@@ -837,7 +837,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -847,7 +847,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, filter_slice, &td, NULL,
                       FFMIN3(s->planeheight[1], s->planewidth[1], s->nb_threads));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

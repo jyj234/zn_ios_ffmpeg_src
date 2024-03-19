@@ -574,9 +574,9 @@ static int config_input(AVFilterLink *inlink)
 
     s->p_linesize = linesize = FFALIGN(s->pr_width, 32);
     for (i = 0; i < 2; i++) {
-        s->cbuf[i][0] = av_malloc_array(linesize * s->pr_height, sizeof(*s->cbuf[i][0]));
-        s->cbuf[i][1] = av_malloc_array(linesize * s->pr_height, sizeof(*s->cbuf[i][1]));
-        s->cbuf[i][2] = av_malloc_array(linesize * s->pr_height, sizeof(*s->cbuf[i][2]));
+        s->cbuf[i][0] = zn_av_malloc_array(linesize * s->pr_height, sizeof(*s->cbuf[i][0]));
+        s->cbuf[i][1] = zn_av_malloc_array(linesize * s->pr_height, sizeof(*s->cbuf[i][1]));
+        s->cbuf[i][2] = zn_av_malloc_array(linesize * s->pr_height, sizeof(*s->cbuf[i][2]));
         if (!s->cbuf[i][0] || !s->cbuf[i][1] || !s->cbuf[i][2])
             return AVERROR(ENOMEM);
     }
@@ -597,7 +597,7 @@ static int config_input(AVFilterLink *inlink)
      * each pixel is averaged by all the surrounding blocks */
     slice_h = (int)ceilf(s->pr_height / (float)s->nb_threads) + (s->bsize - 1) * 2;
     for (i = 0; i < s->nb_threads; i++) {
-        s->slices[i] = av_malloc_array(linesize, slice_h * sizeof(*s->slices[i]));
+        s->slices[i] = zn_av_malloc_array(linesize, slice_h * sizeof(*s->slices[i]));
         if (!s->slices[i])
             return AVERROR(ENOMEM);
     }
@@ -605,7 +605,7 @@ static int config_input(AVFilterLink *inlink)
     s->weights = av_malloc(s->pr_height * linesize * sizeof(*s->weights));
     if (!s->weights)
         return AVERROR(ENOMEM);
-    iweights = av_calloc(s->pr_height, linesize * sizeof(*iweights));
+    iweights = zn_av_calloc(s->pr_height, linesize * sizeof(*iweights));
     if (!iweights)
         return AVERROR(ENOMEM);
     for (y = 0; y < s->pr_height - bsize + 1; y += s->step)
@@ -616,7 +616,7 @@ static int config_input(AVFilterLink *inlink)
     for (y = 0; y < s->pr_height; y++)
         for (x = 0; x < s->pr_width; x++)
             s->weights[y*linesize + x] = 1. / iweights[y*linesize + x];
-    av_free(iweights);
+    zn_av_free(iweights);
 
     return 0;
 }
@@ -728,7 +728,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         direct = 0;
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -778,7 +778,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             }
         }
 
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
 
     return ff_filter_frame(outlink, out);
@@ -789,14 +789,14 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
     DCTdnoizContext *s = ctx->priv;
 
-    av_freep(&s->weights);
+    zn_av_freep(&s->weights);
     for (i = 0; i < 2; i++) {
-        av_freep(&s->cbuf[i][0]);
-        av_freep(&s->cbuf[i][1]);
-        av_freep(&s->cbuf[i][2]);
+        zn_av_freep(&s->cbuf[i][0]);
+        zn_av_freep(&s->cbuf[i][1]);
+        zn_av_freep(&s->cbuf[i][2]);
     }
     for (i = 0; i < s->nb_threads; i++) {
-        av_freep(&s->slices[i]);
+        zn_av_freep(&s->slices[i]);
         av_expr_free(s->expr[i]);
     }
 }

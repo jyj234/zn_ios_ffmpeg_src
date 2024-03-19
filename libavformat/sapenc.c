@@ -49,9 +49,9 @@ static int sap_write_close(AVFormatContext *s)
         AVFormatContext *rtpctx = s->streams[i]->priv_data;
         if (!rtpctx)
             continue;
-        av_write_trailer(rtpctx);
-        avio_closep(&rtpctx->pb);
-        avformat_free_context(rtpctx);
+        zn_av_write_trailer(rtpctx);
+        zn_avio_closep(&rtpctx->pb);
+        zn_avformat_free_context(rtpctx);
         s->streams[i]->priv_data = NULL;
     }
 
@@ -60,7 +60,7 @@ static int sap_write_close(AVFormatContext *s)
         ffurl_write(sap->ann_fd, sap->ann, sap->ann_size);
     }
 
-    av_freep(&sap->ann);
+    zn_av_freep(&sap->ann);
     ffurl_closep(&sap->ann_fd);
     ff_network_close();
     return 0;
@@ -134,7 +134,7 @@ static int sap_write_header(AVFormatContext *s)
         freeaddrinfo(ai);
     }
 
-    contexts = av_calloc(s->nb_streams, sizeof(*contexts));
+    contexts = zn_av_calloc(s->nb_streams, sizeof(*contexts));
     if (!contexts) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -232,7 +232,7 @@ static int sap_write_header(AVFormatContext *s)
         ret = AVERROR_INVALIDDATA;
         goto fail;
     }
-    av_freep(&contexts);
+    zn_av_freep(&contexts);
     av_log(s, AV_LOG_VERBOSE, "SDP:\n%s\n", &sap->ann[pos]);
     pos += strlen(&sap->ann[pos]);
     sap->ann_size = pos;
@@ -246,7 +246,7 @@ static int sap_write_header(AVFormatContext *s)
     return 0;
 
 fail:
-    av_free(contexts);
+    zn_av_free(contexts);
     sap_write_close(s);
     return ret;
 }

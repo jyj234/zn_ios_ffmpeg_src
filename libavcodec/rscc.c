@@ -81,7 +81,7 @@ static av_cold int rscc_init(AVCodecContext *avctx)
     }
 
     /* Allocate reference frame */
-    ctx->reference = av_frame_alloc();
+    ctx->reference = zn_av_frame_alloc();
     if (!ctx->reference)
         return AVERROR(ENOMEM);
 
@@ -140,9 +140,9 @@ static av_cold int rscc_close(AVCodecContext *avctx)
 {
     RsccContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->tiles);
-    av_freep(&ctx->inflated_buf);
-    av_frame_free(&ctx->reference);
+    zn_av_freep(&ctx->tiles);
+    zn_av_freep(&ctx->inflated_buf);
+    zn_av_frame_free(&ctx->reference);
 
     return 0;
 }
@@ -364,7 +364,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
     ret = avpkt->size;
 end:
-    av_free(inflated_tiles);
+    zn_av_free(inflated_tiles);
     return ret;
 }
 

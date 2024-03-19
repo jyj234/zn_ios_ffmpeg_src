@@ -821,7 +821,7 @@ static av_cold int svq1_decode_init(AVCodecContext *avctx)
     static AVOnce init_static_once = AV_ONCE_INIT;
     SVQ1Context *s = avctx->priv_data;
 
-    s->prev = av_frame_alloc();
+    s->prev = zn_av_frame_alloc();
     if (!s->prev)
         return AVERROR(ENOMEM);
 
@@ -842,10 +842,10 @@ static av_cold int svq1_decode_end(AVCodecContext *avctx)
 {
     SVQ1Context *s = avctx->priv_data;
 
-    av_frame_free(&s->prev);
-    av_freep(&s->pkt_swapped);
+    zn_av_frame_free(&s->prev);
+    zn_av_freep(&s->pkt_swapped);
     s->pkt_swapped_allocated = 0;
-    av_freep(&s->pmv);
+    zn_av_freep(&s->pmv);
     s->pmv_allocated = 0;
 
     return 0;

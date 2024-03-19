@@ -395,7 +395,7 @@ int av_dirac_parse_sequence_header(AVDiracSeqHeader **pdsh,
     *pdsh = dsh;
     return 0;
 fail:
-    av_freep(&dsh);
+    zn_av_freep(&dsh);
     *pdsh = NULL;
     return ret;
 }

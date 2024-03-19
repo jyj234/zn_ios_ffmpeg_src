@@ -174,9 +174,9 @@ static av_cold void do_uninit(AVFilterContext *ctx) API_AVAILABLE(macos(10.11), 
     YADIFVTContext *s = ctx->priv;
     YADIFContext *y = &s->yadif;
 
-    av_frame_free(&y->prev);
-    av_frame_free(&y->cur);
-    av_frame_free(&y->next);
+    zn_av_frame_free(&y->prev);
+    zn_av_frame_free(&y->cur);
+    zn_av_frame_free(&y->next);
 
     av_buffer_unref(&s->device_ref);
     av_buffer_unref(&s->input_frames_ref);

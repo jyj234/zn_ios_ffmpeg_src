@@ -198,7 +198,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
 
     if (s->nskip_fields >= 2) {
         s->nskip_fields -= 2;
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&inpicref);
         return 0;
     } else if (s->nskip_fields >= 1) {
         for (i = 0; i < s->nb_planes; i++) {
@@ -209,7 +209,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
         }
         s->occupied = 1;
         s->nskip_fields--;
-        av_frame_free(&inpicref);
+        zn_av_frame_free(&inpicref);
         return 0;
     }
 
@@ -225,7 +225,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
             s->pattern_pos = 0;
 
         if(!len) { // do not output any field as the entire pattern is zero
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
             return 0;
         }
 
@@ -323,7 +323,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
         AVFrame *frame = av_frame_clone(s->frame[i]);
 
         if (!frame) {
-            av_frame_free(&inpicref);
+            zn_av_frame_free(&inpicref);
             return AVERROR(ENOMEM);
         }
 
@@ -334,7 +334,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpicref)
         ret = ff_filter_frame(outlink, frame);
     }
 
-    av_frame_free(&inpicref);
+    zn_av_frame_free(&inpicref);
 
     return ret;
 }
@@ -343,9 +343,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     DetelecineContext *s = ctx->priv;
 
-    av_frame_free(&s->temp);
-    av_frame_free(&s->frame[0]);
-    av_frame_free(&s->frame[1]);
+    zn_av_frame_free(&s->temp);
+    zn_av_frame_free(&s->frame[0]);
+    zn_av_frame_free(&s->frame[1]);
 }
 
 static const AVFilterPad detelecine_inputs[] = {

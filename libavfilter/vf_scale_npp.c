@@ -279,7 +279,7 @@ static int nppscale_parse_expr(AVFilterContext* ctx, char* str_expr,
 
     av_expr_free(old_pexpr);
     old_pexpr = NULL;
-    av_freep(&old_str_expr);
+    zn_av_freep(&old_str_expr);
 
     return 0;
 
@@ -288,7 +288,7 @@ revert:
     *pexpr_ptr = NULL;
     if (old_str_expr) {
         av_opt_set(scale, var, old_str_expr, 0);
-        av_free(old_str_expr);
+        zn_av_free(old_str_expr);
     }
     if (old_pexpr)
         *pexpr_ptr = old_pexpr;
@@ -360,11 +360,11 @@ static av_cold int nppscale_init(AVFilterContext* ctx)
         return ret;
 
     for (i = 0; i < FF_ARRAY_ELEMS(scale->stages); i++) {
-        scale->stages[i].frame = av_frame_alloc();
+        scale->stages[i].frame = zn_av_frame_alloc();
         if (!scale->stages[i].frame)
             return AVERROR(ENOMEM);
     }
-    scale->tmp_frame = av_frame_alloc();
+    scale->tmp_frame = zn_av_frame_alloc();
     if (!scale->tmp_frame)
         return AVERROR(ENOMEM);
 
@@ -438,10 +438,10 @@ static void nppscale_uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->stages); i++) {
-        av_frame_free(&s->stages[i].frame);
+        zn_av_frame_free(&s->stages[i].frame);
         av_buffer_unref(&s->stages[i].frames_ctx);
     }
-    av_frame_free(&s->tmp_frame);
+    zn_av_frame_free(&s->tmp_frame);
 
     av_expr_free(s->w_pexpr);
     av_expr_free(s->h_pexpr);
@@ -909,7 +909,7 @@ static int nppscale_filter_frame(AVFilterLink *link, AVFrame *in)
     if (s->passthrough)
         return ff_filter_frame(outlink, in);
 
-    out = av_frame_alloc();
+    out = zn_av_frame_alloc();
     if (!out) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -930,11 +930,11 @@ static int nppscale_filter_frame(AVFilterLink *link, AVFrame *in)
               (int64_t)in->sample_aspect_ratio.den * outlink->w * link->h,
               INT_MAX);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

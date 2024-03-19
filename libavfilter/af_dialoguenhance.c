@@ -92,7 +92,7 @@ static int config_input(AVFilterLink *inlink)
     s->fft_size = inlink->sample_rate > 100000 ? 8192 : inlink->sample_rate > 50000 ? 4096 : 2048;
     s->overlap = s->fft_size / 4;
 
-    s->window = av_calloc(s->fft_size, sizeof(*s->window));
+    s->window = zn_av_calloc(s->fft_size, sizeof(*s->window));
     if (!s->window)
         return AVERROR(ENOMEM);
 
@@ -325,7 +325,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     out->nb_samples = in->nb_samples;
     ret = ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     s->in = NULL;
     return ret < 0 ? ret : 0;
 }
@@ -364,14 +364,14 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioDialogueEnhanceContext *s = ctx->priv;
 
-    av_freep(&s->window);
+    zn_av_freep(&s->window);
 
-    av_frame_free(&s->in_frame);
-    av_frame_free(&s->center_frame);
-    av_frame_free(&s->out_dist_frame);
-    av_frame_free(&s->windowed_frame);
-    av_frame_free(&s->windowed_out);
-    av_frame_free(&s->windowed_prev);
+    zn_av_frame_free(&s->in_frame);
+    zn_av_frame_free(&s->center_frame);
+    zn_av_frame_free(&s->out_dist_frame);
+    zn_av_frame_free(&s->windowed_frame);
+    zn_av_frame_free(&s->windowed_out);
+    zn_av_frame_free(&s->windowed_prev);
 
     av_tx_uninit(&s->tx_ctx[0]);
     av_tx_uninit(&s->tx_ctx[1]);

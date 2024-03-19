@@ -154,7 +154,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -297,7 +297,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     meta = (MetaItem){ in->pts, in->nb_samples };
     av_fifo_write(s->fifo, &meta, 1);
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     new_out_samples = out->nb_samples;
     if (s->in_trim > 0) {
@@ -307,7 +307,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (new_out_samples <= 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return 0;
     } else if (new_out_samples < out->nb_samples) {
         int offset = out->nb_samples - new_out_samples;
@@ -365,9 +365,9 @@ static int config_input(AVFilterLink *inlink)
     if (obuffer_size < inlink->ch_layout.nb_channels)
         return AVERROR(EINVAL);
 
-    s->buffer = av_calloc(obuffer_size, sizeof(*s->buffer));
-    s->nextdelta = av_calloc(obuffer_size, sizeof(*s->nextdelta));
-    s->nextpos = av_malloc_array(obuffer_size, sizeof(*s->nextpos));
+    s->buffer = zn_av_calloc(obuffer_size, sizeof(*s->buffer));
+    s->nextdelta = zn_av_calloc(obuffer_size, sizeof(*s->nextdelta));
+    s->nextpos = zn_av_malloc_array(obuffer_size, sizeof(*s->nextpos));
     if (!s->buffer || !s->nextdelta || !s->nextpos)
         return AVERROR(ENOMEM);
 
@@ -396,9 +396,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioLimiterContext *s = ctx->priv;
 
-    av_freep(&s->buffer);
-    av_freep(&s->nextdelta);
-    av_freep(&s->nextpos);
+    zn_av_freep(&s->buffer);
+    zn_av_freep(&s->nextdelta);
+    zn_av_freep(&s->nextpos);
 
     av_fifo_freep2(&s->fifo);
 }

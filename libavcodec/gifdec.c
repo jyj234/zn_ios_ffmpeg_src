@@ -458,7 +458,7 @@ static av_cold int gif_decode_init(AVCodecContext *avctx)
     s->avctx = avctx;
 
     avctx->pix_fmt = AV_PIX_FMT_RGB32;
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
     ff_lzw_decode_open(&s->lzw);
@@ -525,9 +525,9 @@ static av_cold int gif_decode_close(AVCodecContext *avctx)
     GifState *s = avctx->priv_data;
 
     ff_lzw_decode_close(&s->lzw);
-    av_frame_free(&s->frame);
-    av_freep(&s->idx_line);
-    av_freep(&s->stored_img);
+    zn_av_frame_free(&s->frame);
+    zn_av_freep(&s->idx_line);
+    zn_av_freep(&s->stored_img);
 
     return 0;
 }

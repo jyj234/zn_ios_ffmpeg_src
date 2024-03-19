@@ -124,7 +124,7 @@ static int vdpau_init_pixmfts(AVHWDeviceContext *ctx)
         int nb_pix_fmts;
 
         nb_pix_fmts = count_pixfmts(map);
-        priv->pix_fmts[i] = av_malloc_array(nb_pix_fmts + 1, sizeof(*priv->pix_fmts[i]));
+        priv->pix_fmts[i] = zn_av_malloc_array(nb_pix_fmts + 1, sizeof(*priv->pix_fmts[i]));
         if (!priv->pix_fmts[i])
             return AVERROR(ENOMEM);
 
@@ -184,7 +184,7 @@ static void vdpau_device_uninit(AVHWDeviceContext *ctx)
     int i;
 
     for (i = 0; i < FF_ARRAY_ELEMS(priv->pix_fmts); i++)
-        av_freep(&priv->pix_fmts[i]);
+        zn_av_freep(&priv->pix_fmts[i]);
 }
 
 static int vdpau_frames_get_constraints(AVHWDeviceContext *ctx,
@@ -195,7 +195,7 @@ static int vdpau_frames_get_constraints(AVHWDeviceContext *ctx,
     int nb_sw_formats = 0;
     int i;
 
-    constraints->valid_sw_formats = av_malloc_array(FF_ARRAY_ELEMS(vdpau_pix_fmts) + 1,
+    constraints->valid_sw_formats = zn_av_malloc_array(FF_ARRAY_ELEMS(vdpau_pix_fmts) + 1,
                                                     sizeof(*constraints->valid_sw_formats));
     if (!constraints->valid_sw_formats)
         return AVERROR(ENOMEM);
@@ -206,7 +206,7 @@ static int vdpau_frames_get_constraints(AVHWDeviceContext *ctx,
     }
     constraints->valid_sw_formats[nb_sw_formats] = AV_PIX_FMT_NONE;
 
-    constraints->valid_hw_formats = av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
+    constraints->valid_hw_formats = zn_av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
     if (!constraints->valid_hw_formats)
         return AVERROR(ENOMEM);
 
@@ -316,7 +316,7 @@ static int vdpau_transfer_get_formats(AVHWFramesContext *ctx,
         return AVERROR(ENOSYS);
     }
 
-    fmts = av_malloc_array(priv->nb_pix_fmts, sizeof(*fmts));
+    fmts = zn_av_malloc_array(priv->nb_pix_fmts, sizeof(*fmts));
     if (!fmts)
         return AVERROR(ENOMEM);
 
@@ -457,7 +457,7 @@ static void vdpau_device_free(AVHWDeviceContext *ctx)
         priv->device_destroy(hwctx->device);
     if (priv->dpy)
         XCloseDisplay(priv->dpy);
-    av_freep(&priv);
+    zn_av_freep(&priv);
 }
 
 static int vdpau_device_create(AVHWDeviceContext *ctx, const char *device,

@@ -79,7 +79,7 @@ static int mpc_read_header(AVFormatContext *s)
     c->curbits = 8;
     c->frames_noted = 0;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -208,12 +208,12 @@ static int mpc_read_seek(AVFormatContext *s, int stream_index, int64_t timestamp
     lastframe = c->curframe;
     if(c->frames_noted) c->curframe = c->frames_noted - 1;
     while(c->curframe < timestamp){
-        ret = av_read_frame(s, pkt);
+        ret = zn_av_read_frame(s, pkt);
         if (ret < 0){
             c->curframe = lastframe;
             return ret;
         }
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
     return 0;
 }

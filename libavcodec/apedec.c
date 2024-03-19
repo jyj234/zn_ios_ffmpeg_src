@@ -224,11 +224,11 @@ static av_cold int ape_decode_close(AVCodecContext *avctx)
     int i;
 
     for (i = 0; i < APE_FILTER_LEVELS; i++)
-        av_freep(&s->filterbuf[i]);
+        zn_av_freep(&s->filterbuf[i]);
 
-    av_freep(&s->decoded_buffer);
-    av_freep(&s->interim_buffer);
-    av_freep(&s->data);
+    zn_av_freep(&s->decoded_buffer);
+    zn_av_freep(&s->interim_buffer);
+    zn_av_freep(&s->data);
     s->decoded_size = s->data_size = 0;
 
     return 0;
@@ -1578,7 +1578,7 @@ static int ape_decode_frame(AVCodecContext *avctx, AVFrame *frame,
         if (s->fileversion >= 3900) {
             if (offset > 3) {
                 av_log(avctx, AV_LOG_ERROR, "Incorrect offset passed\n");
-                av_freep(&s->data);
+                zn_av_freep(&s->data);
                 s->data_size = 0;
                 return AVERROR_INVALIDDATA;
             }
@@ -1647,7 +1647,7 @@ static int ape_decode_frame(AVCodecContext *avctx, AVFrame *frame,
         s->interim[0] = s->interim_buffer;
         s->interim[1] = s->interim_buffer + FFALIGN(blockstodecode, 8);
     } else {
-        av_freep(&s->interim_buffer);
+        zn_av_freep(&s->interim_buffer);
         s->interim_size = 0;
         memset(s->interim, 0, sizeof(s->interim));
     }

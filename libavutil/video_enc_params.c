@@ -67,7 +67,7 @@ av_video_enc_params_create_side_data(AVFrame *frame, enum AVVideoEncParamsType t
         return NULL;
     buf = av_buffer_create((uint8_t *)par, size, NULL, NULL, 0);
     if (!buf) {
-        av_freep(&par);
+        zn_av_freep(&par);
         return NULL;
     }
 

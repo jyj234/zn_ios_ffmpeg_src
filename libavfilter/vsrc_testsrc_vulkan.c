@@ -222,7 +222,7 @@ static int testsrc_vulkan_activate(AVFilterContext *ctx)
 
     if (s->draw_once) {
         if (s->draw_once_reset) {
-            av_frame_free(&s->picref);
+            zn_av_frame_free(&s->picref);
             s->draw_once_reset = 0;
         }
         if (!s->picref) {
@@ -252,7 +252,7 @@ static int testsrc_vulkan_activate(AVFilterContext *ctx)
         err = ff_vk_filter_process_simple(&s->vkctx, &s->e, &s->pl, frame, NULL,
                                           NULL, &s->opts, sizeof(s->opts));
         if (err < 0) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return err;
         }
     }
@@ -308,7 +308,7 @@ static void testsrc_vulkan_uninit(AVFilterContext *avctx)
     TestSrcVulkanContext *s = avctx->priv;
     FFVulkanContext *vkctx = &s->vkctx;
 
-    av_frame_free(&s->picref);
+    zn_av_frame_free(&s->picref);
 
     ff_vk_exec_pool_free(vkctx, &s->e);
     ff_vk_pipeline_free(vkctx, &s->pl);

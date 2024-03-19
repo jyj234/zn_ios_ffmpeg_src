@@ -1506,14 +1506,14 @@ av_cold void ff_dca_xll_close(DCAXllDecoder *s)
 
     for (i = 0, c = s->chset; i < DCA_XLL_CHSETS_MAX; i++, c++) {
         for (j = 0; j < DCA_XLL_SAMPLE_BUFFERS_MAX; j++) {
-            av_freep(&c->sample_buffer[j]);
+            zn_av_freep(&c->sample_buffer[j]);
             c->sample_size[j] = 0;
         }
     }
 
-    av_freep(&s->navi);
+    zn_av_freep(&s->navi);
     s->navi_size = 0;
 
-    av_freep(&s->pbr_buffer);
+    zn_av_freep(&s->pbr_buffer);
     clear_pbr(s);
 }

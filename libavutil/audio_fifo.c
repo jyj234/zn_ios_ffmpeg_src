@@ -53,13 +53,13 @@ void av_audio_fifo_free(AVAudioFifo *af)
             for (i = 0; i < af->nb_buffers; i++) {
                 av_fifo_freep2(&af->buf[i]);
             }
-            av_freep(&af->buf);
+            zn_av_freep(&af->buf);
         }
-        av_free(af);
+        zn_av_free(af);
     }
 }
 
-AVAudioFifo *av_audio_fifo_alloc(enum AVSampleFormat sample_fmt, int channels,
+AVAudioFifo *zn_av_audio_fifo_alloc(enum AVSampleFormat sample_fmt, int channels,
                                  int nb_samples)
 {
     AVAudioFifo *af;
@@ -78,7 +78,7 @@ AVAudioFifo *av_audio_fifo_alloc(enum AVSampleFormat sample_fmt, int channels,
     af->sample_size = buf_size / nb_samples;
     af->nb_buffers  = av_sample_fmt_is_planar(sample_fmt) ? channels : 1;
 
-    af->buf = av_calloc(af->nb_buffers, sizeof(*af->buf));
+    af->buf = zn_av_calloc(af->nb_buffers, sizeof(*af->buf));
     if (!af->buf)
         goto error;
 
@@ -96,7 +96,7 @@ error:
     return NULL;
 }
 
-int av_audio_fifo_realloc(AVAudioFifo *af, int nb_samples)
+int zn_av_audio_fifo_realloc(AVAudioFifo *af, int nb_samples)
 {
     const size_t cur_size = av_fifo_can_read (af->buf[0]) +
                             av_fifo_can_write(af->buf[0]);
@@ -116,18 +116,18 @@ int av_audio_fifo_realloc(AVAudioFifo *af, int nb_samples)
     return 0;
 }
 
-int av_audio_fifo_write(AVAudioFifo *af, void * const *data, int nb_samples)
+int zn_av_audio_fifo_write(AVAudioFifo *af, void * const *data, int nb_samples)
 {
     int i, ret, size;
 
     /* automatically reallocate buffers if needed */
     if (av_audio_fifo_space(af) < nb_samples) {
-        int current_size = av_audio_fifo_size(af);
+        int current_size = zn_av_audio_fifo_size(af);
         /* check for integer overflow in new size calculation */
         if (INT_MAX / 2 - current_size < nb_samples)
             return AVERROR(EINVAL);
         /* reallocate buffers */
-        if ((ret = av_audio_fifo_realloc(af, 2 * (current_size + nb_samples))) < 0)
+        if ((ret = zn_av_audio_fifo_realloc(af, 2 * (current_size + nb_samples))) < 0)
             return ret;
     }
 
@@ -219,7 +219,7 @@ void av_audio_fifo_reset(AVAudioFifo *af)
     af->nb_samples = 0;
 }
 
-int av_audio_fifo_size(AVAudioFifo *af)
+int zn_av_audio_fifo_size(AVAudioFifo *af)
 {
     return af->nb_samples;
 }

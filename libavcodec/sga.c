@@ -513,10 +513,10 @@ static av_cold int sga_decode_end(AVCodecContext *avctx)
 {
     SGAVideoContext *s = avctx->priv_data;
 
-    av_freep(&s->tileindex_data);
+    zn_av_freep(&s->tileindex_data);
     s->tileindex_size = 0;
 
-    av_freep(&s->palmapindex_data);
+    zn_av_freep(&s->palmapindex_data);
     s->palmapindex_size = 0;
 
     return 0;

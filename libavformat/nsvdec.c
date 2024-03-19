@@ -328,7 +328,7 @@ static int nsv_parse_NSVf_header(AVFormatContext *s)
             av_log(s, AV_LOG_TRACE, "NSV NSVf INFO: %s='%s'\n", token, value);
             av_dict_set(&s->metadata, token, value, 0);
         }
-        av_free(strings);
+        zn_av_free(strings);
     }
     if (avio_feof(pb))
         return -1;
@@ -340,7 +340,7 @@ static int nsv_parse_NSVf_header(AVFormatContext *s)
         nsv->index_entries = table_entries_used;
         if((unsigned)table_entries_used >= UINT_MAX / sizeof(uint32_t))
             return -1;
-        nsv->nsvs_file_offset = av_malloc_array((unsigned)table_entries_used, sizeof(uint32_t));
+        nsv->nsvs_file_offset = zn_av_malloc_array((unsigned)table_entries_used, sizeof(uint32_t));
         if (!nsv->nsvs_file_offset)
             return AVERROR(ENOMEM);
 
@@ -352,7 +352,7 @@ static int nsv_parse_NSVf_header(AVFormatContext *s)
 
         if(table_entries > table_entries_used &&
            avio_rl32(pb) == MKTAG('T','O','C','2')) {
-            nsv->nsvs_timestamps = av_malloc_array((unsigned)table_entries_used, sizeof(uint32_t));
+            nsv->nsvs_timestamps = zn_av_malloc_array((unsigned)table_entries_used, sizeof(uint32_t));
             if (!nsv->nsvs_timestamps)
                 return AVERROR(ENOMEM);
             for(i=0;i<table_entries_used;i++) {
@@ -419,7 +419,7 @@ static int nsv_parse_NSVs_header(AVFormatContext *s)
         nsv->vheight = vwidth;
         if (vtag != T_NONE) {
             int i;
-            st = avformat_new_stream(s, NULL);
+            st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 goto fail;
 
@@ -450,7 +450,7 @@ static int nsv_parse_NSVs_header(AVFormatContext *s)
             }
         }
         if (atag != T_NONE) {
-            st = avformat_new_stream(s, NULL);
+            st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 goto fail;
 
@@ -707,12 +707,12 @@ static int nsv_read_close(AVFormatContext *s)
 {
     NSVContext *nsv = s->priv_data;
 
-    av_freep(&nsv->nsvs_file_offset);
-    av_freep(&nsv->nsvs_timestamps);
+    zn_av_freep(&nsv->nsvs_file_offset);
+    zn_av_freep(&nsv->nsvs_timestamps);
     if (nsv->ahead[0].data)
-        av_packet_unref(&nsv->ahead[0]);
+        zn_av_packet_unref(&nsv->ahead[0]);
     if (nsv->ahead[1].data)
-        av_packet_unref(&nsv->ahead[1]);
+        zn_av_packet_unref(&nsv->ahead[1]);
     return 0;
 }
 

@@ -104,7 +104,7 @@ static av_cold int iss_read_header(AVFormatContext *s)
 
     iss->sample_start_pos = avio_tell(pb);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

@@ -71,7 +71,7 @@ static av_cold int init(AVFilterContext *ctx)
     }
 
     if (!strcmp(s->channels_str, "all")) {
-        if ((ret = av_channel_layout_copy(&channel_layout, &s->channel_layout)) < 0)
+        if ((ret = zn_av_channel_layout_copy(&channel_layout, &s->channel_layout)) < 0)
             goto fail;
         all = 1;
     } else {
@@ -103,7 +103,7 @@ static av_cold int init(AVFilterContext *ctx)
             if ((ret = av_channel_layout_index_from_channel(&s->channel_layout, channel)) < 0) {
                 av_log(ctx, AV_LOG_ERROR, "Channel name '%s' not present in channel layout '%s'.\n",
                        pad.name, s->channel_layout_str);
-                av_freep(&pad.name);
+                zn_av_freep(&pad.name);
                 goto fail;
             }
 
@@ -205,7 +205,7 @@ static int activate(AVFilterContext *ctx)
                 break;
         }
 
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         if (ret < 0)
             return ret;
     }

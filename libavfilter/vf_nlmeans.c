@@ -258,7 +258,7 @@ static int config_input(AVFilterLink *inlink)
     s->ii_lz_32 = FFALIGN(s->ii_w + 1, 4);
 
     // "+1" is for the space of the top 0-line
-    s->ii_orig = av_calloc(s->ii_h + 1, s->ii_lz_32 * sizeof(*s->ii_orig));
+    s->ii_orig = zn_av_calloc(s->ii_h + 1, s->ii_lz_32 * sizeof(*s->ii_orig));
     if (!s->ii_orig)
         return AVERROR(ENOMEM);
 
@@ -267,8 +267,8 @@ static int config_input(AVFilterLink *inlink)
 
     // allocate weighted average for every pixel
     s->linesize = inlink->w + 100;
-    s->total_weight = av_malloc_array(s->linesize, inlink->h * sizeof(*s->total_weight));
-    s->sum = av_malloc_array(s->linesize, inlink->h * sizeof(*s->sum));
+    s->total_weight = zn_av_malloc_array(s->linesize, inlink->h * sizeof(*s->total_weight));
+    s->sum = zn_av_malloc_array(s->linesize, inlink->h * sizeof(*s->sum));
     if (!s->total_weight || !s->sum)
         return AVERROR(ENOMEM);
 
@@ -390,7 +390,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     AVFrame *out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -405,7 +405,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                       in->data[i],  in->linesize[i]);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -424,7 +424,7 @@ static av_cold int init(AVFilterContext *ctx)
 
     s->pdiff_scale = 1. / (h * h);
     s->max_meaningful_diff = log(255.) / s->pdiff_scale;
-    s->weight_lut = av_calloc(s->max_meaningful_diff + 1, sizeof(*s->weight_lut));
+    s->weight_lut = zn_av_calloc(s->max_meaningful_diff + 1, sizeof(*s->weight_lut));
     if (!s->weight_lut)
         return AVERROR(ENOMEM);
     for (int i = 0; i < s->max_meaningful_diff; i++)
@@ -456,10 +456,10 @@ static av_cold int init(AVFilterContext *ctx)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     NLMeansContext *s = ctx->priv;
-    av_freep(&s->weight_lut);
-    av_freep(&s->ii_orig);
-    av_freep(&s->total_weight);
-    av_freep(&s->sum);
+    zn_av_freep(&s->weight_lut);
+    zn_av_freep(&s->ii_orig);
+    zn_av_freep(&s->total_weight);
+    zn_av_freep(&s->sum);
 }
 
 static const AVFilterPad nlmeans_inputs[] = {

@@ -1054,7 +1054,7 @@ static inline int dv_write_pack(enum DVPackType pack_id, DVEncContext *c,
         fs = (c->frame->flags & AV_FRAME_FLAG_TOP_FIELD_FIRST) ? 0x00 : 0x40;
 
     if (DV_PROFILE_IS_HD(c->sys) ||
-        (int)(av_q2d(c->avctx->sample_aspect_ratio) *
+        (int)(zn_av_q2d(c->avctx->sample_aspect_ratio) *
               c->avctx->width / c->avctx->height * 10) >= 17)
         /* HD formats are always 16:9 */
         aspect = 0x02;

@@ -131,7 +131,7 @@ static int opus_find_frame_end(AVCodecParserContext *ctx, AVCodecContext *avctx,
             av_log(avctx, AV_LOG_ERROR, "Error parsing Ogg extradata.\n");
             return AVERROR_INVALIDDATA;
         }
-        av_freep(&s->ctx.channel_maps);
+        zn_av_freep(&s->ctx.channel_maps);
         s->extradata_parsed = 1;
     }
 

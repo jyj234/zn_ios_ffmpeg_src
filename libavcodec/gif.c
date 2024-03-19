@@ -497,7 +497,7 @@ static int gif_encode_frame(AVCodecContext *avctx, AVPacket *pkt,
     gif_image_write_image(avctx, &outbuf_ptr, end, palette,
                           pict->data[0], pict->linesize[0], pkt);
     if (!s->last_frame && !s->image) {
-        s->last_frame = av_frame_alloc();
+        s->last_frame = zn_av_frame_alloc();
         if (!s->last_frame)
             return AVERROR(ENOMEM);
     }
@@ -520,12 +520,12 @@ static int gif_encode_close(AVCodecContext *avctx)
 {
     GIFContext *s = avctx->priv_data;
 
-    av_freep(&s->lzw);
-    av_freep(&s->buf);
-    av_freep(&s->shrunk_buf);
+    zn_av_freep(&s->lzw);
+    zn_av_freep(&s->buf);
+    zn_av_freep(&s->shrunk_buf);
     s->buf_size = 0;
-    av_frame_free(&s->last_frame);
-    av_freep(&s->tmpl);
+    zn_av_frame_free(&s->last_frame);
+    zn_av_freep(&s->tmpl);
     return 0;
 }
 

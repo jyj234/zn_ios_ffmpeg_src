@@ -144,18 +144,18 @@ static void hds_free(AVFormatContext *s)
         if (os->out)
             ff_format_io_close(s, &os->out);
         if (os->ctx && os->ctx_inited)
-            av_write_trailer(os->ctx);
+            zn_av_write_trailer(os->ctx);
         if (os->ctx)
-            avio_context_free(&os->ctx->pb);
-        avformat_free_context(os->ctx);
-        av_freep(&os->metadata);
+            zn_avio_context_free(&os->ctx->pb);
+        zn_avformat_free_context(os->ctx);
+        zn_av_freep(&os->metadata);
         for (j = 0; j < os->nb_extra_packets; j++)
-            av_freep(&os->extra_packets[j]);
+            zn_av_freep(&os->extra_packets[j]);
         for (j = 0; j < os->nb_fragments; j++)
-            av_freep(&os->fragments[j]);
-        av_freep(&os->fragments);
+            zn_av_freep(&os->fragments[j]);
+        zn_av_freep(&os->fragments);
     }
-    av_freep(&c->streams);
+    zn_av_freep(&c->streams);
 }
 
 static int write_manifest(AVFormatContext *s, int final)
@@ -167,7 +167,7 @@ static int write_manifest(AVFormatContext *s, int final)
     double duration = 0;
 
     if (c->nb_streams > 0)
-        duration = c->streams[0].last_ts * av_q2d(s->streams[0]->time_base);
+        duration = c->streams[0].last_ts * zn_av_q2d(s->streams[0]->time_base);
 
     snprintf(filename, sizeof(filename), "%s/index.f4m", s->url);
     snprintf(temp_filename, sizeof(temp_filename), "%s/index.f4m.tmp", s->url);
@@ -198,7 +198,7 @@ static int write_manifest(AVFormatContext *s, int final)
         avio_printf(out, "\t<media bitrate=\"%d\" url=\"stream%d\" bootstrapInfoId=\"bootstrap%d\">\n", os->bitrate/1000, i, i);
         avio_printf(out, "\t\t<metadata>%s</metadata>\n", base64);
         avio_printf(out, "\t</media>\n");
-        av_free(base64);
+        zn_av_free(base64);
     }
     avio_printf(out, "</manifest>\n");
     avio_flush(out);
@@ -322,12 +322,12 @@ static int hds_write_header(AVFormatContext *s)
         return AVERROR(errno);
     }
 
-    oformat = av_guess_format("flv", NULL, NULL);
+    oformat = zn_av_guess_format("flv", NULL, NULL);
     if (!oformat) {
         return AVERROR_MUXER_NOT_FOUND;
     }
 
-    c->streams = av_calloc(s->nb_streams, sizeof(*c->streams));
+    c->streams = zn_av_calloc(s->nb_streams, sizeof(*c->streams));
     if (!c->streams) {
         return AVERROR(ENOMEM);
     }
@@ -361,7 +361,7 @@ static int hds_write_header(AVFormatContext *s)
 
         if (!os->ctx) {
             os->first_stream = i;
-            ctx = avformat_alloc_context();
+            ctx = zn_avformat_alloc_context();
             if (!ctx) {
                 return AVERROR(ENOMEM);
             }
@@ -370,7 +370,7 @@ static int hds_write_header(AVFormatContext *s)
             ctx->interrupt_callback = s->interrupt_callback;
             ctx->flags = s->flags;
 
-            ctx->pb = avio_alloc_context(os->iobuf, sizeof(os->iobuf),
+            ctx->pb = zn_avio_alloc_context(os->iobuf, sizeof(os->iobuf),
                                          1, os,
                                          NULL, hds_write, NULL);
             if (!ctx->pb) {
@@ -381,10 +381,10 @@ static int hds_write_header(AVFormatContext *s)
         }
         s->streams[i]->id = c->nb_streams;
 
-        if (!(st = avformat_new_stream(ctx, NULL))) {
+        if (!(st = zn_avformat_new_stream(ctx, NULL))) {
             return AVERROR(ENOMEM);
         }
-        avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
+        zn_avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
         st->codecpar->codec_tag = 0;
         st->sample_aspect_ratio = s->streams[i]->sample_aspect_ratio;
         st->time_base = s->streams[i]->time_base;
@@ -395,7 +395,7 @@ static int hds_write_header(AVFormatContext *s)
     for (i = 0; i < c->nb_streams; i++) {
         OutputStream *os = &c->streams[i];
         int j;
-        if ((ret = avformat_write_header(os->ctx, NULL)) < 0) {
+        if ((ret = zn_avformat_write_header(os->ctx, NULL)) < 0) {
              return ret;
         }
         os->ctx_inited = 1;
@@ -484,7 +484,7 @@ static int hds_flush(AVFormatContext *s, OutputStream *os, int final,
         if (remove > 0) {
             for (i = 0; i < remove; i++) {
                 unlink(os->fragments[i]->file);
-                av_freep(&os->fragments[i]);
+                zn_av_freep(&os->fragments[i]);
             }
             os->nb_fragments -= remove;
             memmove(os->fragments, os->fragments + remove,

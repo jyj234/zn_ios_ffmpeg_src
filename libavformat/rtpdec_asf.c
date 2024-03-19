@@ -116,15 +116,15 @@ int ff_wms_parse_sdp_a_line(AVFormatContext *s, const char *p)
                    "Failed to fix invalid RTSP-MS/ASF min_pktsize\n");
         init_packetizer(&pb, buf, len);
         if (rt->asf_ctx) {
-            avformat_close_input(&rt->asf_ctx);
+            zn_avformat_close_input(&rt->asf_ctx);
         }
 
         if (!(iformat = av_find_input_format("asf")))
             return AVERROR_DEMUXER_NOT_FOUND;
 
-        rt->asf_ctx = avformat_alloc_context();
+        rt->asf_ctx = zn_avformat_alloc_context();
         if (!rt->asf_ctx) {
-            av_free(buf);
+            zn_av_free(buf);
             return AVERROR(ENOMEM);
         }
         rt->asf_ctx->pb      = &pb.pub;
@@ -135,15 +135,15 @@ int ff_wms_parse_sdp_a_line(AVFormatContext *s, const char *p)
             return ret;
         }
 
-        ret = avformat_open_input(&rt->asf_ctx, "", iformat, &opts);
+        ret = zn_avformat_open_input(&rt->asf_ctx, "", iformat, &opts);
         av_dict_free(&opts);
         if (ret < 0) {
-            av_free(pb.pub.buffer);
+            zn_av_free(pb.pub.buffer);
             return ret;
         }
         av_dict_copy(&s->metadata, rt->asf_ctx->metadata, 0);
         rt->asf_pb_pos = avio_tell(&pb.pub);
-        av_free(pb.pub.buffer);
+        zn_av_free(pb.pub.buffer);
         rt->asf_ctx->pb = NULL;
     }
     return ret;
@@ -164,7 +164,7 @@ static int asfrtp_parse_sdp_line(AVFormatContext *s, int stream_index,
 
             for (i = 0; i < rt->asf_ctx->nb_streams; i++) {
                 if (s->streams[stream_index]->id == rt->asf_ctx->streams[i]->id) {
-                    avcodec_parameters_copy(s->streams[stream_index]->codecpar,
+                    zn_avcodec_parameters_copy(s->streams[stream_index]->codecpar,
                                             rt->asf_ctx->streams[i]->codecpar);
                     ffstream(s->streams[stream_index])->need_parsing =
                         ffstream(rt->asf_ctx->streams[i])->need_parsing;
@@ -208,7 +208,7 @@ static int asfrtp_parse_packet(AVFormatContext *s, PayloadContext *asf,
         if (len < 4)
             return -1;
 
-        av_freep(&asf->buf);
+        zn_av_freep(&asf->buf);
 
         ffio_init_read_context(pb0, buf, len);
 
@@ -288,7 +288,7 @@ static int asfrtp_parse_packet(AVFormatContext *s, PayloadContext *asf,
                 return 1; // FIXME: return 0 if last packet
             }
         }
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 
     return res == 1 ? -1 : res;
@@ -297,7 +297,7 @@ static int asfrtp_parse_packet(AVFormatContext *s, PayloadContext *asf,
 static void asfrtp_close_context(PayloadContext *asf)
 {
     ffio_free_dyn_buf(&asf->pktbuf);
-    av_freep(&asf->buf);
+    zn_av_freep(&asf->buf);
 }
 
 #define RTP_ASF_HANDLER(n, s, t) \

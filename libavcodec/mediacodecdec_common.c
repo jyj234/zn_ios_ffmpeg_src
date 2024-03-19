@@ -167,8 +167,8 @@ static void ff_mediacodec_dec_unref(MediaCodecDecContext *s)
             s->surface = NULL;
         }
 
-        av_freep(&s->codec_name);
-        av_freep(&s);
+        zn_av_freep(&s->codec_name);
+        zn_av_freep(&s);
     }
 }
 
@@ -187,7 +187,7 @@ static void mediacodec_buffer_release(void *opaque, uint8_t *data)
     }
 
     ff_mediacodec_dec_unref(ctx);
-    av_freep(&buffer);
+    zn_av_freep(&buffer);
 }
 
 static int mediacodec_wrap_hw_buffer(AVCodecContext *avctx,
@@ -255,7 +255,7 @@ static int mediacodec_wrap_hw_buffer(AVCodecContext *avctx,
 
     return 0;
 fail:
-    av_freep(&buffer);
+    zn_av_freep(&buffer);
     status = ff_AMediaCodec_releaseOutputBuffer(s->codec, index, 0);
     if (status < 0) {
         av_log(avctx, AV_LOG_ERROR, "Failed to release output buffer\n");
@@ -456,10 +456,10 @@ static int mediacodec_dec_parse_format(AVCodecContext *avctx, MediaCodecDecConte
         s->crop_top, s->crop_bottom, s->crop_left, s->crop_right,
         width, height);
 
-    av_freep(&format);
+    zn_av_freep(&format);
     return ff_set_dimensions(avctx, width, height);
 fail:
-    av_freep(&format);
+    zn_av_freep(&format);
     return ret;
 }
 
@@ -566,7 +566,7 @@ int ff_mediacodec_dec_init(AVCodecContext *avctx, MediaCodecDecContext *s,
         av_log(avctx, AV_LOG_ERROR,
             "Failed to configure codec %s (status = %d) with format %s\n",
             s->codec_name, status, desc);
-        av_freep(&desc);
+        zn_av_freep(&desc);
 
         ret = AVERROR_EXTERNAL;
         goto fail;
@@ -578,7 +578,7 @@ int ff_mediacodec_dec_init(AVCodecContext *avctx, MediaCodecDecContext *s,
         av_log(avctx, AV_LOG_ERROR,
             "Failed to start codec %s (status = %d) with format %s\n",
             s->codec_name, status, desc);
-        av_freep(&desc);
+        zn_av_freep(&desc);
         ret = AVERROR_EXTERNAL;
         goto fail;
     }
@@ -783,7 +783,7 @@ int ff_mediacodec_dec_receive(AVCodecContext *avctx, MediaCodecDecContext *s,
             return AVERROR_EXTERNAL;
         }
         av_log(avctx, AV_LOG_INFO, "Output MediaFormat changed to %s\n", format);
-        av_freep(&format);
+        zn_av_freep(&format);
 
         if ((ret = mediacodec_dec_parse_format(avctx, s)) < 0) {
             return ret;

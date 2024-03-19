@@ -171,14 +171,14 @@ static int cdxl_read_packet(AVFormatContext *s, AVPacket *pkt)
 
     if (cdxl->read_chunk && audio_size) {
         if (cdxl->audio_stream_index == -1) {
-            AVStream *st = avformat_new_stream(s, NULL);
+            AVStream *st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 return AVERROR(ENOMEM);
 
             st->codecpar->codec_type    = AVMEDIA_TYPE_AUDIO;
             st->codecpar->codec_tag     = 0;
             st->codecpar->codec_id      = AV_CODEC_ID_PCM_S8_PLANAR;
-            av_channel_layout_default(&st->codecpar->ch_layout, channels);
+            zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
             st->codecpar->sample_rate= cdxl->srate;
             st->start_time           = 0;
             cdxl->audio_stream_index = st->index;
@@ -196,7 +196,7 @@ static int cdxl_read_packet(AVFormatContext *s, AVPacket *pkt)
         cdxl->read_chunk  = 0;
     } else {
         if (cdxl->video_stream_index == -1) {
-            AVStream *st = avformat_new_stream(s, NULL);
+            AVStream *st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 return AVERROR(ENOMEM);
 

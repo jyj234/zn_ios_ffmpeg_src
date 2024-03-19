@@ -86,7 +86,7 @@ static int read_header(AVFormatContext *s)
     if (!ico->nb_images)
         return AVERROR_INVALIDDATA;
 
-    ico->images = av_malloc_array(ico->nb_images, sizeof(IcoImage));
+    ico->images = zn_av_malloc_array(ico->nb_images, sizeof(IcoImage));
     if (!ico->images)
         return AVERROR(ENOMEM);
 
@@ -97,7 +97,7 @@ static int read_header(AVFormatContext *s)
         if (avio_seek(pb, 6 + i * 16, SEEK_SET) < 0)
             return AVERROR_INVALIDDATA;
 
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
 
@@ -212,7 +212,7 @@ static int read_packet(AVFormatContext *s, AVPacket *pkt)
 static int ico_read_close(AVFormatContext * s)
 {
     IcoDemuxContext *ico = s->priv_data;
-    av_freep(&ico->images);
+    zn_av_freep(&ico->images);
     return 0;
 }
 

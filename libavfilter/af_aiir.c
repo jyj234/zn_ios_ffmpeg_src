@@ -375,21 +375,21 @@ static int read_gains(AVFilterContext *ctx, char *item_str, int nb_items)
             arg = prev_arg;
 
         if (!arg) {
-            av_freep(&old_str);
+            zn_av_freep(&old_str);
             return AVERROR(EINVAL);
         }
 
         p = NULL;
         if (av_sscanf(arg, "%lf", &s->iir[i].g) != 1) {
             av_log(ctx, AV_LOG_ERROR, "Invalid gains supplied: %s\n", arg);
-            av_freep(&old_str);
+            zn_av_freep(&old_str);
             return AVERROR(EINVAL);
         }
 
         prev_arg = arg;
     }
 
-    av_freep(&old_str);
+    zn_av_freep(&old_str);
 
     return 0;
 }
@@ -409,12 +409,12 @@ static int read_tf_coefficients(AVFilterContext *ctx, char *item_str, int nb_ite
         p = NULL;
         if (av_sscanf(arg, "%lf", &dst[i]) != 1) {
             av_log(ctx, AV_LOG_ERROR, "Invalid coefficients supplied: %s\n", arg);
-            av_freep(&old_str);
+            zn_av_freep(&old_str);
             return AVERROR(EINVAL);
         }
     }
 
-    av_freep(&old_str);
+    zn_av_freep(&old_str);
 
     return 0;
 }
@@ -434,12 +434,12 @@ static int read_zp_coefficients(AVFilterContext *ctx, char *item_str, int nb_ite
         p = NULL;
         if (av_sscanf(arg, format, &dst[i*2], &dst[i*2+1]) != 2) {
             av_log(ctx, AV_LOG_ERROR, "Invalid coefficients supplied: %s\n", arg);
-            av_freep(&old_str);
+            zn_av_freep(&old_str);
             return AVERROR(EINVAL);
         }
     }
 
-    av_freep(&old_str);
+    zn_av_freep(&old_str);
 
     return 0;
 }
@@ -462,17 +462,17 @@ static int read_channels(AVFilterContext *ctx, int channels, uint8_t *item_str, 
             arg = prev_arg;
 
         if (!arg) {
-            av_freep(&old_str);
+            zn_av_freep(&old_str);
             return AVERROR(EINVAL);
         }
 
         count_coefficients(arg, &iir->nb_ab[ab]);
 
         p = NULL;
-        iir->cache[ab] = av_calloc(iir->nb_ab[ab] + 1, sizeof(double));
-        iir->ab[ab] = av_calloc(iir->nb_ab[ab] * (!!s->format + 1), sizeof(double));
+        iir->cache[ab] = zn_av_calloc(iir->nb_ab[ab] + 1, sizeof(double));
+        iir->ab[ab] = zn_av_calloc(iir->nb_ab[ab] * (!!s->format + 1), sizeof(double));
         if (!iir->ab[ab] || !iir->cache[ab]) {
-            av_freep(&old_str);
+            zn_av_freep(&old_str);
             return AVERROR(ENOMEM);
         }
 
@@ -482,13 +482,13 @@ static int read_channels(AVFilterContext *ctx, int channels, uint8_t *item_str, 
             ret = read_tf_coefficients(ctx, arg, iir->nb_ab[ab], iir->ab[ab]);
         }
         if (ret < 0) {
-            av_freep(&old_str);
+            zn_av_freep(&old_str);
             return ret;
         }
         prev_arg = arg;
     }
 
-    av_freep(&old_str);
+    zn_av_freep(&old_str);
 
     return 0;
 }
@@ -563,8 +563,8 @@ static int convert_zp2tf(AVFilterContext *ctx, int channels)
         IIRChannel *iir = &s->iir[ch];
         double *topc, *botc;
 
-        topc = av_calloc((iir->nb_ab[1] + 1) * 2, sizeof(*topc));
-        botc = av_calloc((iir->nb_ab[0] + 1) * 2, sizeof(*botc));
+        topc = zn_av_calloc((iir->nb_ab[1] + 1) * 2, sizeof(*topc));
+        botc = zn_av_calloc((iir->nb_ab[0] + 1) * 2, sizeof(*botc));
         if (!topc || !botc) {
             ret = AVERROR(ENOMEM);
             goto fail;
@@ -593,8 +593,8 @@ static int convert_zp2tf(AVFilterContext *ctx, int channels)
         normalize_coeffs(ctx, ch);
 
 fail:
-        av_free(topc);
-        av_free(botc);
+        zn_av_free(topc);
+        zn_av_free(botc);
         if (ret < 0)
             break;
     }
@@ -612,7 +612,7 @@ static int decompose_zp2biquads(AVFilterContext *ctx, int channels)
         int nb_biquads = (FFMAX(iir->nb_ab[0], iir->nb_ab[1]) + 1) / 2;
         int current_biquad = 0;
 
-        iir->biquads = av_calloc(nb_biquads, sizeof(BiquadContext));
+        iir->biquads = zn_av_calloc(nb_biquads, sizeof(BiquadContext));
         if (!iir->biquads)
             return AVERROR(ENOMEM);
 
@@ -825,18 +825,18 @@ static int convert_serial2parallel(AVFilterContext *ctx, int channels)
         IIRChannel *iir = &s->iir[ch];
         int nb_biquads = (FFMAX(iir->nb_ab[0], iir->nb_ab[1]) + 1) / 2;
         int length = nb_biquads * 2 + 1;
-        double *impulse = av_calloc(length, sizeof(*impulse));
-        double *y = av_calloc(length, sizeof(*y));
-        double *resp = av_calloc(length, sizeof(*resp));
-        double *M = av_calloc((length - 1) * 2 * nb_biquads, sizeof(*M));
-        double *W = av_calloc((length - 1) * 2 * nb_biquads, sizeof(*W));
+        double *impulse = zn_av_calloc(length, sizeof(*impulse));
+        double *y = zn_av_calloc(length, sizeof(*y));
+        double *resp = zn_av_calloc(length, sizeof(*resp));
+        double *M = zn_av_calloc((length - 1) * 2 * nb_biquads, sizeof(*M));
+        double *W = zn_av_calloc((length - 1) * 2 * nb_biquads, sizeof(*W));
 
         if (!impulse || !y || !resp || !M) {
-            av_free(impulse);
-            av_free(y);
-            av_free(resp);
-            av_free(M);
-            av_free(W);
+            zn_av_free(impulse);
+            zn_av_free(y);
+            zn_av_free(resp);
+            zn_av_free(M);
+            zn_av_free(W);
             return AVERROR(ENOMEM);
         }
 
@@ -873,11 +873,11 @@ static int convert_serial2parallel(AVFilterContext *ctx, int channels)
             biquad->b[2] = resp[n * 2 + 1];
         }
 
-        av_free(impulse);
-        av_free(y);
-        av_free(resp);
-        av_free(M);
-        av_free(W);
+        zn_av_free(impulse);
+        zn_av_free(y);
+        zn_av_free(resp);
+        zn_av_free(M);
+        zn_av_free(W);
 
         if (ret < 0)
             return ret;
@@ -973,8 +973,8 @@ static void convert_sf2tf(AVFilterContext *ctx, int channels)
 
     for (ch = 0; ch < channels; ch++) {
         IIRChannel *iir = &s->iir[ch];
-        double *temp0 = av_calloc(iir->nb_ab[0], sizeof(*temp0));
-        double *temp1 = av_calloc(iir->nb_ab[1], sizeof(*temp1));
+        double *temp0 = zn_av_calloc(iir->nb_ab[0], sizeof(*temp0));
+        double *temp1 = zn_av_calloc(iir->nb_ab[1], sizeof(*temp1));
 
         if (!temp0 || !temp1)
             goto next;
@@ -989,8 +989,8 @@ static void convert_sf2tf(AVFilterContext *ctx, int channels)
             iir->ab[1][n] = coef_sf2zf(temp1, iir->nb_ab[1] - 1, n);
 
 next:
-        av_free(temp0);
-        av_free(temp1);
+        zn_av_free(temp0);
+        zn_av_free(temp1);
     }
 }
 
@@ -1152,10 +1152,10 @@ static void draw_response(AVFilterContext *ctx, AVFrame *out, int sample_rate)
 
     memset(out->data[0], 0, s->h * out->linesize[0]);
 
-    phase = av_malloc_array(s->w, sizeof(*phase));
-    temp = av_malloc_array(s->w, sizeof(*temp));
-    mag = av_malloc_array(s->w, sizeof(*mag));
-    delay = av_malloc_array(s->w, sizeof(*delay));
+    phase = zn_av_malloc_array(s->w, sizeof(*phase));
+    temp = zn_av_malloc_array(s->w, sizeof(*temp));
+    mag = zn_av_malloc_array(s->w, sizeof(*mag));
+    delay = zn_av_malloc_array(s->w, sizeof(*delay));
     if (!mag || !phase || !delay || !temp)
         goto end;
 
@@ -1252,10 +1252,10 @@ static void draw_response(AVFilterContext *ctx, AVFrame *out, int sample_rate)
     }
 
 end:
-    av_free(delay);
-    av_free(temp);
-    av_free(phase);
-    av_free(mag);
+    zn_av_free(delay);
+    zn_av_free(temp);
+    zn_av_free(phase);
+    zn_av_free(mag);
 }
 
 static int config_output(AVFilterLink *outlink)
@@ -1266,7 +1266,7 @@ static int config_output(AVFilterLink *outlink)
     int ch, ret, i;
 
     s->channels = inlink->ch_layout.nb_channels;
-    s->iir = av_calloc(s->channels, sizeof(*s->iir));
+    s->iir = zn_av_calloc(s->channels, sizeof(*s->iir));
     if (!s->iir)
         return AVERROR(ENOMEM);
 
@@ -1296,7 +1296,7 @@ static int config_output(AVFilterLink *outlink)
         check_stability(ctx, inlink->ch_layout.nb_channels);
     }
 
-    av_frame_free(&s->video);
+    zn_av_frame_free(&s->video);
     if (s->response) {
         s->video = ff_get_video_buffer(ctx->outputs[1], s->w, s->h);
         if (!s->video)
@@ -1395,7 +1395,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -1413,7 +1413,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     if (s->response) {
         AVFilterLink *outlink = ctx->outputs[1];
@@ -1502,16 +1502,16 @@ static av_cold void uninit(AVFilterContext *ctx)
     if (s->iir) {
         for (ch = 0; ch < s->channels; ch++) {
             IIRChannel *iir = &s->iir[ch];
-            av_freep(&iir->ab[0]);
-            av_freep(&iir->ab[1]);
-            av_freep(&iir->cache[0]);
-            av_freep(&iir->cache[1]);
-            av_freep(&iir->biquads);
+            zn_av_freep(&iir->ab[0]);
+            zn_av_freep(&iir->ab[1]);
+            zn_av_freep(&iir->cache[0]);
+            zn_av_freep(&iir->cache[1]);
+            zn_av_freep(&iir->biquads);
         }
     }
-    av_freep(&s->iir);
+    zn_av_freep(&s->iir);
 
-    av_frame_free(&s->video);
+    zn_av_frame_free(&s->video);
 }
 
 static const AVFilterPad inputs[] = {

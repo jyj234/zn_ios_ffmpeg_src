@@ -62,7 +62,7 @@ static int webvtt_read_header(AVFormatContext *s)
     WebVTTContext *webvtt = s->priv_data;
     AVBPrint cue;
     int res = 0;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

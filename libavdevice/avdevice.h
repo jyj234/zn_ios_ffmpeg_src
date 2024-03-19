@@ -41,7 +41,7 @@
  * provides various "special" platform-specific muxers and demuxers, e.g. for
  * grabbing devices, audio capture and playback etc. As a consequence, the
  * (de)muxers in libavdevice are of the AVFMT_NOFILE type (they use their own
- * I/O functions). The filename passed to avformat_open_input() often does not
+ * I/O functions). The filename passed to zn_avformat_open_input() often does not
  * refer to an actually existing file, but has some special device-specific
  * meaning - e.g. for xcbgrab it is the display name.
  *
@@ -378,8 +378,8 @@ void avdevice_free_list_devices(AVDeviceInfoList **device_list);
  * @param device           device format. May be NULL if device name is set.
  * @param device_name      device name. May be NULL if device format is set.
  * @param device_options   An AVDictionary filled with device-private options. May be NULL.
- *                         The same options must be passed later to avformat_write_header() for output
- *                         devices or avformat_open_input() for input devices, or at any other place
+ *                         The same options must be passed later to zn_avformat_write_header() for output
+ *                         devices or zn_avformat_open_input() for input devices, or at any other place
  *                         that affects device-private options.
  * @param[out] device_list list of autodetected devices
  * @return count of autodetected devices, negative on error.

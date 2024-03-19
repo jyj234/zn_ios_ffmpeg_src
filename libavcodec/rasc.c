@@ -755,8 +755,8 @@ static av_cold int decode_init(AVCodecContext *avctx)
 {
     RASCContext *s = avctx->priv_data;
 
-    s->frame1 = av_frame_alloc();
-    s->frame2 = av_frame_alloc();
+    s->frame1 = zn_av_frame_alloc();
+    s->frame2 = zn_av_frame_alloc();
     if (!s->frame1 || !s->frame2)
         return AVERROR(ENOMEM);
 
@@ -767,12 +767,12 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     RASCContext *s = avctx->priv_data;
 
-    av_freep(&s->cursor);
+    zn_av_freep(&s->cursor);
     s->cursor_size = 0;
-    av_freep(&s->delta);
+    zn_av_freep(&s->delta);
     s->delta_size = 0;
-    av_frame_free(&s->frame1);
-    av_frame_free(&s->frame2);
+    zn_av_frame_free(&s->frame1);
+    zn_av_frame_free(&s->frame2);
     ff_inflate_end(&s->zstream);
 
     return 0;

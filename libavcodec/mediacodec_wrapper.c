@@ -636,7 +636,7 @@ done_with_type:
                 type = NULL;
             }
 
-            av_freep(&supported_type);
+            zn_av_freep(&supported_type);
 
             if (found_codec) {
                 break;
@@ -658,7 +658,7 @@ done_with_info:
             break;
         }
 
-        av_freep(&name);
+        zn_av_freep(&name);
     }
 
 done:
@@ -690,13 +690,13 @@ done:
         (*env)->DeleteLocalRef(env, profile_levels);
     }
 
-    av_freep(&supported_type);
+    zn_av_freep(&supported_type);
 
     ff_jni_reset_jfields(env, &jfields, jni_amediacodeclist_mapping, 0, log_ctx);
     ff_jni_reset_jfields(env, &mediaformat_jfields, jni_amediaformat_mapping, 0, log_ctx);
 
     if (!found_codec) {
-        av_freep(&name);
+        zn_av_freep(&name);
     }
 
     return name;
@@ -716,7 +716,7 @@ static FFAMediaFormat *mediaformat_jni_new(void)
 
     env = ff_jni_get_env(format);
     if (!env) {
-        av_freep(&format);
+        zn_av_freep(&format);
         return NULL;
     }
 
@@ -741,7 +741,7 @@ fail:
 
     if (!format->object) {
         ff_jni_reset_jfields(env, &format->jfields, jni_amediaformat_mapping, 1, format);
-        av_freep(&format);
+        zn_av_freep(&format);
     }
 
     return (FFAMediaFormat *)format;
@@ -760,7 +760,7 @@ static FFAMediaFormat *mediaformat_jni_newFromObject(void *object)
 
     env = ff_jni_get_env(format);
     if (!env) {
-        av_freep(&format);
+        zn_av_freep(&format);
         return NULL;
     }
 
@@ -777,7 +777,7 @@ static FFAMediaFormat *mediaformat_jni_newFromObject(void *object)
 fail:
     ff_jni_reset_jfields(env, &format->jfields, jni_amediaformat_mapping, 1, format);
 
-    av_freep(&format);
+    zn_av_freep(&format);
 
     return NULL;
 }
@@ -799,7 +799,7 @@ static int mediaformat_jni_delete(FFAMediaFormat* ctx)
 
     ff_jni_reset_jfields(env, &format->jfields, jni_amediaformat_mapping, 1, format);
 
-    av_freep(&format);
+    zn_av_freep(&format);
 
     return ret;
 }
@@ -1292,7 +1292,7 @@ static inline FFAMediaCodec *codec_create(int method, const char *arg)
 
     env = ff_jni_get_env(codec);
     if (!env) {
-        av_freep(&codec);
+        zn_av_freep(&codec);
         return NULL;
     }
 
@@ -1368,7 +1368,7 @@ fail:
         }
 
         ff_jni_reset_jfields(env, &codec->jfields, jni_amediacodec_mapping, 1, codec);
-        av_freep(&codec);
+        zn_av_freep(&codec);
     }
 
     return (FFAMediaCodec *)codec;
@@ -1415,7 +1415,7 @@ static int mediacodec_jni_delete(FFAMediaCodec* ctx)
 
     ff_jni_reset_jfields(env, &codec->jfields, jni_amediacodec_mapping, 1, codec);
 
-    av_freep(&codec);
+    zn_av_freep(&codec);
 
     return ret;
 }
@@ -2055,7 +2055,7 @@ static FFAMediaFormat *mediaformat_ndk_create(AMediaFormat *impl)
 error:
     if (format->libmedia)
         dlclose(format->libmedia);
-    av_freep(&format);
+    zn_av_freep(&format);
     return NULL;
 }
 
@@ -2077,7 +2077,7 @@ static int mediaformat_ndk_delete(FFAMediaFormat* ctx)
             ret = AVERROR_EXTERNAL;
     if (format->libmedia)
         dlclose(format->libmedia);
-    av_free(format);
+    zn_av_free(format);
 
     return ret;
 }
@@ -2266,7 +2266,7 @@ static inline FFAMediaCodec *ndk_codec_create(int method, const char *arg) {
 error:
     if (codec->libmedia)
         dlclose(codec->libmedia);
-    av_freep(&codec);
+    zn_av_freep(&codec);
     return NULL;
 }
 
@@ -2296,7 +2296,7 @@ static int mediacodec_ndk_delete(FFAMediaCodec* ctx)
         ANativeWindow_release(codec->window);
     if (codec->libmedia)
         dlclose(codec->libmedia);
-    av_free(codec);
+    zn_av_free(codec);
 
     return ret;
 }

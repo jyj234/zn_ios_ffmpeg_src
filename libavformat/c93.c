@@ -79,7 +79,7 @@ static int read_header(AVFormatContext *s)
     /* Audio streams are added if audio packets are found */
     s->ctx_flags |= AVFMTCTX_NOHEADER;
 
-    video = avformat_new_stream(s, NULL);
+    video = zn_avformat_new_stream(s, NULL);
     if (!video)
         return AVERROR(ENOMEM);
 
@@ -117,7 +117,7 @@ static int read_packet(AVFormatContext *s, AVPacket *pkt)
         datasize = avio_rl16(pb);
         if (datasize > 42) {
             if (!c93->audio) {
-                c93->audio = avformat_new_stream(s, NULL);
+                c93->audio = zn_avformat_new_stream(s, NULL);
                 if (!c93->audio)
                     return AVERROR(ENOMEM);
                 c93->audio->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

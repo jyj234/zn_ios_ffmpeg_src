@@ -289,12 +289,12 @@ static void set_meta(AVDictionary **metadata, const char *key, char comp, float 
 
 static void map_uninit(Map2D *map)
 {
-    av_freep(&map->value);
+    zn_av_freep(&map->value);
 }
 
 static int map_init(Map2D *map, int w, int h)
 {
-    map->value = av_calloc(h * w, sizeof(*map->value));
+    map->value = zn_av_calloc(h * w, sizeof(*map->value));
     if (!map->value)
         return AVERROR(ENOMEM);
 
@@ -311,7 +311,7 @@ static void map_list_free(HeatmapList **pl)
     while (l) {
         HeatmapList *next = l->next;
         map_uninit(&l->map);
-        av_freep(&l);
+        zn_av_freep(&l);
         l = next;
     }
 
@@ -329,7 +329,7 @@ static int map_alloc(HeatmapList **pl, int w, int h)
 
     ret = map_init(&l->map, w, h);
     if (ret < 0) {
-        av_freep(&l);
+        zn_av_freep(&l);
         return ret;
     }
 
@@ -1035,8 +1035,8 @@ generate_eye_tape_map(SSIM360Context *s,
     // Ensure tape length is a multiple of 4, for full SSIM block coverage
     int tape_length = s->tape_length[plane] = ((int)ROUNDED_DIV(x_range, 4)) << 2;
 
-    s->ref_tape_map[plane][eye]  = av_malloc_array(tape_length * 8, sizeof(BilinearMap));
-    s->main_tape_map[plane][eye] = av_malloc_array(tape_length * 8, sizeof(BilinearMap));
+    s->ref_tape_map[plane][eye]  = zn_av_malloc_array(tape_length * 8, sizeof(BilinearMap));
+    s->main_tape_map[plane][eye] = zn_av_malloc_array(tape_length * 8, sizeof(BilinearMap));
     if (!s->ref_tape_map[plane][eye] || !s->main_tape_map[plane][eye])
         return AVERROR(ENOMEM);
 
@@ -1184,7 +1184,7 @@ static int do_ssim360(FFFrameSync *fs)
         map_uninit(&s->heatmaps->map);
         h_ptr = s->heatmaps;
         s->heatmaps = s->heatmaps->next;
-        av_freep(&h_ptr);
+        zn_av_freep(&h_ptr);
     }
     s->ssim360_total += ssim360v;
 
@@ -1295,7 +1295,7 @@ static int parse_heatmaps(void *logctx, HeatmapList **proot,
         }
 
 line_fail:
-        av_freep(&line);
+        zn_av_freep(&line);
         if (ret < 0)
             goto fail;
     }
@@ -1611,7 +1611,7 @@ static int config_output(AVFilterLink *outlink)
 
     if (s->use_tape) {
         // s->temp will be allocated for the tape width = 8. The tape is long downwards
-        s->temp = av_malloc_array((2 * 8 + 12), sizeof(*s->temp));
+        s->temp = zn_av_malloc_array((2 * 8 + 12), sizeof(*s->temp));
         if (!s->temp)
             return AVERROR(ENOMEM);
 
@@ -1623,7 +1623,7 @@ static int config_output(AVFilterLink *outlink)
                 return AVERROR(ENOMEM);
         }
     } else {
-        s->temp = av_malloc_array((2 * reflink->w + 12), sizeof(*s->temp) * (1 + (desc->comp[0].depth > 8)));
+        s->temp = zn_av_malloc_array((2 * reflink->w + 12), sizeof(*s->temp) * (1 + (desc->comp[0].depth > 8)));
         if (!s->temp)
             return AVERROR(ENOMEM);
 
@@ -1697,10 +1697,10 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     for (int i = 0; i < s->nb_components; i++) {
         for (int eye = 0; eye < 2; eye++) {
-            av_freep(&s->ref_tape_map[i][eye]);
-            av_freep(&s->main_tape_map[i][eye]);
+            zn_av_freep(&s->ref_tape_map[i][eye]);
+            zn_av_freep(&s->main_tape_map[i][eye]);
         }
-        av_freep(&s->ssim360_hist[i]);
+        zn_av_freep(&s->ssim360_hist[i]);
     }
 
     ff_framesync_uninit(&s->fs);
@@ -1708,7 +1708,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     if (s->stats_file && s->stats_file != stdout)
         fclose(s->stats_file);
 
-    av_freep(&s->temp);
+    zn_av_freep(&s->temp);
 }
 
 #define PF(suf) AV_PIX_FMT_YUV420##suf,  AV_PIX_FMT_YUV422##suf,  AV_PIX_FMT_YUV444##suf, AV_PIX_FMT_GBR##suf

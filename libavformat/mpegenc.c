@@ -999,7 +999,7 @@ static int remove_decoded_packets(AVFormatContext *ctx, int64_t scr)
             stream->predecode_packet = pkt_desc->next;
             if (!stream->predecode_packet)
                 stream->last_packet = NULL;
-            av_freep(&pkt_desc);
+            zn_av_freep(&pkt_desc);
         }
     }
 
@@ -1281,7 +1281,7 @@ static void mpeg_mux_deinit(AVFormatContext *ctx)
             continue;
         for (PacketDesc *pkt = stream->predecode_packet; pkt; ) {
             PacketDesc *tmp = pkt->next;
-            av_free(pkt);
+            zn_av_free(pkt);
             pkt = tmp;
         }
         av_fifo_freep2(&stream->fifo);

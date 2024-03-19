@@ -90,19 +90,19 @@ static void pkt_dump_internal(void *avcl, FILE *f, int level, const AVPacket *pk
 {
     HEXDUMP_PRINT("stream #%d:\n", pkt->stream_index);
     HEXDUMP_PRINT("  keyframe=%d\n", (pkt->flags & AV_PKT_FLAG_KEY) != 0);
-    HEXDUMP_PRINT("  duration=%0.3f\n", pkt->duration * av_q2d(time_base));
-    /* DTS is _always_ valid after av_read_frame() */
+    HEXDUMP_PRINT("  duration=%0.3f\n", pkt->duration * zn_av_q2d(time_base));
+    /* DTS is _always_ valid after zn_av_read_frame() */
     HEXDUMP_PRINT("  dts=");
     if (pkt->dts == AV_NOPTS_VALUE)
         HEXDUMP_PRINT("N/A");
     else
-        HEXDUMP_PRINT("%0.3f", pkt->dts * av_q2d(time_base));
+        HEXDUMP_PRINT("%0.3f", pkt->dts * zn_av_q2d(time_base));
     /* PTS may not be known if B-frames are present. */
     HEXDUMP_PRINT("  pts=");
     if (pkt->pts == AV_NOPTS_VALUE)
         HEXDUMP_PRINT("N/A");
     else
-        HEXDUMP_PRINT("%0.3f", pkt->pts * av_q2d(time_base));
+        HEXDUMP_PRINT("%0.3f", pkt->pts * zn_av_q2d(time_base));
     HEXDUMP_PRINT("\n");
     HEXDUMP_PRINT("  size=%d\n", pkt->size);
     if (dump_payload)
@@ -347,14 +347,14 @@ static void dump_mastering_display_metadata(void *ctx, const AVPacketSideData *s
            "r(%5.4f,%5.4f) g(%5.4f,%5.4f) b(%5.4f %5.4f) wp(%5.4f, %5.4f) "
            "min_luminance=%f, max_luminance=%f",
            metadata->has_primaries, metadata->has_luminance,
-           av_q2d(metadata->display_primaries[0][0]),
-           av_q2d(metadata->display_primaries[0][1]),
-           av_q2d(metadata->display_primaries[1][0]),
-           av_q2d(metadata->display_primaries[1][1]),
-           av_q2d(metadata->display_primaries[2][0]),
-           av_q2d(metadata->display_primaries[2][1]),
-           av_q2d(metadata->white_point[0]), av_q2d(metadata->white_point[1]),
-           av_q2d(metadata->min_luminance), av_q2d(metadata->max_luminance));
+           zn_av_q2d(metadata->display_primaries[0][0]),
+           zn_av_q2d(metadata->display_primaries[0][1]),
+           zn_av_q2d(metadata->display_primaries[1][0]),
+           zn_av_q2d(metadata->display_primaries[1][1]),
+           zn_av_q2d(metadata->display_primaries[2][0]),
+           zn_av_q2d(metadata->display_primaries[2][1]),
+           zn_av_q2d(metadata->white_point[0]), zn_av_q2d(metadata->white_point[1]),
+           zn_av_q2d(metadata->min_luminance), zn_av_q2d(metadata->max_luminance));
 }
 
 static void dump_content_light_metadata(void *ctx, const AVPacketSideData *sd)
@@ -520,11 +520,11 @@ static void dump_stream_format(const AVFormatContext *ic, int i,
     AVCodecContext *avctx;
     int ret;
 
-    avctx = avcodec_alloc_context3(NULL);
+    avctx = zn_avcodec_alloc_context3(NULL);
     if (!avctx)
         return;
 
-    ret = avcodec_parameters_to_context(avctx, st->codecpar);
+    ret = zn_avcodec_parameters_to_context(avctx, st->codecpar);
     if (ret < 0) {
         avcodec_free_context(&avctx);
         return;
@@ -576,11 +576,11 @@ static void dump_stream_format(const AVFormatContext *ic, int i,
             av_log(NULL, AV_LOG_INFO, "%s", separator);
 
         if (fps)
-            print_fps(av_q2d(st->avg_frame_rate), tbr || tbn ? "fps, " : "fps");
+            print_fps(zn_av_q2d(st->avg_frame_rate), tbr || tbn ? "fps, " : "fps");
         if (tbr)
-            print_fps(av_q2d(st->r_frame_rate), tbn ? "tbr, " : "tbr");
+            print_fps(zn_av_q2d(st->r_frame_rate), tbn ? "tbr, " : "tbr");
         if (tbn)
-            print_fps(1 / av_q2d(st->time_base), "tbn");
+            print_fps(1 / zn_av_q2d(st->time_base), "tbn");
     }
 
     if (st->disposition & AV_DISPOSITION_DEFAULT)
@@ -626,7 +626,7 @@ static void dump_stream_format(const AVFormatContext *ic, int i,
     dump_sidedata(NULL, st, "    ");
 }
 
-void av_dump_format(AVFormatContext *ic, int index,
+void zn_av_dump_format(AVFormatContext *ic, int index,
                     const char *url, int is_output)
 {
     int i;
@@ -681,9 +681,9 @@ void av_dump_format(AVFormatContext *ic, int index,
         const AVChapter *ch = ic->chapters[i];
         av_log(NULL, AV_LOG_INFO, "    Chapter #%d:%d: ", index, i);
         av_log(NULL, AV_LOG_INFO,
-               "start %f, ", ch->start * av_q2d(ch->time_base));
+               "start %f, ", ch->start * zn_av_q2d(ch->time_base));
         av_log(NULL, AV_LOG_INFO,
-               "end %f\n", ch->end * av_q2d(ch->time_base));
+               "end %f\n", ch->end * zn_av_q2d(ch->time_base));
 
         dump_metadata(NULL, ch->metadata, "      ");
     }
@@ -712,5 +712,5 @@ void av_dump_format(AVFormatContext *ic, int index,
         if (!printed[i])
             dump_stream_format(ic, i, index, is_output);
 
-    av_free(printed);
+    zn_av_free(printed);
 }

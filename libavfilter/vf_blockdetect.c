@@ -73,7 +73,7 @@ static int blockdetect_config_input(AVFilterLink *inlink)
     s->vsub = pix_desc->log2_chroma_h;
     s->nb_planes = av_pix_fmt_count_planes(inlink->format);
 
-    s->gradients = av_calloc(bufsize, sizeof(*s->gradients));
+    s->gradients = zn_av_calloc(bufsize, sizeof(*s->gradients));
 
     if (!s->gradients)
         return AVERROR(ENOMEM);
@@ -249,7 +249,7 @@ static av_cold void blockdetect_uninit(AVFilterContext *ctx)
                s->block_total / s->nb_frames);
     }
 
-    av_freep(&s->gradients);
+    zn_av_freep(&s->gradients);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {

@@ -326,7 +326,7 @@ static int overlay_qsv_init(AVFilterContext *ctx)
     vpp->comp_conf.Header.BufferId = MFX_EXTBUFF_VPP_COMPOSITE;
     vpp->comp_conf.Header.BufferSz = sizeof(vpp->comp_conf);
     vpp->comp_conf.NumInputStream  = ctx->nb_inputs;
-    vpp->comp_conf.InputStream     = av_calloc(ctx->nb_inputs,
+    vpp->comp_conf.InputStream     = zn_av_calloc(ctx->nb_inputs,
                                                sizeof(*vpp->comp_conf.InputStream));
     if (!vpp->comp_conf.InputStream)
         return AVERROR(ENOMEM);
@@ -351,8 +351,8 @@ static av_cold void overlay_qsv_uninit(AVFilterContext *ctx)
 
     ff_qsvvpp_close(ctx);
     ff_framesync_uninit(&vpp->fs);
-    av_freep(&vpp->comp_conf.InputStream);
-    av_freep(&vpp->qsv_param.ext_buf);
+    zn_av_freep(&vpp->comp_conf.InputStream);
+    zn_av_freep(&vpp->qsv_param.ext_buf);
 }
 
 static int activate(AVFilterContext *ctx)

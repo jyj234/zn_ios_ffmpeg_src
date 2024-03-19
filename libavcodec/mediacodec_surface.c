@@ -50,7 +50,7 @@ FFANativeWindow *ff_mediacodec_surface_ref(void *surface, void *native_window, v
 
     if (!ret->surface && !ret->native_window) {
         av_log(log_ctx, AV_LOG_ERROR, "Both surface and native_window are NULL\n");
-        av_freep(&ret);
+        zn_av_freep(&ret);
     }
 
     return ret;
@@ -72,7 +72,7 @@ int ff_mediacodec_surface_unref(FFANativeWindow *window, void *log_ctx)
     if (window->native_window)
         ANativeWindow_release(window->native_window);
 
-    av_free(window);
+    zn_av_free(window);
 
     return 0;
 }

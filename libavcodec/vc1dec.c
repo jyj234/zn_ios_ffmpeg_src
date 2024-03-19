@@ -695,21 +695,21 @@ static av_cold int vc1_decode_init(AVCodecContext *avctx)
             switch (AV_RB32(start)) {
             case VC1_CODE_SEQHDR:
                 if ((ret = ff_vc1_decode_sequence_header(avctx, v, &gb)) < 0) {
-                    av_free(buf2);
+                    zn_av_free(buf2);
                     return ret;
                 }
                 seq_initialized = 1;
                 break;
             case VC1_CODE_ENTRYPOINT:
                 if ((ret = ff_vc1_decode_entry_point(avctx, v, &gb)) < 0) {
-                    av_free(buf2);
+                    zn_av_free(buf2);
                     return ret;
                 }
                 ep_initialized = 1;
                 break;
             }
         }
-        av_free(buf2);
+        zn_av_free(buf2);
         if (!seq_initialized || !ep_initialized) {
             av_log(avctx, AV_LOG_ERROR, "Incomplete extradata\n");
             return AVERROR_INVALIDDATA;
@@ -791,26 +791,26 @@ av_cold int ff_vc1_decode_end(AVCodecContext *avctx)
     VC1Context *v = avctx->priv_data;
     int i;
 
-    av_frame_free(&v->sprite_output_frame);
+    zn_av_frame_free(&v->sprite_output_frame);
 
     for (i = 0; i < 4; i++)
-        av_freep(&v->sr_rows[i >> 1][i & 1]);
+        zn_av_freep(&v->sr_rows[i >> 1][i & 1]);
     ff_mpv_common_end(&v->s);
-    av_freep(&v->mv_type_mb_plane);
-    av_freep(&v->direct_mb_plane);
-    av_freep(&v->forward_mb_plane);
-    av_freep(&v->fieldtx_plane);
-    av_freep(&v->acpred_plane);
-    av_freep(&v->over_flags_plane);
-    av_freep(&v->mb_type_base);
-    av_freep(&v->blk_mv_type_base);
-    av_freep(&v->mv_f_base);
-    av_freep(&v->mv_f_next_base);
-    av_freep(&v->block);
-    av_freep(&v->cbp_base);
-    av_freep(&v->ttblk_base);
-    av_freep(&v->is_intra_base); // FIXME use v->mb_type[]
-    av_freep(&v->luma_mv_base);
+    zn_av_freep(&v->mv_type_mb_plane);
+    zn_av_freep(&v->direct_mb_plane);
+    zn_av_freep(&v->forward_mb_plane);
+    zn_av_freep(&v->fieldtx_plane);
+    zn_av_freep(&v->acpred_plane);
+    zn_av_freep(&v->over_flags_plane);
+    zn_av_freep(&v->mb_type_base);
+    zn_av_freep(&v->blk_mv_type_base);
+    zn_av_freep(&v->mv_f_base);
+    zn_av_freep(&v->mv_f_next_base);
+    zn_av_freep(&v->block);
+    zn_av_freep(&v->cbp_base);
+    zn_av_freep(&v->ttblk_base);
+    zn_av_freep(&v->is_intra_base); // FIXME use v->mb_type[]
+    zn_av_freep(&v->luma_mv_base);
     ff_intrax8_common_end(&v->x8);
     return 0;
 }
@@ -1352,7 +1352,7 @@ image:
         if (avctx->skip_frame >= AVDISCARD_NONREF)
             goto end;
         if (!v->sprite_output_frame &&
-            !(v->sprite_output_frame = av_frame_alloc())) {
+            !(v->sprite_output_frame = zn_av_frame_alloc())) {
             ret = AVERROR(ENOMEM);
             goto err;
         }
@@ -1380,17 +1380,17 @@ image:
     }
 
 end:
-    av_free(buf2);
+    zn_av_free(buf2);
     for (i = 0; i < n_slices; i++)
-        av_free(slices[i].buf);
-    av_free(slices);
+        zn_av_free(slices[i].buf);
+    zn_av_free(slices);
     return buf_size;
 
 err:
-    av_free(buf2);
+    zn_av_free(buf2);
     for (i = 0; i < n_slices; i++)
-        av_free(slices[i].buf);
-    av_free(slices);
+        zn_av_free(slices[i].buf);
+    zn_av_free(slices);
     return ret;
 }
 

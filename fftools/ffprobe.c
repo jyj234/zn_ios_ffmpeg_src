@@ -569,13 +569,13 @@ static int writer_close(WriterContext **wctx)
         av_bprint_finalize(&(*wctx)->section_pbuf[i], NULL);
     if ((*wctx)->writer->priv_class)
         av_opt_free((*wctx)->priv);
-    av_freep(&((*wctx)->priv));
+    zn_av_freep(&((*wctx)->priv));
     av_opt_free(*wctx);
     if ((*wctx)->avio) {
         avio_flush((*wctx)->avio);
         ret = avio_close((*wctx)->avio);
     }
-    av_freep(wctx);
+    zn_av_freep(wctx);
     return ret;
 }
 
@@ -702,9 +702,9 @@ static int writer_open(WriterContext **wctx, const Writer *writer, const char *a
         (*wctx)->writer_put_str = writer_put_str_printf;
         (*wctx)->writer_printf = writer_printf_printf;
     } else {
-        if ((ret = avio_open(&(*wctx)->avio, output, AVIO_FLAG_WRITE)) < 0) {
+        if ((ret = zn_avio_open(&(*wctx)->avio, output, AVIO_FLAG_WRITE)) < 0) {
             av_log(*wctx, AV_LOG_ERROR,
-                   "Failed to open output '%s' with error: %s\n", output, av_err2str(ret));
+                   "Failed to open output '%s' with error: %s\n", output, zn_av_err2str(ret));
             goto fail;
         }
         (*wctx)->writer_w8 = writer_w8_avio;
@@ -864,8 +864,8 @@ static inline int writer_print_string(WriterContext *wctx,
                        "Invalid key=value string combination %s=%s in section %s\n",
                        key, val, section->unique_name);
             }
-            av_free(key1);
-            av_free(val1);
+            zn_av_free(key1);
+            zn_av_free(val1);
         } else {
             wctx->writer->print_string(wctx, key, val);
         }
@@ -893,7 +893,7 @@ static void writer_print_time(WriterContext *wctx, const char *key,
     if ((!is_duration && ts == AV_NOPTS_VALUE) || (is_duration && ts == 0)) {
         writer_print_string(wctx, key, "N/A", PRINT_STRING_OPT);
     } else {
-        double d = ts * av_q2d(*time_base);
+        double d = ts * zn_av_q2d(*time_base);
         struct unit_value uv;
         uv.val.d = d;
         uv.unit = unit_second_str;
@@ -2435,7 +2435,7 @@ static void print_private_data(WriterContext *w, void *priv_data)
         if (!(opt->flags & AV_OPT_FLAG_EXPORT)) continue;
         if (av_opt_get(priv_data, opt->name, 0, &str) >= 0) {
             print_str(opt->name, str);
-            av_free(str);
+            zn_av_free(str);
         }
     }
 }
@@ -2497,9 +2497,9 @@ static void clear_log(int need_lock)
     if (need_lock)
         pthread_mutex_lock(&log_mutex);
     for (i=0; i<log_buffer_size; i++) {
-        av_freep(&log_buffer[i].context_name);
-        av_freep(&log_buffer[i].parent_name);
-        av_freep(&log_buffer[i].log_message);
+        zn_av_freep(&log_buffer[i].context_name);
+        zn_av_freep(&log_buffer[i].parent_name);
+        zn_av_freep(&log_buffer[i].log_message);
     }
     log_buffer_size = 0;
     if(need_lock)
@@ -2819,7 +2819,7 @@ static av_always_inline int process_frame(WriterContext *w,
         case AVMEDIA_TYPE_VIDEO:
         case AVMEDIA_TYPE_AUDIO:
             if (*packet_new) {
-                ret = avcodec_send_packet(dec_ctx, pkt);
+                ret = zn_avcodec_send_packet(dec_ctx, pkt);
                 if (ret == AVERROR(EAGAIN)) {
                     ret = 0;
                 } else if (ret >= 0 || ret == AVERROR_EOF) {
@@ -2828,7 +2828,7 @@ static av_always_inline int process_frame(WriterContext *w,
                 }
             }
             if (ret >= 0) {
-                ret = avcodec_receive_frame(dec_ctx, frame);
+                ret = zn_avcodec_receive_frame(dec_ctx, frame);
                 if (ret >= 0) {
                     got_frame = 1;
                 } else if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
@@ -2921,22 +2921,22 @@ static int read_interval_packets(WriterContext *w, InputFile *ifile,
                av_ts2timestr(target, &AV_TIME_BASE_Q));
         if ((ret = avformat_seek_file(fmt_ctx, -1, -INT64_MAX, target, INT64_MAX, 0)) < 0) {
             av_log(NULL, AV_LOG_ERROR, "Could not seek to position %"PRId64": %s\n",
-                   interval->start, av_err2str(ret));
+                   interval->start, zn_av_err2str(ret));
             goto end;
         }
     }
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         ret = AVERROR(ENOMEM);
         goto end;
     }
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         ret = AVERROR(ENOMEM);
         goto end;
     }
-    while (!av_read_frame(fmt_ctx, pkt)) {
+    while (!zn_av_read_frame(fmt_ctx, pkt)) {
         if (fmt_ctx->nb_streams > nb_streams) {
             REALLOCZ_ARRAY_STREAM(nb_streams_frames,  nb_streams, fmt_ctx->nb_streams);
             REALLOCZ_ARRAY_STREAM(nb_streams_packets, nb_streams, fmt_ctx->nb_streams);
@@ -2989,9 +2989,9 @@ static int read_interval_packets(WriterContext *w, InputFile *ifile,
                 while (process_frame(w, ifile, frame, pkt, &packet_new) > 0);
             }
         }
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     //Flush remaining frames that are cached in the decoder
     for (i = 0; i < ifile->nb_streams; i++) {
         pkt->stream_index = i;
@@ -3003,8 +3003,8 @@ static int read_interval_packets(WriterContext *w, InputFile *ifile,
     }
 
 end:
-    av_frame_free(&frame);
-    av_packet_free(&pkt);
+    zn_av_frame_free(&frame);
+    zn_av_packet_free(&pkt);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Could not read packets in interval ");
         log_read_interval(interval, NULL, AV_LOG_ERROR);
@@ -3381,7 +3381,7 @@ static void show_error(WriterContext *w, int err)
 {
     writer_print_section_header(w, NULL, SECTION_ID_ERROR);
     print_int("code", err);
-    print_str("string", av_err2str(err));
+    print_str("string", zn_av_err2str(err));
     writer_print_section_footer(w);
 }
 
@@ -3393,7 +3393,7 @@ static int open_input_file(InputFile *ifile, const char *filename,
     const AVDictionaryEntry *t = NULL;
     int scan_all_pmts_set = 0;
 
-    fmt_ctx = avformat_alloc_context();
+    fmt_ctx = zn_avformat_alloc_context();
     if (!fmt_ctx)
         return AVERROR(ENOMEM);
 
@@ -3401,13 +3401,13 @@ static int open_input_file(InputFile *ifile, const char *filename,
         av_dict_set(&format_opts, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
         scan_all_pmts_set = 1;
     }
-    if ((err = avformat_open_input(&fmt_ctx, filename,
+    if ((err = zn_avformat_open_input(&fmt_ctx, filename,
                                    iformat, &format_opts)) < 0) {
         print_error(filename, err);
         return err;
     }
     if (print_filename) {
-        av_freep(&fmt_ctx->url);
+        zn_av_freep(&fmt_ctx->url);
         fmt_ctx->url = av_strdup(print_filename);
     }
     ifile->fmt_ctx = fmt_ctx;
@@ -3424,11 +3424,11 @@ static int open_input_file(InputFile *ifile, const char *filename,
         if (err < 0)
             return err;
 
-        err = avformat_find_stream_info(fmt_ctx, opts);
+        err = zn_avformat_find_stream_info(fmt_ctx, opts);
 
         for (i = 0; i < orig_nb_streams; i++)
             av_dict_free(&opts[i]);
-        av_freep(&opts);
+        zn_av_freep(&opts);
 
         if (err < 0) {
             print_error(filename, err);
@@ -3436,9 +3436,9 @@ static int open_input_file(InputFile *ifile, const char *filename,
         }
     }
 
-    av_dump_format(fmt_ctx, 0, filename, 0);
+    zn_av_dump_format(fmt_ctx, 0, filename, 0);
 
-    ifile->streams = av_calloc(fmt_ctx->nb_streams, sizeof(*ifile->streams));
+    ifile->streams = zn_av_calloc(fmt_ctx->nb_streams, sizeof(*ifile->streams));
     if (!ifile->streams)
         exit(1);
     ifile->nb_streams = fmt_ctx->nb_streams;
@@ -3458,7 +3458,7 @@ static int open_input_file(InputFile *ifile, const char *filename,
             continue;
         }
 
-        codec = avcodec_find_decoder(stream->codecpar->codec_id);
+        codec = zn_avcodec_find_decoder(stream->codecpar->codec_id);
         if (!codec) {
             av_log(NULL, AV_LOG_WARNING,
                     "Unsupported codec with id %d for input stream %d\n",
@@ -3473,11 +3473,11 @@ static int open_input_file(InputFile *ifile, const char *filename,
             if (err < 0)
                 exit(1);
 
-            ist->dec_ctx = avcodec_alloc_context3(codec);
+            ist->dec_ctx = zn_avcodec_alloc_context3(codec);
             if (!ist->dec_ctx)
                 exit(1);
 
-            err = avcodec_parameters_to_context(ist->dec_ctx, stream->codecpar);
+            err = zn_avcodec_parameters_to_context(ist->dec_ctx, stream->codecpar);
             if (err < 0)
                 exit(1);
 
@@ -3492,7 +3492,7 @@ static int open_input_file(InputFile *ifile, const char *filename,
 
             ist->dec_ctx->pkt_timebase = stream->time_base;
 
-            if (avcodec_open2(ist->dec_ctx, codec, &opts) < 0) {
+            if (zn_avcodec_open2(ist->dec_ctx, codec, &opts) < 0) {
                 av_log(NULL, AV_LOG_WARNING, "Could not open codec for input stream %d\n",
                        stream->index);
                 exit(1);
@@ -3518,10 +3518,10 @@ static void close_input_file(InputFile *ifile)
     for (i = 0; i < ifile->nb_streams; i++)
         avcodec_free_context(&ifile->streams[i].dec_ctx);
 
-    av_freep(&ifile->streams);
+    zn_av_freep(&ifile->streams);
     ifile->nb_streams = 0;
 
-    avformat_close_input(&ifile->fmt_ctx);
+    zn_avformat_close_input(&ifile->fmt_ctx);
 }
 
 static int probe_file(WriterContext *wctx, const char *filename,
@@ -3598,9 +3598,9 @@ static int probe_file(WriterContext *wctx, const char *filename,
 end:
     if (ifile.fmt_ctx)
         close_input_file(&ifile);
-    av_freep(&nb_streams_frames);
-    av_freep(&nb_streams_packets);
-    av_freep(&selected_streams);
+    zn_av_freep(&nb_streams_frames);
+    zn_av_freep(&nb_streams_packets);
+    zn_av_freep(&selected_streams);
 
     return ret;
 }
@@ -3807,7 +3807,7 @@ static int opt_show_entries(void *optctx, const char *opt, const char *arg)
             ret = AVERROR(EINVAL);
         }
         av_dict_free(&entries);
-        av_free(section_name);
+        zn_av_free(section_name);
 
         if (ret <= 0)
             break;
@@ -3954,7 +3954,7 @@ static int parse_read_interval(const char *interval_spec,
     }
 
 end:
-    av_free(spec);
+    zn_av_free(spec);
     return ret;
 }
 
@@ -3971,7 +3971,7 @@ static int parse_read_intervals(const char *intervals_spec)
             n++;
     n++;
 
-    read_intervals = av_malloc_array(n, sizeof(*read_intervals));
+    read_intervals = zn_av_malloc_array(n, sizeof(*read_intervals));
     if (!read_intervals) {
         ret = AVERROR(ENOMEM);
         goto end;
@@ -4002,7 +4002,7 @@ static int parse_read_intervals(const char *intervals_spec)
     av_assert0(i == read_intervals_nb);
 
 end:
-    av_free(spec);
+    zn_av_free(spec);
     return ret;
 }
 
@@ -4280,14 +4280,14 @@ int main(int argc, char **argv)
         writer_print_section_footer(wctx);
         ret = writer_close(&wctx);
         if (ret < 0)
-            av_log(NULL, AV_LOG_ERROR, "Writing output failed: %s\n", av_err2str(ret));
+            av_log(NULL, AV_LOG_ERROR, "Writing output failed: %s\n", zn_av_err2str(ret));
 
         ret = FFMIN(ret, input_ret);
     }
 
 end:
-    av_freep(&output_format);
-    av_freep(&read_intervals);
+    zn_av_freep(&output_format);
+    zn_av_freep(&read_intervals);
     av_hash_freep(&hash);
 
     uninit_opts();

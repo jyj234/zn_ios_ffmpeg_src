@@ -316,7 +316,7 @@ redo:
                     }
                 }
 
-                av_free(ps2buf);
+                zn_av_free(ps2buf);
 
                 /* If this isn't a DVD packet or no memory
                  * could be allocated, just ignore it.
@@ -618,7 +618,7 @@ skip:
         goto redo;
     }
     /* no stream found: add a new stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         goto skip;
     sti = ffstream(st);
@@ -731,7 +731,7 @@ static int vobsub_read_close(AVFormatContext *s)
 
     for (i = 0; i < s->nb_streams; i++)
         ff_subtitles_queue_clean(&vobsub->q[i]);
-    avformat_close_input(&vobsub->sub_ctx);
+    zn_avformat_close_input(&vobsub->sub_ctx);
     return 0;
 }
 
@@ -770,7 +770,7 @@ static int vobsub_read_header(AVFormatContext *s)
         return AVERROR_DEMUXER_NOT_FOUND;
     }
 
-    vobsub->sub_ctx = avformat_alloc_context();
+    vobsub->sub_ctx = zn_avformat_alloc_context();
     if (!vobsub->sub_ctx) {
         return AVERROR(ENOMEM);
     }
@@ -778,7 +778,7 @@ static int vobsub_read_header(AVFormatContext *s)
     if ((ret = ff_copy_whiteblacklists(vobsub->sub_ctx, s)) < 0)
         return ret;
 
-    ret = avformat_open_input(&vobsub->sub_ctx, vobsub->sub_name, iformat, NULL);
+    ret = zn_avformat_open_input(&vobsub->sub_ctx, vobsub->sub_name, iformat, NULL);
     if (ret < 0) {
         av_log(s, AV_LOG_ERROR, "Unable to open %s as MPEG subtitles\n", vobsub->sub_name);
         return ret;
@@ -829,7 +829,7 @@ static int vobsub_read_header(AVFormatContext *s)
             }
 
             if (!st || st->id != stream_id) {
-                st = avformat_new_stream(s, NULL);
+                st = zn_avformat_new_stream(s, NULL);
                 if (!st) {
                     ret = AVERROR(ENOMEM);
                     goto end;

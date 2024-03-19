@@ -1174,10 +1174,10 @@ static av_cold int encode_close(AVCodecContext *avctx)
 
     if (ctx->tdata) {
         for (i = 0; i < avctx->thread_count; i++)
-            av_freep(&ctx->tdata[i].nodes);
+            zn_av_freep(&ctx->tdata[i].nodes);
     }
-    av_freep(&ctx->tdata);
-    av_freep(&ctx->slice_q);
+    zn_av_freep(&ctx->tdata);
+    zn_av_freep(&ctx->slice_q);
 
     return 0;
 }
@@ -1299,16 +1299,16 @@ static av_cold int encode_init(AVCodecContext *avctx)
             }
         }
 
-        ctx->slice_q = av_malloc_array(ctx->slices_per_picture, sizeof(*ctx->slice_q));
+        ctx->slice_q = zn_av_malloc_array(ctx->slices_per_picture, sizeof(*ctx->slice_q));
         if (!ctx->slice_q)
             return AVERROR(ENOMEM);
 
-        ctx->tdata = av_calloc(avctx->thread_count, sizeof(*ctx->tdata));
+        ctx->tdata = zn_av_calloc(avctx->thread_count, sizeof(*ctx->tdata));
         if (!ctx->tdata)
             return AVERROR(ENOMEM);
 
         for (j = 0; j < avctx->thread_count; j++) {
-            ctx->tdata[j].nodes = av_malloc_array(ctx->slices_width + 1,
+            ctx->tdata[j].nodes = zn_av_malloc_array(ctx->slices_width + 1,
                                                   TRELLIS_WIDTH
                                                   * sizeof(*ctx->tdata->nodes));
             if (!ctx->tdata[j].nodes)

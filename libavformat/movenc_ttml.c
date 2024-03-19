@@ -34,18 +34,18 @@ static int mov_init_ttml_writer(MOVTrack *track, AVFormatContext **out_ctx)
     AVStream *movenc_stream = track->st, *ttml_stream = NULL;
     int ret = AVERROR_BUG;
 
-    if ((ret = avformat_alloc_output_context2(out_ctx, NULL,
+    if ((ret = zn_avformat_alloc_output_context2(out_ctx, NULL,
                                               "ttml", NULL)) < 0)
         return ret;
 
     if ((ret = avio_open_dyn_buf(&(*out_ctx)->pb)) < 0)
         return ret;
 
-    if (!(ttml_stream = avformat_new_stream(*out_ctx, NULL))) {
+    if (!(ttml_stream = zn_avformat_new_stream(*out_ctx, NULL))) {
         return AVERROR(ENOMEM);
     }
 
-    if ((ret = avcodec_parameters_copy(ttml_stream->codecpar,
+    if ((ret = zn_avcodec_parameters_copy(ttml_stream->codecpar,
                                        movenc_stream->codecpar)) < 0)
         return ret;
 
@@ -66,7 +66,7 @@ static int mov_write_ttml_document_from_queue(AVFormatContext *s,
                        0 : (track->start_dts + track->track_duration);
     int64_t end_ts   = start_ts;
 
-    if ((ret = avformat_write_header(ttml_ctx, NULL)) < 0) {
+    if ((ret = zn_avformat_write_header(ttml_ctx, NULL)) < 0) {
         return ret;
     }
 
@@ -88,10 +88,10 @@ static int mov_write_ttml_document_from_queue(AVFormatContext *s,
             goto cleanup;
         }
 
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 
-    if ((ret = av_write_trailer(ttml_ctx)) < 0)
+    if ((ret = zn_av_write_trailer(ttml_ctx)) < 0)
         goto cleanup;
 
     *out_start_ts = start_ts;
@@ -115,7 +115,7 @@ int ff_mov_generate_squashed_ttml_packet(AVFormatContext *s,
 
     if ((ret = mov_init_ttml_writer(track, &ttml_ctx)) < 0) {
         av_log(s, AV_LOG_ERROR, "Failed to initialize the TTML writer: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto cleanup;
     }
 
@@ -134,7 +134,7 @@ int ff_mov_generate_squashed_ttml_packet(AVFormatContext *s,
         av_log(s, AV_LOG_ERROR,
                "Failed to generate a squashed TTML packet from the packet "
                "queue: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto cleanup;
     }
 
@@ -148,8 +148,8 @@ generate_packet:
         if ((ret = av_packet_from_data(pkt, buf, buf_len)) < 0) {
             av_log(s, AV_LOG_ERROR,
                    "Failed to create a TTML AVPacket from AVIO data: %s\n",
-                   av_err2str(ret));
-            av_freep(&buf);
+                   zn_av_err2str(ret));
+            zn_av_freep(&buf);
             goto cleanup;
         }
 
@@ -164,6 +164,6 @@ cleanup:
     if (ttml_ctx)
         ffio_free_dyn_buf(&ttml_ctx->pb);
 
-    avformat_free_context(ttml_ctx);
+    zn_avformat_free_context(ttml_ctx);
     return ret;
 }

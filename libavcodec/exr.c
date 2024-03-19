@@ -460,9 +460,9 @@ static int huf_uncompress(const EXRContext *s,
     bytestream2_skip(gb, 4);
 
     if (!td->freq)
-        td->freq = av_malloc_array(HUF_ENCSIZE, sizeof(*td->freq));
+        td->freq = zn_av_malloc_array(HUF_ENCSIZE, sizeof(*td->freq));
     if (!td->he)
-        td->he = av_calloc(HUF_ENCSIZE, sizeof(*td->he));
+        td->he = zn_av_calloc(HUF_ENCSIZE, sizeof(*td->he));
     if (!td->freq || !td->he) {
         ret = AVERROR(ENOMEM);
         return ret;
@@ -607,8 +607,8 @@ static int piz_uncompress(const EXRContext *s, const uint8_t *src, int ssize,
     if (!td->lut)
         td->lut = av_malloc(1 << 17);
     if (!td->bitmap || !td->lut) {
-        av_freep(&td->bitmap);
-        av_freep(&td->lut);
+        zn_av_freep(&td->bitmap);
+        zn_av_freep(&td->lut);
         return AVERROR(ENOMEM);
     }
 
@@ -2261,7 +2261,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     }
 
     // allocate thread data, used for non EXR_RAW compression types
-    s->thread_data = av_calloc(avctx->thread_count, sizeof(*s->thread_data));
+    s->thread_data = zn_av_calloc(avctx->thread_count, sizeof(*s->thread_data));
     if (!s->thread_data)
         return AVERROR(ENOMEM);
 
@@ -2274,22 +2274,22 @@ static av_cold int decode_end(AVCodecContext *avctx)
     int i;
     for (i = 0; i < avctx->thread_count; i++) {
         EXRThreadData *td = &s->thread_data[i];
-        av_freep(&td->uncompressed_data);
-        av_freep(&td->tmp);
-        av_freep(&td->bitmap);
-        av_freep(&td->lut);
-        av_freep(&td->he);
-        av_freep(&td->freq);
-        av_freep(&td->ac_data);
-        av_freep(&td->dc_data);
-        av_freep(&td->rle_data);
-        av_freep(&td->rle_raw_data);
+        zn_av_freep(&td->uncompressed_data);
+        zn_av_freep(&td->tmp);
+        zn_av_freep(&td->bitmap);
+        zn_av_freep(&td->lut);
+        zn_av_freep(&td->he);
+        zn_av_freep(&td->freq);
+        zn_av_freep(&td->ac_data);
+        zn_av_freep(&td->dc_data);
+        zn_av_freep(&td->rle_data);
+        zn_av_freep(&td->rle_raw_data);
         ff_vlc_free(&td->vlc);
     }
 
-    av_freep(&s->thread_data);
-    av_freep(&s->channels);
-    av_freep(&s->offset_table);
+    zn_av_freep(&s->thread_data);
+    zn_av_freep(&s->channels);
+    zn_av_freep(&s->offset_table);
 
     return 0;
 }

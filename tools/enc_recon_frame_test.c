@@ -104,7 +104,7 @@ static int recon_frame_process(PrivData *pd, const AVPacket *pkt)
     AVFrame *f = pd->frame_recon;
     int ret;
 
-    ret = avcodec_receive_frame(pd->enc, f);
+    ret = zn_avcodec_receive_frame(pd->enc, f);
     if (ret < 0) {
         fprintf(stderr, "Error retrieving a reconstructed frame\n");
         return ret;
@@ -159,7 +159,7 @@ static int process_frame(DecodeContext *dc, AVFrame *frame)
         // pretend the input is 25fps CFR to avoid any timestamp issues
         pd->enc->time_base    = (AVRational){ 1, 25 };
 
-        ret = avcodec_open2(pd->enc, NULL, NULL);
+        ret = zn_avcodec_open2(pd->enc, NULL, NULL);
         if (ret < 0) {
             fprintf(stderr, "Error opening the encoder\n");
             return ret;
@@ -173,7 +173,7 @@ static int process_frame(DecodeContext *dc, AVFrame *frame)
         frame->pict_type = AV_PICTURE_TYPE_NONE;
     }
 
-    ret = avcodec_send_frame(pd->enc, frame);
+    ret = zn_avcodec_send_frame(pd->enc, frame);
     if (ret < 0) {
         fprintf(stderr, "Error submitting a frame for encoding\n");
         return ret;
@@ -182,7 +182,7 @@ static int process_frame(DecodeContext *dc, AVFrame *frame)
     while (1) {
         AVPacket *pkt = pd->pkt;
 
-        ret = avcodec_receive_packet(pd->enc, pkt);
+        ret = zn_avcodec_receive_packet(pd->enc, pkt);
         if (ret == AVERROR(EAGAIN))
             break;
         else if (ret == AVERROR_EOF)
@@ -216,21 +216,21 @@ static int process_frame(DecodeContext *dc, AVFrame *frame)
                     return AVERROR(ENOMEM);
             }
 
-            ret = avcodec_open2(pd->dec, NULL, NULL);
+            ret = zn_avcodec_open2(pd->dec, NULL, NULL);
             if (ret < 0) {
                 fprintf(stderr, "Error opening the decoder\n");
                 return ret;
             }
         }
 
-        ret = avcodec_send_packet(pd->dec, pkt);
+        ret = zn_avcodec_send_packet(pd->dec, pkt);
         if (ret < 0) {
             fprintf(stderr, "Error sending a packet to decoder\n");
             return ret;
         }
 
         while (1) {
-            ret = avcodec_receive_frame(pd->dec, pd->frame);
+            ret = zn_avcodec_receive_frame(pd->dec, pd->frame);
             if (ret == AVERROR(EAGAIN))
                 break;
             else if (ret == AVERROR_EOF)
@@ -302,13 +302,13 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    dec = avcodec_find_decoder(enc->id);
+    dec = zn_avcodec_find_decoder(enc->id);
     if (!dec) {
         fprintf(stderr, "No decoder for: %s\n", avcodec_get_name(enc->id));
         return 1;
     }
 
-    pd.enc = avcodec_alloc_context3(enc);
+    pd.enc = zn_avcodec_alloc_context3(enc);
     if (!pd.enc) {
         fprintf(stderr, "Error allocating encoder\n");
         return 1;
@@ -321,7 +321,7 @@ int main(int argc, char **argv)
     }
     pd.enc->flags |= AV_CODEC_FLAG_RECON_FRAME | AV_CODEC_FLAG_BITEXACT;
 
-    pd.dec = avcodec_alloc_context3(dec);
+    pd.dec = zn_avcodec_alloc_context3(dec);
     if (!pd.dec) {
         fprintf(stderr, "Error allocating decoder\n");
         goto fail;
@@ -330,9 +330,9 @@ int main(int argc, char **argv)
     pd.dec->flags           |= AV_CODEC_FLAG_BITEXACT;
     pd.dec->err_recognition |= AV_EF_CRCCHECK;
 
-    pd.frame       = av_frame_alloc();
-    pd.frame_recon = av_frame_alloc();
-    pd.pkt         = av_packet_alloc();
+    pd.frame       = zn_av_frame_alloc();
+    pd.frame_recon = zn_av_frame_alloc();
+    pd.pkt         = zn_av_packet_alloc();
     if (!pd.frame ||!pd.frame_recon || !pd.pkt) {
         ret = 1;
         goto fail;
@@ -383,11 +383,11 @@ int main(int argc, char **argv)
 fail:
     avcodec_free_context(&pd.enc);
     avcodec_free_context(&pd.dec);
-    av_freep(&pd.checksums_decoded);
-    av_freep(&pd.checksums_recon);
-    av_frame_free(&pd.frame);
-    av_frame_free(&pd.frame_recon);
-    av_packet_free(&pd.pkt);
+    zn_av_freep(&pd.checksums_decoded);
+    zn_av_freep(&pd.checksums_recon);
+    zn_av_frame_free(&pd.frame);
+    zn_av_frame_free(&pd.frame_recon);
+    zn_av_packet_free(&pd.pkt);
     ds_free(&dc);
     return !!ret;
 }

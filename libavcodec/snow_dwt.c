@@ -35,22 +35,22 @@ int ff_slice_buffer_init(slice_buffer *buf, int line_count,
     buf->line_count  = line_count;
     buf->line_width  = line_width;
     buf->data_count  = max_allocated_lines;
-    buf->line        = av_calloc(line_count, sizeof(*buf->line));
+    buf->line        = zn_av_calloc(line_count, sizeof(*buf->line));
     if (!buf->line)
         return AVERROR(ENOMEM);
-    buf->data_stack  = av_malloc_array(max_allocated_lines, sizeof(IDWTELEM *));
+    buf->data_stack  = zn_av_malloc_array(max_allocated_lines, sizeof(IDWTELEM *));
     if (!buf->data_stack) {
-        av_freep(&buf->line);
+        zn_av_freep(&buf->line);
         return AVERROR(ENOMEM);
     }
 
     for (i = 0; i < max_allocated_lines; i++) {
-        buf->data_stack[i] = av_malloc_array(line_width, sizeof(IDWTELEM));
+        buf->data_stack[i] = zn_av_malloc_array(line_width, sizeof(IDWTELEM));
         if (!buf->data_stack[i]) {
             for (i--; i >=0; i--)
-                av_freep(&buf->data_stack[i]);
-            av_freep(&buf->data_stack);
-            av_freep(&buf->line);
+                zn_av_freep(&buf->data_stack[i]);
+            zn_av_freep(&buf->data_stack);
+            zn_av_freep(&buf->line);
             return AVERROR(ENOMEM);
         }
     }
@@ -107,9 +107,9 @@ void ff_slice_buffer_destroy(slice_buffer *buf)
 
     if (buf->data_stack)
         for (i = buf->data_count - 1; i >= 0; i--)
-            av_freep(&buf->data_stack[i]);
-    av_freep(&buf->data_stack);
-    av_freep(&buf->line);
+            zn_av_freep(&buf->data_stack[i]);
+    zn_av_freep(&buf->data_stack);
+    zn_av_freep(&buf->line);
 }
 
 static av_always_inline void lift(DWTELEM *dst, DWTELEM *src, DWTELEM *ref,

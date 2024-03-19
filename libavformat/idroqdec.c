@@ -125,7 +125,7 @@ static int roq_read_packet(AVFormatContext *s,
 
         case RoQ_INFO:
             if (roq->video_stream_index == -1) {
-                AVStream *st = avformat_new_stream(s, NULL);
+                AVStream *st = zn_avformat_new_stream(s, NULL);
                 if (!st)
                     return AVERROR(ENOMEM);
                 avpriv_set_pts_info(st, 63, 1, roq->frame_rate);
@@ -176,7 +176,7 @@ static int roq_read_packet(AVFormatContext *s,
         case RoQ_SOUND_MONO:
         case RoQ_SOUND_STEREO:
             if (roq->audio_stream_index == -1) {
-                AVStream *st = avformat_new_stream(s, NULL);
+                AVStream *st = zn_avformat_new_stream(s, NULL);
                 if (!st)
                     return AVERROR(ENOMEM);
                 avpriv_set_pts_info(st, 32, 1, RoQ_AUDIO_SAMPLE_RATE);

@@ -105,8 +105,8 @@ static const AttrNameMap attr_names[] = {
 
 static void close_context(PayloadContext *data)
 {
-    av_freep(&data->au_headers);
-    av_freep(&data->mode);
+    zn_av_freep(&data->au_headers);
+    zn_av_freep(&data->mode);
 }
 
 static int parse_fmtp_config(AVCodecParameters *par, const char *value)
@@ -156,7 +156,7 @@ static int rtp_parse_mp4_au(PayloadContext *data, const uint8_t *buf, int len)
 
     data->nb_au_headers = au_headers_length / au_header_size;
     if (!data->au_headers || data->au_headers_allocated < data->nb_au_headers) {
-        av_free(data->au_headers);
+        zn_av_free(data->au_headers);
         data->au_headers = av_malloc(sizeof(struct AUHeaders) * data->nb_au_headers);
         if (!data->au_headers)
             return AVERROR(ENOMEM);

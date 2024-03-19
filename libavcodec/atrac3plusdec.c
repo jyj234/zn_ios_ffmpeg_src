@@ -85,8 +85,8 @@ static av_cold int atrac3p_decode_close(AVCodecContext *avctx)
 {
     ATRAC3PContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->ch_units);
-    av_freep(&ctx->fdsp);
+    zn_av_freep(&ctx->ch_units);
+    zn_av_freep(&ctx->fdsp);
 
     av_tx_uninit(&ctx->mdct_ctx);
     av_tx_uninit(&ctx->ipqf_dct_ctx);
@@ -198,7 +198,7 @@ static av_cold int atrac3p_decode_init(AVCodecContext *avctx)
     if ((ret = set_channel_params(ctx, avctx)) < 0)
         return ret;
 
-    ctx->ch_units = av_calloc(ctx->num_channel_blocks, sizeof(*ctx->ch_units));
+    ctx->ch_units = zn_av_calloc(ctx->num_channel_blocks, sizeof(*ctx->ch_units));
     ctx->fdsp = avpriv_float_dsp_alloc(avctx->flags & AV_CODEC_FLAG_BITEXACT);
 
     if (!ctx->ch_units || !ctx->fdsp) {

@@ -146,7 +146,7 @@ static int convolution_opencl_make_filter_params(AVFilterContext *avctx)
         matrix_bytes = sizeof(float)*ctx->matrix_sizes[j];
         matrix = av_malloc(matrix_bytes);
         if (!matrix) {
-            av_freep(&matrix);
+            zn_av_freep(&matrix);
             return AVERROR(ENOMEM);
         }
 
@@ -161,11 +161,11 @@ static int convolution_opencl_make_filter_params(AVFilterContext *avctx)
         if (!buffer) {
             av_log(avctx, AV_LOG_ERROR, "Failed to create matrix buffer: "
                    "%d.\n", cle);
-            av_freep(&matrix);
+            zn_av_freep(&matrix);
             return AVERROR(EIO);
         }
         ctx->matrix[j] = buffer;
-        av_freep(&matrix);
+        zn_av_freep(&matrix);
     }
 
     return 0;
@@ -280,7 +280,7 @@ static int convolution_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     av_log(ctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(output->format),
@@ -290,8 +290,8 @@ static int convolution_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
 
 fail:
     clFinish(ctx->command_queue);
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

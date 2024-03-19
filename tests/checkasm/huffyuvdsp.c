@@ -58,10 +58,10 @@ static void check_add_int16(HuffYUVDSPContext *c, unsigned mask, int width, cons
         bench_new(dst1, src1, mask, width);
     }
 
-    av_free(src0);
-    av_free(src1);
-    av_free(dst0);
-    av_free(dst1);
+    zn_av_free(src0);
+    zn_av_free(src1);
+    zn_av_free(dst0);
+    zn_av_free(dst1);
 }
 
 void checkasm_check_huffyuvdsp(void)

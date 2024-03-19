@@ -180,7 +180,7 @@ static int end_last_frame(AVFilterContext *ctx)
         draw_blank_frame(ctx, out_buf);
     tile->current = tile->overlap;
     if (tile->current) {
-        av_frame_free(&tile->prev_out_ref);
+        zn_av_frame_free(&tile->prev_out_ref);
         tile->prev_out_ref = av_frame_clone(out_buf);
     }
     ret = ff_filter_frame(outlink, out_buf);
@@ -202,7 +202,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
     if (!tile->out_ref) {
         tile->out_ref = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!tile->out_ref) {
-            av_frame_free(&picref);
+            zn_av_frame_free(&picref);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(tile->out_ref, picref);
@@ -238,7 +238,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
                        picref->data, picref->linesize,
                        x0, y0, 0, 0, inlink->w, inlink->h);
 
-    av_frame_free(&picref);
+    zn_av_frame_free(&picref);
     if (++tile->current == tile->nb_frames)
         return end_last_frame(ctx);
 
@@ -262,8 +262,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     TileContext *tile = ctx->priv;
 
-    av_frame_free(&tile->out_ref);
-    av_frame_free(&tile->prev_out_ref);
+    zn_av_frame_free(&tile->out_ref);
+    zn_av_frame_free(&tile->prev_out_ref);
 }
 
 static const AVFilterPad tile_inputs[] = {

@@ -115,7 +115,7 @@ static int ttml_encode_frame(AVCodecContext *avctx, uint8_t *buf,
             av_log(avctx, log_level,
                    "Splitting received ASS dialog text %s failed: %s\n",
                    dialog->text,
-                   av_err2str(ret));
+                   zn_av_err2str(ret));
 
             if (log_level == AV_LOG_ERROR) {
                 ff_ass_free_dialog(&dialog);

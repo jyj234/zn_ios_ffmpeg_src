@@ -480,8 +480,8 @@ static VkBool32 VKAPI_CALL vk_dbg_callback(VkDebugUtilsMessageSeverityFlagBitsEX
 #define RELEASE_PROPS(props, count)                                            \
     if (props) {                                                               \
         for (int i = 0; i < count; i++)                                        \
-            av_free((void *)((props)[i]));                                     \
-        av_free((void *)props);                                                \
+            zn_av_free((void *)((props)[i]));                                     \
+        zn_av_free((void *)props);                                                \
     }
 
 static int check_extensions(AVHWDeviceContext *ctx, int dev, AVDictionary *opts,
@@ -515,7 +515,7 @@ static int check_extensions(AVHWDeviceContext *ctx, int dev, AVDictionary *opts,
             }
         }
         vk->EnumerateInstanceExtensionProperties(NULL, &sup_ext_count, NULL);
-        sup_ext = av_malloc_array(sup_ext_count, sizeof(VkExtensionProperties));
+        sup_ext = zn_av_malloc_array(sup_ext_count, sizeof(VkExtensionProperties));
         if (!sup_ext)
             return AVERROR(ENOMEM);
         vk->EnumerateInstanceExtensionProperties(NULL, &sup_ext_count, sup_ext);
@@ -533,7 +533,7 @@ static int check_extensions(AVHWDeviceContext *ctx, int dev, AVDictionary *opts,
         }
         vk->EnumerateDeviceExtensionProperties(hwctx->phys_dev, NULL,
                                                &sup_ext_count, NULL);
-        sup_ext = av_malloc_array(sup_ext_count, sizeof(VkExtensionProperties));
+        sup_ext = zn_av_malloc_array(sup_ext_count, sizeof(VkExtensionProperties));
         if (!sup_ext)
             return AVERROR(ENOMEM);
         vk->EnumerateDeviceExtensionProperties(hwctx->phys_dev, NULL,
@@ -602,14 +602,14 @@ static int check_extensions(AVHWDeviceContext *ctx, int dev, AVDictionary *opts,
     *dst = extension_names;
     *num = extensions_found;
 
-    av_free(user_exts_str);
-    av_free(sup_ext);
+    zn_av_free(user_exts_str);
+    zn_av_free(sup_ext);
     return 0;
 
 fail:
     RELEASE_PROPS(extension_names, extensions_found);
-    av_free(user_exts_str);
-    av_free(sup_ext);
+    zn_av_free(user_exts_str);
+    zn_av_free(sup_ext);
     return err;
 }
 
@@ -641,7 +641,7 @@ static int check_validation_layers(AVHWDeviceContext *ctx, AVDictionary *opts,
         return 0;
 
     vk->EnumerateInstanceLayerProperties(&sup_layer_count, NULL);
-    sup_layers = av_malloc_array(sup_layer_count, sizeof(VkLayerProperties));
+    sup_layers = zn_av_malloc_array(sup_layer_count, sizeof(VkLayerProperties));
     if (!sup_layers)
         return AVERROR(ENOMEM);
     vk->EnumerateInstanceLayerProperties(&sup_layer_count, sup_layers);
@@ -705,10 +705,10 @@ static int check_validation_layers(AVHWDeviceContext *ctx, AVDictionary *opts,
         token = av_strtok(NULL, "+", &save);
     }
 
-    av_free(user_layers_str);
+    zn_av_free(user_layers_str);
 
 end:
-    av_free(sup_layers);
+    zn_av_free(sup_layers);
 
     *dst = enabled_layers;
     *num = enabled_layers_count;
@@ -717,8 +717,8 @@ end:
 
 fail:
     RELEASE_PROPS(enabled_layers, enabled_layers_count);
-    av_free(sup_layers);
-    av_free(user_layers_str);
+    zn_av_free(sup_layers);
+    zn_av_free(user_layers_str);
     return err;
 }
 
@@ -871,7 +871,7 @@ static int find_device(AVHWDeviceContext *ctx, VulkanDeviceSelection *select)
         return AVERROR(ENODEV);
     }
 
-    devices = av_malloc_array(num, sizeof(VkPhysicalDevice));
+    devices = zn_av_malloc_array(num, sizeof(VkPhysicalDevice));
     if (!devices)
         return AVERROR(ENOMEM);
 
@@ -883,20 +883,20 @@ static int find_device(AVHWDeviceContext *ctx, VulkanDeviceSelection *select)
         goto end;
     }
 
-    prop = av_calloc(num, sizeof(*prop));
+    prop = zn_av_calloc(num, sizeof(*prop));
     if (!prop) {
         err = AVERROR(ENOMEM);
         goto end;
     }
 
-    idp = av_calloc(num, sizeof(*idp));
+    idp = zn_av_calloc(num, sizeof(*idp));
     if (!idp) {
         err = AVERROR(ENOMEM);
         goto end;
     }
 
     if (p->vkctx.extensions & FF_VK_EXT_DEVICE_DRM) {
-        drm_prop = av_calloc(num, sizeof(*drm_prop));
+        drm_prop = zn_av_calloc(num, sizeof(*drm_prop));
         if (!drm_prop) {
             err = AVERROR(ENOMEM);
             goto end;
@@ -1000,10 +1000,10 @@ end:
         hwctx->phys_dev = devices[choice];
     }
 
-    av_free(devices);
-    av_free(prop);
-    av_free(idp);
-    av_free(drm_prop);
+    zn_av_free(devices);
+    zn_av_free(prop);
+    zn_av_free(idp);
+    zn_av_free(drm_prop);
 
     return err;
 }
@@ -1050,7 +1050,7 @@ static int setup_queue_families(AVHWDeviceContext *ctx, VkDeviceCreateInfo *cd)
     }
 
     /* Then allocate memory */
-    qf = av_malloc_array(num, sizeof(VkQueueFamilyProperties));
+    qf = zn_av_malloc_array(num, sizeof(VkQueueFamilyProperties));
     if (!qf)
         return AVERROR(ENOMEM);
 
@@ -1129,7 +1129,7 @@ static int setup_queue_families(AVHWDeviceContext *ctx, VkDeviceCreateInfo *cd)
         pc = av_realloc((void *)cd->pQueueCreateInfos,                         \
                         sizeof(*pc) * (cd->queueCreateInfoCount + 1));         \
         if (!pc) {                                                             \
-            av_free(qf);                                                       \
+            zn_av_free(qf);                                                       \
             return AVERROR(ENOMEM);                                            \
         }                                                                      \
         cd->pQueueCreateInfos = pc;                                            \
@@ -1137,7 +1137,7 @@ static int setup_queue_families(AVHWDeviceContext *ctx, VkDeviceCreateInfo *cd)
                                                                                \
         weights = av_malloc(qc * sizeof(float));                               \
         if (!weights) {                                                        \
-            av_free(qf);                                                       \
+            zn_av_free(qf);                                                       \
             return AVERROR(ENOMEM);                                            \
         }                                                                      \
                                                                                \
@@ -1161,7 +1161,7 @@ static int setup_queue_families(AVHWDeviceContext *ctx, VkDeviceCreateInfo *cd)
 
 #undef SETUP_QUEUE
 
-    av_free(qf);
+    zn_av_free(qf);
 
     return 0;
 }
@@ -1200,9 +1200,9 @@ static void vulkan_device_uninit(AVHWDeviceContext *ctx)
 
     for (uint32_t i = 0; i < p->nb_tot_qfs; i++) {
         pthread_mutex_destroy(p->qf_mutex[i]);
-        av_freep(&p->qf_mutex[i]);
+        zn_av_freep(&p->qf_mutex[i]);
     }
-    av_freep(&p->qf_mutex);
+    zn_av_freep(&p->qf_mutex);
 
     ff_vk_uninit(&p->vkctx);
 }
@@ -1346,8 +1346,8 @@ static int vulkan_device_create_internal(AVHWDeviceContext *ctx,
     if ((err = check_extensions(ctx, 1, opts, &dev_info.ppEnabledExtensionNames,
                                 &dev_info.enabledExtensionCount, 0))) {
         for (int i = 0; i < dev_info.queueCreateInfoCount; i++)
-            av_free((void *)dev_info.pQueueCreateInfos[i].pQueuePriorities);
-        av_free((void *)dev_info.pQueueCreateInfos);
+            zn_av_free((void *)dev_info.pQueueCreateInfos[i].pQueuePriorities);
+        zn_av_free((void *)dev_info.pQueueCreateInfos);
         goto end;
     }
 
@@ -1355,15 +1355,15 @@ static int vulkan_device_create_internal(AVHWDeviceContext *ctx,
                            &hwctx->act_dev);
 
     for (int i = 0; i < dev_info.queueCreateInfoCount; i++)
-        av_free((void *)dev_info.pQueueCreateInfos[i].pQueuePriorities);
-    av_free((void *)dev_info.pQueueCreateInfos);
+        zn_av_free((void *)dev_info.pQueueCreateInfos[i].pQueuePriorities);
+    zn_av_free((void *)dev_info.pQueueCreateInfos);
 
     if (ret != VK_SUCCESS) {
         av_log(ctx, AV_LOG_ERROR, "Device creation failure: %s\n",
                ff_vk_ret2str(ret));
         for (int i = 0; i < dev_info.enabledExtensionCount; i++)
-            av_free((void *)dev_info.ppEnabledExtensionNames[i]);
-        av_free((void *)dev_info.ppEnabledExtensionNames);
+            zn_av_free((void *)dev_info.ppEnabledExtensionNames[i]);
+        zn_av_free((void *)dev_info.ppEnabledExtensionNames);
         err = AVERROR_EXTERNAL;
         goto end;
     }
@@ -1455,37 +1455,37 @@ static int vulkan_device_init(AVHWDeviceContext *ctx)
         return AVERROR_EXTERNAL;
     }
 
-    qf = av_malloc_array(qf_num, sizeof(VkQueueFamilyProperties));
+    qf = zn_av_malloc_array(qf_num, sizeof(VkQueueFamilyProperties));
     if (!qf)
         return AVERROR(ENOMEM);
 
     vk->GetPhysicalDeviceQueueFamilyProperties(hwctx->phys_dev, &qf_num, qf);
 
-    p->qf_mutex = av_calloc(qf_num, sizeof(*p->qf_mutex));
+    p->qf_mutex = zn_av_calloc(qf_num, sizeof(*p->qf_mutex));
     if (!p->qf_mutex) {
-        av_free(qf);
+        zn_av_free(qf);
         return AVERROR(ENOMEM);
     }
     p->nb_tot_qfs = qf_num;
 
     for (uint32_t i = 0; i < qf_num; i++) {
-        p->qf_mutex[i] = av_calloc(qf[i].queueCount, sizeof(**p->qf_mutex));
+        p->qf_mutex[i] = zn_av_calloc(qf[i].queueCount, sizeof(**p->qf_mutex));
         if (!p->qf_mutex[i]) {
-            av_free(qf);
+            zn_av_free(qf);
             return AVERROR(ENOMEM);
         }
         for (uint32_t j = 0; j < qf[i].queueCount; j++) {
             err = pthread_mutex_init(&p->qf_mutex[i][j], NULL);
             if (err != 0) {
                 av_log(ctx, AV_LOG_ERROR, "pthread_mutex_init failed : %s\n",
-                       av_err2str(err));
-                av_free(qf);
+                       zn_av_err2str(err));
+                zn_av_free(qf);
                 return AVERROR(err);
             }
         }
     }
 
-    av_free(qf);
+    zn_av_free(qf);
 
     graph_index = hwctx->nb_graphics_queues ? hwctx->queue_family_index : -1;
     comp_index  = hwctx->nb_comp_queues ? hwctx->queue_family_comp_index : -1;
@@ -1601,7 +1601,7 @@ static int vulkan_device_derive(AVHWDeviceContext *ctx,
         err = fstat(src_hwctx->fd, &drm_node_info);
         if (err) {
             av_log(ctx, AV_LOG_ERROR, "Unable to get node info from DRM fd: %s!\n",
-                   av_err2str(AVERROR(errno)));
+                   zn_av_err2str(AVERROR(errno)));
             return AVERROR_EXTERNAL;
         }
 
@@ -1612,7 +1612,7 @@ static int vulkan_device_derive(AVHWDeviceContext *ctx,
         err = drmGetDevice(src_hwctx->fd, &drm_dev_info);
         if (err) {
             av_log(ctx, AV_LOG_ERROR, "Unable to get device info from DRM fd: %s!\n",
-                   av_err2str(AVERROR(errno)));
+                   zn_av_err2str(AVERROR(errno)));
             return AVERROR_EXTERNAL;
         }
 
@@ -1666,7 +1666,7 @@ static int vulkan_frames_get_constraints(AVHWDeviceContext *ctx,
                                     NULL, NULL, NULL, NULL, 0, 0) >= 0;
     }
 
-    constraints->valid_sw_formats = av_malloc_array(count + 1,
+    constraints->valid_sw_formats = zn_av_malloc_array(count + 1,
                                                     sizeof(enum AVPixelFormat));
     if (!constraints->valid_sw_formats)
         return AVERROR(ENOMEM);
@@ -1688,7 +1688,7 @@ static int vulkan_frames_get_constraints(AVHWDeviceContext *ctx,
     constraints->max_width  = p->props.properties.limits.maxImageDimension2D;
     constraints->max_height = p->props.properties.limits.maxImageDimension2D;
 
-    constraints->valid_hw_formats = av_malloc_array(2, sizeof(enum AVPixelFormat));
+    constraints->valid_hw_formats = zn_av_malloc_array(2, sizeof(enum AVPixelFormat));
     if (!constraints->valid_hw_formats)
         return AVERROR(ENOMEM);
 
@@ -1789,7 +1789,7 @@ static void vulkan_free_internal(AVVkFrame *f)
 #endif
 
     pthread_mutex_destroy(&internal->update_mutex);
-    av_freep(&f->internal);
+    zn_av_freep(&f->internal);
 }
 
 static void vulkan_frame_free(AVHWFramesContext *hwfc, AVVkFrame *f)
@@ -1817,7 +1817,7 @@ static void vulkan_frame_free(AVHWFramesContext *hwfc, AVVkFrame *f)
         vk->DestroySemaphore(hwctx->act_dev, f->sem[i], hwctx->alloc);
     }
 
-    av_free(f);
+    zn_av_free(f);
 }
 
 static void vulkan_frame_free_cb(void *opaque, uint8_t *data)
@@ -2255,8 +2255,8 @@ static void vulkan_frames_uninit(AVHWFramesContext *hwfc)
 
     if (fp->modifier_info) {
         if (fp->modifier_info->pDrmFormatModifiers)
-            av_freep(&fp->modifier_info->pDrmFormatModifiers);
-        av_freep(&fp->modifier_info);
+            zn_av_freep(&fp->modifier_info->pDrmFormatModifiers);
+        zn_av_freep(&fp->modifier_info);
     }
 
     ff_vk_exec_pool_free(&p->vkctx, &fp->compute_exec);
@@ -2415,7 +2415,7 @@ static int vulkan_transfer_get_formats(AVHWFramesContext *hwfc,
 #if CONFIG_CUDA
     n++;
 #endif
-    fmts = av_malloc_array(n, sizeof(*fmts));
+    fmts = zn_av_malloc_array(n, sizeof(*fmts));
     if (!fmts)
         return AVERROR(ENOMEM);
 
@@ -2742,7 +2742,7 @@ fail:
     for (int i = 0; i < desc->nb_objects; i++)
         vk->FreeMemory(hwctx->act_dev, f->mem[i], hwctx->alloc);
 
-    av_free(f);
+    zn_av_free(f);
 
     return err;
 }
@@ -2782,7 +2782,7 @@ static int vulkan_map_from_vaapi(AVHWFramesContext *dst_fc,
                                  int flags)
 {
     int err;
-    AVFrame *tmp = av_frame_alloc();
+    AVFrame *tmp = zn_av_frame_alloc();
     AVHWFramesContext *vaapi_fc = (AVHWFramesContext*)src->hw_frames_ctx->data;
     AVVAAPIDeviceContext *vaapi_ctx = vaapi_fc->device_ctx->hwctx;
     VASurfaceID surface_id = (VASurfaceID)(uintptr_t)src->data[3];
@@ -2806,7 +2806,7 @@ static int vulkan_map_from_vaapi(AVHWFramesContext *dst_fc,
     err = ff_hwframe_map_replace(dst, src);
 
 fail:
-    av_frame_free(&tmp);
+    zn_av_frame_free(&tmp);
     return err;
 }
 #endif
@@ -3113,7 +3113,7 @@ static void vulkan_unmap_to_drm(AVHWFramesContext *hwfc, HWMapDescriptor *hwmap)
     for (int i = 0; i < drm_desc->nb_objects; i++)
         close(drm_desc->objects[i].fd);
 
-    av_free(drm_desc);
+    zn_av_free(drm_desc);
 }
 
 static inline uint32_t vulkan_fmt_to_drm(VkFormat vkfmt)
@@ -3230,7 +3230,7 @@ static int vulkan_map_to_drm(AVHWFramesContext *hwfc, AVFrame *dst,
     return 0;
 
 end:
-    av_free(drm_desc);
+    zn_av_free(drm_desc);
     return err;
 }
 
@@ -3239,7 +3239,7 @@ static int vulkan_map_to_vaapi(AVHWFramesContext *hwfc, AVFrame *dst,
                                const AVFrame *src, int flags)
 {
     int err;
-    AVFrame *tmp = av_frame_alloc();
+    AVFrame *tmp = zn_av_frame_alloc();
     if (!tmp)
         return AVERROR(ENOMEM);
 
@@ -3256,7 +3256,7 @@ static int vulkan_map_to_vaapi(AVHWFramesContext *hwfc, AVFrame *dst,
     err = ff_hwframe_map_replace(dst, src);
 
 fail:
-    av_frame_free(&tmp);
+    zn_av_frame_free(&tmp);
     return err;
 }
 #endif
@@ -3691,14 +3691,14 @@ AVVkFrame *av_vk_frame_alloc(void)
 
     f->internal = av_mallocz(sizeof(*f->internal));
     if (!f->internal) {
-        av_free(f);
+        zn_av_free(f);
         return NULL;
     }
 
     err = pthread_mutex_init(&f->internal->update_mutex, NULL);
     if (err != 0) {
-        av_free(f->internal);
-        av_free(f);
+        zn_av_free(f->internal);
+        zn_av_free(f);
         return NULL;
     }
 

@@ -90,13 +90,13 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioEchoContext *s = ctx->priv;
 
-    av_freep(&s->delay);
-    av_freep(&s->decay);
-    av_freep(&s->samples);
+    zn_av_freep(&s->delay);
+    zn_av_freep(&s->decay);
+    zn_av_freep(&s->samples);
 
     if (s->delayptrs)
-        av_freep(&s->delayptrs[0]);
-    av_freep(&s->delayptrs);
+        zn_av_freep(&s->delayptrs[0]);
+    zn_av_freep(&s->delayptrs);
 }
 
 static av_cold int init(AVFilterContext *ctx)
@@ -232,10 +232,10 @@ static int config_output(AVFilterLink *outlink)
 
 
     if (s->delayptrs)
-        av_freep(&s->delayptrs[0]);
-    av_freep(&s->delayptrs);
+        zn_av_freep(&s->delayptrs[0]);
+    zn_av_freep(&s->delayptrs);
 
-    return av_samples_alloc_array_and_samples(&s->delayptrs, NULL,
+    return zn_zn_av_samples_alloc_array_and_samples(&s->delayptrs, NULL,
                                               outlink->ch_layout.nb_channels,
                                               s->max_samples,
                                               outlink->format, 0);
@@ -252,7 +252,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     } else {
         out_frame = ff_get_audio_buffer(ctx->outputs[0], frame->nb_samples);
         if (!out_frame) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out_frame, frame);
@@ -264,7 +264,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     s->next_pts = frame->pts + av_rescale_q(frame->nb_samples, (AVRational){1, inlink->sample_rate}, inlink->time_base);
 
     if (frame != out_frame)
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
 
     return ff_filter_frame(ctx->outputs[0], out_frame);
 }

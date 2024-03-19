@@ -58,7 +58,7 @@ static av_cold int gdv_decode_init(AVCodecContext *avctx)
 
     avctx->pix_fmt  = AV_PIX_FMT_PAL8;
     gdv->frame_size = avctx->width * avctx->height + PREAMBLE_SIZE;
-    gdv->frame = av_calloc(gdv->frame_size, 1);
+    gdv->frame = zn_av_calloc(gdv->frame_size, 1);
     if (!gdv->frame)
         return AVERROR(ENOMEM);
 
@@ -555,7 +555,7 @@ static int gdv_decode_frame(AVCodecContext *avctx, AVFrame *frame,
 static av_cold int gdv_decode_close(AVCodecContext *avctx)
 {
     GDVContext *gdv = avctx->priv_data;
-    av_freep(&gdv->frame);
+    zn_av_freep(&gdv->frame);
     return 0;
 }
 

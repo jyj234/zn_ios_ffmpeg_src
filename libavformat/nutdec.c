@@ -223,7 +223,7 @@ static int decode_main_header(NUTContext *nut)
     }
 
     GET_V(nut->time_base_count, tmp > 0 && tmp < INT_MAX / sizeof(AVRational) && tmp < length/2);
-    nut->time_base = av_malloc_array(nut->time_base_count, sizeof(AVRational));
+    nut->time_base = zn_av_malloc_array(nut->time_base_count, sizeof(AVRational));
     if (!nut->time_base)
         return AVERROR(ENOMEM);
 
@@ -354,13 +354,13 @@ static int decode_main_header(NUTContext *nut)
         goto fail;
     }
 
-    nut->stream = av_calloc(stream_count, sizeof(StreamContext));
+    nut->stream = zn_av_calloc(stream_count, sizeof(StreamContext));
     if (!nut->stream) {
         ret = AVERROR(ENOMEM);
         goto fail;
     }
     for (i = 0; i < stream_count; i++) {
-        if (!avformat_new_stream(s, NULL)) {
+        if (!zn_avformat_new_stream(s, NULL)) {
             ret = AVERROR(ENOMEM);
             goto fail;
         }
@@ -368,9 +368,9 @@ static int decode_main_header(NUTContext *nut)
 
     return 0;
 fail:
-    av_freep(&nut->time_base);
+    zn_av_freep(&nut->time_base);
     for (i = 1; i < nut->header_count; i++) {
-        av_freep(&nut->header[i]);
+        zn_av_freep(&nut->header[i]);
     }
     nut->header_count = 0;
     return ret;
@@ -479,7 +479,7 @@ static int decode_stream_header(NUTContext *nut)
     return 0;
 fail:
     if (st && st->codecpar) {
-        av_freep(&st->codecpar->extradata);
+        zn_av_freep(&st->codecpar->extradata);
         st->codecpar->extradata_size = 0;
     }
     return ret;
@@ -658,7 +658,7 @@ static int decode_syncpoint(NUTContext *nut, int64_t *ts, int64_t *back_ptr)
     }
 
     *ts = tmp / nut->time_base_count *
-          av_q2d(nut->time_base[tmp % nut->time_base_count]) * AV_TIME_BASE;
+          zn_av_q2d(nut->time_base[tmp % nut->time_base_count]) * AV_TIME_BASE;
 
     if ((ret = ff_nut_add_sp(nut, nut->last_syncpoint_pos, *back_ptr, *ts)) < 0)
         return ret;
@@ -714,8 +714,8 @@ static int find_and_decode_index(NUTContext *nut)
     s->duration_estimation_method = AVFMT_DURATION_FROM_PTS;
 
     GET_V(syncpoint_count, tmp < INT_MAX / 8 && tmp > 0);
-    syncpoints   = av_malloc_array(syncpoint_count, sizeof(int64_t));
-    has_keyframe = av_malloc_array(syncpoint_count + 1, sizeof(int8_t));
+    syncpoints   = zn_av_malloc_array(syncpoint_count, sizeof(int64_t));
+    has_keyframe = zn_av_malloc_array(syncpoint_count + 1, sizeof(int8_t));
     if (!syncpoints || !has_keyframe) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -788,8 +788,8 @@ static int find_and_decode_index(NUTContext *nut)
     ret = 0;
 
 fail:
-    av_free(syncpoints);
-    av_free(has_keyframe);
+    zn_av_free(syncpoints);
+    zn_av_free(has_keyframe);
     return ret;
 }
 
@@ -798,11 +798,11 @@ static int nut_read_close(AVFormatContext *s)
     NUTContext *nut = s->priv_data;
     int i;
 
-    av_freep(&nut->time_base);
-    av_freep(&nut->stream);
+    zn_av_freep(&nut->time_base);
+    zn_av_freep(&nut->stream);
     ff_nut_free_sp(nut);
     for (i = 1; i < nut->header_count; i++)
-        av_freep(&nut->header[i]);
+        zn_av_freep(&nut->header[i]);
 
     return 0;
 }
@@ -1148,7 +1148,7 @@ static int decode_frame(NUTContext *nut, AVPacket *pkt, int frame_code)
 
     return 0;
 fail:
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     return ret;
 }
 
@@ -1243,7 +1243,7 @@ static int read_seek(AVFormatContext *s, int stream_index,
     NUTContext *nut    = s->priv_data;
     AVStream *st       = s->streams[stream_index];
     FFStream *const sti = ffstream(st);
-    Syncpoint dummy    = { .ts = pts * av_q2d(st->time_base) * AV_TIME_BASE };
+    Syncpoint dummy    = { .ts = pts * zn_av_q2d(st->time_base) * AV_TIME_BASE };
     Syncpoint nopts_sp = { .ts = AV_NOPTS_VALUE, .back_ptr = AV_NOPTS_VALUE };
     Syncpoint *sp, *next_node[2] = { &nopts_sp, &nopts_sp };
     int64_t pos, pos2, ts;

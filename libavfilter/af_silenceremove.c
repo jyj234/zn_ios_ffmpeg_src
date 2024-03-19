@@ -242,8 +242,8 @@ static int config_output(AVFilterLink *outlink)
 
     s->start_window = ff_get_audio_buffer(outlink, s->window_duration);
     s->stop_window = ff_get_audio_buffer(outlink, s->window_duration);
-    s->start_cache = av_calloc(outlink->ch_layout.nb_channels, s->cache_size * sizeof(*s->start_cache));
-    s->stop_cache = av_calloc(outlink->ch_layout.nb_channels, s->cache_size * sizeof(*s->stop_cache));
+    s->start_cache = zn_av_calloc(outlink->ch_layout.nb_channels, s->cache_size * sizeof(*s->start_cache));
+    s->stop_cache = zn_av_calloc(outlink->ch_layout.nb_channels, s->cache_size * sizeof(*s->stop_cache));
     if (!s->start_window || !s->stop_window || !s->start_cache || !s->stop_cache)
         return AVERROR(ENOMEM);
 
@@ -252,10 +252,10 @@ static int config_output(AVFilterLink *outlink)
     if (!s->start_queuef || !s->stop_queuef)
         return AVERROR(ENOMEM);
 
-    s->start_front = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->start_front));
-    s->start_back = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->start_back));
-    s->stop_front = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->stop_front));
-    s->stop_back = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->stop_back));
+    s->start_front = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->start_front));
+    s->start_back = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->start_back));
+    s->stop_front = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->stop_front));
+    s->stop_back = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->stop_back));
     if (!s->start_front || !s->start_back || !s->stop_front || !s->stop_back)
         return AVERROR(ENOMEM);
 
@@ -313,14 +313,14 @@ static int filter_frame(AVFilterLink *outlink, AVFrame *in)
                          s->start_silence +
                          s->stop_silence;
     if (max_out_nb_samples <= 0) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         ff_filter_set_ready(ctx, 100);
         return 0;
     }
 
     out = ff_get_audio_buffer(outlink, max_out_nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -400,14 +400,14 @@ static int filter_frame(AVFilterLink *outlink, AVFrame *in)
         break;
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     if (out_nb_samples > 0) {
         s->next_pts += out_nb_samples;
         out->nb_samples = out_nb_samples;
         return ff_filter_frame(outlink, out);
     }
 
-    av_frame_free(&out);
+    zn_av_frame_free(&out);
     ff_filter_set_ready(ctx, 100);
 
     return 0;
@@ -449,17 +449,17 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     SilenceRemoveContext *s = ctx->priv;
 
-    av_frame_free(&s->start_window);
-    av_frame_free(&s->stop_window);
-    av_frame_free(&s->start_queuef);
-    av_frame_free(&s->stop_queuef);
+    zn_av_frame_free(&s->start_window);
+    zn_av_frame_free(&s->stop_window);
+    zn_av_frame_free(&s->start_queuef);
+    zn_av_frame_free(&s->stop_queuef);
 
-    av_freep(&s->start_cache);
-    av_freep(&s->stop_cache);
-    av_freep(&s->start_front);
-    av_freep(&s->start_back);
-    av_freep(&s->stop_front);
-    av_freep(&s->stop_back);
+    zn_av_freep(&s->start_cache);
+    zn_av_freep(&s->stop_cache);
+    zn_av_freep(&s->start_front);
+    zn_av_freep(&s->start_back);
+    zn_av_freep(&s->stop_front);
+    zn_av_freep(&s->stop_back);
 }
 
 static const AVFilterPad silenceremove_inputs[] = {

@@ -1127,9 +1127,9 @@ static av_cold int svq3_decode_init(AVCodecContext *avctx)
     s->last_pic = &s->frames[1];
     s->next_pic = &s->frames[2];
 
-    s->cur_pic->f  = av_frame_alloc();
-    s->last_pic->f = av_frame_alloc();
-    s->next_pic->f = av_frame_alloc();
+    s->cur_pic->f  = zn_av_frame_alloc();
+    s->last_pic->f = zn_av_frame_alloc();
+    s->next_pic->f = zn_av_frame_alloc();
     if (!s->cur_pic->f || !s->last_pic->f || !s->next_pic->f)
         return AVERROR(ENOMEM);
 
@@ -1268,7 +1268,7 @@ static av_cold int svq3_decode_init(AVCodecContext *avctx)
                            size - offset) != Z_OK) {
                 av_log(avctx, AV_LOG_ERROR,
                        "could not uncompress watermark logo\n");
-                av_free(buf);
+                zn_av_free(buf);
                 return -1;
             }
             s->watermark_key = av_bswap16(av_crc(av_crc_get_table(AV_CRC_16_CCITT), 0, buf, buf_len));
@@ -1276,7 +1276,7 @@ static av_cold int svq3_decode_init(AVCodecContext *avctx)
             s->watermark_key = s->watermark_key << 16 | s->watermark_key;
             av_log(avctx, AV_LOG_DEBUG,
                    "watermark key %#"PRIx32"\n", s->watermark_key);
-            av_free(buf);
+            zn_av_free(buf);
 #else
             av_log(avctx, AV_LOG_ERROR,
                    "this svq3 file contains watermark which need zlib support compiled in\n");
@@ -1318,9 +1318,9 @@ static void free_picture(SVQ3Frame *pic)
 {
     int i;
     for (i = 0; i < 2; i++) {
-        av_freep(&pic->motion_val_buf[i]);
+        zn_av_freep(&pic->motion_val_buf[i]);
     }
-    av_freep(&pic->mb_type_buf);
+    zn_av_freep(&pic->mb_type_buf);
 
     av_frame_unref(pic->f);
 }
@@ -1336,13 +1336,13 @@ static int get_buffer(AVCodecContext *avctx, SVQ3Frame *pic)
     if (!pic->motion_val_buf[0]) {
         int i;
 
-        pic->mb_type_buf = av_calloc(big_mb_num + s->mb_stride, sizeof(uint32_t));
+        pic->mb_type_buf = zn_av_calloc(big_mb_num + s->mb_stride, sizeof(uint32_t));
         if (!pic->mb_type_buf)
             return AVERROR(ENOMEM);
         pic->mb_type = pic->mb_type_buf + 2 * s->mb_stride + 1;
 
         for (i = 0; i < 2; i++) {
-            pic->motion_val_buf[i] = av_calloc(b4_array_size + 4, 2 * sizeof(int16_t));
+            pic->motion_val_buf[i] = zn_av_calloc(b4_array_size + 4, 2 * sizeof(int16_t));
             if (!pic->motion_val_buf[i]) {
                 ret = AVERROR(ENOMEM);
                 goto fail;
@@ -1359,7 +1359,7 @@ static int get_buffer(AVCodecContext *avctx, SVQ3Frame *pic)
         goto fail;
 
     if (!s->edge_emu_buffer) {
-        s->edge_emu_buffer = av_calloc(pic->f->linesize[0], 17);
+        s->edge_emu_buffer = zn_av_calloc(pic->f->linesize[0], 17);
         if (!s->edge_emu_buffer)
             return AVERROR(ENOMEM);
     }
@@ -1580,12 +1580,12 @@ static av_cold int svq3_decode_end(AVCodecContext *avctx)
 
     for (int i = 0; i < FF_ARRAY_ELEMS(s->frames); i++) {
         free_picture(&s->frames[i]);
-        av_frame_free(&s->frames[i].f);
+        zn_av_frame_free(&s->frames[i].f);
     }
-    av_freep(&s->slice_buf);
-    av_freep(&s->intra4x4_pred_mode);
-    av_freep(&s->edge_emu_buffer);
-    av_freep(&s->mb2br_xy);
+    zn_av_freep(&s->slice_buf);
+    zn_av_freep(&s->intra4x4_pred_mode);
+    zn_av_freep(&s->edge_emu_buffer);
+    zn_av_freep(&s->mb2br_xy);
 
     return 0;
 }

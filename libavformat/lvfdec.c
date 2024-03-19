@@ -58,7 +58,7 @@ static int lvf_read_header(AVFormatContext *s)
 
         switch (id) {
         case MKTAG('0', '0', 'f', 'm'):
-            st = avformat_new_stream(s, 0);
+            st = zn_avformat_new_stream(s, 0);
             if (!st)
                 return AVERROR(ENOMEM);
 
@@ -73,7 +73,7 @@ static int lvf_read_header(AVFormatContext *s)
             avpriv_set_pts_info(st, 32, 1, 1000);
             break;
         case MKTAG('0', '1', 'f', 'm'):
-            st = avformat_new_stream(s, 0);
+            st = zn_avformat_new_stream(s, 0);
             if (!st)
                 return AVERROR(ENOMEM);
 

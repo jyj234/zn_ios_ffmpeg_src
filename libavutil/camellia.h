@@ -39,7 +39,7 @@ struct AVCAMELLIA;
 
 /**
   * Allocate an AVCAMELLIA context
-  * To free the struct: av_free(ptr)
+  * To free the struct: zn_av_free(ptr)
   */
 struct AVCAMELLIA *av_camellia_alloc(void);
 

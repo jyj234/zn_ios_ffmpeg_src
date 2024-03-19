@@ -320,8 +320,8 @@ static void coded_frame_add(void *list, struct FrameListData *cx_frame)
 
 static av_cold void free_coded_frame(struct FrameListData *cx_frame)
 {
-    av_freep(&cx_frame->buf);
-    av_freep(&cx_frame);
+    zn_av_freep(&cx_frame->buf);
+    zn_av_freep(&cx_frame);
 }
 
 static av_cold void free_frame_list(struct FrameListData *list)
@@ -519,16 +519,16 @@ static av_cold int vpx_free(AVCodecContext *avctx)
     }
 #endif
 
-    av_freep(&ctx->ts_layer_flags);
+    zn_av_freep(&ctx->ts_layer_flags);
 
     vpx_codec_destroy(&ctx->encoder);
     if (ctx->is_alpha) {
         vpx_codec_destroy(&ctx->encoder_alpha);
-        av_freep(&ctx->rawimg_alpha.planes[VPX_PLANE_U]);
-        av_freep(&ctx->rawimg_alpha.planes[VPX_PLANE_V]);
+        zn_av_freep(&ctx->rawimg_alpha.planes[VPX_PLANE_U]);
+        zn_av_freep(&ctx->rawimg_alpha.planes[VPX_PLANE_V]);
     }
-    av_freep(&ctx->twopass_stats.buf);
-    av_freep(&avctx->stats_out);
+    zn_av_freep(&ctx->twopass_stats.buf);
+    zn_av_freep(&avctx->stats_out);
     free_frame_list(ctx->coded_frame_list);
     free_frame_list(ctx->alpha_coded_frame_list);
     if (ctx->fifo)
@@ -702,7 +702,7 @@ static int vpx_ts_param_parse(VPxContext *ctx, struct vpx_codec_enc_cfg *enccfg,
     if (ts_layering_mode) {
         // make sure the ts_layering_mode comes at the end of the ts_parameter string to ensure that
         // correct configuration is done.
-        ctx->ts_layer_flags = av_malloc_array(VPX_TS_MAX_PERIODICITY, sizeof(*ctx->ts_layer_flags));
+        ctx->ts_layer_flags = zn_av_malloc_array(VPX_TS_MAX_PERIODICITY, sizeof(*ctx->ts_layer_flags));
         set_temporal_layer_pattern(ts_layering_mode, enccfg, ctx->ts_layer_flags, &enccfg->ts_periodicity);
     }
 
@@ -764,8 +764,8 @@ static int vpx_parse_ref_frame_config_element(vpx_svc_ref_frame_config_t *ref_fr
     else
         ret = AVERROR(EINVAL);
 
-    av_freep(&key);
-    av_freep(&val);
+    zn_av_freep(&key);
+    zn_av_freep(&val);
 
     return ret;
 }
@@ -1357,7 +1357,7 @@ static int storeframe(AVCodecContext *avctx, struct FrameListData *cx_frame,
                                             AV_PKT_DATA_MATROSKA_BLOCKADDITIONAL,
                                             alpha_cx_frame->sz + 8);
         if (!side_data) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return AVERROR(ENOMEM);
         }
         AV_WB64(side_data, 1);
@@ -1426,7 +1426,7 @@ static int queue_frames(AVCodecContext *avctx, struct vpx_codec_ctx *encoder,
                     av_log(avctx, AV_LOG_ERROR,
                            "Data buffer alloc (%"SIZE_SPECIFIER" bytes) failed\n",
                            cx_frame->sz);
-                    av_freep(&cx_frame);
+                    zn_av_freep(&cx_frame);
                     return AVERROR(ENOMEM);
                 }
                 memcpy(cx_frame->buf, pkt->data.frame.buf, pkt->data.frame.sz);
@@ -1443,7 +1443,7 @@ static int queue_frames(AVCodecContext *avctx, struct vpx_codec_ctx *encoder,
                                   stats->sz +
                                   pkt->data.twopass_stats.sz);
             if (!tmp) {
-                av_freep(&stats->buf);
+                zn_av_freep(&stats->buf);
                 stats->sz = 0;
                 av_log(avctx, AV_LOG_ERROR, "Stat buffer realloc failed\n");
                 return AVERROR(ENOMEM);
@@ -1545,7 +1545,7 @@ static int set_roi_map(AVCodecContext *avctx, const AVFrameSideData *sd, int fra
 
     roi_map->rows = (frame_height + block_size - 1) / block_size;
     roi_map->cols = (frame_width  + block_size - 1) / block_size;
-    roi_map->roi_map = av_calloc(roi_map->rows * roi_map->cols, sizeof(*roi_map->roi_map));
+    roi_map->roi_map = zn_av_calloc(roi_map->rows * roi_map->cols, sizeof(*roi_map->roi_map));
     if (!roi_map->roi_map) {
         av_log(avctx, AV_LOG_ERROR, "roi_map alloc failed.\n");
         return AVERROR(ENOMEM);
@@ -1617,7 +1617,7 @@ static int vp9_encode_set_roi(AVCodecContext *avctx, int frame_width, int frame_
             log_encoder_error(avctx, "Failed to set VP9E_SET_ROI_MAP codec control.\n");
             ret = AVERROR_INVALIDDATA;
         }
-        av_freep(&roi_map.roi_map);
+        zn_av_freep(&roi_map.roi_map);
         return ret;
     }
 #endif
@@ -1648,7 +1648,7 @@ static int vp8_encode_set_roi(AVCodecContext *avctx, int frame_width, int frame_
         ret = AVERROR_INVALIDDATA;
     }
 
-    av_freep(&roi_map.roi_map);
+    zn_av_freep(&roi_map.roi_map);
     return ret;
 }
 
@@ -1663,13 +1663,13 @@ static int realloc_alpha_uv(AVCodecContext *avctx, int width, int height)
         !planes[VPX_PLANE_V] ||
         width  != (int)rawimg_alpha->d_w ||
         height != (int)rawimg_alpha->d_h) {
-        av_freep(&planes[VPX_PLANE_U]);
-        av_freep(&planes[VPX_PLANE_V]);
+        zn_av_freep(&planes[VPX_PLANE_U]);
+        zn_av_freep(&planes[VPX_PLANE_V]);
 
         vpx_img_wrap(rawimg_alpha, VPX_IMG_FMT_I420, width, height, 1,
                      (unsigned char*)1);
-        planes[VPX_PLANE_U] = av_malloc_array(stride[VPX_PLANE_U], height);
-        planes[VPX_PLANE_V] = av_malloc_array(stride[VPX_PLANE_V], height);
+        planes[VPX_PLANE_U] = zn_av_malloc_array(stride[VPX_PLANE_U], height);
+        planes[VPX_PLANE_V] = zn_av_malloc_array(stride[VPX_PLANE_V], height);
         if (!planes[VPX_PLANE_U] || !planes[VPX_PLANE_V])
             return AVERROR(ENOMEM);
 

@@ -108,7 +108,7 @@ static int adts_aac_read_header(AVFormatContext *s)
     AVStream *st;
     int ret;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -158,7 +158,7 @@ static int handle_id3(AVFormatContext *s, AVPacket *pkt)
     }
 
 error:
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     ff_id3v2_free_extra_meta(&id3v2_extra_meta);
     av_dict_free(&metadata);
 
@@ -188,7 +188,7 @@ retry:
             return AVERROR(EIO);
         }
         if (!ff_id3v2_match(pkt->data, ID3v2_DEFAULT_MAGIC)) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             ret = adts_aac_resync(s);
         } else
             ret = handle_id3(s, pkt);

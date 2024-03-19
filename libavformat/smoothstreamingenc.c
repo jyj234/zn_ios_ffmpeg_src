@@ -159,7 +159,7 @@ static void get_private_data(OutputStream *os)
         snprintf(&os->private_str[2*i], 3, "%02x", ptr[i]);
 fail:
     if (ptr != par->extradata)
-        av_free(ptr);
+        zn_av_free(ptr);
 }
 
 static void ism_free(AVFormatContext *s)
@@ -174,14 +174,14 @@ static void ism_free(AVFormatContext *s)
         ffurl_closep(&os->out2);
         ffurl_closep(&os->tail_out);
         if (os->ctx && os->ctx->pb)
-            avio_context_free(&os->ctx->pb);
-        avformat_free_context(os->ctx);
-        av_freep(&os->private_str);
+            zn_avio_context_free(&os->ctx->pb);
+        zn_avformat_free_context(os->ctx);
+        zn_av_freep(&os->private_str);
         for (j = 0; j < os->nb_fragments; j++)
-            av_freep(&os->fragments[j]);
-        av_freep(&os->fragments);
+            zn_av_freep(&os->fragments[j]);
+        zn_av_freep(&os->fragments);
     }
-    av_freep(&c->streams);
+    zn_av_freep(&c->streams);
 }
 
 static void output_chunk_list(OutputStream *os, AVIOContext *out, int final, int skip, int window_size)
@@ -293,12 +293,12 @@ static int ism_write_header(AVFormatContext *s)
         return AVERROR(errno);
     }
 
-    oformat = av_guess_format("ismv", NULL, NULL);
+    oformat = zn_av_guess_format("ismv", NULL, NULL);
     if (!oformat) {
         return AVERROR_MUXER_NOT_FOUND;
     }
 
-    c->streams = av_calloc(s->nb_streams, sizeof(*c->streams));
+    c->streams = zn_av_calloc(s->nb_streams, sizeof(*c->streams));
     if (!c->streams) {
         return AVERROR(ENOMEM);
     }
@@ -322,7 +322,7 @@ static int ism_write_header(AVFormatContext *s)
             return AVERROR(errno);
         }
 
-        os->ctx = ctx = avformat_alloc_context();
+        os->ctx = ctx = zn_avformat_alloc_context();
         if (!ctx) {
             return AVERROR(ENOMEM);
         }
@@ -331,21 +331,21 @@ static int ism_write_header(AVFormatContext *s)
         ctx->oformat = oformat;
         ctx->interrupt_callback = s->interrupt_callback;
 
-        if (!(st = avformat_new_stream(ctx, NULL))) {
+        if (!(st = zn_avformat_new_stream(ctx, NULL))) {
             return AVERROR(ENOMEM);
         }
-        avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
+        zn_avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
         st->sample_aspect_ratio = s->streams[i]->sample_aspect_ratio;
         st->time_base = s->streams[i]->time_base;
 
-        ctx->pb = avio_alloc_context(os->iobuf, sizeof(os->iobuf), 1, os, NULL, ism_write, ism_seek);
+        ctx->pb = zn_avio_alloc_context(os->iobuf, sizeof(os->iobuf), 1, os, NULL, ism_write, ism_seek);
         if (!ctx->pb) {
             return AVERROR(ENOMEM);
         }
 
         av_dict_set_int(&opts, "ism_lookahead", c->lookahead_count, 0);
         av_dict_set(&opts, "movflags", "+frag_custom", 0);
-        ret = avformat_write_header(ctx, &opts);
+        ret = zn_avformat_write_header(ctx, &opts);
         av_dict_free(&opts);
         if (ret < 0) {
              return ret;
@@ -566,7 +566,7 @@ static int ism_flush(AVFormatContext *s, int final)
                 for (j = 0; j < remove; j++) {
                     unlink(os->fragments[j]->file);
                     unlink(os->fragments[j]->infofile);
-                    av_freep(&os->fragments[j]);
+                    zn_av_freep(&os->fragments[j]);
                 }
                 os->nb_fragments -= remove;
                 memmove(os->fragments, os->fragments + remove, os->nb_fragments * sizeof(*os->fragments));

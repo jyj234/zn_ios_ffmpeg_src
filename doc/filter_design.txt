@@ -59,7 +59,7 @@ Frame references ownership and permissions
     requested using the ff_get_video_buffer or ff_get_audio_buffer
     functions. A new reference on an existing buffer can be created with
     av_frame_ref(). A reference is destroyed using
-    the av_frame_free() function.
+    the zn_av_frame_free() function.
 
   Reference ownership
   -------------------

@@ -107,7 +107,7 @@ static int return_or_keep_frame(BufferSinkContext *buf, AVFrame *out, AVFrame *i
         av_assert1(out);
         buf->peeked_frame = NULL;
         av_frame_move_ref(out, in);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return 0;
     }
 }
@@ -224,7 +224,7 @@ int av_buffersink_get_ch_layout(const AVFilterContext *ctx, AVChannelLayout *out
     int ret;
 
     av_assert0(ctx->filter->activate == activate);
-    ret = av_channel_layout_copy(&ch_layout, &ctx->inputs[0]->ch_layout);
+    ret = zn_av_channel_layout_copy(&ch_layout, &ctx->inputs[0]->ch_layout);
     if (ret < 0)
         return ret;
     *out = ch_layout;

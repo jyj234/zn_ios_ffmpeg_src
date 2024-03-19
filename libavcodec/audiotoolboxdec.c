@@ -146,7 +146,7 @@ static AudioChannelLayout *ffat_convert_layout(AudioChannelLayout *layout, UInt3
                                    sizeof(AudioChannelLayoutTag), &tag, size);
     new_layout = av_malloc(*size);
     if (!new_layout) {
-        av_free(layout);
+        zn_av_free(layout);
         return NULL;
     }
     if (tag == kAudioChannelLayoutTag_UseChannelBitmap)
@@ -156,7 +156,7 @@ static AudioChannelLayout *ffat_convert_layout(AudioChannelLayout *layout, UInt3
         AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutForTag,
                                sizeof(AudioChannelLayoutTag), &tag, size, new_layout);
     new_layout->mChannelLayoutTag = kAudioChannelLayoutTag_UseChannelDescriptions;
-    av_free(layout);
+    zn_av_free(layout);
     return new_layout;
 }
 
@@ -171,7 +171,7 @@ static int ffat_update_ctx(AVCodecContext *avctx)
         if (format.mSampleRate)
             avctx->sample_rate = format.mSampleRate;
         av_channel_layout_uninit(&avctx->ch_layout);
-        av_channel_layout_default(&avctx->ch_layout, format.mChannelsPerFrame);
+        zn_av_channel_layout_default(&avctx->ch_layout, format.mChannelsPerFrame);
         avctx->frame_size = format.mFramesPerPacket;
     }
 
@@ -212,7 +212,7 @@ static int ffat_update_ctx(AVCodecContext *avctx)
         for (i = 0; i < layout->mNumberChannelDescriptions; i++)
             at->channel_map[i] = layout->mChannelDescriptions[i].mChannelFlags;
 done:
-        av_free(layout);
+        zn_av_free(layout);
     }
 
     if (!avctx->frame_size)
@@ -297,7 +297,7 @@ static int ffat_set_extradata(AVCodecContext *avctx)
             av_log(avctx, AV_LOG_WARNING, "AudioToolbox cookie error: %i\n", (int)status);
 
         if (cookie != at->extradata)
-            av_free(cookie);
+            zn_av_free(cookie);
     }
     return 0;
 }
@@ -334,7 +334,7 @@ static av_cold int ffat_create_decoder(AVCodecContext *avctx,
         status = AudioFormatGetProperty(kAudioFormatProperty_FormatInfo,
                                         cookie_size, cookie, &format_size, &in_format);
         if (cookie != at->extradata)
-            av_free(cookie);
+            zn_av_free(cookie);
         if (status != 0) {
             av_log(avctx, AV_LOG_ERROR, "AudioToolbox header-parse error: %i\n", (int)status);
             return AVERROR_UNKNOWN;
@@ -443,7 +443,7 @@ static OSStatus ffat_decode_callback(AudioConverterRef converter, UInt32 *nb_pac
         return 0;
     }
 
-    av_packet_unref(&at->in_pkt);
+    zn_av_packet_unref(&at->in_pkt);
     av_packet_move_ref(&at->in_pkt, &at->new_in_pkt);
 
     if (!at->in_pkt.data) {
@@ -527,7 +527,7 @@ static int ffat_decode(AVCodecContext *avctx, AVFrame *frame,
         }
     };
 
-    av_packet_unref(&at->new_in_pkt);
+    zn_av_packet_unref(&at->new_in_pkt);
 
     if (avpkt->size) {
         if ((ret = av_packet_ref(&at->new_in_pkt, avpkt)) < 0) {
@@ -567,8 +567,8 @@ static av_cold void ffat_decode_flush(AVCodecContext *avctx)
 {
     ATDecodeContext *at = avctx->priv_data;
     AudioConverterReset(at->converter);
-    av_packet_unref(&at->new_in_pkt);
-    av_packet_unref(&at->in_pkt);
+    zn_av_packet_unref(&at->new_in_pkt);
+    zn_av_packet_unref(&at->in_pkt);
 }
 
 static av_cold int ffat_close_decoder(AVCodecContext *avctx)
@@ -576,10 +576,10 @@ static av_cold int ffat_close_decoder(AVCodecContext *avctx)
     ATDecodeContext *at = avctx->priv_data;
     if (at->converter)
         AudioConverterDispose(at->converter);
-    av_packet_unref(&at->new_in_pkt);
-    av_packet_unref(&at->in_pkt);
-    av_freep(&at->decoded_data);
-    av_freep(&at->extradata);
+    zn_av_packet_unref(&at->new_in_pkt);
+    zn_av_packet_unref(&at->in_pkt);
+    zn_av_freep(&at->decoded_data);
+    zn_av_freep(&at->extradata);
     return 0;
 }
 

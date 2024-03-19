@@ -455,7 +455,7 @@ static int decode_extradata_ps_mp4(const uint8_t *buf, int buf_size, H264ParamSe
 
         (void)decode_extradata_ps(escaped_buf, escaped_buf_size, ps, 1, logctx);
         // lorex.mp4 decodes ok even with extradata decoding failing
-        av_freep(&escaped_buf);
+        zn_av_freep(&escaped_buf);
     }
 
     return 0;

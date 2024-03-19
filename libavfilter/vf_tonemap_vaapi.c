@@ -67,9 +67,9 @@ static int tonemap_vaapi_save_metadata(AVFilterContext *avctx, AVFrame *input_fr
         if (hdr_meta->has_luminance) {
             const int luma_den = 10000;
             ctx->in_metadata.max_display_mastering_luminance =
-                lrint(luma_den * av_q2d(hdr_meta->max_luminance));
+                lrint(luma_den * zn_av_q2d(hdr_meta->max_luminance));
             ctx->in_metadata.min_display_mastering_luminance =
-                FFMIN(lrint(luma_den * av_q2d(hdr_meta->min_luminance)),
+                FFMIN(lrint(luma_den * zn_av_q2d(hdr_meta->min_luminance)),
                       ctx->in_metadata.max_display_mastering_luminance);
 
             av_log(avctx, AV_LOG_DEBUG,
@@ -89,19 +89,19 @@ static int tonemap_vaapi_save_metadata(AVFilterContext *avctx, AVFrame *input_fr
                 const int j = mapping[i];
                 ctx->in_metadata.display_primaries_x[i] =
                     FFMIN(lrint(chroma_den *
-                                av_q2d(hdr_meta->display_primaries[j][0])),
+                                zn_av_q2d(hdr_meta->display_primaries[j][0])),
                           chroma_den);
                 ctx->in_metadata.display_primaries_y[i] =
                     FFMIN(lrint(chroma_den *
-                                av_q2d(hdr_meta->display_primaries[j][1])),
+                                zn_av_q2d(hdr_meta->display_primaries[j][1])),
                           chroma_den);
             }
 
             ctx->in_metadata.white_point_x =
-                FFMIN(lrint(chroma_den * av_q2d(hdr_meta->white_point[0])),
+                FFMIN(lrint(chroma_den * zn_av_q2d(hdr_meta->white_point[0])),
                       chroma_den);
             ctx->in_metadata.white_point_y =
-                FFMIN(lrint(chroma_den * av_q2d(hdr_meta->white_point[1])),
+                FFMIN(lrint(chroma_den * zn_av_q2d(hdr_meta->white_point[1])),
                       chroma_den);
 
             av_log(avctx, AV_LOG_DEBUG,
@@ -246,7 +246,7 @@ static int tonemap_vaapi_filter_frame(AVFilterLink *inlink, AVFrame *input_frame
            input_frame->width, input_frame->height, input_frame->pts);
 
     if (vpp_ctx->va_context == VA_INVALID_ID){
-        av_frame_free(&input_frame);
+        zn_av_frame_free(&input_frame);
         return AVERROR(EINVAL);
     }
 
@@ -303,7 +303,7 @@ static int tonemap_vaapi_filter_frame(AVFilterLink *inlink, AVFrame *input_frame
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input_frame);
+    zn_av_frame_free(&input_frame);
 
     av_log(avctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(output_frame->format),
@@ -315,8 +315,8 @@ static int tonemap_vaapi_filter_frame(AVFilterLink *inlink, AVFrame *input_frame
     return ff_filter_frame(outlink, output_frame);
 
 fail:
-    av_frame_free(&input_frame);
-    av_frame_free(&output_frame);
+    zn_av_frame_free(&input_frame);
+    zn_av_frame_free(&output_frame);
     return err;
 }
 

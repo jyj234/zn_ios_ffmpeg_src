@@ -100,23 +100,23 @@ static int compute_crc_of_packets(AVFormatContext *fmt_ctx, int video_stream,
     }
 
     do {
-        result = av_read_frame(fmt_ctx, pkt);
+        result = zn_av_read_frame(fmt_ctx, pkt);
         if (result >= 0 && pkt->stream_index != video_stream) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             continue;
         }
 
         if (result < 0)
-            result = avcodec_send_packet(ctx, NULL);
+            result = zn_avcodec_send_packet(ctx, NULL);
         else {
             if (pkt->pts == AV_NOPTS_VALUE) {
                 av_log(NULL, AV_LOG_ERROR, "Error: frames doesn't have pts values\n");
                 return -1;
             }
-            result = avcodec_send_packet(ctx, pkt);
+            result = zn_avcodec_send_packet(ctx, pkt);
         }
 
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
 
         if (result < 0) {
             av_log(NULL, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
@@ -124,7 +124,7 @@ static int compute_crc_of_packets(AVFormatContext *fmt_ctx, int video_stream,
         }
 
         while (result >= 0) {
-            result = avcodec_receive_frame(ctx, fr);
+            result = zn_avcodec_receive_frame(ctx, fr);
             if (result == AVERROR_EOF)
                 goto finish;
             else if (result == AVERROR(EAGAIN)) {
@@ -159,7 +159,7 @@ static int compute_crc_of_packets(AVFormatContext *fmt_ctx, int video_stream,
     } while (result >= 0 && (no_seeking || (fr->pts + fr->duration <= ts_end)));
 
 finish:
-    av_freep(&byte_buffer);
+    zn_av_freep(&byte_buffer);
 
     return 0;
 }
@@ -200,13 +200,13 @@ static int seek_test(const char *input_filename, const char *start, const char *
     crc_array = NULL;
     pts_array = NULL;
 
-    result = avformat_open_input(&fmt_ctx, input_filename, NULL, NULL);
+    result = zn_avformat_open_input(&fmt_ctx, input_filename, NULL, NULL);
     if (result < 0) {
         av_log(NULL, AV_LOG_ERROR, "Can't open file\n");
         return result;
     }
 
-    result = avformat_find_stream_info(fmt_ctx, NULL);
+    result = zn_avformat_find_stream_info(fmt_ctx, NULL);
     if (result < 0) {
         av_log(NULL, AV_LOG_ERROR, "Can't get stream info\n");
         goto end;
@@ -229,40 +229,40 @@ static int seek_test(const char *input_filename, const char *start, const char *
 
     origin_par = fmt_ctx->streams[video_stream]->codecpar;
 
-    codec = avcodec_find_decoder(origin_par->codec_id);
+    codec = zn_avcodec_find_decoder(origin_par->codec_id);
     if (!codec) {
         av_log(NULL, AV_LOG_ERROR, "Can't find decoder\n");
         result = AVERROR_DECODER_NOT_FOUND;
         goto end;
     }
 
-    ctx = avcodec_alloc_context3(codec);
+    ctx = zn_avcodec_alloc_context3(codec);
     if (!ctx) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate decoder context\n");
         result = AVERROR(ENOMEM);
         goto end;
     }
 
-    result = avcodec_parameters_to_context(ctx, origin_par);
+    result = zn_avcodec_parameters_to_context(ctx, origin_par);
     if (result) {
         av_log(NULL, AV_LOG_ERROR, "Can't copy decoder context\n");
         goto end;
     }
 
-    result = avcodec_open2(ctx, codec, NULL);
+    result = zn_avcodec_open2(ctx, codec, NULL);
     if (result < 0) {
         av_log(ctx, AV_LOG_ERROR, "Can't open decoder\n");
         goto end;
     }
 
-    fr = av_frame_alloc();
+    fr = zn_av_frame_alloc();
     if (!fr) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate frame\n");
         result = AVERROR(ENOMEM);
         goto end;
     }
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         av_log(NULL, AV_LOG_ERROR, "Cannot allocate packet\n");
         result = AVERROR(ENOMEM);
@@ -282,11 +282,11 @@ static int seek_test(const char *input_filename, const char *start, const char *
     }
 
 end:
-    av_freep(&crc_array);
-    av_freep(&pts_array);
-    av_packet_free(&pkt);
-    av_frame_free(&fr);
-    avformat_close_input(&fmt_ctx);
+    zn_av_freep(&crc_array);
+    zn_av_freep(&pts_array);
+    zn_av_packet_free(&pkt);
+    zn_av_frame_free(&fr);
+    zn_avformat_close_input(&fmt_ctx);
     avcodec_free_context(&ctx);
     return result;
 }

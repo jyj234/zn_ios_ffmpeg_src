@@ -83,7 +83,7 @@ static int generate_fake_vps(QSVEncContext *q, AVCodecContext *avctx)
 
     ret = init_get_bits8(&gb, sps_nal.data, sps_nal.size);
     if (ret < 0) {
-        av_freep(&sps_rbsp.rbsp_buffer);
+        zn_av_freep(&sps_rbsp.rbsp_buffer);
         return ret;
     }
 
@@ -92,13 +92,13 @@ static int generate_fake_vps(QSVEncContext *q, AVCodecContext *avctx)
     if (type != HEVC_NAL_SPS) {
         av_log(avctx, AV_LOG_ERROR, "Unexpected NAL type in the extradata: %d\n",
                type);
-        av_freep(&sps_rbsp.rbsp_buffer);
+        zn_av_freep(&sps_rbsp.rbsp_buffer);
         return AVERROR_INVALIDDATA;
     }
     get_bits(&gb, 9);
 
     ret = ff_hevc_parse_sps(&sps, &gb, &sps_id, 0, NULL, avctx);
-    av_freep(&sps_rbsp.rbsp_buffer);
+    zn_av_freep(&sps_rbsp.rbsp_buffer);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Error parsing the SPS\n");
         return ret;
@@ -154,7 +154,7 @@ static int generate_fake_vps(QSVEncContext *q, AVCodecContext *avctx)
     memcpy(new_extradata, vps_buf, vps_size);
     memcpy(new_extradata + vps_size, avctx->extradata, avctx->extradata_size);
 
-    av_freep(&avctx->extradata);
+    zn_av_freep(&avctx->extradata);
     avctx->extradata       = new_extradata;
     avctx->extradata_size += vps_size;
 
@@ -193,25 +193,25 @@ static int qsv_hevc_set_encode_ctrl(AVCodecContext *avctx,
 
                 mdcv->DisplayPrimariesX[i] =
                     FFMIN(lrint(chroma_den *
-                                av_q2d(mdm->display_primaries[j][0])),
+                                zn_av_q2d(mdm->display_primaries[j][0])),
                           chroma_den);
                 mdcv->DisplayPrimariesY[i] =
                     FFMIN(lrint(chroma_den *
-                                av_q2d(mdm->display_primaries[j][1])),
+                                zn_av_q2d(mdm->display_primaries[j][1])),
                           chroma_den);
             }
 
             mdcv->WhitePointX =
-                FFMIN(lrint(chroma_den * av_q2d(mdm->white_point[0])),
+                FFMIN(lrint(chroma_den * zn_av_q2d(mdm->white_point[0])),
                       chroma_den);
             mdcv->WhitePointY =
-                FFMIN(lrint(chroma_den * av_q2d(mdm->white_point[1])),
+                FFMIN(lrint(chroma_den * zn_av_q2d(mdm->white_point[1])),
                       chroma_den);
 
             mdcv->MaxDisplayMasteringLuminance =
-                lrint(luma_den * av_q2d(mdm->max_luminance));
+                lrint(luma_den * zn_av_q2d(mdm->max_luminance));
             mdcv->MinDisplayMasteringLuminance =
-                FFMIN(lrint(luma_den * av_q2d(mdm->min_luminance)),
+                FFMIN(lrint(luma_den * zn_av_q2d(mdm->min_luminance)),
                       mdcv->MaxDisplayMasteringLuminance);
 
             enc_ctrl->ExtParam[enc_ctrl->NumExtParam++] = (mfxExtBuffer *)mdcv;
@@ -252,7 +252,7 @@ static av_cold int qsv_enc_init(AVCodecContext *avctx)
                    "load_plugins is not empty, but load_plugin is not set to 'none'."
                    "The load_plugin value will be ignored.\n");
         } else {
-            av_freep(&q->qsv.load_plugins);
+            zn_av_freep(&q->qsv.load_plugins);
 
             if (q->load_plugin == LOAD_PLUGIN_HEVC_SW)
                 q->qsv.load_plugins = av_strdup(uid_hevcenc_sw);

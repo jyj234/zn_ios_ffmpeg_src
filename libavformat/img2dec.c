@@ -193,7 +193,7 @@ int ff_img_read_header(AVFormatContext *s1)
 
     s1->ctx_flags |= AVFMTCTX_NOHEADER;
 
-    st = avformat_new_stream(s1, NULL);
+    st = zn_avformat_new_stream(s1, NULL);
     if (!st) {
         return AVERROR(ENOMEM);
     }
@@ -266,7 +266,7 @@ int ff_img_read_header(AVFormatContext *s1)
                 *p++ = *q++;
             }
             *p = 0;
-            av_free(dup);
+            zn_av_free(dup);
 
             gerr = glob(s->path, GLOB_NOCHECK|GLOB_BRACE|GLOB_NOMAGIC, NULL, &s->globstate);
             if (gerr != 0) {
@@ -341,7 +341,7 @@ int ff_img_read_header(AVFormatContext *s1)
 
             probe_buffer_size = avio_read(s1->pb, probe_buffer, probe_buffer_size);
             if (probe_buffer_size < 0) {
-                av_free(probe_buffer);
+                zn_av_free(probe_buffer);
                 return probe_buffer_size;
             }
             memset(probe_buffer + probe_buffer_size, 0, AVPROBE_PADDING_SIZE);
@@ -363,7 +363,7 @@ int ff_img_read_header(AVFormatContext *s1)
             }
             if (s1->flags & AVFMT_FLAG_CUSTOM_IO) {
                 avio_seek(s1->pb, 0, SEEK_SET);
-                av_freep(&probe_buffer);
+                zn_av_freep(&probe_buffer);
             } else
                 ffio_rewind_with_probe_data(s1->pb, &probe_buffer, probe_buffer_size);
         }
@@ -401,7 +401,7 @@ static int add_filename_as_pkt_side_data(char *filename, AVPacket *pkt) {
     ret = av_packet_add_side_data(pkt, AV_PKT_DATA_STRINGS_METADATA,
                                   packed_metadata, metadata_len);
     if (ret < 0) {
-        av_freep(&packed_metadata);
+        zn_av_freep(&packed_metadata);
         return ret;
     }
     return 0;

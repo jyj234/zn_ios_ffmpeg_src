@@ -154,7 +154,7 @@ static int mpsub_read_header(AVFormatContext *s)
         pts_info.num /= common_factor;
     }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st) {
         res = AVERROR(ENOMEM);
         goto end;

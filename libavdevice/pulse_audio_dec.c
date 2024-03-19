@@ -155,7 +155,7 @@ static av_cold int pulse_read_header(AVFormatContext *s)
 
     pa_channel_map_init_extend(&cmap, pd->channels, PA_CHANNEL_MAP_WAVEEX);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
 
     if (!st) {
         av_log(s, AV_LOG_ERROR, "Cannot add stream\n");
@@ -358,7 +358,7 @@ static int pulse_read_packet(AVFormatContext *s, AVPacket *pkt)
     return 0;
 
 unlock_and_fail:
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     pa_threaded_mainloop_unlock(pd->mainloop);
     return ret;
 }

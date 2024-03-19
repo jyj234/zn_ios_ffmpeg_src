@@ -514,8 +514,8 @@ static int config_input(AVFilterLink *inlink)
     fspp->vsub = desc->log2_chroma_h;
 
     fspp->temp_stride = FFALIGN(inlink->w + 16, 16);
-    fspp->temp = av_malloc_array(fspp->temp_stride, h * sizeof(*fspp->temp));
-    fspp->src  = av_malloc_array(fspp->temp_stride, h * sizeof(*fspp->src));
+    fspp->temp = zn_av_malloc_array(fspp->temp_stride, h * sizeof(*fspp->temp));
+    fspp->src  = zn_av_malloc_array(fspp->temp_stride, h * sizeof(*fspp->src));
 
     if (!fspp->temp || !fspp->src)
         return AVERROR(ENOMEM);
@@ -574,12 +574,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (!fspp->qp && (fspp->use_bframe_qp || in->pict_type != AV_PICTURE_TYPE_B)) {
         ret = ff_qp_table_extract(in, &qp_table, &qp_stride, NULL, &fspp->qscale_type);
         if (ret < 0) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return ret;
         }
 
         if (!fspp->use_bframe_qp && in->pict_type != AV_PICTURE_TYPE_B) {
-            av_freep(&fspp->non_b_qp_table);
+            zn_av_freep(&fspp->non_b_qp_table);
             fspp->non_b_qp_table  = qp_table;
             fspp->non_b_qp_stride = qp_stride;
         }
@@ -603,7 +603,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
                 out = ff_get_video_buffer(outlink, aligned_w, aligned_h);
                 if (!out) {
-                    av_frame_free(&in);
+                    zn_av_frame_free(&in);
                     ret = AVERROR(ENOMEM);
                     goto finish;
                 }
@@ -627,21 +627,21 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             av_image_copy_plane(out->data[3], out->linesize[3],
                                 in ->data[3], in ->linesize[3],
                                 inlink->w, inlink->h);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
     ret = ff_filter_frame(outlink, out);
 finish:
     if (qp_table != fspp->non_b_qp_table)
-        av_freep(&qp_table);
+        zn_av_freep(&qp_table);
     return ret;
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
 {
     FSPPContext *fspp = ctx->priv;
-    av_freep(&fspp->temp);
-    av_freep(&fspp->src);
-    av_freep(&fspp->non_b_qp_table);
+    zn_av_freep(&fspp->temp);
+    zn_av_freep(&fspp->src);
+    zn_av_freep(&fspp->non_b_qp_table);
 }
 
 static const AVFilterPad fspp_inputs[] = {

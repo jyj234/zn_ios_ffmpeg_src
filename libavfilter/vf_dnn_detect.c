@@ -228,10 +228,10 @@ static int dnn_detect_post_proc(AVFrame *frame, DNNData *output, uint32_t nb, AV
 static void free_detect_labels(DnnDetectContext *ctx)
 {
     for (int i = 0; i < ctx->label_count; i++) {
-        av_freep(&ctx->labels[i]);
+        zn_av_freep(&ctx->labels[i]);
     }
     ctx->label_count = 0;
-    av_freep(&ctx->labels);
+    zn_av_freep(&ctx->labels);
 }
 
 static int read_detect_label_file(AVFilterContext *context)
@@ -283,7 +283,7 @@ static int read_detect_label_file(AVFilterContext *context)
         if (av_dynarray_add_nofree(&ctx->labels, &ctx->label_count, label) < 0) {
             av_log(context, AV_LOG_ERROR, "failed to do av_dynarray_add\n");
             fclose(file);
-            av_freep(&label);
+            zn_av_freep(&label);
             return AVERROR(ENOMEM);
         }
     }

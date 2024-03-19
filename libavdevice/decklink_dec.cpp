@@ -122,7 +122,7 @@ public:
         }
         virtual HRESULT STDMETHODCALLTYPE ReleaseBuffer(void* buffer)
         {
-            av_free(buffer);
+            zn_av_free(buffer);
             return S_OK;
         }
         virtual HRESULT STDMETHODCALLTYPE Commit() { return S_OK; }
@@ -458,7 +458,7 @@ static uint8_t *get_metadata(AVFormatContext *avctx, uint16_t *buf, size_t width
             data = vanc_to_cc(avctx, buf, width, data_len);
             if (data) {
                 if (av_packet_add_side_data(pkt, AV_PKT_DATA_A53_CC, data, data_len) < 0)
-                    av_free(data);
+                    zn_av_free(data);
             }
         } else {
             av_log(avctx, AV_LOG_DEBUG, "Unknown meta data DID = 0x%.2x SDID = 0x%.2x\n",
@@ -826,7 +826,7 @@ HRESULT decklink_input_callback::VideoInputFrameArrived(
                             av_dict_free(&metadata_dict);
                             if (packed_metadata) {
                                 if (av_packet_add_side_data(&pkt, AV_PKT_DATA_STRINGS_METADATA, packed_metadata, metadata_len) < 0)
-                                    av_freep(&packed_metadata);
+                                    zn_av_freep(&packed_metadata);
                                 else if (!ctx->tc_seen)
                                     ctx->tc_seen = ctx->frameCount;
                             }
@@ -1041,7 +1041,7 @@ av_cold int ff_decklink_read_close(AVFormatContext *avctx)
     ff_decklink_cleanup(avctx);
     ff_decklink_packet_queue_end(&ctx->queue);
 
-    av_freep(&cctx->ctx);
+    zn_av_freep(&cctx->ctx);
 
     return 0;
 }
@@ -1173,7 +1173,7 @@ av_cold int ff_decklink_read_header(AVFormatContext *avctx)
 #endif
 
     /* Setup streams. */
-    st = avformat_new_stream(avctx, NULL);
+    st = zn_avformat_new_stream(avctx, NULL);
     if (!st) {
         av_log(avctx, AV_LOG_ERROR, "Cannot add stream\n");
         ret = AVERROR(ENOMEM);
@@ -1186,7 +1186,7 @@ av_cold int ff_decklink_read_header(AVFormatContext *avctx)
     avpriv_set_pts_info(st, 64, 1, 1000000);  /* 64 bits pts in us */
     ctx->audio_st=st;
 
-    st = avformat_new_stream(avctx, NULL);
+    st = zn_avformat_new_stream(avctx, NULL);
     if (!st) {
         av_log(avctx, AV_LOG_ERROR, "Cannot add stream\n");
         ret = AVERROR(ENOMEM);
@@ -1250,7 +1250,7 @@ av_cold int ff_decklink_read_header(AVFormatContext *avctx)
     ctx->video_st=st;
 
     if (ctx->enable_klv) {
-        st = avformat_new_stream(avctx, NULL);
+        st = zn_avformat_new_stream(avctx, NULL);
         if (!st) {
             ret = AVERROR(ENOMEM);
             goto error;
@@ -1264,7 +1264,7 @@ av_cold int ff_decklink_read_header(AVFormatContext *avctx)
     }
 
     if (ctx->teletext_lines) {
-        st = avformat_new_stream(avctx, NULL);
+        st = zn_avformat_new_stream(avctx, NULL);
         if (!st) {
             av_log(avctx, AV_LOG_ERROR, "Cannot add stream\n");
             ret = AVERROR(ENOMEM);

@@ -95,7 +95,7 @@ static void show_cellauto_row(AVFilterContext *ctx)
         line[i] = row[i] ? '@' : ' ';
     line[i] = 0;
     av_log(ctx, AV_LOG_DEBUG, "generation:%"PRId64" row:%s|\n", s->generation, line);
-    av_free(line);
+    zn_av_free(line);
 }
 #endif
 
@@ -121,7 +121,7 @@ static int init_pattern_from_string(AVFilterContext *ctx)
         s->h = (double)s->w * M_PHI;
     }
 
-    s->buf = av_calloc(s->w, s->h * sizeof(*s->buf));
+    s->buf = zn_av_calloc(s->w, s->h * sizeof(*s->buf));
     if (!s->buf)
         return AVERROR(ENOMEM);
 
@@ -181,7 +181,7 @@ static av_cold int init(AVFilterContext *ctx)
         /* fill the first row randomly */
         int i;
 
-        s->buf = av_calloc(s->w, s->h * sizeof(*s->buf));
+        s->buf = zn_av_calloc(s->w, s->h * sizeof(*s->buf));
         if (!s->buf)
             return AVERROR(ENOMEM);
         if (s->random_seed == -1)
@@ -209,8 +209,8 @@ static av_cold void uninit(AVFilterContext *ctx)
     CellAutoContext *s = ctx->priv;
 
     av_file_unmap(s->file_buf, s->file_bufsize);
-    av_freep(&s->buf);
-    av_freep(&s->pattern);
+    zn_av_freep(&s->buf);
+    zn_av_freep(&s->pattern);
 }
 
 static int config_props(AVFilterLink *outlink)

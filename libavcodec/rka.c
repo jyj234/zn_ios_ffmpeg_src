@@ -111,9 +111,9 @@ static int adaptive_model_init(AdaptiveModel *am, int buf_size)
     am->total = 0;
 
     if (!am->prob[0])
-        am->prob[0] = av_malloc_array(buf_size + 5, sizeof(*am->prob[0]));
+        am->prob[0] = zn_av_malloc_array(buf_size + 5, sizeof(*am->prob[0]));
     if (!am->prob[1])
-        am->prob[1] = av_malloc_array(buf_size + 5, sizeof(*am->prob[1]));
+        am->prob[1] = zn_av_malloc_array(buf_size + 5, sizeof(*am->prob[1]));
 
     if (!am->prob[0] || !am->prob[1])
         return AVERROR(ENOMEM);
@@ -124,8 +124,8 @@ static int adaptive_model_init(AdaptiveModel *am, int buf_size)
 
 static void adaptive_model_free(AdaptiveModel *am)
 {
-    av_freep(&am->prob[0]);
-    av_freep(&am->prob[1]);
+    zn_av_freep(&am->prob[0]);
+    zn_av_freep(&am->prob[1]);
 }
 
 static av_cold int rka_decode_init(AVCodecContext *avctx)

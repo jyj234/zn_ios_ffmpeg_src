@@ -69,7 +69,7 @@ static int xa_read_header(AVFormatContext *s)
     AVStream *st;
 
     /*Set up the XA Audio Decoder*/
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

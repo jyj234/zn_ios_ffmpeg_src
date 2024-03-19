@@ -185,13 +185,13 @@ static int audio_get_buffer(AVCodecContext *avctx, AVFrame *frame)
     frame->linesize[0] = pool->linesize[0];
 
     if (planes > AV_NUM_DATA_POINTERS) {
-        frame->extended_data = av_calloc(planes, sizeof(*frame->extended_data));
+        frame->extended_data = zn_av_calloc(planes, sizeof(*frame->extended_data));
         frame->nb_extended_buf = planes - AV_NUM_DATA_POINTERS;
-        frame->extended_buf  = av_calloc(frame->nb_extended_buf,
+        frame->extended_buf  = zn_av_calloc(frame->nb_extended_buf,
                                           sizeof(*frame->extended_buf));
         if (!frame->extended_data || !frame->extended_buf) {
-            av_freep(&frame->extended_data);
-            av_freep(&frame->extended_buf);
+            zn_av_freep(&frame->extended_data);
+            zn_av_freep(&frame->extended_buf);
             return AVERROR(ENOMEM);
         }
     } else {

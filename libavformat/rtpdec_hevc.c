@@ -159,10 +159,10 @@ static av_cold int hevc_parse_sdp_line(AVFormatContext *ctx, int st_index,
                 memcpy(par->extradata + pos, hevc_data->sei, hevc_data->sei_size);
             }
 
-            av_freep(&hevc_data->vps);
-            av_freep(&hevc_data->sps);
-            av_freep(&hevc_data->pps);
-            av_freep(&hevc_data->sei);
+            zn_av_freep(&hevc_data->vps);
+            zn_av_freep(&hevc_data->sps);
+            zn_av_freep(&hevc_data->pps);
+            zn_av_freep(&hevc_data->sei);
             hevc_data->vps_size = 0;
             hevc_data->sps_size = 0;
             hevc_data->pps_size = 0;

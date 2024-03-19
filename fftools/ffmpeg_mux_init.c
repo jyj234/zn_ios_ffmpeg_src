@@ -130,7 +130,7 @@ static int choose_encoder(const OptionsContext *o, AVFormatContext *s,
 
     if (!codec_name) {
         ost->par_in->codec_id = av_guess_codec(s->oformat, NULL, s->url, NULL, ost->type);
-        *enc = avcodec_find_encoder(ost->par_in->codec_id);
+        *enc = zn_avcodec_find_encoder(ost->par_in->codec_id);
         if (!*enc) {
             av_log(ost, AV_LOG_FATAL, "Automatic encoder selection failed "
                    "Default encoder for format %s (codec %s) is "
@@ -219,7 +219,7 @@ static int enc_stats_get_file(AVIOContext **io, const char *path)
     ret = avio_open2(&esf->io, path, AVIO_FLAG_WRITE, &int_cb, NULL);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Error opening stats file '%s': %s\n",
-               path, av_err2str(ret));
+               path, zn_av_err2str(ret));
         return ret;
     }
 
@@ -235,10 +235,10 @@ static int enc_stats_get_file(AVIOContext **io, const char *path)
 void of_enc_stats_close(void)
 {
     for (int i = 0; i < nb_enc_stats_files; i++) {
-        av_freep(&enc_stats_files[i].path);
-        avio_closep(&enc_stats_files[i].io);
+        zn_av_freep(&enc_stats_files[i].path);
+        zn_avio_closep(&enc_stats_files[i].io);
     }
-    av_freep(&enc_stats_files);
+    zn_av_freep(&enc_stats_files);
     nb_enc_stats_files = 0;
 }
 
@@ -268,7 +268,7 @@ static int unescape(char **pdst, size_t *dst_len,
         dst[idx] = *str;
     }
     if (!idx) {
-        av_freep(&dst);
+        zn_av_freep(&dst);
         return 0;
     }
 
@@ -326,7 +326,7 @@ static int enc_stats_init(OutputStream *ost, EncStats *es, int pre,
         if (val) {
             ret = GROW_ARRAY(es->components, es->nb_components);
             if (ret < 0) {
-                av_freep(&val);
+                zn_av_freep(&val);
                 return ret;
             }
 
@@ -395,7 +395,7 @@ static int enc_stats_init(OutputStream *ost, EncStats *es, int pre,
         }
 
 fail:
-        av_freep(&val);
+        zn_av_freep(&val);
         if (ret < 0)
             return ret;
     }
@@ -985,11 +985,11 @@ static int streamcopy_init(const Muxer *mux, OutputStream *ost)
 
     int ret = 0;
 
-    codec_ctx = avcodec_alloc_context3(NULL);
+    codec_ctx = zn_avcodec_alloc_context3(NULL);
     if (!codec_ctx)
         return AVERROR(ENOMEM);
 
-    ret = avcodec_parameters_to_context(codec_ctx, ist->par);
+    ret = zn_avcodec_parameters_to_context(codec_ctx, ist->par);
     if (ret >= 0)
         ret = av_opt_set_dict(codec_ctx, &ost->encoder_opts);
     if (ret < 0) {
@@ -1119,7 +1119,7 @@ static int ost_add(Muxer *mux, const OptionsContext *o, enum FFMAVMediaType type
     double qscale = -1;
     int i;
 
-    st = avformat_new_stream(oc, NULL);
+    st = zn_avformat_new_stream(oc, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -1166,7 +1166,7 @@ static int ost_add(Muxer *mux, const OptionsContext *o, enum FFMAVMediaType type
     }
 
     if (enc) {
-        ost->enc_ctx = avcodec_alloc_context3(enc);
+        ost->enc_ctx = zn_avcodec_alloc_context3(enc);
         if (!ost->enc_ctx)
             return AVERROR(ENOMEM);
 
@@ -1201,7 +1201,7 @@ static int ost_add(Muxer *mux, const OptionsContext *o, enum FFMAVMediaType type
     else av_assert0(0);
     av_log(ost, AV_LOG_VERBOSE, "\n");
 
-    ms->pkt = av_packet_alloc();
+    ms->pkt = zn_av_packet_alloc();
     if (!ms->pkt)
         return AVERROR(ENOMEM);
 
@@ -1242,7 +1242,7 @@ static int ost_add(Muxer *mux, const OptionsContext *o, enum FFMAVMediaType type
                 av_dict_set(&ost->encoder_opts, buf, arg, AV_DICT_DONT_OVERWRITE);
             } while (!s->eof_reached);
             av_bprint_finalize(&bprint, NULL);
-            avio_closep(&s);
+            zn_avio_closep(&s);
         }
         if (ret) {
             av_log(ost, AV_LOG_FATAL,
@@ -1355,7 +1355,7 @@ static int ost_add(Muxer *mux, const OptionsContext *o, enum FFMAVMediaType type
     if (bsfs && *bsfs) {
         ret = av_bsf_list_parse_str(bsfs, &ms->bsf_ctx);
         if (ret < 0) {
-            av_log(ost, AV_LOG_ERROR, "Error parsing bitstream filter sequence '%s': %s\n", bsfs, av_err2str(ret));
+            av_log(ost, AV_LOG_ERROR, "Error parsing bitstream filter sequence '%s': %s\n", bsfs, zn_av_err2str(ret));
             return ret;
         }
     }
@@ -1567,7 +1567,7 @@ static int map_auto_subtitle(Muxer *mux, const OptionsContext *o)
 
         /* subtitles: pick first */
     MATCH_PER_TYPE_OPT(codec_names, str, subtitle_codec_name, oc, "s");
-    if (!avcodec_find_encoder(oc->oformat->subtitle_codec) && !subtitle_codec_name)
+    if (!zn_avcodec_find_encoder(oc->oformat->subtitle_codec) && !subtitle_codec_name)
         return 0;
 
     for (InputStream *ist = ist_iter(NULL); ist; ist = ist_iter(ist))
@@ -1576,7 +1576,7 @@ static int map_auto_subtitle(Muxer *mux, const OptionsContext *o)
                 avcodec_descriptor_get(ist->st->codecpar->codec_id);
             AVCodecDescriptor const *output_descriptor = NULL;
             AVCodec const *output_codec =
-                avcodec_find_encoder(oc->oformat->subtitle_codec);
+                zn_avcodec_find_encoder(oc->oformat->subtitle_codec);
             int input_props = 0, output_props = 0;
             if (ist->user_set_discard == AVDISCARD_ALL)
                 continue;
@@ -1735,7 +1735,7 @@ static int of_add_attachments(Muxer *mux, const OptionsContext *o)
         err = avio_read(pb, attachment, len);
         if (err < 0)
             av_log(mux, AV_LOG_FATAL, "Error reading attachment file %s: %s\n",
-                   o->attachments[i], av_err2str(err));
+                   o->attachments[i], zn_av_err2str(err));
         else if (err != len) {
             av_log(mux, AV_LOG_FATAL, "Could not read all %"PRId64" bytes for "
                    "attachment file %s\n", len, o->attachments[i]);
@@ -1743,7 +1743,7 @@ static int of_add_attachments(Muxer *mux, const OptionsContext *o)
         }
 
 read_fail:
-        avio_closep(&pb);
+        zn_avio_closep(&pb);
         if (err < 0)
             return err;
 
@@ -1754,7 +1754,7 @@ read_fail:
 
         err = ost_add(mux, o, AVMEDIA_TYPE_ATTACHMENT, NULL, NULL, &ost);
         if (err < 0) {
-            av_freep(&attachment);
+            zn_av_freep(&attachment);
             return err;
         }
 
@@ -1838,7 +1838,7 @@ static int create_streams(Muxer *mux, const OptionsContext *o)
         return ret;
 
     if (!oc->nb_streams && !(oc->oformat->flags & AVFMT_NOSTREAMS)) {
-        av_dump_format(oc, nb_output_files - 1, oc->url, 1);
+        zn_av_dump_format(oc, nb_output_files - 1, oc->url, 1);
         av_log(mux, AV_LOG_ERROR, "Output file does not contain any stream\n");
         return AVERROR(EINVAL);
     }
@@ -1915,7 +1915,7 @@ static int setup_sync_queues(Muxer *mux, AVFormatContext *oc, int64_t buf_size_u
         if (!mux->sq_mux)
             return AVERROR(ENOMEM);
 
-        mux->sq_pkt = av_packet_alloc();
+        mux->sq_pkt = zn_av_packet_alloc();
         if (!mux->sq_pkt)
             return AVERROR(ENOMEM);
 
@@ -2338,7 +2338,7 @@ static int set_dispositions(Muxer *mux, const OptionsContext *o)
 
     const char **dispositions;
 
-    dispositions = av_calloc(ctx->nb_streams, sizeof(*dispositions));
+    dispositions = zn_av_calloc(ctx->nb_streams, sizeof(*dispositions));
     if (!dispositions)
         return AVERROR(ENOMEM);
 
@@ -2391,7 +2391,7 @@ static int set_dispositions(Muxer *mux, const OptionsContext *o)
     }
 
 finish:
-    av_freep(&dispositions);
+    zn_av_freep(&dispositions);
 
     return ret;
 }
@@ -2421,7 +2421,7 @@ static int parse_forced_key_frames(void *log, KeyframeForceCtx *kf,
         if (*p == ',')
             n++;
     size = n;
-    pts = av_malloc_array(size, sizeof(*pts));
+    pts = zn_av_malloc_array(size, sizeof(*pts));
     if (!pts)
         return AVERROR(ENOMEM);
 
@@ -2480,7 +2480,7 @@ static int parse_forced_key_frames(void *log, KeyframeForceCtx *kf,
 
     return 0;
 fail:
-    av_freep(&pts);
+    zn_av_freep(&pts);
     return ret;
 }
 
@@ -2663,10 +2663,10 @@ int of_open(const OptionsContext *o, const char *filename)
     if (!strcmp(filename, "-"))
         filename = "pipe:";
 
-    err = avformat_alloc_output_context2(&oc, NULL, o->format, filename);
+    err = zn_avformat_alloc_output_context2(&oc, NULL, o->format, filename);
     if (!oc) {
         av_log(mux, AV_LOG_FATAL, "Error initializing the muxer for %s: %s\n",
-               filename, av_err2str(err));
+               filename, zn_av_err2str(err));
         return err;
     }
     mux->fc = oc;
@@ -2721,7 +2721,7 @@ int of_open(const OptionsContext *o, const char *filename)
                               &oc->interrupt_callback,
                               &mux->opts)) < 0) {
             av_log(mux, AV_LOG_FATAL, "Error opening output %s: %s\n",
-                   filename, av_err2str(err));
+                   filename, zn_av_err2str(err));
             return err;
         }
     } else if (strcmp(oc->oformat->name, "image2")==0 && !av_filename_number_test(filename)) {

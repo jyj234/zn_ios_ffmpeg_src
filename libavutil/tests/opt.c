@@ -162,12 +162,12 @@ int main(void)
 
         while (o = av_opt_next(&test_ctx, o)) {
             ret = av_opt_is_set_to_default_by_name(&test_ctx, o->name, 0);
-            printf("name:%10s default:%d error:%s\n", o->name, !!ret, ret < 0 ? av_err2str(ret) : "");
+            printf("name:%10s default:%d error:%s\n", o->name, !!ret, ret < 0 ? zn_av_err2str(ret) : "");
         }
         av_opt_set_defaults(&test_ctx);
         while (o = av_opt_next(&test_ctx, o)) {
             ret = av_opt_is_set_to_default_by_name(&test_ctx, o->name, 0);
-            printf("name:%10s default:%d error:%s\n", o->name, !!ret, ret < 0 ? av_err2str(ret) : "");
+            printf("name:%10s default:%d error:%s\n", o->name, !!ret, ret < 0 ? zn_av_err2str(ret) : "");
         }
         av_opt_free(&test_ctx);
     }
@@ -202,12 +202,12 @@ int main(void)
             }
 
             printf("name: %-11s get: %-16s set: %-16s get: %-16s %s\n", o->name,
-                    ret1 >= 0 ? value1 : av_err2str(ret1),
-                    ret2 >= 0 ? "OK" : av_err2str(ret2),
-                    ret3 >= 0 ? value2 : av_err2str(ret3),
+                    ret1 >= 0 ? value1 : zn_av_err2str(ret1),
+                    ret2 >= 0 ? "OK" : zn_av_err2str(ret2),
+                    ret3 >= 0 ? value2 : zn_av_err2str(ret3),
                     ret1 >= 0 && ret2 >= 0 && ret3 >= 0 && !strcmp(value1, value2) ? "OK" : "Mismatch");
-            av_free(value1);
-            av_free(value2);
+            zn_av_free(value1);
+            zn_av_free(value2);
         }
         av_opt_free(&test_ctx);
         av_opt_free(&test2_ctx);
@@ -228,10 +228,10 @@ int main(void)
             memset(&test_ctx, 0, sizeof(test_ctx));
             test_ctx.class = &test_class;
             av_set_options_string(&test_ctx, buf, "=", ",");
-            av_free(buf);
+            zn_av_free(buf);
             if (av_opt_serialize(&test_ctx, 0, 0, &buf, '=', ',') >= 0) {
                 printf("%s\n", buf);
-                av_free(buf);
+                zn_av_free(buf);
             }
         }
         av_opt_free(&test_ctx);

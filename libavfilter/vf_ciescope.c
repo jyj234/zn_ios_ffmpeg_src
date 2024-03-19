@@ -1403,7 +1403,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     out->pts = in->pts;
@@ -1412,7 +1412,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (!s->background) {
         ret = draw_background(ctx);
         if (ret < 0) {
-            av_frame_free(&out);
+            zn_av_frame_free(&out);
             return ret;
         }
         s->background = 1;
@@ -1490,7 +1490,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                 outlink->w, outlink->h,
                 s->cie, s->gamuts);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -1498,7 +1498,7 @@ static void av_cold uninit(AVFilterContext *ctx)
 {
     CiescopeContext *s = ctx->priv;
 
-    av_frame_free(&s->f);
+    zn_av_frame_free(&s->f);
 }
 
 static int config_input(AVFilterLink *inlink)

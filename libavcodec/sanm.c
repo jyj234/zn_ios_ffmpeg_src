@@ -448,11 +448,11 @@ static void init_sizes(SANMVideoContext *ctx, int width, int height)
 
 static void destroy_buffers(SANMVideoContext *ctx)
 {
-    av_freep(&ctx->frm0);
-    av_freep(&ctx->frm1);
-    av_freep(&ctx->frm2);
-    av_freep(&ctx->stored_frame);
-    av_freep(&ctx->rle_buf);
+    zn_av_freep(&ctx->frm0);
+    zn_av_freep(&ctx->frm1);
+    zn_av_freep(&ctx->frm2);
+    zn_av_freep(&ctx->stored_frame);
+    zn_av_freep(&ctx->rle_buf);
     ctx->frm0_size =
     ctx->frm1_size =
     ctx->frm2_size = 0;

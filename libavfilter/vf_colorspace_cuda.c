@@ -70,11 +70,11 @@ static av_cold int cudacolorspace_init(AVFilterContext* ctx)
 {
     CUDAColorspaceContext* s = ctx->priv;
 
-    s->own_frame = av_frame_alloc();
+    s->own_frame = zn_av_frame_alloc();
     if (!s->own_frame)
         return AVERROR(ENOMEM);
 
-    s->tmp_frame = av_frame_alloc();
+    s->tmp_frame = zn_av_frame_alloc();
     if (!s->tmp_frame)
         return AVERROR(ENOMEM);
 
@@ -95,9 +95,9 @@ static av_cold void cudacolorspace_uninit(AVFilterContext* ctx)
         CHECK_CU(cu->cuCtxPopCurrent(&dummy));
     }
 
-    av_frame_free(&s->own_frame);
+    zn_av_frame_free(&s->own_frame);
     av_buffer_unref(&s->frames_ctx);
-    av_frame_free(&s->tmp_frame);
+    zn_av_frame_free(&s->tmp_frame);
 }
 
 static av_cold int init_hwframe_ctx(CUDAColorspaceContext* s, AVBufferRef* device_ctx,
@@ -350,7 +350,7 @@ static int cudacolorspace_filter_frame(AVFilterLink* link, AVFrame* in)
     CUcontext dummy;
     int ret = 0;
 
-    out = av_frame_alloc();
+    out = zn_av_frame_alloc();
     if (!out) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -371,11 +371,11 @@ static int cudacolorspace_filter_frame(AVFilterLink* link, AVFrame* in)
               (int64_t)in->sample_aspect_ratio.den * outlink->w * link->h,
               INT_MAX);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

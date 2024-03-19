@@ -39,7 +39,7 @@ struct AVTWOFISH;
 
 /**
   * Allocate an AVTWOFISH context
-  * To free the struct: av_free(ptr)
+  * To free the struct: zn_av_free(ptr)
   */
 struct AVTWOFISH *av_twofish_alloc(void);
 

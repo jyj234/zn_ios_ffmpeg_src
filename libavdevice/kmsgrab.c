@@ -79,14 +79,14 @@ static void kmsgrab_free_desc(void *opaque, uint8_t *data)
     for (i = 0; i < desc->nb_objects; i++)
         close(desc->objects[i].fd);
 
-    av_free(desc);
+    zn_av_free(desc);
 }
 
 static void kmsgrab_free_frame(void *opaque, uint8_t *data)
 {
     AVFrame *frame = (AVFrame*)data;
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
 }
 
 static int kmsgrab_get_fb(AVFormatContext *avctx,
@@ -312,7 +312,7 @@ static int kmsgrab_read_packet(AVFormatContext *avctx, AVPacket *pkt)
     if (err < 0)
         goto fail;
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -356,8 +356,8 @@ static int kmsgrab_read_packet(AVFormatContext *avctx, AVPacket *pkt)
 
 fail:
     drmModeFreePlane(plane);
-    av_freep(&desc);
-    av_frame_free(&frame);
+    zn_av_freep(&desc);
+    zn_av_frame_free(&frame);
     return err;
 }
 
@@ -619,7 +619,7 @@ static av_cold int kmsgrab_read_header(AVFormatContext *avctx)
         }
     }
 
-    stream = avformat_new_stream(avctx, NULL);
+    stream = zn_avformat_new_stream(avctx, NULL);
     if (!stream) {
         err = AVERROR(ENOMEM);
         goto fail;

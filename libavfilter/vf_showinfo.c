@@ -195,14 +195,14 @@ static void dump_mastering_display(AVFilterContext *ctx, const AVFrameSideData *
            "r(%5.4f,%5.4f) g(%5.4f,%5.4f) b(%5.4f %5.4f) wp(%5.4f, %5.4f) "
            "min_luminance=%f, max_luminance=%f",
            mastering_display->has_primaries, mastering_display->has_luminance,
-           av_q2d(mastering_display->display_primaries[0][0]),
-           av_q2d(mastering_display->display_primaries[0][1]),
-           av_q2d(mastering_display->display_primaries[1][0]),
-           av_q2d(mastering_display->display_primaries[1][1]),
-           av_q2d(mastering_display->display_primaries[2][0]),
-           av_q2d(mastering_display->display_primaries[2][1]),
-           av_q2d(mastering_display->white_point[0]), av_q2d(mastering_display->white_point[1]),
-           av_q2d(mastering_display->min_luminance), av_q2d(mastering_display->max_luminance));
+           zn_av_q2d(mastering_display->display_primaries[0][0]),
+           zn_av_q2d(mastering_display->display_primaries[0][1]),
+           zn_av_q2d(mastering_display->display_primaries[1][0]),
+           zn_av_q2d(mastering_display->display_primaries[1][1]),
+           zn_av_q2d(mastering_display->display_primaries[2][0]),
+           zn_av_q2d(mastering_display->display_primaries[2][1]),
+           zn_av_q2d(mastering_display->white_point[0]), zn_av_q2d(mastering_display->white_point[1]),
+           zn_av_q2d(mastering_display->min_luminance), zn_av_q2d(mastering_display->max_luminance));
 }
 
 static void dump_dynamic_hdr_plus(AVFilterContext *ctx, AVFrameSideData *sd)
@@ -221,14 +221,14 @@ static void dump_dynamic_hdr_plus(AVFilterContext *ctx, AVFrameSideData *sd)
         AVHDRPlusColorTransformParams *params = &hdr_plus->params[w];
         av_log(ctx, AV_LOG_INFO, w > 1 ? ", window %d { " : "window %d { ", w);
         av_log(ctx, AV_LOG_INFO, "window_upper_left_corner: (%5.4f,%5.4f),",
-               av_q2d(params->window_upper_left_corner_x),
-               av_q2d(params->window_upper_left_corner_y));
+               zn_av_q2d(params->window_upper_left_corner_x),
+               zn_av_q2d(params->window_upper_left_corner_y));
         av_log(ctx, AV_LOG_INFO, "window_lower_right_corner: (%5.4f,%5.4f), ",
-               av_q2d(params->window_lower_right_corner_x),
-               av_q2d(params->window_lower_right_corner_y));
+               zn_av_q2d(params->window_lower_right_corner_x),
+               zn_av_q2d(params->window_lower_right_corner_y));
         av_log(ctx, AV_LOG_INFO, "window_upper_left_corner: (%5.4f, %5.4f), ",
-               av_q2d(params->window_upper_left_corner_x),
-               av_q2d(params->window_upper_left_corner_y));
+               zn_av_q2d(params->window_upper_left_corner_x),
+               zn_av_q2d(params->window_upper_left_corner_y));
         av_log(ctx, AV_LOG_INFO, "center_of_ellipse_x: (%d,%d), ",
                params->center_of_ellipse_x,
                params->center_of_ellipse_y);
@@ -244,14 +244,14 @@ static void dump_dynamic_hdr_plus(AVFilterContext *ctx, AVFrameSideData *sd)
                params->overlap_process_option);
     }
     av_log(ctx, AV_LOG_INFO, "targeted_system_display_maximum_luminance: %9.4f, ",
-           av_q2d(hdr_plus->targeted_system_display_maximum_luminance));
+           zn_av_q2d(hdr_plus->targeted_system_display_maximum_luminance));
     if (hdr_plus->targeted_system_display_actual_peak_luminance_flag) {
         av_log(ctx, AV_LOG_INFO, "targeted_system_display_actual_peak_luminance: {");
         for (int i = 0; i < hdr_plus->num_rows_targeted_system_display_actual_peak_luminance; i++) {
             av_log(ctx, AV_LOG_INFO, "(");
             for (int j = 0; j < hdr_plus->num_cols_targeted_system_display_actual_peak_luminance; j++) {
                 av_log(ctx, AV_LOG_INFO, i ? ",%5.4f" : "%5.4f",
-                       av_q2d(hdr_plus->targeted_system_display_actual_peak_luminance[i][j]));
+                       zn_av_q2d(hdr_plus->targeted_system_display_actual_peak_luminance[i][j]));
             }
             av_log(ctx, AV_LOG_INFO, ")");
         }
@@ -262,30 +262,30 @@ static void dump_dynamic_hdr_plus(AVFilterContext *ctx, AVFrameSideData *sd)
         AVHDRPlusColorTransformParams *params = &hdr_plus->params[w];
         av_log(ctx, AV_LOG_INFO, "window %d {maxscl: {", w);
         for (int i = 0; i < 3; i++) {
-            av_log(ctx, AV_LOG_INFO, i ? ",%5.4f" : "%5.4f",av_q2d(params->maxscl[i]));
+            av_log(ctx, AV_LOG_INFO, i ? ",%5.4f" : "%5.4f",zn_av_q2d(params->maxscl[i]));
         }
         av_log(ctx, AV_LOG_INFO, "}, average_maxrgb: %5.4f, ",
-               av_q2d(params->average_maxrgb));
+               zn_av_q2d(params->average_maxrgb));
         av_log(ctx, AV_LOG_INFO, "distribution_maxrgb: {");
         for (int i = 0; i < params->num_distribution_maxrgb_percentiles; i++) {
             av_log(ctx, AV_LOG_INFO, "(%d,%5.4f)",
                    params->distribution_maxrgb[i].percentage,
-                   av_q2d(params->distribution_maxrgb[i].percentile));
+                   zn_av_q2d(params->distribution_maxrgb[i].percentile));
         }
         av_log(ctx, AV_LOG_INFO, "}, fraction_bright_pixels: %5.4f",
-               av_q2d(params->fraction_bright_pixels));
+               zn_av_q2d(params->fraction_bright_pixels));
         if (params->tone_mapping_flag) {
-            av_log(ctx, AV_LOG_INFO, ", knee_point: (%5.4f,%5.4f), ", av_q2d(params->knee_point_x), av_q2d(params->knee_point_y));
+            av_log(ctx, AV_LOG_INFO, ", knee_point: (%5.4f,%5.4f), ", zn_av_q2d(params->knee_point_x), zn_av_q2d(params->knee_point_y));
             av_log(ctx, AV_LOG_INFO, "bezier_curve_anchors: {");
             for (int i = 0; i < params->num_bezier_curve_anchors; i++) {
                 av_log(ctx, AV_LOG_INFO, i ? ",%5.4f" : "%5.4f",
-                       av_q2d(params->bezier_curve_anchors[i]));
+                       zn_av_q2d(params->bezier_curve_anchors[i]));
             }
             av_log(ctx, AV_LOG_INFO, "}");
         }
         if (params->color_saturation_mapping_flag) {
             av_log(ctx, AV_LOG_INFO, ", color_saturation_weight: %5.4f",
-                   av_q2d(params->color_saturation_weight));
+                   zn_av_q2d(params->color_saturation_weight));
         }
         av_log(ctx, AV_LOG_INFO, "}");
     }
@@ -296,7 +296,7 @@ static void dump_dynamic_hdr_plus(AVFilterContext *ctx, AVFrameSideData *sd)
             av_log(ctx, AV_LOG_INFO, "(");
             for (int j = 0; j <  hdr_plus->num_cols_mastering_display_actual_peak_luminance; j++) {
                 av_log(ctx, AV_LOG_INFO, i ? ",%5.4f" : "%5.4f",
-                       av_q2d(hdr_plus->mastering_display_actual_peak_luminance[i][j]));
+                       zn_av_q2d(hdr_plus->mastering_display_actual_peak_luminance[i][j]));
             }
             av_log(ctx, AV_LOG_INFO, ")");
         }
@@ -319,10 +319,10 @@ static void dump_dynamic_hdr_vivid(AVFilterContext *ctx, AVFrameSideData *sd)
     for (int w = 0; w < hdr_vivid->num_windows; w++) {
         const AVHDRVividColorTransformParams *params = &hdr_vivid->params[w];
 
-        av_log(ctx, AV_LOG_INFO, "minimum_maxrgb[%d]: %.4f, ", w, av_q2d(params->minimum_maxrgb));
-        av_log(ctx, AV_LOG_INFO, "average_maxrgb[%d]: %.4f, ", w, av_q2d(params->average_maxrgb));
-        av_log(ctx, AV_LOG_INFO, "variance_maxrgb[%d]:%.4f, ", w, av_q2d(params->variance_maxrgb));
-        av_log(ctx, AV_LOG_INFO, "maximum_maxrgb[%d]: %.4f, ", w, av_q2d(params->maximum_maxrgb));
+        av_log(ctx, AV_LOG_INFO, "minimum_maxrgb[%d]: %.4f, ", w, zn_av_q2d(params->minimum_maxrgb));
+        av_log(ctx, AV_LOG_INFO, "average_maxrgb[%d]: %.4f, ", w, zn_av_q2d(params->average_maxrgb));
+        av_log(ctx, AV_LOG_INFO, "variance_maxrgb[%d]:%.4f, ", w, zn_av_q2d(params->variance_maxrgb));
+        av_log(ctx, AV_LOG_INFO, "maximum_maxrgb[%d]: %.4f, ", w, zn_av_q2d(params->maximum_maxrgb));
     }
 
     for (int w = 0; w < hdr_vivid->num_windows; w++) {
@@ -335,21 +335,21 @@ static void dump_dynamic_hdr_vivid(AVFilterContext *ctx, AVFrameSideData *sd)
                 const AVHDRVividColorToneMappingParams *tm_params = &params->tm_params[i];
 
                 av_log(ctx, AV_LOG_INFO, "targeted_system_display_maximum_luminance[%d][%d]: %.4f, ",
-                       w, i, av_q2d(tm_params->targeted_system_display_maximum_luminance));
+                       w, i, zn_av_q2d(tm_params->targeted_system_display_maximum_luminance));
                 av_log(ctx, AV_LOG_INFO, "base_enable_flag[%d][%d]: %d, ",
                        w, i, tm_params->base_enable_flag);
                 if (tm_params->base_enable_flag) {
-                    av_log(ctx, AV_LOG_INFO, "base_param_m_p[%d][%d]: %.4f, ", w, i, av_q2d(tm_params->base_param_m_p));
-                    av_log(ctx, AV_LOG_INFO, "base_param_m_m[%d][%d]: %.4f, ", w, i, av_q2d(tm_params->base_param_m_m));
-                    av_log(ctx, AV_LOG_INFO, "base_param_m_a[%d][%d]: %.4f, ", w, i, av_q2d(tm_params->base_param_m_a));
-                    av_log(ctx, AV_LOG_INFO, "base_param_m_b[%d][%d]: %.4f, ", w, i, av_q2d(tm_params->base_param_m_b));
-                    av_log(ctx, AV_LOG_INFO, "base_param_m_n[%d][%d]: %.4f, ", w, i, av_q2d(tm_params->base_param_m_n));
+                    av_log(ctx, AV_LOG_INFO, "base_param_m_p[%d][%d]: %.4f, ", w, i, zn_av_q2d(tm_params->base_param_m_p));
+                    av_log(ctx, AV_LOG_INFO, "base_param_m_m[%d][%d]: %.4f, ", w, i, zn_av_q2d(tm_params->base_param_m_m));
+                    av_log(ctx, AV_LOG_INFO, "base_param_m_a[%d][%d]: %.4f, ", w, i, zn_av_q2d(tm_params->base_param_m_a));
+                    av_log(ctx, AV_LOG_INFO, "base_param_m_b[%d][%d]: %.4f, ", w, i, zn_av_q2d(tm_params->base_param_m_b));
+                    av_log(ctx, AV_LOG_INFO, "base_param_m_n[%d][%d]: %.4f, ", w, i, zn_av_q2d(tm_params->base_param_m_n));
                     av_log(ctx, AV_LOG_INFO, "base_param_k1[%d][%d]:  %d, ", w, i, tm_params->base_param_k1);
                     av_log(ctx, AV_LOG_INFO, "base_param_k2[%d][%d]:  %d, ", w, i, tm_params->base_param_k2);
                     av_log(ctx, AV_LOG_INFO, "base_param_k3[%d][%d]:  %d, ", w, i, tm_params->base_param_k3);
                     av_log(ctx, AV_LOG_INFO, "base_param_Delta_enable_mode[%d][%d]: %d, ", w, i,
                            tm_params->base_param_Delta_enable_mode);
-                    av_log(ctx, AV_LOG_INFO, "base_param_Delta[%d][%d]: %.4f, ", w, i, av_q2d(tm_params->base_param_Delta));
+                    av_log(ctx, AV_LOG_INFO, "base_param_Delta[%d][%d]: %.4f, ", w, i, zn_av_q2d(tm_params->base_param_Delta));
                 }
                 av_log(ctx, AV_LOG_INFO, "3Spline_enable_flag[%d][%d]: %d, ",
                        w, i, tm_params->three_Spline_enable_flag);
@@ -359,15 +359,15 @@ static void dump_dynamic_hdr_vivid(AVFilterContext *ctx, AVFrameSideData *sd)
                         av_log(ctx, AV_LOG_INFO, "3Spline_TH_mode[%d][%d]:  %d, ", w, i, three_spline->th_mode);
                         if (three_spline->th_mode == 0 || three_spline->th_mode == 2)
                             av_log(ctx, AV_LOG_INFO, "3Spline_TH_enable_MB[%d][%d][%d]: %.4f, ",
-                                    w, i, j, av_q2d(three_spline->th_enable_mb));
+                                    w, i, j, zn_av_q2d(three_spline->th_enable_mb));
                         av_log(ctx, AV_LOG_INFO, "3Spline_TH_enable[%d][%d][%d]: %.4f, ",
-                                w, i, j, av_q2d(three_spline->th_enable));
+                                w, i, j, zn_av_q2d(three_spline->th_enable));
                         av_log(ctx, AV_LOG_INFO, "3Spline_TH_Delta1[%d][%d][%d]: %.4f, ",
-                                w, i, j, av_q2d(three_spline->th_delta1));
+                                w, i, j, zn_av_q2d(three_spline->th_delta1));
                         av_log(ctx, AV_LOG_INFO, "3Spline_TH_Delta2[%d][%d][%d]: %.4f, ",
-                                w, i, j, av_q2d(three_spline->th_delta2));
+                                w, i, j, zn_av_q2d(three_spline->th_delta2));
                         av_log(ctx, AV_LOG_INFO, "3Spline_enable_Strength[%d][%d][%d]: %.4f, ",
-                                w, i, j, av_q2d(three_spline->enable_strength));
+                                w, i, j, zn_av_q2d(three_spline->enable_strength));
                     }
                 }
             }
@@ -380,7 +380,7 @@ static void dump_dynamic_hdr_vivid(AVFilterContext *ctx, AVFrameSideData *sd)
                    w, params->color_saturation_num);
             for (int i = 0; i < params->color_saturation_num; i++) {
                 av_log(ctx, AV_LOG_INFO, ", color_saturation_gain[%d][%d]: %.4f",
-                       w, i, av_q2d(params->color_saturation_gain[i]));
+                       w, i, zn_av_q2d(params->color_saturation_gain[i]));
             }
         }
     }
@@ -583,13 +583,13 @@ static void dump_dovi_metadata(AVFilterContext *ctx, const AVFrameSideData *sd)
     av_log(ctx, AV_LOG_INFO, "scene_refresh_flag=%"PRIu8"; ", color->scene_refresh_flag);
     av_log(ctx, AV_LOG_INFO, "ycc_to_rgb_matrix={ ");
     for (int i = 0; i < 9; i++)
-        av_log(ctx, AV_LOG_INFO, "%f ", av_q2d(color->ycc_to_rgb_matrix[i]));
+        av_log(ctx, AV_LOG_INFO, "%f ", zn_av_q2d(color->ycc_to_rgb_matrix[i]));
     av_log(ctx, AV_LOG_INFO, "}; ycc_to_rgb_offset={ ");
     for (int i = 0; i < 3; i++)
-        av_log(ctx, AV_LOG_INFO, "%f ", av_q2d(color->ycc_to_rgb_offset[i]));
+        av_log(ctx, AV_LOG_INFO, "%f ", zn_av_q2d(color->ycc_to_rgb_offset[i]));
     av_log(ctx, AV_LOG_INFO, "}; rgb_to_lms_matrix={ ");
     for (int i = 0; i < 9; i++)
-        av_log(ctx, AV_LOG_INFO, "%f ", av_q2d(color->rgb_to_lms_matrix[i]));
+        av_log(ctx, AV_LOG_INFO, "%f ", zn_av_q2d(color->rgb_to_lms_matrix[i]));
     av_log(ctx, AV_LOG_INFO, "}; signal_eotf=%"PRIu16"; ", color->signal_eotf);
     av_log(ctx, AV_LOG_INFO, "signal_eotf_param0=%"PRIu16"; ", color->signal_eotf_param0);
     av_log(ctx, AV_LOG_INFO, "signal_eotf_param1=%"PRIu16"; ", color->signal_eotf_param1);
@@ -609,9 +609,9 @@ static void dump_ambient_viewing_environment(AVFilterContext *ctx, const AVFrame
                                                (const AVAmbientViewingEnvironment *)sd->data;
 
     av_log(ctx, AV_LOG_INFO, "ambient_illuminance=%f, ambient_light_x=%f, ambient_light_y=%f",
-           av_q2d(ambient_viewing_environment->ambient_illuminance),
-           av_q2d(ambient_viewing_environment->ambient_light_x),
-           av_q2d(ambient_viewing_environment->ambient_light_y));
+           zn_av_q2d(ambient_viewing_environment->ambient_illuminance),
+           zn_av_q2d(ambient_viewing_environment->ambient_light_x),
+           zn_av_q2d(ambient_viewing_environment->ambient_light_y));
 }
 
 static void dump_color_property(AVFilterContext *ctx, AVFrame *frame)

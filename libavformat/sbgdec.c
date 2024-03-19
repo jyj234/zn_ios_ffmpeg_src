@@ -408,7 +408,7 @@ static int parse_options(struct sbg_parser *p)
                         return AVERROR(ENOMEM);
                     memcpy(tptr, oarg.s, oarg.e - oarg.s);
                     tptr[oarg.e - oarg.s] = 0;
-                    av_free(p->scs.opt_mix);
+                    zn_av_free(p->scs.opt_mix);
                     p->scs.opt_mix = tptr;
                     break;
                 case 'q':
@@ -790,12 +790,12 @@ static int parse_named_def(struct sbg_parser *p)
 
 static void free_script(struct sbg_script *s)
 {
-    av_freep(&s->def);
-    av_freep(&s->synth);
-    av_freep(&s->tseq);
-    av_freep(&s->block_tseq);
-    av_freep(&s->events);
-    av_freep(&s->opt_mix);
+    zn_av_freep(&s->def);
+    zn_av_freep(&s->synth);
+    zn_av_freep(&s->tseq);
+    zn_av_freep(&s->block_tseq);
+    zn_av_freep(&s->events);
+    zn_av_freep(&s->opt_mix);
 }
 
 static int parse_script(void *log, char *script, int script_len,
@@ -1431,7 +1431,7 @@ static av_cold int sbg_read_header(AVFormatContext *avf)
         goto fail;
     }
 
-    st = avformat_new_stream(avf, NULL);
+    st = zn_avformat_new_stream(avf, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     sti = ffstream(st);
@@ -1459,14 +1459,14 @@ static av_cold int sbg_read_header(AVFormatContext *avf)
     if (r < 0)
         goto fail;
 
-    av_free(inter.inter);
+    zn_av_free(inter.inter);
     free_script(&script);
     return 0;
 
 fail2:
     av_bprint_finalize(&bprint, NULL);
 fail:
-    av_free(inter.inter);
+    zn_av_free(inter.inter);
     free_script(&script);
     return r;
 }

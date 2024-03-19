@@ -58,7 +58,7 @@ static int64_t read_ts(char **line)
 static int vplayer_read_header(AVFormatContext *s)
 {
     VPlayerContext *vplayer = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

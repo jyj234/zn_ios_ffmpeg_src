@@ -111,7 +111,7 @@ static int resize_samples_## name ##p(ChanDelay *d, int64_t new_delay)          
     }                                                                                                   \
                                                                                                         \
     if (new_delay == 0) {                                                                               \
-        av_freep(&d->samples);                                                                          \
+        zn_av_freep(&d->samples);                                                                          \
         d->samples_size = 0;                                                                            \
         d->delay = 0;                                                                                   \
         d->index = 0;                                                                                   \
@@ -191,7 +191,7 @@ static int config_input(AVFilterLink *inlink)
     int i;
 
     s->next_pts = AV_NOPTS_VALUE;
-    s->chandelay = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->chandelay));
+    s->chandelay = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->chandelay));
     if (!s->chandelay)
         return AVERROR(ENOMEM);
     s->nb_delays = inlink->ch_layout.nb_channels;
@@ -245,7 +245,7 @@ static int config_input(AVFilterLink *inlink)
             return AVERROR(EINVAL);
         }
 
-        d->samples = av_malloc_array(d->delay, s->block_align);
+        d->samples = zn_av_malloc_array(d->delay, s->block_align);
         if (!d->samples)
             return AVERROR(ENOMEM);
         d->samples_size = d->delay * s->block_align;
@@ -318,7 +318,7 @@ static int process_command(AVFilterContext *ctx, const char *cmd, const char *ar
             }
             s->max_delay = FFMAX(s->max_delay, max_delay);
         }
-        av_freep(&args_cpy);
+        zn_av_freep(&args_cpy);
     }
     return ret;
 }
@@ -341,7 +341,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     out_frame = ff_get_audio_buffer(outlink, frame->nb_samples);
     if (!out_frame) {
         s->input = NULL;
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out_frame, frame);
@@ -360,7 +360,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     out_frame->pts = s->next_pts + s->offset;
     out_frame->duration = av_rescale_q(out_frame->nb_samples, (AVRational){1, outlink->sample_rate}, outlink->time_base);
     s->next_pts += out_frame->duration;
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     s->input = NULL;
     return ff_filter_frame(outlink, out_frame);
 }
@@ -453,9 +453,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     if (s->chandelay) {
         for (int i = 0; i < s->nb_delays; i++)
-            av_freep(&s->chandelay[i].samples);
+            zn_av_freep(&s->chandelay[i].samples);
     }
-    av_freep(&s->chandelay);
+    zn_av_freep(&s->chandelay);
 }
 
 static const AVFilterPad adelay_inputs[] = {

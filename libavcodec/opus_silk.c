@@ -868,7 +868,7 @@ int ff_silk_decode_superframe(SilkContext *s, OpusRangeCoder *rc,
 
 void ff_silk_free(SilkContext **ps)
 {
-    av_freep(ps);
+    zn_av_freep(ps);
 }
 
 void ff_silk_flush(SilkContext *s)

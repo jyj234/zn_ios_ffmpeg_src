@@ -105,21 +105,21 @@ static av_cold void uninit(AVFilterContext *ctx)
     MCompandContext *s = ctx->priv;
     int i;
 
-    av_frame_free(&s->band_buf1);
-    av_frame_free(&s->band_buf2);
-    av_frame_free(&s->band_buf3);
+    zn_av_frame_free(&s->band_buf1);
+    zn_av_frame_free(&s->band_buf2);
+    zn_av_frame_free(&s->band_buf3);
 
     if (s->bands) {
         for (i = 0; i < s->nb_bands; i++) {
-            av_freep(&s->bands[i].attack_rate);
-            av_freep(&s->bands[i].decay_rate);
-            av_freep(&s->bands[i].volume);
-            av_freep(&s->bands[i].transfer_fn.segments);
-            av_freep(&s->bands[i].filter.previous);
-            av_frame_free(&s->bands[i].delay_buf);
+            zn_av_freep(&s->bands[i].attack_rate);
+            zn_av_freep(&s->bands[i].decay_rate);
+            zn_av_freep(&s->bands[i].volume);
+            zn_av_freep(&s->bands[i].transfer_fn.segments);
+            zn_av_freep(&s->bands[i].filter.previous);
+            zn_av_frame_free(&s->bands[i].delay_buf);
         }
     }
-    av_freep(&s->bands);
+    zn_av_freep(&s->bands);
 }
 
 static void count_items(char *item_str, int *nb_items, char delimiter)
@@ -302,7 +302,7 @@ static int crossover_setup(AVFilterLink *outlink, Crossover *p, double frequency
     square_quadratic(x + 3, p->coefs + 5);
     square_quadratic(x + 6, p->coefs + 10);
 
-    p->previous = av_calloc(outlink->ch_layout.nb_channels, sizeof(*p->previous));
+    p->previous = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*p->previous));
     if (!p->previous)
         return AVERROR(ENOMEM);
 
@@ -320,7 +320,7 @@ static int config_output(AVFilterLink *outlink)
     count_items(s->args, &nb_bands, '|');
     s->nb_bands = FFMAX(1, nb_bands);
 
-    s->bands = av_calloc(nb_bands, sizeof(*s->bands));
+    s->bands = zn_av_calloc(nb_bands, sizeof(*s->bands));
     if (!s->bands)
         return AVERROR(ENOMEM);
 
@@ -350,9 +350,9 @@ static int config_output(AVFilterLink *outlink)
             return AVERROR(EINVAL);
         }
 
-        s->bands[i].attack_rate = av_calloc(outlink->ch_layout.nb_channels, sizeof(double));
-        s->bands[i].decay_rate = av_calloc(outlink->ch_layout.nb_channels, sizeof(double));
-        s->bands[i].volume = av_calloc(outlink->ch_layout.nb_channels, sizeof(double));
+        s->bands[i].attack_rate = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(double));
+        s->bands[i].decay_rate = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(double));
+        s->bands[i].volume = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(double));
         if (!s->bands[i].attack_rate || !s->bands[i].decay_rate || !s->bands[i].volume)
             return AVERROR(ENOMEM);
 
@@ -399,7 +399,7 @@ static int config_output(AVFilterLink *outlink)
 
         count_items(tstr2, &nb_points, ',');
         s->bands[i].transfer_fn.nb_segments = (nb_points + 4) * 2;
-        s->bands[i].transfer_fn.segments = av_calloc(s->bands[i].transfer_fn.nb_segments,
+        s->bands[i].transfer_fn.segments = zn_av_calloc(s->bands[i].transfer_fn.nb_segments,
                                                      sizeof(CompandSegment));
         if (!s->bands[i].transfer_fn.segments)
             return AVERROR(ENOMEM);
@@ -559,14 +559,14 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_audio_buffer(outlink, in->nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
     if (s->band_samples < in->nb_samples) {
-        av_frame_free(&s->band_buf1);
-        av_frame_free(&s->band_buf2);
-        av_frame_free(&s->band_buf3);
+        zn_av_frame_free(&s->band_buf1);
+        zn_av_frame_free(&s->band_buf2);
+        zn_av_frame_free(&s->band_buf3);
 
         s->band_buf1 = ff_get_audio_buffer(outlink, in->nb_samples);
         s->band_buf2 = ff_get_audio_buffer(outlink, in->nb_samples);
@@ -601,7 +601,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     out->pts = in->pts;
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

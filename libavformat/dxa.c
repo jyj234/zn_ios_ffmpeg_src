@@ -90,7 +90,7 @@ static int dxa_read_header(AVFormatContext *s)
     h = avio_rb16(pb);
     c->has_sound = 0;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -103,7 +103,7 @@ static int dxa_read_header(AVFormatContext *s)
         avio_skip(pb, 16);
         fsize = avio_rl32(pb);
 
-        ast = avformat_new_stream(s, NULL);
+        ast = zn_avformat_new_stream(s, NULL);
         if (!ast)
             return AVERROR(ENOMEM);
         ret = ff_get_wav_header(s, pb, ast->codecpar, fsize, 0);

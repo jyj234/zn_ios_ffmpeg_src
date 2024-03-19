@@ -212,14 +212,14 @@ static int filter_frame(AVFilterLink *link, AVFrame *input_frame)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input_frame);
+    zn_av_frame_free(&input_frame);
 
     return ff_filter_frame(outlink, output_frame);
 
 fail:
     clFinish(pad_ctx->command_queue);
-    av_frame_free(&input_frame);
-    av_frame_free(&output_frame);
+    zn_av_frame_free(&input_frame);
+    zn_av_frame_free(&output_frame);
     return err;
 }
 

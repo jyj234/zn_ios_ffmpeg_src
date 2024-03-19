@@ -240,7 +240,7 @@ static av_cold int ir2_decode_init(AVCodecContext *avctx)
 
     avctx->pix_fmt= AV_PIX_FMT_YUV410P;
 
-    ic->picture = av_frame_alloc();
+    ic->picture = zn_av_frame_alloc();
     if (!ic->picture)
         return AVERROR(ENOMEM);
 
@@ -253,7 +253,7 @@ static av_cold int ir2_decode_end(AVCodecContext *avctx)
 {
     Ir2Context * const ic = avctx->priv_data;
 
-    av_frame_free(&ic->picture);
+    zn_av_frame_free(&ic->picture);
 
     return 0;
 }

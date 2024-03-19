@@ -287,7 +287,7 @@ static int config_input(AVFilterLink *inlink)
     pp7->vsub = desc->log2_chroma_h;
 
     pp7->temp_stride = FFALIGN(inlink->w + 16, 16);
-    pp7->src = av_malloc_array(pp7->temp_stride,  (h + 8) * sizeof(uint8_t));
+    pp7->src = zn_av_malloc_array(pp7->temp_stride,  (h + 8) * sizeof(uint8_t));
 
     if (!pp7->src)
         return AVERROR(ENOMEM);
@@ -323,7 +323,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (!pp7->qp) {
         int ret = ff_qp_table_extract(in, &qp_table, &qp_stride, NULL, &pp7->qscale_type);
         if (ret < 0) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return ret;
         }
     }
@@ -340,8 +340,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
             out = ff_get_video_buffer(outlink, aligned_w, aligned_h);
             if (!out) {
-                av_frame_free(&in);
-                av_freep(&qp_table);
+                zn_av_frame_free(&in);
+                zn_av_freep(&qp_table);
                 return AVERROR(ENOMEM);
             }
             av_frame_copy_props(out, in);
@@ -366,16 +366,16 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             av_image_copy_plane(out->data[3], out->linesize[3],
                                 in ->data[3], in ->linesize[3],
                                 inlink->w, inlink->h);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
-    av_freep(&qp_table);
+    zn_av_freep(&qp_table);
     return ff_filter_frame(outlink, out);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
 {
     PP7Context *pp7 = ctx->priv;
-    av_freep(&pp7->src);
+    zn_av_freep(&pp7->src);
 }
 
 static const AVFilterPad pp7_inputs[] = {

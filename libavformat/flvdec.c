@@ -156,8 +156,8 @@ static void add_keyframes_index(AVFormatContext *s)
         av_log(s, AV_LOG_WARNING, "Skipping duplicate index\n");
 
     if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-        av_freep(&flv->keyframe_times);
-        av_freep(&flv->keyframe_filepositions);
+        zn_av_freep(&flv->keyframe_times);
+        zn_av_freep(&flv->keyframe_filepositions);
         flv->keyframe_count = 0;
     }
 }
@@ -165,7 +165,7 @@ static void add_keyframes_index(AVFormatContext *s)
 static AVStream *create_stream(AVFormatContext *s, int codec_type)
 {
     FLVContext *flv   = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return NULL;
     st->codecpar->codec_type = codec_type;
@@ -510,8 +510,8 @@ invalid:
     }
 
 finish:
-    av_freep(&times);
-    av_freep(&filepositions);
+    zn_av_freep(&times);
+    zn_av_freep(&filepositions);
     avio_seek(ioc, initial_pos, SEEK_SET);
     return ret;
 }
@@ -649,7 +649,7 @@ static int amf_parse_object(AVFormatContext *s, AVStream *astream,
                     } else if (!strcmp(key, "audiosamplesize") && apar) {
                         apar->bits_per_coded_sample = num_val;
                     } else if (!strcmp(key, "stereo") && apar) {
-                        av_channel_layout_default(&apar->ch_layout, num_val + 1);
+                        zn_av_channel_layout_default(&apar->ch_layout, num_val + 1);
                     } else if (!strcmp(key, "width") && vpar) {
                         vpar->width = num_val;
                     } else if (!strcmp(key, "height") && vpar) {
@@ -821,9 +821,9 @@ static int flv_read_close(AVFormatContext *s)
     int i;
     FLVContext *flv = s->priv_data;
     for (i=0; i<FLV_STREAM_TYPE_NB; i++)
-        av_freep(&flv->new_extradata[i]);
-    av_freep(&flv->keyframe_times);
-    av_freep(&flv->keyframe_filepositions);
+        zn_av_freep(&flv->new_extradata[i]);
+    zn_av_freep(&flv->keyframe_times);
+    zn_av_freep(&flv->keyframe_filepositions);
     return 0;
 }
 
@@ -845,7 +845,7 @@ static int flv_queue_extradata(FLVContext *flv, AVIOContext *pb, int stream,
     if (!size)
         return 0;
 
-    av_free(flv->new_extradata[stream]);
+    zn_av_free(flv->new_extradata[stream]);
     flv->new_extradata[stream] = av_mallocz(size +
                                             AV_INPUT_BUFFER_PADDING_SIZE);
     if (!flv->new_extradata[stream])
@@ -1234,7 +1234,7 @@ retry_duration:
         if (!av_channel_layout_check(&st->codecpar->ch_layout) ||
             !st->codecpar->sample_rate ||
             !st->codecpar->bits_per_coded_sample) {
-            av_channel_layout_default(&st->codecpar->ch_layout, channels);
+            zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
             st->codecpar->sample_rate           = sample_rate;
             st->codecpar->bits_per_coded_sample = bits_per_coded_sample;
         }
@@ -1374,7 +1374,7 @@ leave:
             av_log(s, AV_LOG_ERROR, "Packet mismatch %d %d %"PRId64"\n", last, orig_size + 11, flv->sum_flv_tag_size);
             avio_seek(s->pb, pos + 1, SEEK_SET);
             ret = resync(s);
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             if (ret >= 0) {
                 goto retry;
             }

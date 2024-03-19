@@ -526,10 +526,10 @@ static int reallocate_inputs(double **out, int *out_length,
         const int temp_length = nb_coefs(in_length, level + 1, sn);
 
         if (temp_length > out_length[level]) {
-            av_freep(&out[level]);
+            zn_av_freep(&out[level]);
             out_length[level] = 0;
 
-            out[level] = av_calloc(temp_length + 1, sizeof(**out));
+            out[level] = zn_av_calloc(temp_length + 1, sizeof(**out));
             if (!out[level])
                 return AVERROR(ENOMEM);
             out_length[level] = temp_length + 1;
@@ -541,10 +541,10 @@ static int reallocate_inputs(double **out, int *out_length,
     }
 
     if (temp_length > out_length[levels]) {
-        av_freep(&out[levels]);
+        zn_av_freep(&out[levels]);
         out_length[levels] = 0;
 
-        out[levels] = av_calloc(temp_length + 1, sizeof(**out));
+        out[levels] = zn_av_calloc(temp_length + 1, sizeof(**out));
         if (!out[levels])
             return AVERROR(ENOMEM);
         out_length[levels] = temp_length + 1;
@@ -573,11 +573,11 @@ static int reallocate_outputs(AudioFWTDNContext *s,
     for (int level = 0; level < levels; level++) {
         temp_length = nb_coefs(in_length, level + 1, sn);
         if (temp_length > out_length[level]) {
-            av_freep(&cp->subbands_to_free[level]);
+            zn_av_freep(&cp->subbands_to_free[level]);
             out_length[level] = 0;
 
             add = max_left_zeros_inverse(levels, level + 1, s->wavelet_length);
-            cp->subbands_to_free[level] = av_calloc(add + temp_length + 1, sizeof(**out));
+            cp->subbands_to_free[level] = zn_av_calloc(add + temp_length + 1, sizeof(**out));
             if (!cp->subbands_to_free[level])
                 return AVERROR(ENOMEM);
             out_length[level] = add + temp_length + 1;
@@ -591,10 +591,10 @@ static int reallocate_outputs(AudioFWTDNContext *s,
 
     temp_length = nb_coefs(in_length, levels, sn);
     if (temp_length > out_length[levels]) {
-        av_freep(&cp->subbands_to_free[levels]);
+        zn_av_freep(&cp->subbands_to_free[levels]);
         out_length[levels] = 0;
 
-        cp->subbands_to_free[levels] = av_calloc(temp_length + 1, sizeof(**out));
+        cp->subbands_to_free[levels] = zn_av_calloc(temp_length + 1, sizeof(**out));
         if (!cp->subbands_to_free[levels])
             return AVERROR(ENOMEM);
         out_length[levels] = temp_length + 1;
@@ -635,9 +635,9 @@ static int forward(AudioFWTDNContext *s,
     leftext = left_ext(s->wavelet_length, levels, sn);
 
     if (cp->temp_in_max_length < in_length + cp->max_left_ext + skip) {
-        av_freep(&cp->temp_in);
+        zn_av_freep(&cp->temp_in);
         cp->temp_in_max_length = in_length + cp->max_left_ext + skip;
-        cp->temp_in = av_calloc(cp->temp_in_max_length, sizeof(*cp->temp_in));
+        cp->temp_in = zn_av_calloc(cp->temp_in_max_length, sizeof(*cp->temp_in));
         if (!cp->temp_in) {
             cp->temp_in_max_length = 0;
             return AVERROR(ENOMEM);
@@ -660,11 +660,11 @@ static int forward(AudioFWTDNContext *s,
         int tempa_length_prev;
 
         if (cp->tempa_len_max < (in_length + cp->max_left_ext + s->wavelet_length - 1) / 2) {
-            av_freep(&cp->tempa);
-            av_freep(&cp->tempd);
+            zn_av_freep(&cp->tempa);
+            zn_av_freep(&cp->tempd);
             cp->tempa_len_max = (in_length + cp->max_left_ext + s->wavelet_length - 1) / 2;
-            cp->tempa = av_calloc(cp->tempa_len_max, sizeof(*cp->tempa));
-            cp->tempd = av_calloc(cp->tempa_len_max, sizeof(*cp->tempd));
+            cp->tempa = zn_av_calloc(cp->tempa_len_max, sizeof(*cp->tempa));
+            cp->tempd = zn_av_calloc(cp->tempa_len_max, sizeof(*cp->tempd));
             if (!cp->tempa || !cp->tempd) {
                 cp->tempa_len_max = 0;
                 return AVERROR(ENOMEM);
@@ -772,9 +772,9 @@ static int inverse(AudioFWTDNContext *s,
     memset(out, 0, out_length * sizeof(*out));
 
     if (cp->temp_in_max_length < out_length + cp->max_left_ext + s->wavelet_length - 1) {
-        av_freep(&cp->temp_in);
+        zn_av_freep(&cp->temp_in);
         cp->temp_in_max_length = out_length + cp->max_left_ext + s->wavelet_length - 1;
-        cp->temp_in = av_calloc(cp->temp_in_max_length, sizeof(*cp->temp_in));
+        cp->temp_in = zn_av_calloc(cp->temp_in_max_length, sizeof(*cp->temp_in));
         if (!cp->temp_in) {
             cp->temp_in_max_length = 0;
             return AVERROR(ENOMEM);
@@ -795,9 +795,9 @@ static int inverse(AudioFWTDNContext *s,
         int add, add2;
 
         if (cp->tempa_len_max < (out_length + cp->max_left_ext + s->wavelet_length - 1) / 2) {
-            av_freep(&cp->tempa);
+            zn_av_freep(&cp->tempa);
             cp->tempa_len_max = (out_length + cp->max_left_ext + s->wavelet_length - 1) / 2;
-            cp->tempa = av_calloc(cp->tempa_len_max, sizeof(*cp->tempa));
+            cp->tempa = zn_av_calloc(cp->tempa_len_max, sizeof(*cp->tempa));
             if (!cp->tempa) {
                 cp->tempa_len_max = 0;
                 return AVERROR(ENOMEM);
@@ -1011,7 +1011,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_audio_buffer(outlink, s->nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     if (in) {
@@ -1025,8 +1025,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         AVFrame *new_in = ff_get_audio_buffer(outlink, s->nb_samples);
 
         if (!new_in) {
-            av_frame_free(&in);
-            av_frame_free(&out);
+            zn_av_frame_free(&in);
+            zn_av_frame_free(&out);
             return AVERROR(ENOMEM);
         }
         if (in)
@@ -1036,7 +1036,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         if (in)
             av_samples_copy(new_in->extended_data, in->extended_data, 0, 0,
                             in->nb_samples, in->ch_layout.nb_channels, in->format);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         in = new_in;
     }
 
@@ -1051,8 +1051,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (s->drop_samples >= in->nb_samples) {
         s->drop_samples -= in->nb_samples;
         s->delay += in->nb_samples;
-        av_frame_free(&in);
-        av_frame_free(&out);
+        zn_av_frame_free(&in);
+        zn_av_frame_free(&out);
         FF_FILTER_FORWARD_STATUS(inlink, outlink);
         FF_FILTER_FORWARD_WANTED(outlink, inlink);
         return 0;
@@ -1076,7 +1076,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             out->pts = in->pts - av_rescale_q(s->delay, (AVRational){1, outlink->sample_rate}, outlink->time_base);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -1169,23 +1169,23 @@ static int config_output(AVFilterLink *outlink)
     s->padd_samples = s->overlap_length;
     s->sn = 1;
 
-    s->cp = av_calloc(s->channels, sizeof(*s->cp));
+    s->cp = zn_av_calloc(s->channels, sizeof(*s->cp));
     if (!s->cp)
         return AVERROR(ENOMEM);
 
     for (int ch = 0; ch < s->channels; ch++) {
         ChannelParams *cp = &s->cp[ch];
 
-        cp->output_coefs = av_calloc(s->levels + 1, sizeof(*cp->output_coefs));
-        cp->filter_coefs = av_calloc(s->levels + 1, sizeof(*cp->filter_coefs));
-        cp->output_length = av_calloc(s->levels + 1, sizeof(*cp->output_length));
-        cp->filter_length = av_calloc(s->levels + 1, sizeof(*cp->filter_length));
+        cp->output_coefs = zn_av_calloc(s->levels + 1, sizeof(*cp->output_coefs));
+        cp->filter_coefs = zn_av_calloc(s->levels + 1, sizeof(*cp->filter_coefs));
+        cp->output_length = zn_av_calloc(s->levels + 1, sizeof(*cp->output_length));
+        cp->filter_length = zn_av_calloc(s->levels + 1, sizeof(*cp->filter_length));
         cp->buffer_length = next_pow2(s->wavelet_length);
-        cp->buffer = av_calloc(cp->buffer_length, sizeof(*cp->buffer));
-        cp->buffer2 = av_calloc(cp->buffer_length, sizeof(*cp->buffer2));
-        cp->subbands_to_free = av_calloc(s->levels + 1, sizeof(*cp->subbands_to_free));
-        cp->prev = av_calloc(s->prev_length, sizeof(*cp->prev));
-        cp->overlap = av_calloc(s->overlap_length, sizeof(*cp->overlap));
+        cp->buffer = zn_av_calloc(cp->buffer_length, sizeof(*cp->buffer));
+        cp->buffer2 = zn_av_calloc(cp->buffer_length, sizeof(*cp->buffer2));
+        cp->subbands_to_free = zn_av_calloc(s->levels + 1, sizeof(*cp->subbands_to_free));
+        cp->prev = zn_av_calloc(s->prev_length, sizeof(*cp->prev));
+        cp->overlap = zn_av_calloc(s->overlap_length, sizeof(*cp->overlap));
         cp->max_left_ext = max_left_ext(s->wavelet_length, s->levels);
         cp->min_left_ext = min_left_ext(s->wavelet_length, s->levels);
         if (!cp->output_coefs || !cp->filter_coefs || !cp->output_length ||
@@ -1234,42 +1234,42 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioFWTDNContext *s = ctx->priv;
 
-    av_frame_free(&s->filter);
-    av_frame_free(&s->new_stddev);
-    av_frame_free(&s->stddev);
-    av_frame_free(&s->new_absmean);
-    av_frame_free(&s->absmean);
+    zn_av_frame_free(&s->filter);
+    zn_av_frame_free(&s->new_stddev);
+    zn_av_frame_free(&s->stddev);
+    zn_av_frame_free(&s->new_absmean);
+    zn_av_frame_free(&s->absmean);
 
     for (int ch = 0; s->cp && ch < s->channels; ch++) {
         ChannelParams *cp = &s->cp[ch];
 
-        av_freep(&cp->tempa);
-        av_freep(&cp->tempd);
-        av_freep(&cp->temp_in);
-        av_freep(&cp->buffer);
-        av_freep(&cp->buffer2);
-        av_freep(&cp->prev);
-        av_freep(&cp->overlap);
+        zn_av_freep(&cp->tempa);
+        zn_av_freep(&cp->tempd);
+        zn_av_freep(&cp->temp_in);
+        zn_av_freep(&cp->buffer);
+        zn_av_freep(&cp->buffer2);
+        zn_av_freep(&cp->prev);
+        zn_av_freep(&cp->overlap);
 
-        av_freep(&cp->output_length);
-        av_freep(&cp->filter_length);
+        zn_av_freep(&cp->output_length);
+        zn_av_freep(&cp->filter_length);
 
         if (cp->output_coefs) {
             for (int level = 0; level <= s->levels; level++)
-                av_freep(&cp->output_coefs[level]);
+                zn_av_freep(&cp->output_coefs[level]);
         }
 
         if (cp->subbands_to_free) {
             for (int level = 0; level <= s->levels; level++)
-                av_freep(&cp->subbands_to_free[level]);
+                zn_av_freep(&cp->subbands_to_free[level]);
         }
 
-        av_freep(&cp->subbands_to_free);
-        av_freep(&cp->output_coefs);
-        av_freep(&cp->filter_coefs);
+        zn_av_freep(&cp->subbands_to_free);
+        zn_av_freep(&cp->output_coefs);
+        zn_av_freep(&cp->filter_coefs);
     }
 
-    av_freep(&s->cp);
+    zn_av_freep(&s->cp);
 }
 
 static int process_command(AVFilterContext *ctx, const char *cmd, const char *args,

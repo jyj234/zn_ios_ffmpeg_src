@@ -39,8 +39,8 @@ int main(void){
     s.spatial_decomposition_type=1;
     int ret = 0;
 
-    s.temp_dwt_buffer  = av_calloc(width, sizeof(*s.temp_dwt_buffer));
-    s.temp_idwt_buffer = av_calloc(width, sizeof(*s.temp_idwt_buffer));
+    s.temp_dwt_buffer  = zn_av_calloc(width, sizeof(*s.temp_dwt_buffer));
+    s.temp_idwt_buffer = zn_av_calloc(width, sizeof(*s.temp_idwt_buffer));
 
     if (!s.temp_dwt_buffer || !s.temp_idwt_buffer) {
         fprintf(stderr, "Failed to allocate memory\n");

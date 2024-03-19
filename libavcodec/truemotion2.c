@@ -175,7 +175,7 @@ static int tm2_build_huff_table(TM2Context *ctx, TM2Codes *code)
 
     /* allocate space for codes - it is exactly ceil(nodes / 2) entries */
     huff.max_num = (huff.nodes + 1) >> 1;
-    huff.nums    = av_calloc(huff.max_num, sizeof(int));
+    huff.nums    = zn_av_calloc(huff.max_num, sizeof(int));
     huff.lens    = av_mallocz(huff.max_num);
 
     if (!huff.nums || !huff.lens) {
@@ -213,15 +213,15 @@ static int tm2_build_huff_table(TM2Context *ctx, TM2Codes *code)
 
 out:
     /* free allocated memory */
-    av_free(huff.nums);
-    av_free(huff.lens);
+    zn_av_free(huff.nums);
+    zn_av_free(huff.lens);
 
     return res;
 }
 
 static void tm2_free_codes(TM2Codes *code)
 {
-    av_free(code->recode);
+    zn_av_free(code->recode);
     ff_vlc_free(&code->vlc);
 }
 
@@ -957,20 +957,20 @@ static av_cold int decode_init(AVCodecContext *avctx)
     l->avctx       = avctx;
     avctx->pix_fmt = AV_PIX_FMT_BGR24;
 
-    l->pic = av_frame_alloc();
+    l->pic = zn_av_frame_alloc();
     if (!l->pic)
         return AVERROR(ENOMEM);
 
     ff_bswapdsp_init(&l->bdsp);
 
-    l->last  = av_malloc_array(w, 2 * sizeof(*l->last));
+    l->last  = zn_av_malloc_array(w, 2 * sizeof(*l->last));
     if (!l->last)
         return AVERROR(ENOMEM);
     l->clast = l->last + w;
 
     w += 8;
     h += 8;
-    l->Y_base = av_calloc(w * h, 2 * sizeof(*l->Y_base));
+    l->Y_base = zn_av_calloc(w * h, 2 * sizeof(*l->Y_base));
     if (!l->Y_base)
         return AVERROR(ENOMEM);
     l->y_stride = w;
@@ -978,7 +978,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     l->Y2 = l->Y1 + w * h;
     w = (w + 1) >> 1;
     h = (h + 1) >> 1;
-    l->UV_base = av_calloc(w * h, 4 * sizeof(*l->UV_base));
+    l->UV_base = zn_av_calloc(w * h, 4 * sizeof(*l->UV_base));
     if (!l->UV_base)
         return AVERROR(ENOMEM);
     l->uv_stride = w;
@@ -995,16 +995,16 @@ static av_cold int decode_end(AVCodecContext *avctx)
     TM2Context * const l = avctx->priv_data;
     int i;
 
-    av_freep(&l->last);
+    zn_av_freep(&l->last);
     for (i = 0; i < TM2_NUM_STREAMS; i++)
-        av_freep(&l->tokens[i]);
+        zn_av_freep(&l->tokens[i]);
 
-    av_freep(&l->Y_base);
-    av_freep(&l->UV_base);
-    av_freep(&l->buffer);
+    zn_av_freep(&l->Y_base);
+    zn_av_freep(&l->UV_base);
+    zn_av_freep(&l->buffer);
     l->buffer_size = 0;
 
-    av_frame_free(&l->pic);
+    zn_av_frame_free(&l->pic);
 
     return 0;
 }

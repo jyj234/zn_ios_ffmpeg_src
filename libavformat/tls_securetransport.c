@@ -119,7 +119,7 @@ static int import_pem(URLContext *h, char *path, CFArrayRef *array)
     }
 
 end:
-    av_free(buf);
+    zn_av_free(buf);
     if (pathStr)
         CFRelease(pathStr);
     if (data)

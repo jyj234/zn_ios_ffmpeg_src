@@ -216,9 +216,9 @@ static int lscr_decode_close(AVCodecContext *avctx)
 {
     LSCRContext *s = avctx->priv_data;
 
-    av_frame_free(&s->last_picture);
-    av_freep(&s->buffer);
-    av_freep(&s->last_row);
+    zn_av_frame_free(&s->last_picture);
+    zn_av_freep(&s->buffer);
+    zn_av_freep(&s->last_row);
     ff_inflate_end(&s->zstream);
 
     return 0;
@@ -232,7 +232,7 @@ static int lscr_decode_init(AVCodecContext *avctx)
     avctx->pix_fmt     = AV_PIX_FMT_BGR24;
 
     s->avctx = avctx;
-    s->last_picture = av_frame_alloc();
+    s->last_picture = zn_av_frame_alloc();
     if (!s->last_picture)
         return AVERROR(ENOMEM);
 

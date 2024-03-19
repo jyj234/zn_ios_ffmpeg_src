@@ -434,7 +434,7 @@ static int vaapi_vc1_start_frame(AVCodecContext *avctx, av_unused const uint8_t 
         err = ff_vaapi_decode_make_param_buffer(avctx, pic,
                                                 VABitPlaneBufferType,
                                                 bitplane, size);
-        av_free(bitplane);
+        zn_av_free(bitplane);
         if (err)
             goto fail;
     }

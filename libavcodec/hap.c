@@ -49,9 +49,9 @@ int ff_hap_set_chunk_count(HapContext *ctx, int count, int first_in_frame)
 
 av_cold void ff_hap_free_context(HapContext *ctx)
 {
-    av_freep(&ctx->tex_buf);
-    av_freep(&ctx->chunks);
-    av_freep(&ctx->chunk_results);
+    zn_av_freep(&ctx->tex_buf);
+    zn_av_freep(&ctx->chunks);
+    zn_av_freep(&ctx->chunk_results);
 }
 
 int ff_hap_parse_section_header(GetByteContext *gbc, int *section_size,

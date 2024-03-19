@@ -106,7 +106,7 @@ static int read_header(AVFormatContext *s)
     avio_skip(pb, length - 10);  /* unknown data */
 
     /* video stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -118,7 +118,7 @@ static int read_header(AVFormatContext *s)
 
     /* audio stream */
     if (length == MM_HEADER_LEN_AV) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

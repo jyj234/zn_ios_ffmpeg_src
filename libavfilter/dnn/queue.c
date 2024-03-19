@@ -54,9 +54,9 @@ Queue* ff_queue_create(void)
     q->tail = create_entry(q);
 
     if (!q->head || !q->tail) {
-        av_freep(&q->head);
-        av_freep(&q->tail);
-        av_freep(&q);
+        zn_av_freep(&q->head);
+        zn_av_freep(&q->tail);
+        zn_av_freep(&q);
         return NULL;
     }
 
@@ -79,10 +79,10 @@ void ff_queue_destroy(Queue *q)
     while (entry != NULL) {
         QueueEntry *temp = entry;
         entry = entry->next;
-        av_freep(&temp);
+        zn_av_freep(&temp);
     }
 
-    av_freep(&q);
+    zn_av_freep(&q);
 }
 
 size_t ff_queue_size(Queue *q)
@@ -164,7 +164,7 @@ void *ff_queue_pop_front(Queue *q)
     q->head->next = new_head_next;
     new_head_next->prev = q->head;
 
-    av_freep(&front);
+    zn_av_freep(&front);
     q->length--;
     return ret;
 }
@@ -185,7 +185,7 @@ void *ff_queue_pop_back(Queue *q)
     q->tail->prev = new_tail_prev;
     new_tail_prev->next = q->tail;
 
-    av_freep(&back);
+    zn_av_freep(&back);
     q->length--;
     return ret;
 }

@@ -251,9 +251,9 @@ static inline int interpolate(void *log_ctx, uint16_t *y,
         return 0;
     }
 
-    matrix = av_calloc(n, sizeof(*matrix));
+    matrix = zn_av_calloc(n, sizeof(*matrix));
     h = av_malloc((n - 1) * sizeof(*h));
-    r = av_calloc(n, sizeof(*r));
+    r = zn_av_calloc(n, sizeof(*r));
 
     if (!matrix || !h || !r) {
         ret = AVERROR(ENOMEM);
@@ -342,9 +342,9 @@ static inline int interpolate(void *log_ctx, uint16_t *y,
         y[i] = CLIP(point->y * scale);
 
 end:
-    av_free(matrix);
-    av_free(h);
-    av_free(r);
+    zn_av_free(matrix);
+    zn_av_free(h);
+    zn_av_free(r);
     return ret;
 
 }
@@ -425,7 +425,7 @@ static int pchip_find_derivatives(const int n, const double *hk, const double *m
     dk[n] = pchip_edge_case(hk[n - 1], hk[n - 2], mk[n - 1], mk[n - 2]);
 
 end:
-    av_free(smk);
+    zn_av_free(smk);
 
     return ret;
 }
@@ -484,7 +484,7 @@ static inline int interpolate_pchip(void *log_ctx, uint16_t *y,
         return 0;
     }
 
-    xi = av_calloc(3*n + 2*(n-1), sizeof(double)); /* output values at interval endpoints */
+    xi = zn_av_calloc(3*n + 2*(n-1), sizeof(double)); /* output values at interval endpoints */
     if (!xi) {
         ret = AVERROR(ENOMEM);
         goto end;
@@ -575,7 +575,7 @@ static inline int interpolate_pchip(void *log_ctx, uint16_t *y,
     }
 
 end:
-    av_free(xi);
+    zn_av_free(xi);
     return ret;
 }
 
@@ -651,7 +651,7 @@ static int dump_curves(const char *fname, uint16_t *graph[NB_COMP + 1],
     if (!f) {
         int ret = AVERROR(errno);
         av_log(NULL, AV_LOG_ERROR, "Cannot open file '%s' for writing: %s\n",
-               fname, av_err2str(ret));
+               fname, zn_av_err2str(ret));
         return ret;
     }
 
@@ -873,7 +873,7 @@ static int config_input(AVFilterLink *inlink)
 
     for (i = 0; i < NB_COMP + 1; i++) {
         if (!curves->graph[i])
-            curves->graph[i] = av_calloc(curves->lut_size, sizeof(*curves->graph[0]));
+            curves->graph[i] = zn_av_calloc(curves->lut_size, sizeof(*curves->graph[0]));
         if (!curves->graph[i])
             return AVERROR(ENOMEM);
         ret = parse_points_str(ctx, comp_points + i, curves->comp_points_str[i], curves->lut_size);
@@ -913,7 +913,7 @@ static int config_input(AVFilterLink *inlink)
         struct keypoint *point = comp_points[i];
         while (point) {
             struct keypoint *next = point->next;
-            av_free(point);
+            zn_av_free(point);
             point = next;
         }
     }
@@ -934,7 +934,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -946,7 +946,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                       FFMIN(outlink->h, ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }
@@ -962,19 +962,19 @@ static int process_command(AVFilterContext *ctx, const char *cmd, const char *ar
     } else if (!strcmp(cmd, "all") || !strcmp(cmd, "preset") || !strcmp(cmd, "psfile")  || !strcmp(cmd, "interp")) {
         if (!strcmp(cmd, "psfile"))
             curves->parsed_psfile = 0;
-        av_freep(&curves->comp_points_str_all);
-        av_freep(&curves->comp_points_str[0]);
-        av_freep(&curves->comp_points_str[1]);
-        av_freep(&curves->comp_points_str[2]);
-        av_freep(&curves->comp_points_str[NB_COMP]);
+        zn_av_freep(&curves->comp_points_str_all);
+        zn_av_freep(&curves->comp_points_str[0]);
+        zn_av_freep(&curves->comp_points_str[1]);
+        zn_av_freep(&curves->comp_points_str[2]);
+        zn_av_freep(&curves->comp_points_str[NB_COMP]);
     } else if (!strcmp(cmd, "red") || !strcmp(cmd, "r")) {
-        av_freep(&curves->comp_points_str[0]);
+        zn_av_freep(&curves->comp_points_str[0]);
     } else if (!strcmp(cmd, "green") || !strcmp(cmd, "g")) {
-        av_freep(&curves->comp_points_str[1]);
+        zn_av_freep(&curves->comp_points_str[1]);
     } else if (!strcmp(cmd, "blue") || !strcmp(cmd, "b")) {
-        av_freep(&curves->comp_points_str[2]);
+        zn_av_freep(&curves->comp_points_str[2]);
     } else if (!strcmp(cmd, "master") || !strcmp(cmd, "m")) {
-        av_freep(&curves->comp_points_str[NB_COMP]);
+        zn_av_freep(&curves->comp_points_str[NB_COMP]);
     }
 
     ret = ff_filter_process_command(ctx, cmd, args, res, res_len, flags);
@@ -993,7 +993,7 @@ static av_cold void curves_uninit(AVFilterContext *ctx)
     CurvesContext *curves = ctx->priv;
 
     for (i = 0; i < NB_COMP + 1; i++)
-        av_freep(&curves->graph[i]);
+        zn_av_freep(&curves->graph[i]);
 }
 
 static const AVFilterPad curves_inputs[] = {

@@ -52,14 +52,14 @@ static void *libjxl_av_malloc(void *opaque, size_t size)
 }
 
 /**
- * Wrapper around av_free used as a jpegxl_free_func.
+ * Wrapper around zn_av_free used as a jpegxl_free_func.
  *
  * @param opaque  opaque pointer for jpegxl_free_func, always ignored
  * @param address Pointer to the allocated block, to free. `NULL` permitted as a no-op.
  */
 static void libjxl_av_free(void *opaque, void *address)
 {
-    av_free(address);
+    zn_av_free(address);
 }
 
 void ff_libjxl_init_memory_manager(JxlMemoryManager *manager)

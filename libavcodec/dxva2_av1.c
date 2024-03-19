@@ -451,7 +451,7 @@ static int dxva2_av1_uninit(AVCodecContext *avctx)
 {
     struct AV1DXVAContext *ctx = avctx->internal->hwaccel_priv_data;
 
-    av_freep(&ctx->bitstream_cache);
+    zn_av_freep(&ctx->bitstream_cache);
     ctx->bitstream_allocated = 0;
 
     return ff_dxva2_decode_uninit(avctx);

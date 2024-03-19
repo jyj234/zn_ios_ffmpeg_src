@@ -225,14 +225,14 @@ static int libjxl_populate_primaries(void *avctx, JxlColorEncoding *jxl_color, e
     jxl_color->primaries = JXL_PRIMARIES_CUSTOM;
     jxl_color->white_point = JXL_WHITE_POINT_CUSTOM;
 
-    jxl_color->primaries_red_xy[0] = av_q2d(desc->prim.r.x);
-    jxl_color->primaries_red_xy[1] = av_q2d(desc->prim.r.y);
-    jxl_color->primaries_green_xy[0] = av_q2d(desc->prim.g.x);
-    jxl_color->primaries_green_xy[1] = av_q2d(desc->prim.g.y);
-    jxl_color->primaries_blue_xy[0] = av_q2d(desc->prim.b.x);
-    jxl_color->primaries_blue_xy[1] = av_q2d(desc->prim.b.y);
-    jxl_color->white_point_xy[0] = av_q2d(desc->wp.x);
-    jxl_color->white_point_xy[1] = av_q2d(desc->wp.y);
+    jxl_color->primaries_red_xy[0] = zn_av_q2d(desc->prim.r.x);
+    jxl_color->primaries_red_xy[1] = zn_av_q2d(desc->prim.r.y);
+    jxl_color->primaries_green_xy[0] = zn_av_q2d(desc->prim.g.x);
+    jxl_color->primaries_green_xy[1] = zn_av_q2d(desc->prim.g.y);
+    jxl_color->primaries_blue_xy[0] = zn_av_q2d(desc->prim.b.x);
+    jxl_color->primaries_blue_xy[1] = zn_av_q2d(desc->prim.b.y);
+    jxl_color->white_point_xy[0] = zn_av_q2d(desc->wp.x);
+    jxl_color->white_point_xy[1] = zn_av_q2d(desc->wp.y);
 
     return 0;
 }
@@ -453,7 +453,7 @@ static av_cold int libjxl_encode_close(AVCodecContext *avctx)
         JxlEncoderDestroy(ctx->encoder);
     ctx->encoder = NULL;
 
-    av_freep(&ctx->buffer);
+    zn_av_freep(&ctx->buffer);
 
     return 0;
 }

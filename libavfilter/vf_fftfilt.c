@@ -327,10 +327,10 @@ static int config_props(AVFilterLink *inlink)
         s->rdft_hlen[i] = 1 << (32 - ff_clz(w));
         s->rdft_hstride[i] = FFALIGN(s->rdft_hlen[i] + 2, av_cpu_max_align());
         s->rdft_hbits[i] = av_log2(s->rdft_hlen[i]);
-        if (!(s->rdft_hdata_in[i] = av_calloc(h, s->rdft_hstride[i] * sizeof(float))))
+        if (!(s->rdft_hdata_in[i] = zn_av_calloc(h, s->rdft_hstride[i] * sizeof(float))))
             return AVERROR(ENOMEM);
 
-        if (!(s->rdft_hdata_out[i] = av_calloc(h, s->rdft_hstride[i] * sizeof(float))))
+        if (!(s->rdft_hdata_out[i] = zn_av_calloc(h, s->rdft_hstride[i] * sizeof(float))))
             return AVERROR(ENOMEM);
 
         for (int j = 0; j < s->nb_threads; j++) {
@@ -350,10 +350,10 @@ static int config_props(AVFilterLink *inlink)
         s->rdft_vlen[i] = 1 << (32 - ff_clz(h));
         s->rdft_vstride[i] = FFALIGN(s->rdft_vlen[i] + 2, av_cpu_max_align());
         s->rdft_vbits[i] = av_log2(s->rdft_vlen[i]);
-        if (!(s->rdft_vdata_in[i] = av_calloc(s->rdft_hstride[i], s->rdft_vstride[i] * sizeof(float))))
+        if (!(s->rdft_vdata_in[i] = zn_av_calloc(s->rdft_hstride[i], s->rdft_vstride[i] * sizeof(float))))
             return AVERROR(ENOMEM);
 
-        if (!(s->rdft_vdata_out[i] = av_calloc(s->rdft_hstride[i], s->rdft_vstride[i] * sizeof(float))))
+        if (!(s->rdft_vdata_out[i] = zn_av_calloc(s->rdft_hstride[i], s->rdft_vstride[i] * sizeof(float))))
             return AVERROR(ENOMEM);
 
         for (int j = 0; j < s->nb_threads; j++) {
@@ -372,7 +372,7 @@ static int config_props(AVFilterLink *inlink)
 
     /*Luminance value - Array initialization*/
     for (plane = 0; plane < 3; plane++) {
-        if(!(s->weight[plane] = av_calloc(s->rdft_hlen[plane], s->rdft_vlen[plane] * sizeof(double))))
+        if(!(s->weight[plane] = zn_av_calloc(s->rdft_hlen[plane], s->rdft_vlen[plane] * sizeof(double))))
             return AVERROR(ENOMEM);
 
         if (s->eval_mode == EVAL_MODE_INIT)
@@ -506,7 +506,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, inlink->w, inlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -541,7 +541,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, s->irdft_horizontal, out, NULL,
                       FFMIN(s->planeheight[1], s->nb_threads));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -550,12 +550,12 @@ static av_cold void uninit(AVFilterContext *ctx)
     FFTFILTContext *s = ctx->priv;
 
     for (int i = 0; i < MAX_PLANES; i++) {
-        av_freep(&s->rdft_hdata_in[i]);
-        av_freep(&s->rdft_vdata_in[i]);
-        av_freep(&s->rdft_hdata_out[i]);
-        av_freep(&s->rdft_vdata_out[i]);
+        zn_av_freep(&s->rdft_hdata_in[i]);
+        zn_av_freep(&s->rdft_vdata_in[i]);
+        zn_av_freep(&s->rdft_hdata_out[i]);
+        zn_av_freep(&s->rdft_vdata_out[i]);
         av_expr_free(s->weight_expr[i]);
-        av_freep(&s->weight[i]);
+        zn_av_freep(&s->weight[i]);
         for (int j = 0; j < s->nb_threads; j++) {
             av_tx_uninit(&s->hrdft[j][i]);
             av_tx_uninit(&s->ihrdft[j][i]);

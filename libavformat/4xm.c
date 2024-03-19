@@ -103,7 +103,7 @@ static int parse_vtrk(AVFormatContext *s,
     }
 
     /* allocate a new AVStream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -179,7 +179,7 @@ static int parse_strk(AVFormatContext *s,
     }
 
     /* allocate a new AVStream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -238,7 +238,7 @@ static int fourxm_read_header(AVFormatContext *s)
     if (!header)
         return AVERROR(ENOMEM);
     if (avio_read(pb, header, header_size) != header_size) {
-        av_free(header);
+        zn_av_free(header);
         return AVERROR(EIO);
     }
 
@@ -281,13 +281,13 @@ static int fourxm_read_header(AVFormatContext *s)
         goto fail;
     }
 
-    av_free(header);
+    zn_av_free(header);
     /* initialize context members */
     fourxm->video_pts = -1;  /* first frame will push to 0 */
 
     return 0;
 fail:
-    av_free(header);
+    zn_av_free(header);
     return ret;
 }
 
@@ -341,7 +341,7 @@ static int fourxm_read_packet(AVFormatContext *s,
             ret = avio_read(s->pb, &pkt->data[8], size);
 
             if (ret < 0) {
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
             } else {
                 packet_read = 1;
                 av_shrink_packet(pkt, ret + 8);
@@ -391,7 +391,7 @@ static int fourxm_read_close(AVFormatContext *s)
 {
     FourxmDemuxContext *fourxm = s->priv_data;
 
-    av_freep(&fourxm->tracks);
+    zn_av_freep(&fourxm->tracks);
 
     return 0;
 }

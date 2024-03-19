@@ -380,7 +380,7 @@ static int aribcaption_trans_bitmap_subtitle(ARIBCaptionContext *ctx)
     }
 
     sub->format = 0; /* graphic */
-    sub->rects = av_calloc(ctx->render_result.image_count, sizeof(*sub->rects));
+    sub->rects = zn_av_calloc(ctx->render_result.image_count, sizeof(*sub->rects));
     if (!sub->rects) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -483,12 +483,12 @@ fail:
     if (sub->rects) {
         for (int i = 0; i < ctx->caption.region_count; i++) {
             if (sub->rects[i]) {
-                av_freep(&sub->rects[i]->data[0]);
-                av_freep(&sub->rects[i]->data[1]);
-                av_freep(&sub->rects[i]);
+                zn_av_freep(&sub->rects[i]->data[0]);
+                zn_av_freep(&sub->rects[i]->data[1]);
+                zn_av_freep(&sub->rects[i]);
             }
         }
-        av_freep(&sub->rects);
+        zn_av_freep(&sub->rects);
     }
     sub->num_rects = 0;
 
@@ -519,7 +519,7 @@ static int set_ass_header(ARIBCaptionContext *ctx)
     if (!font_name)
         return AVERROR(ENOMEM);
 
-    av_freep(&avctx->subtitle_header);
+    zn_av_freep(&avctx->subtitle_header);
     avctx->subtitle_header = av_asprintf(
             "[Script Info]\r\n"
             "ScriptType: v4.00+\r\n"
@@ -560,7 +560,7 @@ static int set_ass_header(ARIBCaptionContext *ctx)
             -ASS_DEFAULT_BOLD, -ASS_DEFAULT_ITALIC, -ASS_DEFAULT_UNDERLINE,
             ctx->border_style, outline, shadow, ASS_DEFAULT_ALIGNMENT);
 
-    av_freep(&font_name);
+    zn_av_freep(&font_name);
     if (!avctx->subtitle_header)
         return AVERROR(ENOMEM);
     avctx->subtitle_header_size = strlen(avctx->subtitle_header);
@@ -776,11 +776,11 @@ fail:
     if (sub->rects) {
         for (int i = 0; i < ctx->caption.region_count; i++) {
             if (sub->rects[i]) {
-                av_freep(&sub->rects[i]->ass);
-                av_freep(&sub->rects[i]);
+                zn_av_freep(&sub->rects[i]->ass);
+                zn_av_freep(&sub->rects[i]);
             }
         }
-        av_freep(&sub->rects);
+        zn_av_freep(&sub->rects);
     }
     sub->num_rects = 0;
     av_bprint_finalize(&buf, NULL);
@@ -795,7 +795,7 @@ static int aribcaption_trans_text_subtitle(ARIBCaptionContext *ctx)
     int ret = 0;
     const char *text;
 
-    sub->rects = av_calloc(ctx->caption.region_count, sizeof(*sub->rects));
+    sub->rects = zn_av_calloc(ctx->caption.region_count, sizeof(*sub->rects));
     if (!sub->rects) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -830,10 +830,10 @@ fail:
     if (sub->rects) {
         rect = sub->rects[0];
         if (rect) {
-            av_freep(&rect->text);
-            av_freep(&rect);
+            zn_av_freep(&rect->text);
+            zn_av_freep(&rect);
         }
-        av_freep(&sub->rects);
+        zn_av_freep(&sub->rects);
     }
     sub->num_rects = 0;
 
@@ -907,7 +907,7 @@ static int aribcaption_decode(AVCodecContext *avctx, AVSubtitle *sub,
 
     if (status < 0) {
         av_log(ctx, AV_LOG_ERROR, "Failed to set Subtitle: %s\n",
-               av_err2str(status));
+               zn_av_err2str(status));
         aribcc_caption_cleanup(&ctx->caption);
         return status;
     }
@@ -942,7 +942,7 @@ static int aribcaption_close(AVCodecContext *avctx)
 {
     ARIBCaptionContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->clut);
+    zn_av_freep(&ctx->clut);
     if (ctx->renderer)
         aribcc_renderer_free(ctx->renderer);
     if (ctx->decoder)
@@ -1022,7 +1022,7 @@ static int aribcaption_init(AVCodecContext *avctx)
         ret = set_ass_header(ctx);
         if (ret != 0) {
             av_log(avctx, AV_LOG_ERROR, "Failed to set ASS header: %s\n",
-                                        av_err2str(ret));
+                                        zn_av_err2str(ret));
             return ret;
         }
         break;
@@ -1087,8 +1087,8 @@ static int aribcaption_init(AVCodecContext *avctx)
             if (!is_nomem && count)
                 aribcc_renderer_set_default_font_family(ctx->renderer, font_families, count, true);
             while (count)
-                av_freep(&font_families[--count]);
-            av_freep(&font_families);
+                zn_av_freep(&font_families[--count]);
+            zn_av_freep(&font_families);
             if (is_nomem)
                 return AVERROR(ENOMEM);
         }

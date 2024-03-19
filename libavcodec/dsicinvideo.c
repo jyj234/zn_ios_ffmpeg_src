@@ -48,7 +48,7 @@ static av_cold void destroy_buffers(CinVideoContext *cin)
     int i;
 
     for (i = 0; i < 3; ++i)
-        av_freep(&cin->bitmap_table[i]);
+        zn_av_freep(&cin->bitmap_table[i]);
 }
 
 static av_cold int allocate_buffers(CinVideoContext *cin)
@@ -73,7 +73,7 @@ static av_cold int cinvideo_decode_init(AVCodecContext *avctx)
     cin->avctx = avctx;
     avctx->pix_fmt = AV_PIX_FMT_PAL8;
 
-    cin->frame = av_frame_alloc();
+    cin->frame = zn_av_frame_alloc();
     if (!cin->frame)
         return AVERROR(ENOMEM);
 
@@ -318,7 +318,7 @@ static av_cold int cinvideo_decode_end(AVCodecContext *avctx)
 {
     CinVideoContext *cin = avctx->priv_data;
 
-    av_frame_free(&cin->frame);
+    zn_av_frame_free(&cin->frame);
 
     destroy_buffers(cin);
 

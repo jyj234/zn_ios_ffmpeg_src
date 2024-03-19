@@ -80,8 +80,8 @@ int ff_snow_alloc_blocks(SnowContext *s){
     s->b_width = w;
     s->b_height= h;
 
-    av_free(s->block);
-    s->block = av_calloc(w * h,  sizeof(*s->block) << (s->block_max_depth*2));
+    zn_av_free(s->block);
+    s->block = zn_av_calloc(w * h,  sizeof(*s->block) << (s->block_max_depth*2));
     if (!s->block)
         return AVERROR(ENOMEM);
 
@@ -431,13 +431,13 @@ av_cold int ff_snow_common_init(AVCodecContext *avctx){
         return AVERROR(ENOMEM);
 
     for(i=0; i<MAX_REF_FRAMES; i++) {
-        s->last_picture[i] = av_frame_alloc();
+        s->last_picture[i] = zn_av_frame_alloc();
         if (!s->last_picture[i])
             return AVERROR(ENOMEM);
     }
 
-    s->mconly_picture = av_frame_alloc();
-    s->current_picture = av_frame_alloc();
+    s->mconly_picture = zn_av_frame_alloc();
+    s->current_picture = zn_av_frame_alloc();
     if (!s->mconly_picture || !s->current_picture)
         return AVERROR(ENOMEM);
 
@@ -496,8 +496,8 @@ int ff_snow_common_init_after_header(AVCodecContext *avctx) {
                 if(level)
                     b->parent= &s->plane[plane_index].band[level-1][orientation];
                 //FIXME avoid this realloc
-                av_freep(&b->x_coeff);
-                b->x_coeff = av_calloc((b->width + 1) * b->height + 1,
+                zn_av_freep(&b->x_coeff);
+                b->x_coeff = zn_av_calloc((b->width + 1) * b->height + 1,
                                        sizeof(*b->x_coeff));
                 if (!b->x_coeff)
                     return AVERROR(ENOMEM);
@@ -554,21 +554,21 @@ av_cold void ff_snow_common_end(SnowContext *s)
 {
     int plane_index, level, orientation, i;
 
-    av_freep(&s->spatial_dwt_buffer);
-    av_freep(&s->temp_dwt_buffer);
-    av_freep(&s->spatial_idwt_buffer);
-    av_freep(&s->temp_idwt_buffer);
-    av_freep(&s->run_buffer);
+    zn_av_freep(&s->spatial_dwt_buffer);
+    zn_av_freep(&s->temp_dwt_buffer);
+    zn_av_freep(&s->spatial_idwt_buffer);
+    zn_av_freep(&s->temp_idwt_buffer);
+    zn_av_freep(&s->run_buffer);
 
-    av_freep(&s->block);
-    av_freep(&s->scratchbuf);
-    av_freep(&s->emu_edge_buffer);
+    zn_av_freep(&s->block);
+    zn_av_freep(&s->scratchbuf);
+    zn_av_freep(&s->emu_edge_buffer);
 
     for(i=0; i<MAX_REF_FRAMES; i++){
         if(s->last_picture[i] && s->last_picture[i]->data[0]) {
             av_assert0(s->last_picture[i]->data[0] != s->current_picture->data[0]);
         }
-        av_frame_free(&s->last_picture[i]);
+        zn_av_frame_free(&s->last_picture[i]);
     }
 
     for(plane_index=0; plane_index < MAX_PLANES; plane_index++){
@@ -576,10 +576,10 @@ av_cold void ff_snow_common_end(SnowContext *s)
             for(orientation=level ? 1 : 0; orientation<4; orientation++){
                 SubBand *b= &s->plane[plane_index].band[level][orientation];
 
-                av_freep(&b->x_coeff);
+                zn_av_freep(&b->x_coeff);
             }
         }
     }
-    av_frame_free(&s->mconly_picture);
-    av_frame_free(&s->current_picture);
+    zn_av_frame_free(&s->mconly_picture);
+    zn_av_frame_free(&s->current_picture);
 }

@@ -332,12 +332,12 @@ int ff_evc_parse_sps(GetBitContext *gb, EVCParamSets *ps)
     // If necessary, add the missing fields to the EVCParserSPS structure
     // and then extend parser implementation
 
-    av_freep(&ps->sps[sps_seq_parameter_set_id]);
+    zn_av_freep(&ps->sps[sps_seq_parameter_set_id]);
     ps->sps[sps_seq_parameter_set_id] = sps;
 
     return 0;
 fail:
-    av_free(sps);
+    zn_av_free(sps);
     return ret;
 }
 
@@ -424,19 +424,19 @@ int ff_evc_parse_pps(GetBitContext *gb, EVCParamSets *ps)
     if (pps->cu_qp_delta_enabled_flag)
         pps->log2_cu_qp_delta_area_minus6 = get_ue_golomb(gb);
 
-    av_freep(&ps->pps[pps_pic_parameter_set_id]);
+    zn_av_freep(&ps->pps[pps_pic_parameter_set_id]);
     ps->pps[pps_pic_parameter_set_id] = pps;
 
     return 0;
 fail:
-    av_free(pps);
+    zn_av_free(pps);
     return ret;
 }
 
 void ff_evc_ps_free(EVCParamSets *ps) {
     for (int i = 0; i < EVC_MAX_SPS_COUNT; i++)
-        av_freep(&ps->sps[i]);
+        zn_av_freep(&ps->sps[i]);
 
     for (int i = 0; i < EVC_MAX_PPS_COUNT; i++)
-        av_freep(&ps->pps[i]);
+        zn_av_freep(&ps->pps[i]);
 }

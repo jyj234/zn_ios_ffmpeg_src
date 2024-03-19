@@ -93,7 +93,7 @@ typedef struct OMAContext {
 static int oma_read_close(AVFormatContext *s)
 {
     OMAContext *oc = s->priv_data;
-    av_freep(&oc->av_des);
+    zn_av_freep(&oc->av_des);
     return 0;
 }
 
@@ -170,7 +170,7 @@ static int rprobe(AVFormatContext *s, uint8_t *enc_header, unsigned size,
 
     pos += oc->i_size;
 
-    av_free(av_des);
+    zn_av_free(av_des);
 
     return memcmp(&enc_header[pos], oc->sm_val, 8) ? -1 : 0;
 }
@@ -214,13 +214,13 @@ static int nprobe(AVFormatContext *s, uint8_t *enc_header, unsigned size,
         av_des_crypt(av_des, oc->r_val, &enc_header[pos], 2, NULL, 1);
         kset(s, oc->r_val, NULL, 16);
         if (!rprobe(s, enc_header, size, oc->r_val)) {
-            av_free(av_des);
+            zn_av_free(av_des);
             return 0;
         }
         pos += 16;
     }
 
-    av_free(av_des);
+    zn_av_free(av_des);
     return -1;
 }
 
@@ -444,7 +444,7 @@ static int oma_read_header(AVFormatContext *s)
 
     codec_params = AV_RB24(&buf[33]);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -497,7 +497,7 @@ static int oma_read_header(AVFormatContext *s)
                    "Invalid ATRAC-X channel id: %"PRIu32"\n", channel_id);
             return AVERROR_INVALIDDATA;
         }
-        av_channel_layout_copy(&st->codecpar->ch_layout,
+        zn_av_channel_layout_copy(&st->codecpar->ch_layout,
                                &oma_chid_to_native_layout[channel_id - 1]);
         framesize = ((codec_params & 0x3FF) * 8) + 8;
         samplerate = ff_oma_srate_tab[(codec_params >> 13) & 7] * 100;

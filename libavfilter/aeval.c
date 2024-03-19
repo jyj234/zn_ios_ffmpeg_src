@@ -143,7 +143,7 @@ static int parse_channel_expressions(AVFilterContext *ctx,
         av_expr_free(eval->expr[i]);
         eval->expr[i] = NULL;
     }
-    av_freep(&eval->expr);
+    zn_av_freep(&eval->expr);
     eval->nb_channels = 0;
 
     buf = args1;
@@ -166,7 +166,7 @@ static int parse_channel_expressions(AVFilterContext *ctx,
     }
 
 end:
-    av_free(args1);
+    zn_av_free(args1);
     return ret;
 }
 
@@ -192,7 +192,7 @@ static av_cold int init(AVFilterContext *ctx)
         if ((ret = parse_channel_expressions(ctx, -1)) < 0)
             return ret;
 
-        av_channel_layout_default(&eval->chlayout, eval->nb_channels);
+        zn_av_channel_layout_default(&eval->chlayout, eval->nb_channels);
         if (eval->nb_channels <= 0) {
             av_log(ctx, AV_LOG_ERROR, "Invalid number of channels '%d' provided\n",
                    eval->nb_channels);
@@ -217,8 +217,8 @@ static av_cold void uninit(AVFilterContext *ctx)
         av_expr_free(eval->expr[i]);
         eval->expr[i] = NULL;
     }
-    av_freep(&eval->expr);
-    av_freep(&eval->channel_values);
+    zn_av_freep(&eval->expr);
+    zn_av_freep(&eval->channel_values);
     av_channel_layout_uninit(&eval->chlayout);
 }
 
@@ -388,7 +388,7 @@ static int aeval_config_output(AVFilterLink *outlink)
     int ret;
 
     if (eval->same_chlayout) {
-        if ((ret = av_channel_layout_copy(&eval->chlayout, &inlink->ch_layout)) < 0)
+        if ((ret = zn_av_channel_layout_copy(&eval->chlayout, &inlink->ch_layout)) < 0)
             return ret;
 
         if ((ret = parse_channel_expressions(ctx, inlink->ch_layout.nb_channels)) < 0)
@@ -420,7 +420,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_audio_buffer(outlink, nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -442,7 +442,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         }
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

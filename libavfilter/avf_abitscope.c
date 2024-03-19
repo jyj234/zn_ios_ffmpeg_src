@@ -110,7 +110,7 @@ static int config_input(AVFilterLink *inlink)
     s->nb_channels = inlink->ch_layout.nb_channels;
     s->depth = inlink->format == AV_SAMPLE_FMT_S16P ? 16 : 32;
 
-    s->fg = av_malloc_array(s->nb_channels, 4 * sizeof(*s->fg));
+    s->fg = zn_av_malloc_array(s->nb_channels, 4 * sizeof(*s->fg));
     if (!s->fg)
         return AVERROR(ENOMEM);
 
@@ -130,7 +130,7 @@ static int config_input(AVFilterLink *inlink)
         s->fg[4 * ch + 2] = fg[2];
         s->fg[4 * ch + 3] = fg[3];
     }
-    av_free(colors);
+    zn_av_free(colors);
 
     return 0;
 }
@@ -218,7 +218,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
     if (s->mode == 0 || !s->outpicref) {
         outpicref = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!outpicref) {
-            av_frame_free(&insamples);
+            zn_av_frame_free(&insamples);
             return AVERROR(ENOMEM);
         }
 
@@ -231,12 +231,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
     if (s->mode == 1) {
         ret = ff_inlink_make_frame_writable(outlink, &s->outpicref);
         if (ret < 0) {
-            av_frame_free(&insamples);
+            zn_av_frame_free(&insamples);
             return ret;
         }
         outpicref = av_frame_clone(s->outpicref);
         if (!outpicref) {
-            av_frame_free(&insamples);
+            zn_av_frame_free(&insamples);
             return AVERROR(ENOMEM);
         }
     }
@@ -265,7 +265,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamples)
     s->current_vpos++;
     if (s->current_vpos >= outlink->h)
         s->current_vpos = 0;
-    av_frame_free(&insamples);
+    zn_av_frame_free(&insamples);
 
     return ff_filter_frame(outlink, outpicref);
 }
@@ -296,7 +296,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioBitScopeContext *s = ctx->priv;
 
-    av_frame_free(&s->outpicref);
+    zn_av_frame_free(&s->outpicref);
 }
 
 static const AVFilterPad inputs[] = {

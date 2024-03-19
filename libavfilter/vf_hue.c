@@ -190,14 +190,14 @@ static int set_expr(AVExpr **pexpr_ptr, char **expr_ptr,
         av_log(log_ctx, AV_LOG_ERROR,
                "Error when evaluating the expression '%s' for %s\n",
                expr, option);
-        av_free(new_expr);
+        zn_av_free(new_expr);
         return ret;
     }
 
     if (*pexpr_ptr)
         av_expr_free(*pexpr_ptr);
     *pexpr_ptr = new_pexpr;
-    av_freep(expr_ptr);
+    zn_av_freep(expr_ptr);
     *expr_ptr = new_expr;
 
     return 0;
@@ -270,9 +270,9 @@ static int config_props(AVFilterLink *inlink)
     hue->vsub = desc->log2_chroma_h;
 
     hue->var_values[VAR_N]  = 0;
-    hue->var_values[VAR_TB] = av_q2d(inlink->time_base);
+    hue->var_values[VAR_TB] = zn_av_q2d(inlink->time_base);
     hue->var_values[VAR_R]  = inlink->frame_rate.num == 0 || inlink->frame_rate.den == 0 ?
-        NAN : av_q2d(inlink->frame_rate);
+        NAN : zn_av_q2d(inlink->frame_rate);
 
     return 0;
 }
@@ -372,7 +372,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
     } else {
         outpic = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!outpic) {
-            av_frame_free(&inpic);
+            zn_av_frame_free(&inpic);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(outpic, inpic);
@@ -454,7 +454,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
     }
 
     if (!direct)
-        av_frame_free(&inpic);
+        zn_av_frame_free(&inpic);
 
     hue->is_first = 0;
     return ff_filter_frame(outlink, outpic);
@@ -476,10 +476,10 @@ static int process_command(AVFilterContext *ctx, const char *cmd, const char *ar
 
     if (!strcmp(cmd, "h")) {
         SET_EXPR(hue_deg, "h");
-        av_freep(&hue->hue_expr);
+        zn_av_freep(&hue->hue_expr);
     } else if (!strcmp(cmd, "H")) {
         SET_EXPR(hue, "H");
-        av_freep(&hue->hue_deg_expr);
+        zn_av_freep(&hue->hue_deg_expr);
     } else if (!strcmp(cmd, "s")) {
         SET_EXPR(saturation, "s");
     } else if (!strcmp(cmd, "b")) {

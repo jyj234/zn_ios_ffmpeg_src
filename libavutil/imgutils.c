@@ -249,14 +249,14 @@ int av_image_alloc(uint8_t *pointers[4], int linesizes[4],
     if (!buf)
         return AVERROR(ENOMEM);
     if ((ret = av_image_fill_pointers(pointers, pix_fmt, h, buf, linesizes)) < 0) {
-        av_free(buf);
+        zn_av_free(buf);
         return ret;
     }
     if (desc->flags & AV_PIX_FMT_FLAG_PAL) {
         avpriv_set_systematic_pal2((uint32_t*)pointers[1], pix_fmt);
         if (align < 4) {
             av_log(NULL, AV_LOG_ERROR, "Formats with a palette require a minimum alignment of 4\n");
-            av_free(buf);
+            zn_av_free(buf);
             return AVERROR(EINVAL);
         }
     }

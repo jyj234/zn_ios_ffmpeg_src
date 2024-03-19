@@ -1021,7 +1021,7 @@ static MpegTSService *mpegts_add_service(AVFormatContext *s, int sid,
 
     return service;
 fail:
-    av_free(service);
+    zn_av_free(service);
     return NULL;
 }
 
@@ -1238,24 +1238,24 @@ static int mpegts_init(AVFormatContext *s)
         if (st->codecpar->codec_id == AV_CODEC_ID_AAC &&
             st->codecpar->extradata_size > 0) {
             AVStream *ast;
-            ts_st->amux = avformat_alloc_context();
+            ts_st->amux = zn_avformat_alloc_context();
             if (!ts_st->amux) {
                 return AVERROR(ENOMEM);
             }
             ts_st->amux->oformat =
-                av_guess_format((ts->flags & MPEGTS_FLAG_AAC_LATM) ? "latm" : "adts",
+                zn_av_guess_format((ts->flags & MPEGTS_FLAG_AAC_LATM) ? "latm" : "adts",
                                 NULL, NULL);
             if (!ts_st->amux->oformat) {
                 return AVERROR(EINVAL);
             }
-            if (!(ast = avformat_new_stream(ts_st->amux, NULL))) {
+            if (!(ast = zn_avformat_new_stream(ts_st->amux, NULL))) {
                 return AVERROR(ENOMEM);
             }
-            ret = avcodec_parameters_copy(ast->codecpar, st->codecpar);
+            ret = zn_avcodec_parameters_copy(ast->codecpar, st->codecpar);
             if (ret != 0)
                 return ret;
             ast->time_base = st->time_base;
-            ret = avformat_write_header(ts_st->amux, NULL);
+            ret = zn_avformat_write_header(ts_st->amux, NULL);
             if (ret < 0)
                 return ret;
         }
@@ -1961,7 +1961,7 @@ static int mpegts_write_packet_internal(AVFormatContext *s, AVPacket *pkt)
                 av_log(s, AV_LOG_ERROR, "AAC bitstream not in ADTS format "
                                         "and extradata missing\n");
             } else {
-                av_packet_unref(pkt2);
+                zn_av_packet_unref(pkt2);
                 pkt2->data = pkt->data;
                 pkt2->size = pkt->size;
                 av_assert0(pkt->dts != AV_NOPTS_VALUE);
@@ -2097,7 +2097,7 @@ static int mpegts_write_packet_internal(AVFormatContext *s, AVPacket *pkt)
 
             dvb_ac3_desc = av_mallocz(sizeof(*dvb_ac3_desc));
             if (!dvb_ac3_desc) {
-                av_free(hdr);
+                zn_av_free(hdr);
                 return AVERROR(ENOMEM);
             }
 
@@ -2142,7 +2142,7 @@ static int mpegts_write_packet_internal(AVFormatContext *s, AVPacket *pkt)
 
             ts_st->dvb_ac3_desc = dvb_ac3_desc;
         }
-        av_free(hdr);
+        zn_av_free(hdr);
     } else if (st->codecpar->codec_id == AV_CODEC_ID_PCM_BLURAY && ts->m2ts_mode) {
         mpegts_write_pes(s, st, buf, size, pts, dts,
                          pkt->flags & AV_PKT_FLAG_KEY, stream_id);
@@ -2166,7 +2166,7 @@ static int mpegts_write_packet_internal(AVFormatContext *s, AVPacket *pkt)
         mpegts_write_pes(s, st, buf, size, pts, dts,
                          pkt->flags & AV_PKT_FLAG_KEY, stream_id);
         ts_st->opus_queued_samples = 0;
-        av_free(data);
+        zn_av_free(data);
         return 0;
     }
 
@@ -2180,7 +2180,7 @@ static int mpegts_write_packet_internal(AVFormatContext *s, AVPacket *pkt)
     ts_st->payload_size += size;
     ts_st->opus_queued_samples += opus_samples;
 
-    av_free(data);
+    zn_av_free(data);
 
     return 0;
 }
@@ -2238,10 +2238,10 @@ static void mpegts_deinit(AVFormatContext *s)
         AVStream *st = s->streams[i];
         MpegTSWriteStream *ts_st = st->priv_data;
         if (ts_st) {
-            av_freep(&ts_st->dvb_ac3_desc);
-            av_freep(&ts_st->payload);
+            zn_av_freep(&ts_st->dvb_ac3_desc);
+            zn_av_freep(&ts_st->payload);
             if (ts_st->amux) {
-                avformat_free_context(ts_st->amux);
+                zn_avformat_free_context(ts_st->amux);
                 ts_st->amux = NULL;
             }
         }
@@ -2249,9 +2249,9 @@ static void mpegts_deinit(AVFormatContext *s)
 
     for (i = 0; i < ts->nb_services; i++) {
         service = ts->services[i];
-        av_freep(&service);
+        zn_av_freep(&service);
     }
-    av_freep(&ts->services);
+    zn_av_freep(&ts->services);
 }
 
 static int mpegts_check_bitstream(AVFormatContext *s, AVStream *st,

@@ -46,7 +46,7 @@ static int rawvideo_read_header(AVFormatContext *ctx)
     int packet_size;
     int ret;
 
-    st = avformat_new_stream(ctx, NULL);
+    st = zn_avformat_new_stream(ctx, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

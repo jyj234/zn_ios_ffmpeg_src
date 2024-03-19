@@ -169,7 +169,7 @@ static av_cold int init(AVFilterContext *ctx)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     DecimateContext *decimate = ctx->priv;
-    av_frame_free(&decimate->ref);
+    zn_av_frame_free(&decimate->ref);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {
@@ -209,7 +209,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *cur)
         decimate->drop_count = FFMAX(1, decimate->drop_count+1);
         decimate->keep_count = -1; // do not keep any more frames until non-similar frames are detected
     } else {
-        av_frame_free(&decimate->ref);
+        zn_av_frame_free(&decimate->ref);
         decimate->ref = cur;
         decimate->drop_count = FFMIN(-1, decimate->drop_count-1);
         if (decimate->keep_count < 0) // re-enable counting similiar frames to ignore before dropping
@@ -227,7 +227,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *cur)
            decimate->keep_count);
 
     if (decimate->drop_count > 0)
-        av_frame_free(&cur);
+        zn_av_frame_free(&cur);
 
     return 0;
 }

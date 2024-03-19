@@ -188,7 +188,7 @@ static int qsv_stack_init(AVFilterContext *ctx)
     sctx->comp_conf.Header.BufferId = MFX_EXTBUFF_VPP_COMPOSITE;
     sctx->comp_conf.Header.BufferSz = sizeof(sctx->comp_conf);
     sctx->comp_conf.NumInputStream = sctx->base.nb_inputs;
-    sctx->comp_conf.InputStream = av_calloc(sctx->base.nb_inputs,
+    sctx->comp_conf.InputStream = zn_av_calloc(sctx->base.nb_inputs,
                                             sizeof(*sctx->comp_conf.InputStream));
     if (!sctx->comp_conf.InputStream)
         return AVERROR(ENOMEM);
@@ -214,8 +214,8 @@ static av_cold void qsv_stack_uninit(AVFilterContext *ctx)
     stack_uninit(ctx);
 
     ff_qsvvpp_close(ctx);
-    av_freep(&sctx->comp_conf.InputStream);
-    av_freep(&sctx->qsv_param.ext_buf);
+    zn_av_freep(&sctx->comp_conf.InputStream);
+    zn_av_freep(&sctx->qsv_param.ext_buf);
 }
 
 static int qsv_stack_query_formats(AVFilterContext *ctx)

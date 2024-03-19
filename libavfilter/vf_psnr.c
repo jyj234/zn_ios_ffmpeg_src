@@ -364,12 +364,12 @@ static int config_input_ref(AVFilterLink *inlink)
     ff_psnr_init_x86(&s->dsp, desc->comp[0].depth);
 #endif
 
-    s->score = av_calloc(s->nb_threads, sizeof(*s->score));
+    s->score = zn_av_calloc(s->nb_threads, sizeof(*s->score));
     if (!s->score)
         return AVERROR(ENOMEM);
 
     for (int t = 0; t < s->nb_threads; t++) {
-        s->score[t] = av_calloc(s->nb_components, sizeof(*s->score[0]));
+        s->score[t] = zn_av_calloc(s->nb_components, sizeof(*s->score[0]));
         if (!s->score[t])
             return AVERROR(ENOMEM);
     }
@@ -435,8 +435,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     ff_framesync_uninit(&s->fs);
     for (int t = 0; t < s->nb_threads && s->score; t++)
-        av_freep(&s->score[t]);
-    av_freep(&s->score);
+        zn_av_freep(&s->score[t]);
+    zn_av_freep(&s->score);
 
     if (s->stats_file && s->stats_file != stdout)
         fclose(s->stats_file);

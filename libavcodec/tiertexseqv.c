@@ -227,7 +227,7 @@ static av_cold int seqvideo_decode_init(AVCodecContext *avctx)
     if (ret < 0)
         return ret;
 
-    seq->frame = av_frame_alloc();
+    seq->frame = zn_av_frame_alloc();
     if (!seq->frame)
         return AVERROR(ENOMEM);
 
@@ -260,7 +260,7 @@ static av_cold int seqvideo_decode_end(AVCodecContext *avctx)
 {
     SeqVideoContext *seq = avctx->priv_data;
 
-    av_frame_free(&seq->frame);
+    zn_av_frame_free(&seq->frame);
 
     return 0;
 }

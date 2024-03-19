@@ -1003,7 +1003,7 @@ static av_cold int on2avc_decode_close(AVCodecContext *avctx)
     av_tx_uninit(&c->fft256);
     av_tx_uninit(&c->fft512);
 
-    av_freep(&c->fdsp);
+    zn_av_freep(&c->fdsp);
 
     on2avc_free_vlcs(c);
 

@@ -197,7 +197,7 @@ static int nuv_header(AVFormatContext *s)
     avio_rl32(pb); // keyframe distance (?)
 
     if (v_packs) {
-        vst = avformat_new_stream(s, NULL);
+        vst = zn_avformat_new_stream(s, NULL);
         if (!vst)
             return AVERROR(ENOMEM);
         ctx->v_id = vst->index;
@@ -222,7 +222,7 @@ static int nuv_header(AVFormatContext *s)
         ctx->v_id = -1;
 
     if (a_packs) {
-        ast = avformat_new_stream(s, NULL);
+        ast = zn_avformat_new_stream(s, NULL);
         if (!ast)
             return AVERROR(ENOMEM);
         ctx->a_id = ast->index;

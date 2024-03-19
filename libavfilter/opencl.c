@@ -190,7 +190,7 @@ int ff_opencl_filter_load_program(AVFilterContext *avctx,
                     av_log(avctx, AV_LOG_ERROR, "Build log:\n%s\n", log);
             }
 
-            av_free(log);
+            zn_av_free(log);
         }
 
         clReleaseProgram(ctx->program);
@@ -256,7 +256,7 @@ int ff_opencl_filter_load_program_from_file(AVFilterContext *avctx,
     err = ff_opencl_filter_load_program(avctx, &src_const, 1);
 fail:
     fclose(file);
-    av_freep(&src);
+    zn_av_freep(&src);
     return err;
 }
 

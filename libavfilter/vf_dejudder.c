@@ -95,7 +95,7 @@ static av_cold int dejudder_init(AVFilterContext *ctx)
 {
     DejudderContext *s = ctx->priv;
 
-    s->ringbuff = av_calloc(s->cycle + 2, sizeof(*s->ringbuff));
+    s->ringbuff = zn_av_calloc(s->cycle + 2, sizeof(*s->ringbuff));
     if (!s->ringbuff)
         return AVERROR(ENOMEM);
 
@@ -113,7 +113,7 @@ static av_cold void dejudder_uninit(AVFilterContext *ctx)
 {
     DejudderContext *s = ctx->priv;
 
-    av_freep(&(s->ringbuff));
+    zn_av_freep(&(s->ringbuff));
 }
 
 static int filter_frame(AVFilterLink *inlink, AVFrame *frame)

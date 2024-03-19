@@ -193,7 +193,7 @@ static AVDictionary **delimited_dict_parse(char *str, unsigned *cnt)
             cnt2++;
     }
 
-    dict = av_calloc(cnt2, sizeof(*dict));
+    dict = zn_av_calloc(cnt2, sizeof(*dict));
     if (!dict)
         goto fail;
 
@@ -211,7 +211,7 @@ static AVDictionary **delimited_dict_parse(char *str, unsigned *cnt)
             goto fail;
     }
 
-    av_free(str_copy);
+    zn_av_free(str_copy);
     return dict;
 
 fail:
@@ -220,10 +220,10 @@ fail:
             if (dict[i])
                 av_dict_free(&dict[i]);
         }
-        av_free(dict);
+        zn_av_free(dict);
     }
 
-    av_free(str_copy);
+    zn_av_free(str_copy);
     *cnt = 0;
     return NULL;
 }
@@ -279,7 +279,7 @@ exit:
         if (dict[i])
             av_dict_free(&dict[i]);
     }
-    av_free(dict);
+    zn_av_free(dict);
     return err;
 }
 
@@ -301,7 +301,7 @@ static int parse_models(AVFilterContext *ctx)
     }
 
     s->model_cnt = dict_cnt;
-    s->model = av_calloc(s->model_cnt, sizeof(*s->model));
+    s->model = zn_av_calloc(s->model_cnt, sizeof(*s->model));
     if (!s->model)
         return AVERROR(ENOMEM);
 
@@ -411,7 +411,7 @@ exit:
         if (dict[i])
             av_dict_free(&dict[i]);
     }
-    av_free(dict);
+    zn_av_free(dict);
     return err;
 }
 
@@ -595,7 +595,7 @@ clean_up:
             if (s->model[i])
                 vmaf_model_destroy(s->model[i]);
         }
-        av_free(s->model);
+        zn_av_free(s->model);
     }
 
     if (s->vmaf)

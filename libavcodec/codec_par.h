@@ -247,7 +247,7 @@ void avcodec_parameters_free(AVCodecParameters **par);
  *
  * @return >= 0 on success, a negative AVERROR code on failure.
  */
-int avcodec_parameters_copy(AVCodecParameters *dst, const AVCodecParameters *src);
+int zn_avcodec_parameters_copy(AVCodecParameters *dst, const AVCodecParameters *src);
 
 /**
  * This function is the same as av_get_audio_frame_duration(), except it works

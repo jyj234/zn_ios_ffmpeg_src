@@ -44,7 +44,7 @@ static int apc_read_header(AVFormatContext *s)
     avio_rl32(pb); /* _APC */
     avio_rl32(pb); /* 1.20 */
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -59,7 +59,7 @@ static int apc_read_header(AVFormatContext *s)
         return ret;
 
     channels = !!avio_rl32(pb) + 1;
-    av_channel_layout_default(&st->codecpar->ch_layout, channels);
+    zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
 
     st->codecpar->bits_per_coded_sample = 4;
     st->codecpar->bit_rate = (int64_t)st->codecpar->bits_per_coded_sample * channels

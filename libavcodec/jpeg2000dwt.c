@@ -557,17 +557,17 @@ int ff_jpeg2000_dwt_init(DWTContext *s, int border[2][2],
         }
     switch (type) {
     case FF_DWT97:
-        s->f_linebuf = av_malloc_array((maxlen + 12), sizeof(*s->f_linebuf));
+        s->f_linebuf = zn_av_malloc_array((maxlen + 12), sizeof(*s->f_linebuf));
         if (!s->f_linebuf)
             return AVERROR(ENOMEM);
         break;
      case FF_DWT97_INT:
-        s->i_linebuf = av_malloc_array((maxlen + 12), sizeof(*s->i_linebuf));
+        s->i_linebuf = zn_av_malloc_array((maxlen + 12), sizeof(*s->i_linebuf));
         if (!s->i_linebuf)
             return AVERROR(ENOMEM);
         break;
     case FF_DWT53:
-        s->i_linebuf = av_malloc_array((maxlen +  6), sizeof(*s->i_linebuf));
+        s->i_linebuf = zn_av_malloc_array((maxlen +  6), sizeof(*s->i_linebuf));
         if (!s->i_linebuf)
             return AVERROR(ENOMEM);
         break;
@@ -618,6 +618,6 @@ int ff_dwt_decode(DWTContext *s, void *t)
 
 void ff_dwt_destroy(DWTContext *s)
 {
-    av_freep(&s->f_linebuf);
-    av_freep(&s->i_linebuf);
+    zn_av_freep(&s->f_linebuf);
+    zn_av_freep(&s->i_linebuf);
 }

@@ -203,7 +203,7 @@ int av_samples_fill_arrays(uint8_t **audio_data, int *linesize,
 /**
  * Allocate a samples buffer for nb_samples samples, and fill data pointers and
  * linesize accordingly.
- * The allocated samples buffer can be freed by using av_freep(&audio_data[0])
+ * The allocated samples buffer can be freed by using zn_av_freep(&audio_data[0])
  * Allocated data will be initialized to silence.
  *
  * @see enum AVSampleFormat
@@ -218,7 +218,7 @@ int av_samples_fill_arrays(uint8_t **audio_data, int *linesize,
  * @return                 >=0 on success or a negative error code on failure
  * @todo return the size of the allocated buffer in case of success at the next bump
  * @see av_samples_fill_arrays()
- * @see av_samples_alloc_array_and_samples()
+ * @see zn_zn_av_samples_alloc_array_and_samples()
  */
 int av_samples_alloc(uint8_t **audio_data, int *linesize, int nb_channels,
                      int nb_samples, enum AVSampleFormat sample_fmt, int align);
@@ -232,7 +232,7 @@ int av_samples_alloc(uint8_t **audio_data, int *linesize, int nb_channels,
  *
  * @see av_samples_alloc()
  */
-int av_samples_alloc_array_and_samples(uint8_t ***audio_data, int *linesize, int nb_channels,
+int zn_zn_av_samples_alloc_array_and_samples(uint8_t ***audio_data, int *linesize, int nb_channels,
                                        int nb_samples, enum AVSampleFormat sample_fmt, int align);
 
 /**

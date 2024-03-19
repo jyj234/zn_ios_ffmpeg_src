@@ -127,7 +127,7 @@ av_cold int ff_mjpeg_decode_init(AVCodecContext *avctx)
     int ret;
 
     if (!s->picture_ptr) {
-        s->picture = av_frame_alloc();
+        s->picture = zn_av_frame_alloc();
         if (!s->picture)
             return AVERROR(ENOMEM);
         s->picture_ptr = s->picture;
@@ -178,7 +178,7 @@ av_cold int ff_mjpeg_decode_init(AVCodecContext *avctx)
             return AVERROR_INVALIDDATA;
         }
 
-        s->smv_frame = av_frame_alloc();
+        s->smv_frame = zn_av_frame_alloc();
         if (!s->smv_frame)
             return AVERROR(ENOMEM);
     } else if (avctx->extradata_size > 8
@@ -786,10 +786,10 @@ int ff_mjpeg_decode_sof(MJpegDecodeContext *s)
         int bh = (height + s->v_max * 8 - 1) / (s->v_max * 8);
         for (i = 0; i < s->nb_components; i++) {
             int size = bw * bh * s->h_count[i] * s->v_count[i];
-            av_freep(&s->blocks[i]);
-            av_freep(&s->last_nnz[i]);
-            s->blocks[i]       = av_calloc(size, sizeof(**s->blocks));
-            s->last_nnz[i]     = av_calloc(size, sizeof(**s->last_nnz));
+            zn_av_freep(&s->blocks[i]);
+            zn_av_freep(&s->last_nnz[i]);
+            s->blocks[i]       = zn_av_calloc(size, sizeof(**s->blocks));
+            s->last_nnz[i]     = zn_av_calloc(size, sizeof(**s->last_nnz));
             if (!s->blocks[i] || !s->last_nnz[i])
                 return AVERROR(ENOMEM);
             s->block_stride[i] = bw * s->h_count[i];
@@ -2012,7 +2012,7 @@ static int mjpeg_decode_app(MJpegDecodeContext *s)
         type   = get_bits(&s->gb, 8);
         len -= 4;
 
-        av_freep(&s->stereo3d);
+        zn_av_freep(&s->stereo3d);
         s->stereo3d = av_stereo3d_alloc();
         if (!s->stereo3d) {
             goto out;
@@ -2201,7 +2201,7 @@ static int mjpeg_decode_com(MJpegDecodeContext *s)
             s->multiscope = 2;
         }
 
-        av_free(cbuf);
+        zn_av_free(cbuf);
     }
 
     return 0;
@@ -2360,8 +2360,8 @@ static void reset_icc_profile(MJpegDecodeContext *s)
 
     if (s->iccentries) {
         for (i = 0; i < s->iccnum; i++)
-            av_freep(&s->iccentries[i].data);
-        av_freep(&s->iccentries);
+            zn_av_freep(&s->iccentries[i].data);
+        zn_av_freep(&s->iccentries);
     }
 
     s->iccread = 0;
@@ -2388,7 +2388,7 @@ int ff_mjpeg_decode_frame_from_buf(AVCodecContext *avctx, AVFrame *frame,
     s->buf_size = buf_size;
 
     av_dict_free(&s->exif_metadata);
-    av_freep(&s->stereo3d);
+    zn_av_freep(&s->stereo3d);
     s->adobe_transform = -1;
 
     if (s->iccnum != 0)
@@ -2433,7 +2433,7 @@ redo_for_pal8:
         } else if (start_code >= APP0 && start_code <= APP15) {
             if ((ret = mjpeg_decode_app(s)) < 0)
                 av_log(avctx, AV_LOG_ERROR, "unable to decode APP fields: %s\n",
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
             /* Comment */
         } else if (start_code == COM) {
             ret = mjpeg_decode_com(s);
@@ -2554,7 +2554,7 @@ eoi_parser:
                 if (ret < 0)
                     return ret;
 
-                av_freep(&s->hwaccel_picture_private);
+                zn_av_freep(&s->hwaccel_picture_private);
             }
             if ((ret = av_frame_ref(frame, s->picture_ptr)) < 0)
                 return ret;
@@ -2827,7 +2827,7 @@ the_end:
             stereo->type  = s->stereo3d->type;
             stereo->flags = s->stereo3d->flags;
         }
-        av_freep(&s->stereo3d);
+        zn_av_freep(&s->stereo3d);
     }
 
     if (s->iccnum != 0 && s->iccnum == s->iccread) {
@@ -2941,16 +2941,16 @@ av_cold int ff_mjpeg_decode_end(AVCodecContext *avctx)
     }
 
     if (s->picture) {
-        av_frame_free(&s->picture);
+        zn_av_frame_free(&s->picture);
         s->picture_ptr = NULL;
     } else if (s->picture_ptr)
         av_frame_unref(s->picture_ptr);
 
-    av_frame_free(&s->smv_frame);
+    zn_av_frame_free(&s->smv_frame);
 
-    av_freep(&s->buffer);
-    av_freep(&s->stereo3d);
-    av_freep(&s->ljpeg_buffer);
+    zn_av_freep(&s->buffer);
+    zn_av_freep(&s->stereo3d);
+    zn_av_freep(&s->ljpeg_buffer);
     s->ljpeg_buffer_size = 0;
 
     for (i = 0; i < 3; i++) {
@@ -2958,15 +2958,15 @@ av_cold int ff_mjpeg_decode_end(AVCodecContext *avctx)
             ff_vlc_free(&s->vlcs[i][j]);
     }
     for (i = 0; i < MAX_COMPONENTS; i++) {
-        av_freep(&s->blocks[i]);
-        av_freep(&s->last_nnz[i]);
+        zn_av_freep(&s->blocks[i]);
+        zn_av_freep(&s->last_nnz[i]);
     }
     av_dict_free(&s->exif_metadata);
 
     reset_icc_profile(s);
 
-    av_freep(&s->hwaccel_picture_private);
-    av_freep(&s->jls_state);
+    zn_av_freep(&s->hwaccel_picture_private);
+    zn_av_freep(&s->jls_state);
 
     return 0;
 }
@@ -3081,7 +3081,7 @@ static int smvjpeg_receive_frame(AVCodecContext *avctx, AVFrame *frame)
 
     ret = ff_mjpeg_decode_frame(avctx, s->smv_frame, &got_frame, pkt);
     s->smv_frame->pkt_dts = pkt->dts;
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     if (ret < 0)
         return ret;
 

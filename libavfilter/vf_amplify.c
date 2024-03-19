@@ -82,7 +82,7 @@ static av_cold int init(AVFilterContext *ctx)
 
     s->nb_inputs = s->radius * 2 + 1;
 
-    s->frames = av_calloc(s->nb_inputs, sizeof(*s->frames));
+    s->frames = zn_av_calloc(s->nb_inputs, sizeof(*s->frames));
     if (!s->frames)
         return AVERROR(ENOMEM);
 
@@ -194,9 +194,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     if (s->frames) {
         for (i = 0; i < s->nb_frames; i++)
-            av_frame_free(&s->frames[i]);
+            zn_av_frame_free(&s->frames[i]);
     }
-    av_freep(&s->frames);
+    zn_av_freep(&s->frames);
 }
 
 static int filter_frame(AVFilterLink *inlink, AVFrame *in)
@@ -212,7 +212,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         s->nb_frames++;
         return 0;
     } else {
-        av_frame_free(&s->frames[0]);
+        zn_av_frame_free(&s->frames[0]);
         memmove(&s->frames[0], &s->frames[1], sizeof(*s->frames) * (s->nb_inputs - 1));
         s->frames[s->nb_inputs - 1] = in;
     }

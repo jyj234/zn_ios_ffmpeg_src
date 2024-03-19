@@ -96,7 +96,7 @@ static int threedostr_read_header(AVFormatContext *s)
                 return AVERROR_INVALIDDATA;
             avio_skip(s->pb, 24);
 
-            st = avformat_new_stream(s, NULL);
+            st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 return AVERROR(ENOMEM);
 

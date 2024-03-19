@@ -222,7 +222,7 @@ static uint8_t *read_vblock(AVIOContext *src, uint32_t *size,
     if (avio_read(src, buf + 4, n) == n) {
         decode_block(buf + 4, buf + 4, n, key, k2, align);
     } else {
-        av_free(buf);
+        zn_av_free(buf);
         buf = NULL;
     }
 
@@ -268,7 +268,7 @@ static uint8_t *read_sb_block(AVIOContext *src, unsigned *size,
     n -= 8;
 
     if (avio_read(src, buf+8, n) != n) {
-        av_free(buf);
+        zn_av_free(buf);
         return NULL;
     }
 
@@ -321,7 +321,7 @@ static int track_header(VividasDemuxContext *viv, AVFormatContext *s,
     }
 
     for (i = 0; i < num_video; i++) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         int num, den;
 
         if (!st)
@@ -359,7 +359,7 @@ static int track_header(VividasDemuxContext *viv, AVFormatContext *s,
 
     for(i=0;i<viv->num_audio;i++) {
         int q;
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
 
@@ -418,7 +418,7 @@ static int track_header(VividasDemuxContext *viv, AVFormatContext *s,
                 int ret = avio_read(pb, &p[offset], data_len[j]);
                 if (ret < data_len[j]) {
                     st->codecpar->extradata_size = 0;
-                    av_freep(&st->codecpar->extradata);
+                    zn_av_freep(&st->codecpar->extradata);
                     break;
                 }
                 av_assert0(data_len[j] <= xd_size - offset);
@@ -452,7 +452,7 @@ static int track_index(VividasDemuxContext *viv, AVFormatContext *s,
     n_sb_blocks_tmp = ffio_read_varlen(pb);
     if (n_sb_blocks_tmp > size / 2)
         return AVERROR_INVALIDDATA;
-    viv->sb_blocks = av_calloc(n_sb_blocks_tmp, sizeof(*viv->sb_blocks));
+    viv->sb_blocks = zn_av_calloc(n_sb_blocks_tmp, sizeof(*viv->sb_blocks));
     if (!viv->sb_blocks) {
         return AVERROR(ENOMEM);
     }
@@ -484,7 +484,7 @@ static int track_index(VividasDemuxContext *viv, AVFormatContext *s,
     if (filesize > 0 && poff > filesize)
         return AVERROR_INVALIDDATA;
 
-    viv->sb_entries = av_calloc(maxnp, sizeof(VIV_SB_entry));
+    viv->sb_entries = zn_av_calloc(maxnp, sizeof(VIV_SB_entry));
     if (!viv->sb_entries)
         return AVERROR(ENOMEM);
 
@@ -498,19 +498,19 @@ static void load_sb_block(AVFormatContext *s, VividasDemuxContext *viv, unsigned
     AVIOContext *pb = 0;
 
     if (viv->sb_pb) {
-        av_free(viv->sb_pb);
+        zn_av_free(viv->sb_pb);
         viv->sb_pb = NULL;
     }
 
     if (viv->sb_buf)
-        av_free(viv->sb_buf);
+        zn_av_free(viv->sb_buf);
 
     viv->sb_buf = read_sb_block(s->pb, &size, &viv->sb_key, expected_size);
     if (!viv->sb_buf) {
         return;
     }
 
-    pb = avio_alloc_context(viv->sb_buf, size, 0, NULL, NULL, NULL, NULL);
+    pb = zn_avio_alloc_context(viv->sb_buf, size, 0, NULL, NULL, NULL, NULL);
     if (!pb)
         return;
 
@@ -599,7 +599,7 @@ static int viv_read_header(AVFormatContext *s)
         if (!buf)
             return AVERROR(EIO);
 
-        av_free(buf);
+        zn_av_free(buf);
     }
 
     k2 = key;
@@ -607,7 +607,7 @@ static int viv_read_header(AVFormatContext *s)
     if (!buf)
         return AVERROR(EIO);
     ret = track_header(viv, s, buf, v);
-    av_free(buf);
+    zn_av_free(buf);
     if (ret < 0)
         return ret;
 
@@ -615,7 +615,7 @@ static int viv_read_header(AVFormatContext *s)
     if (!buf)
         return AVERROR(EIO);
     ret = track_index(viv, s, buf, v);
-    av_free(buf);
+    zn_av_free(buf);
     if (ret < 0)
         return ret;
 
@@ -746,10 +746,10 @@ static int viv_read_close(AVFormatContext *s)
 {
     VividasDemuxContext *viv = s->priv_data;
 
-    av_freep(&viv->sb_pb);
-    av_freep(&viv->sb_buf);
-    av_freep(&viv->sb_blocks);
-    av_freep(&viv->sb_entries);
+    zn_av_freep(&viv->sb_pb);
+    zn_av_freep(&viv->sb_buf);
+    zn_av_freep(&viv->sb_blocks);
+    zn_av_freep(&viv->sb_entries);
 
     return 0;
 }

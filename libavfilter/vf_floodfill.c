@@ -271,7 +271,7 @@ static int config_input(AVFilterLink *inlink)
     }
 
     s->front = s->back = 0;
-    s->points = av_calloc(inlink->w * inlink->h, 4 * sizeof(Points));
+    s->points = zn_av_calloc(inlink->w * inlink->h, 4 * sizeof(Points));
     if (!s->points)
         return AVERROR(ENOMEM);
 
@@ -316,7 +316,7 @@ static int filter_frame(AVFilterLink *link, AVFrame *frame)
         }
 
         if (ret = ff_inlink_make_frame_writable(link, &frame)) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return ret;
         }
 
@@ -372,7 +372,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     FloodfillContext *s = ctx->priv;
 
-    av_freep(&s->points);
+    zn_av_freep(&s->points);
 }
 
 static const AVFilterPad floodfill_inputs[] = {

@@ -164,7 +164,7 @@ static int swf_read_header(AVFormatContext *s)
         }
         if (!(swf->zbuf_in  = av_malloc(ZBUF_SIZE)) ||
             !(swf->zbuf_out = av_malloc(ZBUF_SIZE)) ||
-            !(swf->zpb = avio_alloc_context(swf->zbuf_out, ZBUF_SIZE, 0,
+            !(swf->zpb = zn_avio_alloc_context(swf->zbuf_out, ZBUF_SIZE, 0,
                                             s, zlib_refill, NULL, NULL))) {
             swf_read_close(s);
             return AVERROR(ENOMEM);
@@ -192,11 +192,11 @@ static int swf_read_header(AVFormatContext *s)
 static AVStream *create_new_audio_stream(AVFormatContext *s, int id, int info)
 {
     int sample_rate_code, sample_size_code;
-    AVStream *ast = avformat_new_stream(s, NULL);
+    AVStream *ast = zn_avformat_new_stream(s, NULL);
     if (!ast)
         return NULL;
     ast->id = id;
-    av_channel_layout_default(&ast->codecpar->ch_layout, 1 + (info & 1));
+    zn_av_channel_layout_default(&ast->codecpar->ch_layout, 1 + (info & 1));
     ast->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
     ast->codecpar->codec_id   = ff_codec_get_id(swf_audio_codec_tags, info>>4 & 15);
     ffstream(ast)->need_parsing = AVSTREAM_PARSE_FULL;
@@ -245,7 +245,7 @@ static int swf_read_packet(AVFormatContext *s, AVPacket *pkt)
             avio_rl16(pb);
             avio_r8(pb);
             /* Check for FLV1 */
-            vst = avformat_new_stream(s, NULL);
+            vst = zn_avformat_new_stream(s, NULL);
             if (!vst)
                 return AVERROR(ENOMEM);
             vst->id = ch_id;
@@ -401,7 +401,7 @@ static int swf_read_packet(AVFormatContext *s, AVPacket *pkt)
                     break;
             }
             if (i == s->nb_streams) {
-                vst = avformat_new_stream(s, NULL);
+                vst = zn_avformat_new_stream(s, NULL);
                 if (!vst) {
                     res = AVERROR(ENOMEM);
                     goto bitmap_end;
@@ -461,12 +461,12 @@ static int swf_read_packet(AVFormatContext *s, AVPacket *pkt)
             res = pkt->size;
 
 bitmap_end:
-            av_freep(&zbuf);
-            av_freep(&buf);
+            zn_av_freep(&zbuf);
+            zn_av_freep(&buf);
             return res;
 bitmap_end_skip:
-            av_freep(&zbuf);
-            av_freep(&buf);
+            zn_av_freep(&zbuf);
+            zn_av_freep(&buf);
 #else
             av_log(s, AV_LOG_ERROR, "this file requires zlib support compiled in\n");
 #endif
@@ -499,7 +499,7 @@ bitmap_end_skip:
                     break;
             }
             if (i == s->nb_streams) {
-                vst = avformat_new_stream(s, NULL);
+                vst = zn_avformat_new_stream(s, NULL);
                 if (!vst)
                     return AVERROR(ENOMEM);
                 vst->id = -2; /* -2 to avoid clash with video stream and audio stream */
@@ -555,9 +555,9 @@ static av_cold int swf_read_close(AVFormatContext *avctx)
 {
     SWFDecContext *s = avctx->priv_data;
     inflateEnd(&s->zstream);
-    av_freep(&s->zbuf_in);
-    av_freep(&s->zbuf_out);
-    avio_context_free(&s->zpb);
+    zn_av_freep(&s->zbuf_in);
+    zn_av_freep(&s->zbuf_out);
+    zn_avio_context_free(&s->zpb);
     return 0;
 }
 #endif

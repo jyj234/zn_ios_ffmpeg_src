@@ -75,7 +75,7 @@ static int siff_probe(const AVProbeData *p)
 static int create_audio_stream(AVFormatContext *s, SIFFContext *c)
 {
     AVStream *ast;
-    ast = avformat_new_stream(s, NULL);
+    ast = zn_avformat_new_stream(s, NULL);
     if (!ast)
         return AVERROR(ENOMEM);
     ast->codecpar->codec_type            = AVMEDIA_TYPE_AUDIO;
@@ -119,7 +119,7 @@ static int siff_parse_vbv1(AVFormatContext *s, SIFFContext *c, AVIOContext *pb)
 
     avio_skip(pb, 16); // zeroes
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;

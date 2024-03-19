@@ -122,7 +122,7 @@ static av_cold int init(AVFilterContext *ctx, enum FFMAVMediaType type)
     count_points(split_str, &s->nb_points);
     s->nb_points++;
 
-    s->points = av_calloc(s->nb_points, sizeof(*s->points));
+    s->points = zn_av_calloc(s->nb_points, sizeof(*s->points));
     if (!s->points)
         return AVERROR(ENOMEM);
 
@@ -233,7 +233,7 @@ static int activate(AVFilterContext *ctx)
         }
 
         if (s->current_point >= s->nb_points) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(EINVAL);
         }
 
@@ -259,7 +259,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     SegmentContext *s = ctx->priv;
 
-    av_freep(&s->points);
+    zn_av_freep(&s->points);
 }
 
 #define OFFSET(x) offsetof(SegmentContext, x)

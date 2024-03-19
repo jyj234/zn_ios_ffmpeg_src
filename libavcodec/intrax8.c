@@ -732,7 +732,7 @@ av_cold int ff_intrax8_common_init(AVCodecContext *avctx,
 
 av_cold void ff_intrax8_common_end(IntraX8Context *w)
 {
-    av_freep(&w->prediction_table);
+    zn_av_freep(&w->prediction_table);
 }
 
 int ff_intrax8_decode_picture(IntraX8Context *w, Picture *pict,

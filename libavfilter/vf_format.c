@@ -51,7 +51,7 @@ typedef struct FormatContext {
 static av_cold void uninit(AVFilterContext *ctx)
 {
     FormatContext *s = ctx->priv;
-    av_freep(&s->formats);
+    zn_av_freep(&s->formats);
 }
 
 static av_cold int init(AVFilterContext *ctx)
@@ -75,7 +75,7 @@ static av_cold int init(AVFilterContext *ctx)
             cur++;
     }
 
-    s->formats = av_malloc_array(nb_formats + 1, sizeof(*s->formats));
+    s->formats = zn_av_malloc_array(nb_formats + 1, sizeof(*s->formats));
     if (!s->formats)
         return AVERROR(ENOMEM);
 
@@ -102,7 +102,7 @@ static av_cold int init(AVFilterContext *ctx)
         while ((desc = av_pix_fmt_desc_next(desc)))
             nb_formats_lavu++;
 
-        formats_allowed = av_malloc_array(nb_formats_lavu + 1, sizeof(*formats_allowed));
+        formats_allowed = zn_av_malloc_array(nb_formats_lavu + 1, sizeof(*formats_allowed));
         if (!formats_allowed)
             return AVERROR(ENOMEM);
 
@@ -121,7 +121,7 @@ static av_cold int init(AVFilterContext *ctx)
             formats_allowed[nb_formats_allowed++] = pix_fmt;
         }
         formats_allowed[nb_formats_allowed] = AV_PIX_FMT_NONE;
-        av_freep(&s->formats);
+        zn_av_freep(&s->formats);
         s->formats = formats_allowed;
     }
 

@@ -133,28 +133,28 @@ static int config_input(AVFilterLink *inlink)
 
         s->fft_len[i] = 1 << (av_log2(2 * n - 1));
 
-        if (!(s->fft_hdata_in[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_hdata_in[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
 
-        if (!(s->fft_hdata_out[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_hdata_out[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
 
-        if (!(s->fft_vdata_in[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_vdata_in[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
 
-        if (!(s->fft_vdata_out[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_vdata_out[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
 
-        if (!(s->fft_hdata_impulse_in[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_hdata_impulse_in[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
 
-        if (!(s->fft_vdata_impulse_in[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_vdata_impulse_in[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
 
-        if (!(s->fft_hdata_impulse_out[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_hdata_impulse_out[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
 
-        if (!(s->fft_vdata_impulse_out[i] = av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
+        if (!(s->fft_vdata_impulse_out[i] = zn_av_calloc(s->fft_len[i], s->fft_len[i] * sizeof(AVComplexFloat))))
             return AVERROR(ENOMEM);
     }
 
@@ -827,14 +827,14 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i, j;
 
     for (i = 0; i < 4; i++) {
-        av_freep(&s->fft_hdata_in[i]);
-        av_freep(&s->fft_vdata_in[i]);
-        av_freep(&s->fft_hdata_out[i]);
-        av_freep(&s->fft_vdata_out[i]);
-        av_freep(&s->fft_hdata_impulse_in[i]);
-        av_freep(&s->fft_vdata_impulse_in[i]);
-        av_freep(&s->fft_hdata_impulse_out[i]);
-        av_freep(&s->fft_vdata_impulse_out[i]);
+        zn_av_freep(&s->fft_hdata_in[i]);
+        zn_av_freep(&s->fft_vdata_in[i]);
+        zn_av_freep(&s->fft_hdata_out[i]);
+        zn_av_freep(&s->fft_vdata_out[i]);
+        zn_av_freep(&s->fft_hdata_impulse_in[i]);
+        zn_av_freep(&s->fft_vdata_impulse_in[i]);
+        zn_av_freep(&s->fft_hdata_impulse_out[i]);
+        zn_av_freep(&s->fft_vdata_impulse_out[i]);
 
         for (j = 0; j < MAX_THREADS; j++) {
             av_tx_uninit(&s->fft[i][j]);

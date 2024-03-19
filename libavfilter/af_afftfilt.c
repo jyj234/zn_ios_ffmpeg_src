@@ -110,8 +110,8 @@ static int config_input(AVFilterLink *inlink)
     int buf_size;
 
     s->channels = inlink->ch_layout.nb_channels;
-    s->fft  = av_calloc(s->channels, sizeof(*s->fft));
-    s->ifft = av_calloc(s->channels, sizeof(*s->ifft));
+    s->fft  = zn_av_calloc(s->channels, sizeof(*s->fft));
+    s->ifft = zn_av_calloc(s->channels, sizeof(*s->ifft));
     if (!s->fft || !s->ifft)
         return AVERROR(ENOMEM);
 
@@ -130,37 +130,37 @@ static int config_input(AVFilterLink *inlink)
     s->window_size = s->fft_size;
     buf_size = FFALIGN(s->window_size, av_cpu_max_align());
 
-    s->fft_in = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft_in));
+    s->fft_in = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft_in));
     if (!s->fft_in)
         return AVERROR(ENOMEM);
 
-    s->fft_out = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft_out));
+    s->fft_out = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft_out));
     if (!s->fft_out)
         return AVERROR(ENOMEM);
 
-    s->fft_temp = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft_temp));
+    s->fft_temp = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->fft_temp));
     if (!s->fft_temp)
         return AVERROR(ENOMEM);
 
     for (ch = 0; ch < inlink->ch_layout.nb_channels; ch++) {
-        s->fft_in[ch] = av_calloc(buf_size, sizeof(**s->fft_in));
+        s->fft_in[ch] = zn_av_calloc(buf_size, sizeof(**s->fft_in));
         if (!s->fft_in[ch])
             return AVERROR(ENOMEM);
 
-        s->fft_out[ch] = av_calloc(buf_size, sizeof(**s->fft_out));
+        s->fft_out[ch] = zn_av_calloc(buf_size, sizeof(**s->fft_out));
         if (!s->fft_out[ch])
             return AVERROR(ENOMEM);
 
-        s->fft_temp[ch] = av_calloc(buf_size, sizeof(**s->fft_temp));
+        s->fft_temp[ch] = zn_av_calloc(buf_size, sizeof(**s->fft_temp));
         if (!s->fft_temp[ch])
             return AVERROR(ENOMEM);
     }
 
-    s->real = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->real));
+    s->real = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->real));
     if (!s->real)
         return AVERROR(ENOMEM);
 
-    s->imag = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->imag));
+    s->imag = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->imag));
     if (!s->imag)
         return AVERROR(ENOMEM);
 
@@ -180,7 +180,7 @@ static int config_input(AVFilterLink *inlink)
         s->nb_exprs++;
     }
 
-    av_freep(&args);
+    zn_av_freep(&args);
 
     args = av_strdup(s->img_str ? s->img_str : s->real_str);
     if (!args)
@@ -199,7 +199,7 @@ static int config_input(AVFilterLink *inlink)
             last_expr = arg;
     }
 
-    av_freep(&args);
+    zn_av_freep(&args);
 
     s->window_func_lut = av_realloc_f(s->window_func_lut, s->window_size,
                                       sizeof(*s->window_func_lut));
@@ -224,7 +224,7 @@ static int config_input(AVFilterLink *inlink)
         return AVERROR(ENOMEM);
 
 fail:
-    av_freep(&args);
+    zn_av_freep(&args);
 
     return ret;
 }
@@ -360,7 +360,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         goto fail;
 
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ret < 0 ? ret : 0;
 }
 
@@ -406,29 +406,29 @@ static av_cold void uninit(AVFilterContext *ctx)
         if (s->fft)
             av_tx_uninit(&s->fft[i]);
         if (s->fft_in)
-            av_freep(&s->fft_in[i]);
+            zn_av_freep(&s->fft_in[i]);
         if (s->fft_out)
-            av_freep(&s->fft_out[i]);
+            zn_av_freep(&s->fft_out[i]);
         if (s->fft_temp)
-            av_freep(&s->fft_temp[i]);
+            zn_av_freep(&s->fft_temp[i]);
     }
 
-    av_freep(&s->fft);
-    av_freep(&s->ifft);
-    av_freep(&s->fft_in);
-    av_freep(&s->fft_out);
-    av_freep(&s->fft_temp);
+    zn_av_freep(&s->fft);
+    zn_av_freep(&s->ifft);
+    zn_av_freep(&s->fft_in);
+    zn_av_freep(&s->fft_out);
+    zn_av_freep(&s->fft_temp);
 
     for (i = 0; i < s->nb_exprs; i++) {
         av_expr_free(s->real[i]);
         av_expr_free(s->imag[i]);
     }
 
-    av_freep(&s->real);
-    av_freep(&s->imag);
-    av_frame_free(&s->buffer);
-    av_frame_free(&s->window);
-    av_freep(&s->window_func_lut);
+    zn_av_freep(&s->real);
+    zn_av_freep(&s->imag);
+    zn_av_frame_free(&s->buffer);
+    zn_av_frame_free(&s->window);
+    zn_av_freep(&s->window_func_lut);
 }
 
 static const AVFilterPad inputs[] = {

@@ -114,7 +114,7 @@ static int noise_init(AVBSFContext *ctx)
         }
     }
 
-    s->var_values[VAR_TB]       = ctx->time_base_out.den ? av_q2d(ctx->time_base_out) : 0;
+    s->var_values[VAR_TB]       = ctx->time_base_out.den ? zn_av_q2d(ctx->time_base_out) : 0;
     s->var_values[VAR_NOPTS]    = AV_NOPTS_VALUE;
     s->var_values[VAR_STARTPTS] = AV_NOPTS_VALUE;
     s->var_values[VAR_STARTDTS] = AV_NOPTS_VALUE;
@@ -177,14 +177,14 @@ static int noise(AVBSFContext *ctx, AVPacket *pkt)
 
     if (drop) {
         s->var_values[VAR_STATE] = ++s->state;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR(EAGAIN);
     }
 
     if (amount) {
         ret = av_packet_make_writable(pkt);
         if (ret < 0) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             return ret;
         }
     }

@@ -68,7 +68,7 @@ static av_cold int msrle_decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
@@ -158,7 +158,7 @@ static av_cold int msrle_decode_end(AVCodecContext *avctx)
     MsrleContext *s = avctx->priv_data;
 
     /* release the last frame */
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 
     return 0;
 }

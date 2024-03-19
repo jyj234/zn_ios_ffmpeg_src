@@ -535,8 +535,8 @@ void ff_celt_free(CeltFrame **f)
 
     ff_celt_pvq_uninit(&frm->pvq);
 
-    av_freep(&frm->dsp);
-    av_freep(f);
+    zn_av_freep(&frm->dsp);
+    zn_av_freep(f);
 }
 
 int ff_celt_init(AVCodecContext *avctx, CeltFrame **f, int output_channels,

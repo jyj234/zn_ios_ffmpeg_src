@@ -420,7 +420,7 @@ static void set_codec_str(AVFormatContext *s, AVCodecParameters *par,
         if (extradata_size >= 4)
             av_strlcatf(str, size, ".%02x%02x%02x",
                         extradata[1], extradata[2], extradata[3]);
-        av_free(tmpbuf);
+        zn_av_free(tmpbuf);
     } else if (!strcmp(str, "av01")) {
         AV1SequenceParameters seq;
         if (!par->extradata_size)
@@ -458,7 +458,7 @@ static int flush_dynbuf(DASHContext *c, OutputStream *os, int *range_length)
         if (os->out)
             avio_write(os->out, buffer + os->written_len, *range_length - os->written_len);
         os->written_len = 0;
-        av_free(buffer);
+        zn_av_free(buffer);
 
         // re-open buffer
         return avio_open_dyn_buf(&os->ctx->pb);
@@ -604,9 +604,9 @@ static void dash_free(AVFormatContext *s)
     if (c->as) {
         for (i = 0; i < c->nb_as; i++) {
             av_dict_free(&c->as[i].metadata);
-            av_freep(&c->as[i].descriptor);
+            zn_av_freep(&c->as[i].descriptor);
         }
-        av_freep(&c->as);
+        zn_av_freep(&c->as);
         c->nb_as = 0;
     }
 
@@ -621,17 +621,17 @@ static void dash_free(AVFormatContext *s)
                 avio_close(os->ctx->pb);
         }
         ff_format_io_close(s, &os->out);
-        avformat_free_context(os->ctx);
+        zn_avformat_free_context(os->ctx);
         avcodec_free_context(&os->parser_avctx);
         av_parser_close(os->parser);
         for (j = 0; j < os->nb_segments; j++)
-            av_free(os->segments[j]);
-        av_free(os->segments);
-        av_freep(&os->single_file_name);
-        av_freep(&os->init_seg_name);
-        av_freep(&os->media_seg_name);
+            zn_av_free(os->segments[j]);
+        zn_av_free(os->segments);
+        zn_av_freep(&os->single_file_name);
+        zn_av_freep(&os->init_seg_name);
+        zn_av_freep(&os->media_seg_name);
     }
-    av_freep(&c->streams);
+    zn_av_freep(&c->streams);
 
     ff_format_io_close(s, &c->mpd_out);
     ff_format_io_close(s, &c->m3u8_out);
@@ -725,7 +725,7 @@ static char *xmlescape(const char *str) {
             outlen = 2 * outlen + 6;
             tmp = av_realloc(out, outlen + 1);
             if (!tmp) {
-                av_free(out);
+                zn_av_free(out);
                 return NULL;
             }
             out = tmp;
@@ -848,7 +848,7 @@ static int write_adaptation_set(AVFormatContext *s, AVIOContext *out, int as_ind
             if (as->trick_idx >= 0) {
                 AdaptationSet *tas = &c->as[as->trick_idx];
                 if (!as->ambiguous_frame_rate && !tas->ambiguous_frame_rate)
-                    avio_printf(out, " maxPlayoutRate=\"%d\"", FFMAX((int)av_q2d(av_div_q(tas->min_frame_rate, as->min_frame_rate)), 1));
+                    avio_printf(out, " maxPlayoutRate=\"%d\"", FFMAX((int)zn_av_q2d(av_div_q(tas->min_frame_rate, as->min_frame_rate)), 1));
             }
             if (!os->coding_dependency)
                 avio_printf(out, " codingDependency=\"false\"");
@@ -1197,7 +1197,7 @@ static int write_manifest(AVFormatContext *s, int final)
     if (title) {
         char *escaped = xmlescape(title->value);
         avio_printf(out, "\t\t<Title>%s</Title>\n", escaped);
-        av_free(escaped);
+        zn_av_free(escaped);
     }
     avio_printf(out, "\t</ProgramInformation>\n");
 
@@ -1211,7 +1211,7 @@ static int write_manifest(AVFormatContext *s, int final)
     if (av_cmp_q(c->min_playback_rate, (AVRational) {1, 1}) ||
         av_cmp_q(c->max_playback_rate, (AVRational) {1, 1}))
         avio_printf(out, "\t\t<PlaybackRate min=\"%.2f\" max=\"%.2f\"/>\n",
-                    av_q2d(c->min_playback_rate), av_q2d(c->max_playback_rate));
+                    zn_av_q2d(c->min_playback_rate), zn_av_q2d(c->max_playback_rate));
     avio_printf(out, "\t</ServiceDescription>\n");
 
     if (c->window_size && s->nb_streams > 0 && c->streams[0].nb_segments > 0 && !c->use_template) {
@@ -1534,11 +1534,11 @@ static int dash_init(AVFormatContext *s)
             }
         }
 
-        os->ctx = ctx = avformat_alloc_context();
+        os->ctx = ctx = zn_avformat_alloc_context();
         if (!ctx)
             return AVERROR(ENOMEM);
 
-        ctx->oformat = av_guess_format(os->format_name, NULL, NULL);
+        ctx->oformat = zn_av_guess_format(os->format_name, NULL, NULL);
         if (!ctx->oformat)
             return AVERROR_MUXER_NOT_FOUND;
         ctx->interrupt_callback    = s->interrupt_callback;
@@ -1552,9 +1552,9 @@ FF_ENABLE_DEPRECATION_WARNINGS
         ctx->io_open               = s->io_open;
         ctx->strict_std_compliance = s->strict_std_compliance;
 
-        if (!(st = avformat_new_stream(ctx, NULL)))
+        if (!(st = zn_avformat_new_stream(ctx, NULL)))
             return AVERROR(ENOMEM);
-        avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
+        zn_avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
         st->sample_aspect_ratio = s->streams[i]->sample_aspect_ratio;
         st->time_base = s->streams[i]->time_base;
         st->avg_frame_rate = s->streams[i]->avg_frame_rate;
@@ -1563,10 +1563,10 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
         os->parser = av_parser_init(st->codecpar->codec_id);
         if (os->parser) {
-            os->parser_avctx = avcodec_alloc_context3(NULL);
+            os->parser_avctx = zn_avcodec_alloc_context3(NULL);
             if (!os->parser_avctx)
                 return AVERROR(ENOMEM);
-            ret = avcodec_parameters_to_context(os->parser_avctx, st->codecpar);
+            ret = zn_avcodec_parameters_to_context(os->parser_avctx, st->codecpar);
             if (ret < 0)
                 return ret;
             // We only want to parse frame headers
@@ -1736,7 +1736,7 @@ static int dash_write_header(AVFormatContext *s)
     int i, ret;
     for (i = 0; i < s->nb_streams; i++) {
         OutputStream *os = &c->streams[i];
-        if ((ret = avformat_write_header(os->ctx, NULL)) < 0)
+        if ((ret = zn_avformat_write_header(os->ctx, NULL)) < 0)
             return ret;
 
         // Flush init segment
@@ -1901,7 +1901,7 @@ static inline void dashenc_delete_media_segments(AVFormatContext *s, OutputStrea
         dashenc_delete_segment_file(s, os->segments[i]->file);
 
         // Delete the segment regardless of whether the file was successfully deleted
-        av_free(os->segments[i]);
+        zn_av_free(os->segments[i]);
     }
 
     os->nb_segments -= remove_count;
@@ -2008,7 +2008,7 @@ static int dash_flush(AVFormatContext *s, int final, int stream)
             OutputStream *os = &c->streams[i];
             if (os->ctx && os->ctx_inited) {
                 int64_t file_size = avio_tell(os->ctx->pb);
-                av_write_trailer(os->ctx);
+                zn_av_write_trailer(os->ctx);
                 if (c->global_sidx) {
                     int j, start_index, start_number;
                     int64_t sidx_size = avio_tell(os->ctx->pb) - file_size;

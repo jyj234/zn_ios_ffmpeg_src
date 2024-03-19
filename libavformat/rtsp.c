@@ -242,7 +242,7 @@ static void finalize_rtp_handler_init(AVFormatContext *s, RTSPStream *rtsp_st,
                 if (rtsp_st->dynamic_handler->close)
                     rtsp_st->dynamic_handler->close(
                         rtsp_st->dynamic_protocol_context);
-                av_free(rtsp_st->dynamic_protocol_context);
+                zn_av_free(rtsp_st->dynamic_protocol_context);
             }
             rtsp_st->dynamic_protocol_context = NULL;
             rtsp_st->dynamic_handler = NULL;
@@ -265,7 +265,7 @@ static int init_satip_stream(AVFormatContext *s)
                rt->control_uri, sizeof(rtsp_st->control_url));
 
     if (rt->rtsp_flags & RTSP_FLAG_SATIP_RAW) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         st->id = rt->nb_rtsp_streams - 1;
@@ -334,7 +334,7 @@ static int sdp_parse_rtpmap(AVFormatContext *s,
             get_word_sep(buf, sizeof(buf), "/", &p);
             i = atoi(buf);
             if (i > 0)
-                av_channel_layout_default(&par->ch_layout, i);
+                zn_av_channel_layout_default(&par->ch_layout, i);
         }
         av_log(s, AV_LOG_DEBUG, "audio samplerate set to: %i\n",
                par->sample_rate);
@@ -541,7 +541,7 @@ static void sdp_parse_line(AVFormatContext *s, SDPParseState *s1,
             /* RTX stream, a stream that carries all the other actual
              * audio/video streams. Don't expose this to the callers. */
         } else {
-            st = avformat_new_stream(s, NULL);
+            st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 return;
             st->id = rt->nb_rtsp_streams - 1;
@@ -745,11 +745,11 @@ int ff_sdp_parse(AVFormatContext *s, const char *content)
     }
 
     for (i = 0; i < s1->nb_default_include_source_addrs; i++)
-        av_freep(&s1->default_include_source_addrs[i]);
-    av_freep(&s1->default_include_source_addrs);
+        zn_av_freep(&s1->default_include_source_addrs[i]);
+    zn_av_freep(&s1->default_include_source_addrs);
     for (i = 0; i < s1->nb_default_exclude_source_addrs; i++)
-        av_freep(&s1->default_exclude_source_addrs[i]);
-    av_freep(&s1->default_exclude_source_addrs);
+        zn_av_freep(&s1->default_exclude_source_addrs[i]);
+    zn_av_freep(&s1->default_exclude_source_addrs);
 
     return 0;
 }
@@ -767,15 +767,15 @@ void ff_rtsp_undo_setup(AVFormatContext *s, int send_packets)
         if (rtsp_st->transport_priv) {
             if (s->oformat) {
                 AVFormatContext *rtpctx = rtsp_st->transport_priv;
-                av_write_trailer(rtpctx);
+                zn_av_write_trailer(rtpctx);
                 if (rt->lower_transport == RTSP_LOWER_TRANSPORT_TCP) {
                     if (CONFIG_RTSP_MUXER && rtpctx->pb && send_packets)
                         ff_rtsp_tcp_write_packet(s, rtsp_st);
                     ffio_free_dyn_buf(&rtpctx->pb);
                 } else {
-                    avio_closep(&rtpctx->pb);
+                    zn_avio_closep(&rtpctx->pb);
                 }
-                avformat_free_context(rtpctx);
+                zn_avformat_free_context(rtpctx);
             } else if (CONFIG_RTPDEC && rt->transport == RTSP_TRANSPORT_RDT)
                 ff_rdt_parse_close(rtsp_st->transport_priv);
             else if (CONFIG_RTPDEC && rt->transport == RTSP_TRANSPORT_RTP)
@@ -801,26 +801,26 @@ void ff_rtsp_close_streams(AVFormatContext *s)
                 if (rtsp_st->dynamic_handler->close)
                     rtsp_st->dynamic_handler->close(
                         rtsp_st->dynamic_protocol_context);
-                av_free(rtsp_st->dynamic_protocol_context);
+                zn_av_free(rtsp_st->dynamic_protocol_context);
             }
             for (j = 0; j < rtsp_st->nb_include_source_addrs; j++)
-                av_freep(&rtsp_st->include_source_addrs[j]);
-            av_freep(&rtsp_st->include_source_addrs);
+                zn_av_freep(&rtsp_st->include_source_addrs[j]);
+            zn_av_freep(&rtsp_st->include_source_addrs);
             for (j = 0; j < rtsp_st->nb_exclude_source_addrs; j++)
-                av_freep(&rtsp_st->exclude_source_addrs[j]);
-            av_freep(&rtsp_st->exclude_source_addrs);
+                zn_av_freep(&rtsp_st->exclude_source_addrs[j]);
+            zn_av_freep(&rtsp_st->exclude_source_addrs);
 
-            av_freep(&rtsp_st);
+            zn_av_freep(&rtsp_st);
         }
     }
-    av_freep(&rt->rtsp_streams);
+    zn_av_freep(&rt->rtsp_streams);
     if (rt->asf_ctx) {
-        avformat_close_input(&rt->asf_ctx);
+        zn_avformat_close_input(&rt->asf_ctx);
     }
     if (CONFIG_RTPDEC && rt->ts)
         avpriv_mpegts_parse_close(rt->ts);
-    av_freep(&rt->p);
-    av_freep(&rt->recvbuf);
+    zn_av_freep(&rt->p);
+    zn_av_freep(&rt->recvbuf);
 }
 
 int ff_rtsp_open_transport_ctx(AVFormatContext *s, RTSPStream *rtsp_st)
@@ -1259,7 +1259,7 @@ start:
         if (!content)
             return AVERROR(ENOMEM);
         if ((ret = ffurl_read_complete(rt->rtsp_hd, content, content_length)) != content_length) {
-            av_freep(&content);
+            zn_av_freep(&content);
             return ret < 0 ? ret : AVERROR(EIO);
         }
         content[content_length] = '\0';
@@ -1267,7 +1267,7 @@ start:
     if (content_ptr)
         *content_ptr = content;
     else
-        av_freep(&content);
+        zn_av_freep(&content);
 
     if (request) {
         char buf[MAX_URL_SIZE];
@@ -1298,7 +1298,7 @@ start:
          * that the caller wants or expects. The memory could also be leaked
          * if the actual following reply has content data. */
         if (content_ptr)
-            av_freep(content_ptr);
+            zn_av_freep(content_ptr);
         /* If method is set, this is called from ff_rtsp_send_cmd,
          * where a reply to exactly this request is awaited. For
          * callers from within packet receiving, we just want to
@@ -1370,7 +1370,7 @@ static int rtsp_send_cmd_with_content_async(AVFormatContext *s,
                                                  rt->auth, url, method);
         if (str)
             av_strlcat(buf, str, sizeof(buf));
-        av_free(str);
+        zn_av_free(str);
     }
     if (send_content_length > 0 && send_content)
         av_strlcatf(buf, sizeof(buf), "Content-Length: %d\r\n", send_content_length);
@@ -2050,7 +2050,7 @@ static int udp_read_packet(AVFormatContext *s, RTSPStream **prtsp_st,
     int64_t runs = rt->stimeout / POLLING_TIME / 1000;
 
     if (!p) {
-        p = rt->p = av_malloc_array(2 * rt->nb_rtsp_streams + 1, sizeof(*p));
+        p = rt->p = zn_av_malloc_array(2 * rt->nb_rtsp_streams + 1, sizeof(*p));
         if (!p)
             return AVERROR(ENOMEM);
 
@@ -2075,7 +2075,7 @@ static int udp_read_packet(AVFormatContext *s, RTSPStream **prtsp_st,
                     p[rt->max_p].fd       = fds[fdsidx];
                     p[rt->max_p++].events = POLLIN;
                 }
-                av_freep(&fds);
+                zn_av_freep(&fds);
             }
         }
     }

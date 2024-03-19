@@ -66,7 +66,7 @@ int ff_format_shift_data(AVFormatContext *s, int64_t read_start, int shift_size)
     int read_size[2];
     AVIOContext *read_pb;
 
-    buf = av_malloc_array(shift_size, 2);
+    buf = zn_av_malloc_array(shift_size, 2);
     if (!buf)
         return AVERROR(ENOMEM);
     read_buf[0] = buf;
@@ -109,7 +109,7 @@ int ff_format_shift_data(AVFormatContext *s, int64_t read_start, int shift_size)
     ret = ff_format_io_close(s, &read_pb);
 
 end:
-    av_free(buf);
+    zn_av_free(buf);
     return ret;
 }
 

@@ -167,8 +167,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ret = ff_filter_frame(outlink, out);
     out = NULL;
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

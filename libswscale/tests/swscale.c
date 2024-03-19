@@ -106,7 +106,7 @@ static int doTest(const uint8_t * const ref[4], int refStride[4], int w, int h,
         int p;
 
         for (p = 0; p < 4; p++)
-            av_freep(&src[p]);
+            zn_av_freep(&src[p]);
 
         res = av_image_fill_linesizes(srcStride, srcFormat, srcW);
         if (res < 0) {
@@ -150,7 +150,7 @@ static int doTest(const uint8_t * const ref[4], int refStride[4], int w, int h,
     for (i = 0; i < 4; i++) {
         /* Image buffers passed into libswscale can be allocated any way you
          * prefer, as long as they're aligned enough for the architecture, and
-         * they're freed appropriately (such as using av_free for buffers
+         * they're freed appropriately (such as using zn_av_free for buffers
          * allocated with av_malloc). */
         /* An extra 16 bytes is being allocated because some scalers may write
          * out of bounds. */
@@ -235,7 +235,7 @@ static int doTest(const uint8_t * const ref[4], int refStride[4], int w, int h,
 
         for (i = 0; i < 4; i++)
             if (refStride[i])
-                av_free(out[i]);
+                zn_av_free(out[i]);
     }
 
     printf(" CRC=%08x SSD=%5"PRId64 ",%5"PRId64 ",%5"PRId64 ",%5"PRId64 "\n",
@@ -246,7 +246,7 @@ end:
 
     for (i = 0; i < 4; i++)
         if (dstStride[i])
-            av_free(dst[i]);
+            zn_av_free(dst[i]);
 
     return !!res;
 }
@@ -428,7 +428,7 @@ bad_option:
         goto error;
     }
     sws_freeContext(sws);
-    av_free(rgb_data);
+    zn_av_free(rgb_data);
 
     if(fp) {
         res = fileTest(src, stride, W, H, fp, srcFormat, dstFormat);
@@ -438,7 +438,7 @@ bad_option:
         res = 0;
     }
 error:
-    av_free(data);
+    zn_av_free(data);
 
     return res;
 }

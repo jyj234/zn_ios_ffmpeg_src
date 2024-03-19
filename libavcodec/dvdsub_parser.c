@@ -51,7 +51,7 @@ static int dvdsub_parse(AVCodecParserContext *s,
         pc->packet_len = AV_RB16(buf);
         if (pc->packet_len == 0) /* HD-DVD subpicture packet */
             pc->packet_len = AV_RB32(buf+2);
-        av_freep(&pc->packet);
+        zn_av_freep(&pc->packet);
         if ((unsigned)pc->packet_len > INT_MAX - AV_INPUT_BUFFER_PADDING_SIZE) {
             av_log(avctx, AV_LOG_ERROR, "packet length %d is invalid\n", pc->packet_len);
             return buf_size;
@@ -81,7 +81,7 @@ static int dvdsub_parse(AVCodecParserContext *s,
 static av_cold void dvdsub_parse_close(AVCodecParserContext *s)
 {
     DVDSubParseContext *pc = s->priv_data;
-    av_freep(&pc->packet);
+    zn_av_freep(&pc->packet);
 }
 
 const AVCodecParser ff_dvdsub_parser = {

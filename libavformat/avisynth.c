@@ -832,7 +832,7 @@ static int avisynth_create_stream(AVFormatContext *s)
     int id = 0;
 
     if (avs_has_video(avs->vi)) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR_UNKNOWN;
         st->id = id++;
@@ -840,7 +840,7 @@ static int avisynth_create_stream(AVFormatContext *s)
             return ret;
     }
     if (avs_has_audio(avs->vi)) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR_UNKNOWN;
         st->id = id++;
@@ -881,7 +881,7 @@ static int avisynth_open_file(AVFormatContext *s)
 #endif
         val = avs_library.avs_invoke(avs->env, "Import", arg, 0);
 #ifdef _WIN32
-        av_free(filename_ansi);
+        zn_av_free(filename_ansi);
 #endif
     }
 
@@ -981,7 +981,7 @@ static int avisynth_read_packet_video(AVFormatContext *s, AVPacket *pkt,
     if (error) {
         av_log(s, AV_LOG_ERROR, "%s\n", error);
         avs->error = 1;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR_UNKNOWN;
     }
 
@@ -1072,7 +1072,7 @@ static int avisynth_read_packet_audio(AVFormatContext *s, AVPacket *pkt,
     if (error) {
         av_log(s, AV_LOG_ERROR, "%s\n", error);
         avs->error = 1;
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR_UNKNOWN;
     }
     return 0;

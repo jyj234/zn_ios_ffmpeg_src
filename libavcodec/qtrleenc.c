@@ -68,10 +68,10 @@ static av_cold int qtrle_encode_end(AVCodecContext *avctx)
 {
     QtrleEncContext *s = avctx->priv_data;
 
-    av_frame_free(&s->previous_frame);
-    av_free(s->rlecode_table);
-    av_free(s->length_table);
-    av_free(s->skip_table);
+    zn_av_frame_free(&s->previous_frame);
+    zn_av_free(s->rlecode_table);
+    zn_av_free(s->length_table);
+    zn_av_free(s->skip_table);
     return 0;
 }
 
@@ -111,12 +111,12 @@ static av_cold int qtrle_encode_init(AVCodecContext *avctx)
 
     s->rlecode_table = av_mallocz(s->logical_width);
     s->skip_table    = av_mallocz(s->logical_width);
-    s->length_table  = av_calloc(s->logical_width + 1, sizeof(*s->length_table));
+    s->length_table  = zn_av_calloc(s->logical_width + 1, sizeof(*s->length_table));
     if (!s->skip_table || !s->length_table || !s->rlecode_table) {
         av_log(avctx, AV_LOG_ERROR, "Error allocating memory.\n");
         return AVERROR(ENOMEM);
     }
-    s->previous_frame = av_frame_alloc();
+    s->previous_frame = zn_av_frame_alloc();
     if (!s->previous_frame) {
         av_log(avctx, AV_LOG_ERROR, "Error allocating picture\n");
         return AVERROR(ENOMEM);

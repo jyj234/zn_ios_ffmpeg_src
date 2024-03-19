@@ -759,7 +759,7 @@ static av_cold GLuint opengl_load_shader(OpenGLContext *opengl, GLenum type, con
             if ((log = av_malloc(result))) {
                 opengl->glprocs.glGetShaderInfoLog(shader, result, NULL, log);
                 av_log(opengl, AV_LOG_ERROR, "Compile error: %s\n", log);
-                av_free(log);
+                zn_av_free(log);
             }
         }
         goto fail;
@@ -813,7 +813,7 @@ static av_cold int opengl_compile_shaders(OpenGLContext *opengl, enum AVPixelFor
                 goto fail;
             opengl->glprocs.glGetProgramInfoLog(opengl->program, result, NULL, log);
             av_log(opengl, AV_LOG_ERROR, "Link error: %s\n", log);
-            av_free(log);
+            zn_av_free(log);
         }
         goto fail;
     }

@@ -219,7 +219,7 @@ static int config_input(AVFilterLink *inlink)
     AudioSurroundContext *s = ctx->priv;
     int ret;
 
-    s->rdft = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->rdft));
+    s->rdft = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->rdft));
     if (!s->rdft)
         return AVERROR(ENOMEM);
     s->nb_in_channels = inlink->ch_layout.nb_channels;
@@ -233,7 +233,7 @@ static int config_input(AVFilterLink *inlink)
             return ret;
     }
 
-    s->input_levels = av_malloc_array(s->nb_in_channels, sizeof(*s->input_levels));
+    s->input_levels = zn_av_malloc_array(s->nb_in_channels, sizeof(*s->input_levels));
     if (!s->input_levels)
         return AVERROR(ENOMEM);
 
@@ -263,7 +263,7 @@ static int config_output(AVFilterLink *outlink)
     AudioSurroundContext *s = ctx->priv;
     int ret;
 
-    s->irdft = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->irdft));
+    s->irdft = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->irdft));
     if (!s->irdft)
         return AVERROR(ENOMEM);
     s->nb_out_channels = outlink->ch_layout.nb_channels;
@@ -277,7 +277,7 @@ static int config_output(AVFilterLink *outlink)
             return ret;
     }
 
-    s->output_levels = av_malloc_array(s->nb_out_channels, sizeof(*s->output_levels));
+    s->output_levels = zn_av_malloc_array(s->nb_out_channels, sizeof(*s->output_levels));
     if (!s->output_levels)
         return AVERROR(ENOMEM);
 
@@ -296,15 +296,15 @@ static int config_output(AVFilterLink *outlink)
 
     s->rdft_size = s->win_size / 2 + 1;
 
-    s->x_pos = av_calloc(s->rdft_size, sizeof(*s->x_pos));
-    s->y_pos = av_calloc(s->rdft_size, sizeof(*s->y_pos));
-    s->l_phase = av_calloc(s->rdft_size, sizeof(*s->l_phase));
-    s->r_phase = av_calloc(s->rdft_size, sizeof(*s->r_phase));
-    s->c_mag   = av_calloc(s->rdft_size, sizeof(*s->c_mag));
-    s->c_phase = av_calloc(s->rdft_size, sizeof(*s->c_phase));
-    s->mag_total = av_calloc(s->rdft_size, sizeof(*s->mag_total));
-    s->lfe_mag = av_calloc(s->rdft_size, sizeof(*s->lfe_mag));
-    s->lfe_phase = av_calloc(s->rdft_size, sizeof(*s->lfe_phase));
+    s->x_pos = zn_av_calloc(s->rdft_size, sizeof(*s->x_pos));
+    s->y_pos = zn_av_calloc(s->rdft_size, sizeof(*s->y_pos));
+    s->l_phase = zn_av_calloc(s->rdft_size, sizeof(*s->l_phase));
+    s->r_phase = zn_av_calloc(s->rdft_size, sizeof(*s->r_phase));
+    s->c_mag   = zn_av_calloc(s->rdft_size, sizeof(*s->c_mag));
+    s->c_phase = zn_av_calloc(s->rdft_size, sizeof(*s->c_phase));
+    s->mag_total = zn_av_calloc(s->rdft_size, sizeof(*s->mag_total));
+    s->lfe_mag = zn_av_calloc(s->rdft_size, sizeof(*s->lfe_mag));
+    s->lfe_phase = zn_av_calloc(s->rdft_size, sizeof(*s->lfe_phase));
     if (!s->x_pos || !s->y_pos || !s->l_phase || !s->r_phase || !s->lfe_phase ||
         !s->c_phase || !s->mag_total || !s->lfe_mag || !s->c_mag)
         return AVERROR(ENOMEM);
@@ -1186,7 +1186,7 @@ fail:
         return AVERROR(EINVAL);
     }
 
-    s->window_func_lut = av_calloc(s->win_size, sizeof(*s->window_func_lut));
+    s->window_func_lut = zn_av_calloc(s->win_size, sizeof(*s->window_func_lut));
     if (!s->window_func_lut)
         return AVERROR(ENOMEM);
 
@@ -1199,7 +1199,7 @@ fail:
     s->hop_size = FFMAX(1, s->win_size * (1. - s->overlap));
 
     {
-        float max = 0.f, *temp_lut = av_calloc(s->win_size, sizeof(*temp_lut));
+        float max = 0.f, *temp_lut = zn_av_calloc(s->win_size, sizeof(*temp_lut));
         if (!temp_lut)
             return AVERROR(ENOMEM);
 
@@ -1210,7 +1210,7 @@ fail:
 
         for (int i = 0; i < s->win_size; i++)
             max = fmaxf(temp_lut[i], max);
-        av_freep(&temp_lut);
+        zn_av_freep(&temp_lut);
 
         s->win_gain = 1.f / (max * sqrtf(s->win_size));
     }
@@ -1318,7 +1318,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     av_frame_copy_props(out, in);
     out->nb_samples = in->nb_samples;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -1361,36 +1361,36 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioSurroundContext *s = ctx->priv;
 
-    av_frame_free(&s->factors);
-    av_frame_free(&s->sfactors);
-    av_frame_free(&s->window);
-    av_frame_free(&s->input_in);
-    av_frame_free(&s->input);
-    av_frame_free(&s->output);
-    av_frame_free(&s->output_ph);
-    av_frame_free(&s->output_mag);
-    av_frame_free(&s->output_out);
-    av_frame_free(&s->overlap_buffer);
+    zn_av_frame_free(&s->factors);
+    zn_av_frame_free(&s->sfactors);
+    zn_av_frame_free(&s->window);
+    zn_av_frame_free(&s->input_in);
+    zn_av_frame_free(&s->input);
+    zn_av_frame_free(&s->output);
+    zn_av_frame_free(&s->output_ph);
+    zn_av_frame_free(&s->output_mag);
+    zn_av_frame_free(&s->output_out);
+    zn_av_frame_free(&s->overlap_buffer);
 
     for (int ch = 0; ch < s->nb_in_channels; ch++)
         av_tx_uninit(&s->rdft[ch]);
     for (int ch = 0; ch < s->nb_out_channels; ch++)
         av_tx_uninit(&s->irdft[ch]);
-    av_freep(&s->input_levels);
-    av_freep(&s->output_levels);
-    av_freep(&s->rdft);
-    av_freep(&s->irdft);
-    av_freep(&s->window_func_lut);
+    zn_av_freep(&s->input_levels);
+    zn_av_freep(&s->output_levels);
+    zn_av_freep(&s->rdft);
+    zn_av_freep(&s->irdft);
+    zn_av_freep(&s->window_func_lut);
 
-    av_freep(&s->x_pos);
-    av_freep(&s->y_pos);
-    av_freep(&s->l_phase);
-    av_freep(&s->r_phase);
-    av_freep(&s->c_mag);
-    av_freep(&s->c_phase);
-    av_freep(&s->mag_total);
-    av_freep(&s->lfe_mag);
-    av_freep(&s->lfe_phase);
+    zn_av_freep(&s->x_pos);
+    zn_av_freep(&s->y_pos);
+    zn_av_freep(&s->l_phase);
+    zn_av_freep(&s->r_phase);
+    zn_av_freep(&s->c_mag);
+    zn_av_freep(&s->c_phase);
+    zn_av_freep(&s->mag_total);
+    zn_av_freep(&s->lfe_mag);
+    zn_av_freep(&s->lfe_phase);
 }
 
 static int process_command(AVFilterContext *ctx, const char *cmd, const char *args,

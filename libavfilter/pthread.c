@@ -95,7 +95,7 @@ int ff_graph_thread_init(AVFilterGraph *graph)
 
     ret = thread_init_internal(graph->internal->thread, graph->nb_threads);
     if (ret <= 1) {
-        av_freep(&graph->internal->thread);
+        zn_av_freep(&graph->internal->thread);
         graph->thread_type = 0;
         graph->nb_threads  = 1;
         return (ret < 0) ? ret : 0;
@@ -111,5 +111,5 @@ void ff_graph_thread_free(AVFilterGraph *graph)
 {
     if (graph->internal->thread)
         slice_thread_uninit(graph->internal->thread);
-    av_freep(&graph->internal->thread);
+    zn_av_freep(&graph->internal->thread);
 }

@@ -76,7 +76,7 @@ static int select_channel_layout(const AVCodec *codec, AVChannelLayout *dst)
     int best_nb_channels   = 0;
 
     if (!codec->ch_layouts)
-        return av_channel_layout_copy(dst, &(AVChannelLayout)AV_CHANNEL_LAYOUT_STEREO);
+        return zn_av_channel_layout_copy(dst, &(AVChannelLayout)AV_CHANNEL_LAYOUT_STEREO);
 
     p = codec->ch_layouts;
     while (p->nb_channels) {
@@ -88,7 +88,7 @@ static int select_channel_layout(const AVCodec *codec, AVChannelLayout *dst)
         }
         p++;
     }
-    return av_channel_layout_copy(dst, best_ch_layout);
+    return zn_av_channel_layout_copy(dst, best_ch_layout);
 }
 
 static void encode(AVCodecContext *ctx, AVFrame *frame, AVPacket *pkt,
@@ -97,7 +97,7 @@ static void encode(AVCodecContext *ctx, AVFrame *frame, AVPacket *pkt,
     int ret;
 
     /* send the frame for encoding */
-    ret = avcodec_send_frame(ctx, frame);
+    ret = zn_avcodec_send_frame(ctx, frame);
     if (ret < 0) {
         fprintf(stderr, "Error sending the frame to the encoder\n");
         exit(1);
@@ -106,7 +106,7 @@ static void encode(AVCodecContext *ctx, AVFrame *frame, AVPacket *pkt,
     /* read all the available output packets (in general there may be any
      * number of them */
     while (ret >= 0) {
-        ret = avcodec_receive_packet(ctx, pkt);
+        ret = zn_avcodec_receive_packet(ctx, pkt);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
             return;
         else if (ret < 0) {
@@ -115,7 +115,7 @@ static void encode(AVCodecContext *ctx, AVFrame *frame, AVPacket *pkt,
         }
 
         fwrite(pkt->data, 1, pkt->size, output);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 }
 
@@ -138,13 +138,13 @@ int main(int argc, char **argv)
     filename = argv[1];
 
     /* find the MP2 encoder */
-    codec = avcodec_find_encoder(AV_CODEC_ID_MP2);
+    codec = zn_avcodec_find_encoder(AV_CODEC_ID_MP2);
     if (!codec) {
         fprintf(stderr, "Codec not found\n");
         exit(1);
     }
 
-    c = avcodec_alloc_context3(codec);
+    c = zn_avcodec_alloc_context3(codec);
     if (!c) {
         fprintf(stderr, "Could not allocate audio codec context\n");
         exit(1);
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
         exit(1);
 
     /* open it */
-    if (avcodec_open2(c, codec, NULL) < 0) {
+    if (zn_avcodec_open2(c, codec, NULL) < 0) {
         fprintf(stderr, "Could not open codec\n");
         exit(1);
     }
@@ -180,14 +180,14 @@ int main(int argc, char **argv)
     }
 
     /* packet for holding encoded output */
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         fprintf(stderr, "could not allocate the packet\n");
         exit(1);
     }
 
     /* frame containing input raw audio */
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         fprintf(stderr, "Could not allocate audio frame\n");
         exit(1);
@@ -195,12 +195,12 @@ int main(int argc, char **argv)
 
     frame->nb_samples     = c->frame_size;
     frame->format         = c->sample_fmt;
-    ret = av_channel_layout_copy(&frame->ch_layout, &c->ch_layout);
+    ret = zn_av_channel_layout_copy(&frame->ch_layout, &c->ch_layout);
     if (ret < 0)
         exit(1);
 
     /* allocate the data buffers */
-    ret = av_frame_get_buffer(frame, 0);
+    ret = zn_av_frame_get_buffer(frame, 0);
     if (ret < 0) {
         fprintf(stderr, "Could not allocate audio data buffers\n");
         exit(1);
@@ -232,8 +232,8 @@ int main(int argc, char **argv)
 
     fclose(f);
 
-    av_frame_free(&frame);
-    av_packet_free(&pkt);
+    zn_av_frame_free(&frame);
+    zn_av_packet_free(&pkt);
     avcodec_free_context(&c);
 
     return 0;

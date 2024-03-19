@@ -3299,9 +3299,9 @@ static void mxf_deinit(AVFormatContext *s)
 {
     MXFContext *mxf = s->priv_data;
 
-    av_freep(&mxf->index_entries);
-    av_freep(&mxf->body_partition_offset);
-    av_freep(&mxf->timecode_track);
+    zn_av_freep(&mxf->index_entries);
+    zn_av_freep(&mxf->body_partition_offset);
+    zn_av_freep(&mxf->timecode_track);
 }
 
 static int mxf_interleave_get_packet(AVFormatContext *s, AVPacket *out, int flush)
@@ -3330,8 +3330,8 @@ static int mxf_interleave_get_packet(AVFormatContext *s, AVPacket *out, int flus
             // purge packet queue
             while (pktl) {
                 PacketListEntry *next = pktl->next;
-                av_packet_unref(&pktl->pkt);
-                av_freep(&pktl);
+                zn_av_packet_unref(&pktl->pkt);
+                zn_av_freep(&pktl);
                 pktl = next;
             }
             if (last)

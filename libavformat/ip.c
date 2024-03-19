@@ -107,7 +107,7 @@ static int ip_parse_addr_list(void *log_ctx, const char *buf,
             return AVERROR(ENOMEM);
 
         ai = ff_ip_resolve_host(log_ctx, host, 0, SOCK_DGRAM, AF_UNSPEC, 0);
-        av_freep(&host);
+        zn_av_freep(&host);
 
         if (ai) {
             struct sockaddr_storage source_addr = {0};
@@ -154,8 +154,8 @@ int ff_ip_parse_blocks(void *log_ctx, const char *buf, IPSourceFilters *filters)
 
 void ff_ip_reset_filters(IPSourceFilters *filters)
 {
-    av_freep(&filters->exclude_addrs);
-    av_freep(&filters->include_addrs);
+    zn_av_freep(&filters->exclude_addrs);
+    zn_av_freep(&filters->include_addrs);
     filters->nb_include_addrs = 0;
     filters->nb_exclude_addrs = 0;
 }

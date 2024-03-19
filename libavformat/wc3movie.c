@@ -76,7 +76,7 @@ static int wc3_read_close(AVFormatContext *s)
 {
     Wc3DemuxContext *wc3 = s->priv_data;
 
-    av_packet_free(&wc3->vpkt);
+    zn_av_packet_free(&wc3->vpkt);
 
     return 0;
 }
@@ -108,7 +108,7 @@ static int wc3_read_header(AVFormatContext *s)
     wc3->height = WC3_DEFAULT_HEIGHT;
     wc3->pts = 0;
     wc3->video_stream_index = wc3->audio_stream_index = 0;
-    wc3->vpkt = av_packet_alloc();
+    wc3->vpkt = zn_av_packet_alloc();
     if (!wc3->vpkt)
         return AVERROR(ENOMEM);
 
@@ -140,7 +140,7 @@ static int wc3_read_header(AVFormatContext *s)
             if (!buffer)
                 return AVERROR(ENOMEM);
             if ((ret = avio_read(pb, buffer, size)) != size) {
-                av_freep(&buffer);
+                zn_av_freep(&buffer);
                 return AVERROR(EIO);
             }
             buffer[size] = 0;
@@ -175,7 +175,7 @@ static int wc3_read_header(AVFormatContext *s)
     } while (fourcc_tag != BRCH_TAG);
 
     /* initialize the decoder streams */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 33, 1, WC3_FRAME_FPS);
@@ -186,7 +186,7 @@ static int wc3_read_header(AVFormatContext *s)
     st->codecpar->width = wc3->width;
     st->codecpar->height = wc3->height;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 33, 1, WC3_FRAME_FPS);

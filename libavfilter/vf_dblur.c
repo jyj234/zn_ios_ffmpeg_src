@@ -138,7 +138,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     DBlurContext *s = ctx->priv;
 
-    av_freep(&s->buffer);
+    zn_av_freep(&s->buffer);
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -156,7 +156,7 @@ static int config_input(AVFilterLink *inlink)
 
     s->nb_planes = av_pix_fmt_count_planes(inlink->format);
 
-    s->buffer = av_malloc_array(FFALIGN(inlink->w, 16), FFALIGN(inlink->h, 16) * sizeof(*s->buffer));
+    s->buffer = zn_av_malloc_array(FFALIGN(inlink->w, 16), FFALIGN(inlink->h, 16) * sizeof(*s->buffer));
     if (!s->buffer)
         return AVERROR(ENOMEM);
 
@@ -202,7 +202,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -285,7 +285,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

@@ -39,7 +39,7 @@ static int nist_read_header(AVFormatContext *s)
     int32_t header_size = -1;
     AVStream *st;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

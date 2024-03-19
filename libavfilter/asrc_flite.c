@@ -177,7 +177,7 @@ static av_cold int init(AVFilterContext *ctx)
         if ((ret = av_file_map(flite->textfile, &textbuf, &textbuf_size, 0, ctx)) < 0) {
             av_log(ctx, AV_LOG_ERROR,
                    "The text file '%s' could not be read: %s\n",
-                   flite->textfile, av_err2str(ret));
+                   flite->textfile, zn_av_err2str(ret));
             return ret;
         }
 
@@ -229,7 +229,7 @@ static int query_formats(AVFilterContext *ctx)
     AVFilterFormats *sample_rates = NULL;
     AVChannelLayout chlayout = { 0 };
 
-    av_channel_layout_default(&chlayout, flite->wave->num_channels);
+    zn_av_channel_layout_default(&chlayout, flite->wave->num_channels);
 
     if ((ret = ff_add_channel_layout         (&chlayouts     , &chlayout               )) < 0 ||
         (ret = ff_set_common_channel_layouts (ctx            , chlayouts               )) < 0 ||

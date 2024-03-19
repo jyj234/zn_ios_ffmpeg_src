@@ -95,7 +95,7 @@ static int wsaud_read_header(AVFormatContext *s)
     codec       = header[11];
 
     /* initialize the audio decoder stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -118,7 +118,7 @@ static int wsaud_read_header(AVFormatContext *s)
     }
     avpriv_set_pts_info(st, 64, 1, sample_rate);
     st->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;
-    av_channel_layout_default(&st->codecpar->ch_layout, channels);
+    zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
     st->codecpar->sample_rate = sample_rate;
 
     return 0;

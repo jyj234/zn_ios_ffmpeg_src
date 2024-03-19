@@ -86,7 +86,7 @@ static int filter_units_make_type_list(const char *list_string,
                 ++str;
         }
         if (pass == 1) {
-            list = av_malloc_array(count, sizeof(*list));
+            list = zn_av_malloc_array(count, sizeof(*list));
             if (!list)
                 return AVERROR(ENOMEM);
         }
@@ -97,7 +97,7 @@ static int filter_units_make_type_list(const char *list_string,
     return 0;
 
 invalid:
-    av_freep(&list);
+    zn_av_freep(&list);
     return AVERROR(EINVAL);
 }
 
@@ -147,7 +147,7 @@ static int filter_units_filter(AVBSFContext *bsf, AVPacket *pkt)
 
 fail:
     if (err < 0)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     ff_cbs_fragment_reset(frag);
 
     return err;
@@ -216,7 +216,7 @@ static void filter_units_close(AVBSFContext *bsf)
 {
     FilterUnitsContext *ctx = bsf->priv_data;
 
-    av_freep(&ctx->type_list);
+    zn_av_freep(&ctx->type_list);
 
     ff_cbs_fragment_free(&ctx->fragment);
     ff_cbs_close(&ctx->cbc);

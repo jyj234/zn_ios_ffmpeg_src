@@ -65,7 +65,7 @@ static int redspark_read_header(AVFormatContext *s)
     uint8_t header[HEADER_SIZE];
     AVStream *st;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     par = st->codecpar;

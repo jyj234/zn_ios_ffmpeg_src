@@ -65,7 +65,7 @@ static int tee_close(URLContext *h)
             main_ret = ret;
     }
 
-    av_freep(&c->child);
+    zn_av_freep(&c->child);
     c->child_count = 0;
     return main_ret;
 }
@@ -104,7 +104,7 @@ static int tee_open(URLContext *h, const char *filename, int flags)
                                    h->protocol_whitelist, h->protocol_blacklist,
                                    h);
 loop_fail:
-        av_freep(&child_string);
+        zn_av_freep(&child_string);
         av_dict_free(&options);
         if (ret < 0)
             goto fail;

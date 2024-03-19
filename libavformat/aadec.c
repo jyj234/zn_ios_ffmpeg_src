@@ -165,7 +165,7 @@ static int aa_read_header(AVFormatContext *s)
     av_tea_init(c->tea_ctx, c->file_key, 16);
 
     /* decoder setup */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     sti = ffstream(st);
@@ -350,7 +350,7 @@ static int aa_read_close(AVFormatContext *s)
 {
     AADemuxContext *c = s->priv_data;
 
-    av_freep(&c->tea_ctx);
+    zn_av_freep(&c->tea_ctx);
 
     return 0;
 }

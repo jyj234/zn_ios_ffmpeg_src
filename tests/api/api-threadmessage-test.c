@@ -56,7 +56,7 @@ static void free_frame(void *arg)
 {
     struct message *msg = arg;
     av_assert0(msg->magic == MAGIC);
-    av_frame_free(&msg->frame);
+    zn_av_frame_free(&msg->frame);
 }
 
 static void *sender_thread(void *arg)
@@ -74,7 +74,7 @@ static void *sender_thread(void *arg)
             AVDictionary *meta = NULL;
             struct message msg = {
                 .magic = MAGIC,
-                .frame = av_frame_alloc(),
+                .frame = zn_av_frame_alloc(),
             };
 
             if (!msg.frame) {
@@ -86,13 +86,13 @@ static void *sender_thread(void *arg)
             val = av_asprintf("frame %d/%d from sender %d",
                               i + 1, wd->workload, wd->id);
             if (!val) {
-                av_frame_free(&msg.frame);
+                zn_av_frame_free(&msg.frame);
                 ret = AVERROR(ENOMEM);
                 break;
             }
             ret = av_dict_set(&meta, "sig", val, AV_DICT_DONT_STRDUP_VAL);
             if (ret < 0) {
-                av_frame_free(&msg.frame);
+                zn_av_frame_free(&msg.frame);
                 break;
             }
             msg.frame->metadata = meta;
@@ -101,9 +101,9 @@ static void *sender_thread(void *arg)
             msg.frame->format = AV_PIX_FMT_RGBA;
             msg.frame->width  = 320;
             msg.frame->height = 240;
-            ret = av_frame_get_buffer(msg.frame, 0);
+            ret = zn_av_frame_get_buffer(msg.frame, 0);
             if (ret < 0) {
-                av_frame_free(&msg.frame);
+                zn_av_frame_free(&msg.frame);
                 break;
             }
 
@@ -112,13 +112,13 @@ static void *sender_thread(void *arg)
                    wd->id, i + 1, wd->workload, msg.frame);
             ret = av_thread_message_queue_send(wd->queue, &msg, 0);
             if (ret < 0) {
-                av_frame_free(&msg.frame);
+                zn_av_frame_free(&msg.frame);
                 break;
             }
         }
     }
     av_log(NULL, AV_LOG_INFO, "sender #%d: my work is done here (%s)\n",
-           wd->id, av_err2str(ret));
+           wd->id, zn_av_err2str(ret));
     av_thread_message_queue_set_err_recv(wd->queue, ret < 0 ? ret : AVERROR_EOF);
     return NULL;
 }
@@ -146,7 +146,7 @@ static void *receiver_thread(void *arg)
             meta = msg.frame->metadata;
             e = av_dict_get(meta, "sig", NULL, 0);
             av_log(NULL, AV_LOG_INFO, "got \"%s\" (%p)\n", e->value, msg.frame);
-            av_frame_free(&msg.frame);
+            zn_av_frame_free(&msg.frame);
         }
     }
 
@@ -198,8 +198,8 @@ int main(int ac, char **av)
            nb_senders, sender_min_load, sender_max_load,
            nb_receivers, receiver_min_load, receiver_max_load);
 
-    senders   = av_calloc(nb_senders,   sizeof(*senders));
-    receivers = av_calloc(nb_receivers, sizeof(*receivers));
+    senders   = zn_av_calloc(nb_senders,   sizeof(*senders));
+    receivers = zn_av_calloc(nb_receivers, sizeof(*receivers));
     if (!senders || !receivers) {
         ret = AVERROR(ENOMEM);
         goto end;
@@ -223,7 +223,7 @@ int main(int ac, char **av)
         if (ret) {                                                              \
             const int err = AVERROR(ret);                                       \
             av_log(NULL, AV_LOG_ERROR, "Unable to start " AV_STRINGIFY(type)    \
-                   " thread: %s\n", av_err2str(err));                           \
+                   " thread: %s\n", zn_av_err2str(err));                           \
             goto end;                                                           \
         }                                                                       \
     }                                                                           \
@@ -237,7 +237,7 @@ int main(int ac, char **av)
         if (ret) {                                                              \
             const int err = AVERROR(ret);                                       \
             av_log(NULL, AV_LOG_ERROR, "Unable to join " AV_STRINGIFY(type)     \
-                   " thread: %s\n", av_err2str(err));                           \
+                   " thread: %s\n", zn_av_err2str(err));                           \
             goto end;                                                           \
         }                                                                       \
     }                                                                           \
@@ -251,11 +251,11 @@ int main(int ac, char **av)
 
 end:
     av_thread_message_queue_free(&queue);
-    av_freep(&senders);
-    av_freep(&receivers);
+    zn_av_freep(&senders);
+    zn_av_freep(&receivers);
 
     if (ret < 0 && ret != AVERROR_EOF) {
-        av_log(NULL, AV_LOG_ERROR, "Error: %s\n", av_err2str(ret));
+        av_log(NULL, AV_LOG_ERROR, "Error: %s\n", zn_av_err2str(ret));
         return 1;
     }
     return 0;

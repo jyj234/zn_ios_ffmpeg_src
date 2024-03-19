@@ -106,7 +106,7 @@ static int ico_write_header(AVFormatContext *s)
         avio_skip(pb, 16);
     }
 
-    ico->images = av_calloc(ico->nb_images, sizeof(*ico->images));
+    ico->images = zn_av_calloc(ico->nb_images, sizeof(*ico->images));
     if (!ico->images)
         return AVERROR(ENOMEM);
 
@@ -191,7 +191,7 @@ static void ico_deinit(AVFormatContext *s)
 {
     IcoMuxContext *ico = s->priv_data;
 
-    av_freep(&ico->images);
+    zn_av_freep(&ico->images);
 }
 
 const FFOutputFormat ff_ico_muxer = {

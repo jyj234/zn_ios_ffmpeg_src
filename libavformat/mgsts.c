@@ -46,7 +46,7 @@ static int read_header(AVFormatContext *s)
         return AVERROR(EIO);
     avio_skip(pb, 20);
 
-    st = avformat_new_stream(s, 0);
+    st = zn_avformat_new_stream(s, 0);
     if (!st)
         return AVERROR(ENOMEM);
 

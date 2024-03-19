@@ -321,7 +321,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     ret = config_input(inlink);
     if (ret < 0) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return ret;
     }
 
@@ -336,7 +336,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
 
@@ -366,7 +366,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

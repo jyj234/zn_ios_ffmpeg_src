@@ -96,7 +96,7 @@ static int amr_read_header(AVFormatContext *s)
     if (read < 0)
         return read;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     if (!memcmp(header, AMR_header, sizeof(AMR_header))) {
@@ -184,7 +184,7 @@ static int amrnb_probe(const AVProbeData *p)
 
 static int amrnb_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_id       = AV_CODEC_ID_AMR_NB;
@@ -241,7 +241,7 @@ static int amrwb_probe(const AVProbeData *p)
 
 static int amrwb_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_id       = AV_CODEC_ID_AMR_WB;

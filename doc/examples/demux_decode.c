@@ -112,22 +112,22 @@ static int decode_packet(AVCodecContext *dec, const AVPacket *pkt)
     int ret = 0;
 
     // submit the packet to the decoder
-    ret = avcodec_send_packet(dec, pkt);
+    ret = zn_avcodec_send_packet(dec, pkt);
     if (ret < 0) {
-        fprintf(stderr, "Error submitting a packet for decoding (%s)\n", av_err2str(ret));
+        fprintf(stderr, "Error submitting a packet for decoding (%s)\n", zn_av_err2str(ret));
         return ret;
     }
 
     // get all the available frames from the decoder
     while (ret >= 0) {
-        ret = avcodec_receive_frame(dec, frame);
+        ret = zn_avcodec_receive_frame(dec, frame);
         if (ret < 0) {
             // those two return values are special and mean there is no output
             // frame available, but there were no errors during decoding
             if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
                 return 0;
 
-            fprintf(stderr, "Error during decoding (%s)\n", av_err2str(ret));
+            fprintf(stderr, "Error during decoding (%s)\n", zn_av_err2str(ret));
             return ret;
         }
 
@@ -162,7 +162,7 @@ static int open_codec_context(int *stream_idx,
         st = fmt_ctx->streams[stream_index];
 
         /* find decoder for the stream */
-        dec = avcodec_find_decoder(st->codecpar->codec_id);
+        dec = zn_avcodec_find_decoder(st->codecpar->codec_id);
         if (!dec) {
             fprintf(stderr, "Failed to find %s codec\n",
                     av_get_media_type_string(type));
@@ -170,7 +170,7 @@ static int open_codec_context(int *stream_idx,
         }
 
         /* Allocate a codec context for the decoder */
-        *dec_ctx = avcodec_alloc_context3(dec);
+        *dec_ctx = zn_avcodec_alloc_context3(dec);
         if (!*dec_ctx) {
             fprintf(stderr, "Failed to allocate the %s codec context\n",
                     av_get_media_type_string(type));
@@ -178,14 +178,14 @@ static int open_codec_context(int *stream_idx,
         }
 
         /* Copy codec parameters from input stream to output codec context */
-        if ((ret = avcodec_parameters_to_context(*dec_ctx, st->codecpar)) < 0) {
+        if ((ret = zn_avcodec_parameters_to_context(*dec_ctx, st->codecpar)) < 0) {
             fprintf(stderr, "Failed to copy %s codec parameters to decoder context\n",
                     av_get_media_type_string(type));
             return ret;
         }
 
         /* Init the decoders */
-        if ((ret = avcodec_open2(*dec_ctx, dec, NULL)) < 0) {
+        if ((ret = zn_avcodec_open2(*dec_ctx, dec, NULL)) < 0) {
             fprintf(stderr, "Failed to open %s codec\n",
                     av_get_media_type_string(type));
             return ret;
@@ -243,13 +243,13 @@ int main (int argc, char **argv)
     audio_dst_filename = argv[3];
 
     /* open input file, and allocate format context */
-    if (avformat_open_input(&fmt_ctx, src_filename, NULL, NULL) < 0) {
+    if (zn_avformat_open_input(&fmt_ctx, src_filename, NULL, NULL) < 0) {
         fprintf(stderr, "Could not open source file %s\n", src_filename);
         exit(1);
     }
 
     /* retrieve stream information */
-    if (avformat_find_stream_info(fmt_ctx, NULL) < 0) {
+    if (zn_avformat_find_stream_info(fmt_ctx, NULL) < 0) {
         fprintf(stderr, "Could not find stream information\n");
         exit(1);
     }
@@ -288,7 +288,7 @@ int main (int argc, char **argv)
     }
 
     /* dump input information to stderr */
-    av_dump_format(fmt_ctx, 0, src_filename, 0);
+    zn_av_dump_format(fmt_ctx, 0, src_filename, 0);
 
     if (!audio_stream && !video_stream) {
         fprintf(stderr, "Could not find audio or video stream in the input, aborting\n");
@@ -296,14 +296,14 @@ int main (int argc, char **argv)
         goto end;
     }
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         fprintf(stderr, "Could not allocate frame\n");
         ret = AVERROR(ENOMEM);
         goto end;
     }
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         fprintf(stderr, "Could not allocate packet\n");
         ret = AVERROR(ENOMEM);
@@ -316,14 +316,14 @@ int main (int argc, char **argv)
         printf("Demuxing audio from file '%s' into '%s'\n", src_filename, audio_dst_filename);
 
     /* read frames from the file */
-    while (av_read_frame(fmt_ctx, pkt) >= 0) {
+    while (zn_av_read_frame(fmt_ctx, pkt) >= 0) {
         // check if the packet belongs to a stream we are interested in, otherwise
         // skip it
         if (pkt->stream_index == video_stream_idx)
             ret = decode_packet(video_dec_ctx, pkt);
         else if (pkt->stream_index == audio_stream_idx)
             ret = decode_packet(audio_dec_ctx, pkt);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0)
             break;
     }
@@ -369,14 +369,14 @@ int main (int argc, char **argv)
 end:
     avcodec_free_context(&video_dec_ctx);
     avcodec_free_context(&audio_dec_ctx);
-    avformat_close_input(&fmt_ctx);
+    zn_avformat_close_input(&fmt_ctx);
     if (video_dst_file)
         fclose(video_dst_file);
     if (audio_dst_file)
         fclose(audio_dst_file);
-    av_packet_free(&pkt);
-    av_frame_free(&frame);
-    av_free(video_dst_data[0]);
+    zn_av_packet_free(&pkt);
+    zn_av_frame_free(&frame);
+    zn_av_free(video_dst_data[0]);
 
     return ret < 0;
 }

@@ -97,7 +97,7 @@ static int au_read_annotation(AVFormatContext *s, int size)
     while (size-- > 0) {
         if (avio_feof(pb)) {
             av_bprint_finalize(&bprint, NULL);
-            av_freep(&key);
+            zn_av_freep(&key);
             return AVERROR_EOF;
         }
         c = avio_r8(pb);
@@ -129,8 +129,8 @@ static int au_read_annotation(AVFormatContext *s, int size)
                         }
                     }
                 }
-                av_freep(&key);
-                av_freep(&value);
+                zn_av_freep(&key);
+                zn_av_freep(&value);
                 state = (c == '\0') ? PARSE_FINISHED : PARSE_KEY;
             } else {
                 av_bprint_chars(&bprint, c, 1);
@@ -144,7 +144,7 @@ static int au_read_annotation(AVFormatContext *s, int size)
         }
     }
     av_bprint_finalize(&bprint, NULL);
-    av_freep(&key);
+    zn_av_freep(&key);
     return 0;
 }
 
@@ -215,7 +215,7 @@ static int au_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;

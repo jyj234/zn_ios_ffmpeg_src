@@ -238,20 +238,20 @@ static int config_input(AVFilterLink *inlink)
         p->buffer_linesize = p->b * sizeof(AVComplexFloat);
         p->data_linesize = 2 * p->b * sizeof(float);
         for (int j = 0; j < s->nb_threads; j++) {
-            p->hdata[j] = av_calloc(p->b, p->data_linesize);
-            p->hdata_out[j] = av_calloc(p->b, p->data_linesize);
-            p->vdata[j] = av_calloc(p->b, p->data_linesize);
-            p->vdata_out[j] = av_calloc(p->b, p->data_linesize);
-            p->buffer[j][CURRENT] = av_calloc(p->b, p->buffer_linesize);
+            p->hdata[j] = zn_av_calloc(p->b, p->data_linesize);
+            p->hdata_out[j] = zn_av_calloc(p->b, p->data_linesize);
+            p->vdata[j] = zn_av_calloc(p->b, p->data_linesize);
+            p->vdata_out[j] = zn_av_calloc(p->b, p->data_linesize);
+            p->buffer[j][CURRENT] = zn_av_calloc(p->b, p->buffer_linesize);
             if (!p->buffer[j][CURRENT])
                 return AVERROR(ENOMEM);
             if (s->nb_prev > 0) {
-                p->buffer[j][PREV] = av_calloc(p->b, p->buffer_linesize);
+                p->buffer[j][PREV] = zn_av_calloc(p->b, p->buffer_linesize);
                 if (!p->buffer[j][PREV])
                     return AVERROR(ENOMEM);
             }
             if (s->nb_next > 0) {
-                p->buffer[j][NEXT] = av_calloc(p->b, p->buffer_linesize);
+                p->buffer[j][NEXT] = zn_av_calloc(p->b, p->buffer_linesize);
                 if (!p->buffer[j][NEXT])
                     return AVERROR(ENOMEM);
             }
@@ -600,7 +600,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     AVFrame *out;
 
     if (s->nb_next > 0 && s->nb_prev > 0) {
-        av_frame_free(&s->prev);
+        zn_av_frame_free(&s->prev);
         s->prev = s->cur;
         s->cur = s->next;
         s->next = in;
@@ -613,14 +613,14 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         if (!s->cur)
             return 0;
     } else if (s->nb_next > 0) {
-        av_frame_free(&s->cur);
+        zn_av_frame_free(&s->cur);
         s->cur = s->next;
         s->next = in;
 
         if (!s->cur)
             return 0;
     } else if (s->nb_prev > 0) {
-        av_frame_free(&s->prev);
+        zn_av_frame_free(&s->prev);
         s->prev = s->cur;
         s->cur = in;
 
@@ -662,7 +662,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         if (direct) {
             s->cur = NULL;
         } else {
-            av_frame_free(&s->cur);
+            zn_av_frame_free(&s->cur);
         }
     }
     return ff_filter_frame(outlink, out);
@@ -706,13 +706,13 @@ static av_cold void uninit(AVFilterContext *ctx)
         PlaneContext *p = &s->planes[i];
 
         for (int j = 0; j < s->nb_threads; j++) {
-            av_freep(&p->hdata[j]);
-            av_freep(&p->vdata[j]);
-            av_freep(&p->hdata_out[j]);
-            av_freep(&p->vdata_out[j]);
-            av_freep(&p->buffer[j][PREV]);
-            av_freep(&p->buffer[j][CURRENT]);
-            av_freep(&p->buffer[j][NEXT]);
+            zn_av_freep(&p->hdata[j]);
+            zn_av_freep(&p->vdata[j]);
+            zn_av_freep(&p->hdata_out[j]);
+            zn_av_freep(&p->vdata_out[j]);
+            zn_av_freep(&p->buffer[j][PREV]);
+            zn_av_freep(&p->buffer[j][CURRENT]);
+            zn_av_freep(&p->buffer[j][NEXT]);
         }
     }
 
@@ -723,9 +723,9 @@ static av_cold void uninit(AVFilterContext *ctx)
         av_tx_uninit(&s->ifft_r[i]);
     }
 
-    av_frame_free(&s->prev);
-    av_frame_free(&s->cur);
-    av_frame_free(&s->next);
+    zn_av_frame_free(&s->prev);
+    zn_av_frame_free(&s->cur);
+    zn_av_frame_free(&s->next);
 }
 
 static const AVFilterPad fftdnoiz_inputs[] = {

@@ -180,19 +180,19 @@ static void init_fps(int bf, int audio_preroll, int fps)
 {
     AVStream *st;
     int iobuf_size = force_iobuf_size ? force_iobuf_size : sizeof(iobuf);
-    ctx = avformat_alloc_context();
+    ctx = zn_avformat_alloc_context();
     if (!ctx)
         exit(1);
-    ctx->oformat = av_guess_format(format, NULL, NULL);
+    ctx->oformat = zn_av_guess_format(format, NULL, NULL);
     if (!ctx->oformat)
         exit(1);
-    ctx->pb = avio_alloc_context(iobuf, iobuf_size, 1, NULL, NULL, io_write, NULL);
+    ctx->pb = zn_avio_alloc_context(iobuf, iobuf_size, 1, NULL, NULL, io_write, NULL);
     if (!ctx->pb)
         exit(1);
     ctx->pb->write_data_type = io_write_data_type;
     ctx->flags |= AVFMT_FLAG_BITEXACT;
 
-    st = avformat_new_stream(ctx, NULL);
+    st = zn_avformat_new_stream(ctx, NULL);
     if (!st)
         exit(1);
     st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -208,7 +208,7 @@ static void init_fps(int bf, int audio_preroll, int fps)
     memcpy(st->codecpar->extradata, h264_extradata, sizeof(h264_extradata));
     video_st = st;
 
-    st = avformat_new_stream(ctx, NULL);
+    st = zn_avformat_new_stream(ctx, NULL);
     if (!st)
         exit(1);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -224,7 +224,7 @@ static void init_fps(int bf, int audio_preroll, int fps)
     memcpy(st->codecpar->extradata, aac_extradata, sizeof(aac_extradata));
     audio_st = st;
 
-    if (avformat_write_header(ctx, &opts) < 0)
+    if (zn_avformat_write_header(ctx, &opts) < 0)
         exit(1);
     av_dict_free(&opts);
 
@@ -250,7 +250,7 @@ static void mux_frames(int n, int c)
     int end_frames = frames + n;
     while (1) {
         uint8_t pktdata[8] = { 0 };
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
 
         if (av_compare_ts(audio_dts, audio_st->time_base, video_dts, video_st->time_base) < 0) {
             pkt->dts = pkt->pts = audio_dts;
@@ -307,7 +307,7 @@ static void mux_frames(int n, int c)
         }
 
         if (do_interleave)
-            av_interleaved_write_frame(ctx, pkt);
+            zn_av_interleaved_write_frame(ctx, pkt);
         else
             av_write_frame(ctx, pkt);
     }
@@ -327,7 +327,7 @@ static void skip_gops(int n)
 
 static void signal_init_ts(void)
 {
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
 
     pkt->stream_index = 0;
     pkt->dts = video_dts;
@@ -341,9 +341,9 @@ static void signal_init_ts(void)
 
 static void finish(void)
 {
-    av_write_trailer(ctx);
-    avio_context_free(&ctx->pb);
-    avformat_free_context(ctx);
+    zn_av_write_trailer(ctx);
+    zn_avio_context_free(&ctx->pb);
+    zn_avformat_free_context(ctx);
     ctx = NULL;
 }
 
@@ -379,9 +379,9 @@ int main(int argc, char **argv)
     md5 = av_md5_alloc();
     if (!md5)
         return 1;
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
-        av_free(md5);
+        zn_av_free(md5);
         return 1;
     }
 
@@ -743,7 +743,7 @@ int main(int argc, char **argv)
     force_iobuf_size = 0;
 
     // Test VFR content with bframes with interleaving.
-    // Here, using av_interleaved_write_frame allows the muxer to get the
+    // Here, using zn_av_interleaved_write_frame allows the muxer to get the
     // fragment end durations right. We always set the packet duration to
     // the expected, but we simulate dropped frames at one point.
     do_interleave = 1;
@@ -787,8 +787,8 @@ int main(int argc, char **argv)
     finish();
     close_out();
 
-    av_free(md5);
-    av_packet_free(&pkt);
+    zn_av_free(md5);
+    zn_av_packet_free(&pkt);
 
     return check_faults > 0 ? 1 : 0;
 }

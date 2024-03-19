@@ -319,7 +319,7 @@ int ff_shuffle_filter_coefficients(SwsContext *c, int *filterPos,
                    }
                }
            }
-           av_free(filterCopy);
+           zn_av_free(filterCopy);
         }
     }
 #endif
@@ -569,7 +569,7 @@ static av_cold int initFilter(int16_t **outFilter, int32_t **filterPos,
     }
 
     /* apply src & dst Filter to filter -> filter2
-     * av_free(filter);
+     * zn_av_free(filter);
      */
     av_assert0(filterSize > 0);
     filter2Size = filterSize;
@@ -597,7 +597,7 @@ static av_cold int initFilter(int16_t **outFilter, int32_t **filterPos,
 
         (*filterPos)[i] += (filterSize - 1) / 2 - (filter2Size - 1) / 2;
     }
-    av_freep(&filter);
+    zn_av_freep(&filter);
 
     /* try to reduce the filter-size (step1 find size and shift left) */
     // Assume it is near normalized (*0.5 or *2.0 is OK but * 0.001 is not).
@@ -671,7 +671,7 @@ static av_cold int initFilter(int16_t **outFilter, int32_t **filterPos,
     av_assert0(minFilterSize > 0);
     filterSize = (minFilterSize + (filterAlign - 1)) & (~(filterAlign - 1));
     av_assert0(filterSize > 0);
-    filter = av_malloc_array(dstW, filterSize * sizeof(*filter));
+    filter = zn_av_malloc_array(dstW, filterSize * sizeof(*filter));
     if (!filter)
         goto nomem;
     if (filterSize >= MAX_FILTER_SIZE * 16 /
@@ -790,8 +790,8 @@ fail:
     if(ret < 0)
         av_log(NULL, ret == RETCODE_USE_CASCADE ? AV_LOG_DEBUG : AV_LOG_ERROR, "sws: initFilter failed\n");
 done:
-    av_free(filter);
-    av_free(filter2);
+    zn_av_free(filter);
+    zn_av_free(filter2);
     return ret;
 }
 
@@ -2000,8 +2000,8 @@ static int context_init_threaded(SwsContext *c,
 
     c->nb_threads = ret;
 
-    c->slice_ctx = av_calloc(c->nb_threads, sizeof(*c->slice_ctx));
-    c->slice_err = av_calloc(c->nb_threads, sizeof(*c->slice_err));
+    c->slice_ctx = zn_av_calloc(c->nb_threads, sizeof(*c->slice_ctx));
+    c->slice_err = zn_av_calloc(c->nb_threads, sizeof(*c->slice_err));
     if (!c->slice_ctx || !c->slice_err)
         return AVERROR(ENOMEM);
 
@@ -2041,8 +2041,8 @@ av_cold int sws_init_context(SwsContext *c, SwsFilter *srcFilter,
     enum AVPixelFormat src_format, dst_format;
     int ret;
 
-    c->frame_src = av_frame_alloc();
-    c->frame_dst = av_frame_alloc();
+    c->frame_src = zn_av_frame_alloc();
+    c->frame_dst = zn_av_frame_alloc();
     if (!c->frame_src || !c->frame_dst)
         return AVERROR(ENOMEM);
 
@@ -2142,7 +2142,7 @@ SwsVector *sws_allocVec(int length)
     vec->length = length;
     vec->coeff  = av_malloc(sizeof(double) * length);
     if (!vec->coeff)
-        av_freep(&vec);
+        zn_av_freep(&vec);
     return vec;
 }
 
@@ -2268,10 +2268,10 @@ void sws_shiftVec(SwsVector *a, int shift)
         makenan_vec(a);
         return;
     }
-    av_free(a->coeff);
+    zn_av_free(a->coeff);
     a->coeff  = shifted->coeff;
     a->length = shifted->length;
-    av_free(shifted);
+    zn_av_free(shifted);
 }
 
 static
@@ -2282,10 +2282,10 @@ void sws_addVec(SwsVector *a, SwsVector *b)
         makenan_vec(a);
         return;
     }
-    av_free(a->coeff);
+    zn_av_free(a->coeff);
     a->coeff  = sum->coeff;
     a->length = sum->length;
-    av_free(sum);
+    zn_av_free(sum);
 }
 
 /**
@@ -2323,9 +2323,9 @@ void sws_freeVec(SwsVector *a)
 {
     if (!a)
         return;
-    av_freep(&a->coeff);
+    zn_av_freep(&a->coeff);
     a->length = 0;
-    av_free(a);
+    zn_av_free(a);
 }
 
 void sws_freeFilter(SwsFilter *filter)
@@ -2337,7 +2337,7 @@ void sws_freeFilter(SwsFilter *filter)
     sws_freeVec(filter->lumV);
     sws_freeVec(filter->chrH);
     sws_freeVec(filter->chrV);
-    av_free(filter);
+    zn_av_free(filter);
 }
 
 SwsFilter *sws_getDefaultFilter(float lumaGBlur, float chromaGBlur,
@@ -2419,7 +2419,7 @@ fail:
     sws_freeVec(filter->lumV);
     sws_freeVec(filter->chrH);
     sws_freeVec(filter->chrV);
-    av_freep(&filter);
+    zn_av_freep(&filter);
     return NULL;
 }
 
@@ -2431,32 +2431,32 @@ void sws_freeContext(SwsContext *c)
 
     for (i = 0; i < c->nb_slice_ctx; i++)
         sws_freeContext(c->slice_ctx[i]);
-    av_freep(&c->slice_ctx);
-    av_freep(&c->slice_err);
+    zn_av_freep(&c->slice_ctx);
+    zn_av_freep(&c->slice_err);
 
     avpriv_slicethread_free(&c->slicethread);
 
     for (i = 0; i < 4; i++)
-        av_freep(&c->dither_error[i]);
+        zn_av_freep(&c->dither_error[i]);
 
-    av_frame_free(&c->frame_src);
-    av_frame_free(&c->frame_dst);
+    zn_av_frame_free(&c->frame_src);
+    zn_av_frame_free(&c->frame_dst);
 
-    av_freep(&c->src_ranges.ranges);
+    zn_av_freep(&c->src_ranges.ranges);
 
-    av_freep(&c->vLumFilter);
-    av_freep(&c->vChrFilter);
-    av_freep(&c->hLumFilter);
-    av_freep(&c->hChrFilter);
+    zn_av_freep(&c->vLumFilter);
+    zn_av_freep(&c->vChrFilter);
+    zn_av_freep(&c->hLumFilter);
+    zn_av_freep(&c->hChrFilter);
 #if HAVE_ALTIVEC
-    av_freep(&c->vYCoeffsBank);
-    av_freep(&c->vCCoeffsBank);
+    zn_av_freep(&c->vYCoeffsBank);
+    zn_av_freep(&c->vCCoeffsBank);
 #endif
 
-    av_freep(&c->vLumFilterPos);
-    av_freep(&c->vChrFilterPos);
-    av_freep(&c->hLumFilterPos);
-    av_freep(&c->hChrFilterPos);
+    zn_av_freep(&c->vLumFilterPos);
+    zn_av_freep(&c->vChrFilterPos);
+    zn_av_freep(&c->hLumFilterPos);
+    zn_av_freep(&c->hChrFilterPos);
 
 #if HAVE_MMX_INLINE
 #if USE_MMAP
@@ -2470,32 +2470,32 @@ void sws_freeContext(SwsContext *c)
     if (c->chrMmxextFilterCode)
         VirtualFree(c->chrMmxextFilterCode, 0, MEM_RELEASE);
 #else
-    av_free(c->lumMmxextFilterCode);
-    av_free(c->chrMmxextFilterCode);
+    zn_av_free(c->lumMmxextFilterCode);
+    zn_av_free(c->chrMmxextFilterCode);
 #endif
     c->lumMmxextFilterCode = NULL;
     c->chrMmxextFilterCode = NULL;
 #endif /* HAVE_MMX_INLINE */
 
-    av_freep(&c->yuvTable);
-    av_freep(&c->formatConvBuffer);
+    zn_av_freep(&c->yuvTable);
+    zn_av_freep(&c->formatConvBuffer);
 
     sws_freeContext(c->cascaded_context[0]);
     sws_freeContext(c->cascaded_context[1]);
     sws_freeContext(c->cascaded_context[2]);
     memset(c->cascaded_context, 0, sizeof(c->cascaded_context));
-    av_freep(&c->cascaded_tmp[0]);
-    av_freep(&c->cascaded1_tmp[0]);
+    zn_av_freep(&c->cascaded_tmp[0]);
+    zn_av_freep(&c->cascaded1_tmp[0]);
 
-    av_freep(&c->gamma);
-    av_freep(&c->inv_gamma);
+    zn_av_freep(&c->gamma);
+    zn_av_freep(&c->inv_gamma);
 
-    av_freep(&c->rgb0_scratch);
-    av_freep(&c->xyz_scratch);
+    zn_av_freep(&c->rgb0_scratch);
+    zn_av_freep(&c->xyz_scratch);
 
     ff_free_filters(c);
 
-    av_free(c);
+    zn_av_free(c);
 }
 
 struct SwsContext *sws_getCachedContext(struct SwsContext *context, int srcW,

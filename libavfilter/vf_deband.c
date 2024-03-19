@@ -417,7 +417,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -427,7 +427,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                       FFMIN3(s->planeheight[1], s->planeheight[2],
                              ff_filter_get_nb_threads(ctx)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -446,8 +446,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     DebandContext *s = ctx->priv;
 
-    av_freep(&s->x_pos);
-    av_freep(&s->y_pos);
+    zn_av_freep(&s->x_pos);
+    zn_av_freep(&s->y_pos);
 }
 
 static const AVFilterPad avfilter_vf_deband_inputs[] = {

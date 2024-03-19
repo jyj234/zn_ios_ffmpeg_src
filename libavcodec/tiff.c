@@ -134,9 +134,9 @@ static void free_geotags(TiffContext *const s)
     int i;
     for (i = 0; i < s->geotag_count; i++) {
         if (s->geotags[i].val)
-            av_freep(&s->geotags[i].val);
+            zn_av_freep(&s->geotags[i].val);
     }
-    av_freep(&s->geotags);
+    zn_av_freep(&s->geotags);
     s->geotag_count = 0;
 }
 
@@ -264,7 +264,7 @@ static char *doubles2str(double *dp, int count, const char *sep)
     for (i = 0; i < count; i++) {
         unsigned l = snprintf(ap, component_len, "%.15g%s", dp[i], sep);
         if(l >= component_len) {
-            av_free(ap0);
+            zn_av_free(ap0);
             return NULL;
         }
         ap += l;
@@ -531,7 +531,7 @@ static int tiff_unpack_zlib(TiffContext *s, AVFrame *p, uint8_t *dst, int stride
         return AVERROR(ENOMEM);
     if (s->fill_order) {
         if ((ret = deinvert_buffer(s, src, size)) < 0) {
-            av_free(zbuf);
+            zn_av_free(zbuf);
             return ret;
         }
         src = s->deinvert_buf;
@@ -541,7 +541,7 @@ static int tiff_unpack_zlib(TiffContext *s, AVFrame *p, uint8_t *dst, int stride
         av_log(s->avctx, AV_LOG_ERROR,
                "Uncompressing failed (%lu of %lu) with error %d\n", outlen,
                (unsigned long)width * lines, ret);
-        av_free(zbuf);
+        zn_av_free(zbuf);
         return AVERROR_UNKNOWN;
     }
     src = zbuf;
@@ -558,7 +558,7 @@ static int tiff_unpack_zlib(TiffContext *s, AVFrame *p, uint8_t *dst, int stride
         dst += stride;
         src += width;
     }
-    av_free(zbuf);
+    zn_av_free(zbuf);
     return 0;
 }
 #endif
@@ -596,7 +596,7 @@ static int tiff_unpack_lzma(TiffContext *s, AVFrame *p, uint8_t *dst, int stride
         return AVERROR(ENOMEM);
     if (s->fill_order) {
         if ((ret = deinvert_buffer(s, src, size)) < 0) {
-            av_free(buf);
+            zn_av_free(buf);
             return ret;
         }
         src = s->deinvert_buf;
@@ -606,7 +606,7 @@ static int tiff_unpack_lzma(TiffContext *s, AVFrame *p, uint8_t *dst, int stride
         av_log(s->avctx, AV_LOG_ERROR,
                "Uncompressing failed (%"PRIu64" of %"PRIu64") with error %d\n", outlen,
                (uint64_t)width * lines, ret);
-        av_free(buf);
+        zn_av_free(buf);
         return AVERROR_UNKNOWN;
     }
     src = buf;
@@ -623,7 +623,7 @@ static int tiff_unpack_lzma(TiffContext *s, AVFrame *p, uint8_t *dst, int stride
         dst += stride;
         src += width;
     }
-    av_free(buf);
+    zn_av_free(buf);
     return 0;
 }
 #endif
@@ -662,7 +662,7 @@ static int dng_decode_jpeg(AVCodecContext *avctx, AVFrame *frame,
         return AVERROR_INVALIDDATA;
 
     /* Prepare a packet and send to the MJPEG decoder */
-    av_packet_unref(s->jpkt);
+    zn_av_packet_unref(s->jpkt);
     s->jpkt->data = (uint8_t*)s->gb.buffer;
     s->jpkt->size = tile_byte_count;
 
@@ -673,15 +673,15 @@ static int dng_decode_jpeg(AVCodecContext *avctx, AVFrame *frame,
         mjpegdecctx->bayer = 1;
     }
 
-    ret = avcodec_send_packet(s->avctx_mjpeg, s->jpkt);
+    ret = zn_avcodec_send_packet(s->avctx_mjpeg, s->jpkt);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
         return ret;
     }
 
-    ret = avcodec_receive_frame(s->avctx_mjpeg, s->jpgframe);
+    ret = zn_avcodec_receive_frame(s->avctx_mjpeg, s->jpgframe);
     if (ret < 0) {
-        av_log(avctx, AV_LOG_ERROR, "JPEG decoding error: %s.\n", av_err2str(ret));
+        av_log(avctx, AV_LOG_ERROR, "JPEG decoding error: %s.\n", zn_av_err2str(ret));
 
         /* Normally skip, error if explode */
         if (avctx->err_recognition & AV_EF_EXPLODE)
@@ -1623,7 +1623,7 @@ static int tiff_decode_tag(TiffContext *s, AVFrame *frame)
             s->geotag_count = 0;
             return -1;
         }
-        s->geotags = av_calloc(s->geotag_count, sizeof(*s->geotags));
+        s->geotags = zn_av_calloc(s->geotag_count, sizeof(*s->geotags));
         if (!s->geotags) {
             av_log(s->avctx, AV_LOG_ERROR, "Error allocating temporary buffer\n");
             s->geotag_count = 0;
@@ -1645,7 +1645,7 @@ static int tiff_decode_tag(TiffContext *s, AVFrame *frame)
             return AVERROR_INVALIDDATA;
         if (bytestream2_get_bytes_left(&s->gb) < count * sizeof(int64_t))
             return AVERROR_INVALIDDATA;
-        dp = av_malloc_array(count, sizeof(double));
+        dp = zn_av_malloc_array(count, sizeof(double));
         if (!dp) {
             av_log(s->avctx, AV_LOG_ERROR, "Error allocating temporary buffer\n");
             goto end;
@@ -1663,14 +1663,14 @@ static int tiff_decode_tag(TiffContext *s, AVFrame *frame)
                     char *ap = doubles2str(&dp[s->geotags[i].offset], s->geotags[i].count, ", ");
                     if (!ap) {
                         av_log(s->avctx, AV_LOG_ERROR, "Error allocating temporary buffer\n");
-                        av_freep(&dp);
+                        zn_av_freep(&dp);
                         return AVERROR(ENOMEM);
                     }
                     s->geotags[i].val = ap;
                 }
             }
         }
-        av_freep(&dp);
+        zn_av_freep(&dp);
         break;
     case TIFF_GEO_ASCII_PARAMS:
         pos = bytestream2_tell(&s->gb);
@@ -2190,14 +2190,14 @@ again:
 
             if (soff > avpkt->size || ssize > avpkt->size - soff || ssize > remaining) {
                 av_log(avctx, AV_LOG_ERROR, "Invalid strip size/offset\n");
-                av_freep(&five_planes);
+                zn_av_freep(&five_planes);
                 return AVERROR_INVALIDDATA;
             }
             remaining -= ssize;
             if ((ret = tiff_unpack_strip(s, p, dst, stride, avpkt->data + soff, ssize, i,
                                          FFMIN(s->rps, s->height - i))) < 0) {
                 if (avctx->err_recognition & AV_EF_EXPLODE) {
-                    av_freep(&five_planes);
+                    zn_av_freep(&five_planes);
                     return ret;
                 }
                 break;
@@ -2311,7 +2311,7 @@ again:
             } else {
                 av_log(s->avctx, AV_LOG_ERROR, "unsupported floating point pixel format\n");
             }
-            av_free(tmpbuf);
+            zn_av_free(tmpbuf);
         }
 
         if (s->photometric == TIFF_PHOTOMETRIC_WHITE_IS_ZERO) {
@@ -2343,7 +2343,7 @@ again:
                 src += stride;
                 dst += p->linesize[plane];
             }
-            av_freep(&five_planes);
+            zn_av_freep(&five_planes);
         } else if (s->photometric == TIFF_PHOTOMETRIC_SEPARATED &&
             s->avctx->pix_fmt == AV_PIX_FMT_RGBA64BE) {
             dst = p->data[plane];
@@ -2402,16 +2402,16 @@ static av_cold int tiff_init(AVCodecContext *avctx)
     ff_ccitt_unpack_init();
 
     /* Allocate JPEG frame */
-    s->jpgframe = av_frame_alloc();
-    s->jpkt     = av_packet_alloc();
+    s->jpgframe = zn_av_frame_alloc();
+    s->jpkt     = zn_av_packet_alloc();
     if (!s->jpgframe || !s->jpkt)
         return AVERROR(ENOMEM);
 
     /* Prepare everything needed for JPEG decoding */
-    codec = avcodec_find_decoder(AV_CODEC_ID_MJPEG);
+    codec = zn_avcodec_find_decoder(AV_CODEC_ID_MJPEG);
     if (!codec)
         return AVERROR_BUG;
-    s->avctx_mjpeg = avcodec_alloc_context3(codec);
+    s->avctx_mjpeg = zn_avcodec_alloc_context3(codec);
     if (!s->avctx_mjpeg)
         return AVERROR(ENOMEM);
     s->avctx_mjpeg->flags = avctx->flags;
@@ -2419,7 +2419,7 @@ static av_cold int tiff_init(AVCodecContext *avctx)
     s->avctx_mjpeg->dct_algo = avctx->dct_algo;
     s->avctx_mjpeg->idct_algo = avctx->idct_algo;
     s->avctx_mjpeg->max_pixels = avctx->max_pixels;
-    ret = avcodec_open2(s->avctx_mjpeg, codec, NULL);
+    ret = zn_avcodec_open2(s->avctx_mjpeg, codec, NULL);
     if (ret < 0) {
         return ret;
     }
@@ -2434,12 +2434,12 @@ static av_cold int tiff_end(AVCodecContext *avctx)
     free_geotags(s);
 
     ff_lzw_decode_close(&s->lzw);
-    av_freep(&s->deinvert_buf);
+    zn_av_freep(&s->deinvert_buf);
     s->deinvert_buf_size = 0;
-    av_freep(&s->yuv_line);
+    zn_av_freep(&s->yuv_line);
     s->yuv_line_size = 0;
-    av_frame_free(&s->jpgframe);
-    av_packet_free(&s->jpkt);
+    zn_av_frame_free(&s->jpgframe);
+    zn_av_packet_free(&s->jpkt);
     avcodec_free_context(&s->avctx_mjpeg);
     return 0;
 }

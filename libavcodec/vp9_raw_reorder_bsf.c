@@ -56,8 +56,8 @@ typedef struct VP9RawReorderContext {
 static void vp9_raw_reorder_frame_free(VP9RawReorderFrame **frame)
 {
     if (*frame)
-        av_packet_free(&(*frame)->packet);
-    av_freep(frame);
+        zn_av_packet_free(&(*frame)->packet);
+    zn_av_freep(frame);
 }
 
 static void vp9_raw_reorder_clear_slot(VP9RawReorderContext *ctx, int s)
@@ -293,20 +293,20 @@ static int vp9_raw_reorder_filter(AVBSFContext *bsf, AVPacket *out)
         }
 
         if (!in->size) {
-            av_packet_free(&in);
+            zn_av_packet_free(&in);
             return AVERROR_INVALIDDATA;
         }
 
         if ((in->data[in->size - 1] & 0xe0) == 0xc0) {
             av_log(bsf, AV_LOG_ERROR, "Input in superframes is not "
                    "supported.\n");
-            av_packet_free(&in);
+            zn_av_packet_free(&in);
             return AVERROR(ENOSYS);
         }
 
         frame = av_mallocz(sizeof(*frame));
         if (!frame) {
-            av_packet_free(&in);
+            zn_av_packet_free(&in);
             return AVERROR(ENOMEM);
         }
 

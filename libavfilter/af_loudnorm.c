@@ -427,7 +427,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -627,7 +627,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (in != out)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -770,16 +770,16 @@ static int config_input(AVFilterLink *inlink)
     }
 
     s->buf_size = frame_size(inlink->sample_rate, 3000) * inlink->ch_layout.nb_channels;
-    s->buf = av_malloc_array(s->buf_size, sizeof(*s->buf));
+    s->buf = zn_av_malloc_array(s->buf_size, sizeof(*s->buf));
     if (!s->buf)
         return AVERROR(ENOMEM);
 
     s->limiter_buf_size = frame_size(inlink->sample_rate, 210) * inlink->ch_layout.nb_channels;
-    s->limiter_buf = av_malloc_array(s->buf_size, sizeof(*s->limiter_buf));
+    s->limiter_buf = zn_av_malloc_array(s->buf_size, sizeof(*s->limiter_buf));
     if (!s->limiter_buf)
         return AVERROR(ENOMEM);
 
-    s->prev_smp = av_malloc_array(inlink->ch_layout.nb_channels, sizeof(*s->prev_smp));
+    s->prev_smp = zn_av_malloc_array(inlink->ch_layout.nb_channels, sizeof(*s->prev_smp));
     if (!s->prev_smp)
         return AVERROR(ENOMEM);
 
@@ -914,9 +914,9 @@ end:
         ff_ebur128_destroy(&s->r128_in);
     if (s->r128_out)
         ff_ebur128_destroy(&s->r128_out);
-    av_freep(&s->limiter_buf);
-    av_freep(&s->prev_smp);
-    av_freep(&s->buf);
+    zn_av_freep(&s->limiter_buf);
+    zn_av_freep(&s->prev_smp);
+    zn_av_freep(&s->buf);
 }
 
 static const AVFilterPad avfilter_af_loudnorm_inputs[] = {

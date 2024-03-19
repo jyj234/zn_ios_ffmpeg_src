@@ -153,17 +153,17 @@ static int write_packet(Muxer *mux, OutputStream *ost, AVPacket *pkt)
     if (ms->stats.io)
         enc_stats_write(ost, &ms->stats, NULL, pkt, frame_num);
 
-    ret = av_interleaved_write_frame(s, pkt);
+    ret = zn_av_interleaved_write_frame(s, pkt);
     if (ret < 0) {
         av_log(ost, AV_LOG_ERROR,
                "Error submitting a packet to the muxer: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto fail;
     }
 
     return 0;
 fail:
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     return ret;
 }
 
@@ -216,7 +216,7 @@ static void *muxer_thread(void *arg)
     AVPacket  *pkt = NULL;
     int        ret = 0;
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         ret = AVERROR(ENOMEM);
         goto finish;
@@ -237,7 +237,7 @@ static void *muxer_thread(void *arg)
 
         ost = of->streams[stream_idx];
         ret = sync_queue_process(mux, ost, ret < 0 ? NULL : pkt, &stream_eof);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret == AVERROR_EOF) {
             if (stream_eof) {
                 tq_receive_finish(mux->tq, stream_idx);
@@ -253,7 +253,7 @@ static void *muxer_thread(void *arg)
     }
 
 finish:
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
 
     for (unsigned int i = 0; i < mux->fc->nb_streams; i++)
         tq_receive_finish(mux->tq, i);
@@ -278,7 +278,7 @@ static int thread_submit_packet(Muxer *mux, OutputStream *ost, AVPacket *pkt)
 
 finish:
     if (pkt)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
 
     ost->finished |= MUXER_FINISHED;
     tq_send_finish(mux->tq, ost->index);
@@ -315,7 +315,7 @@ static int queue_packet(OutputStream *ost, AVPacket *pkt)
         if (ret < 0)
             return ret;
 
-        tmp_pkt = av_packet_alloc();
+        tmp_pkt = zn_av_packet_alloc();
         if (!tmp_pkt)
             return AVERROR(ENOMEM);
 
@@ -338,7 +338,7 @@ static int submit_packet(Muxer *mux, AVPacket *pkt, OutputStream *ost)
         ret = queue_packet(ost, pkt);
         if (ret < 0) {
             if (pkt)
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
             return ret;
         }
     }
@@ -412,7 +412,7 @@ int of_streamcopy(OutputStream *ost, const AVPacket *pkt, int64_t dts)
     AVPacket *opkt = ms->pkt;
     int ret;
 
-    av_packet_unref(opkt);
+    zn_av_packet_unref(opkt);
 
     if (of->recording_time != INT64_MAX &&
         dts >= of->recording_time + start_time)
@@ -458,7 +458,7 @@ int of_streamcopy(OutputStream *ost, const AVPacket *pkt, int64_t dts)
         if (ret < 0) {
             av_log(NULL, AV_LOG_ERROR,
                    "Subtitle heartbeat logic failed in %s! (%s)\n",
-                   __func__, av_err2str(ret));
+                   __func__, zn_av_err2str(ret));
             return ret;
         }
     }
@@ -521,7 +521,7 @@ static int thread_start(Muxer *mux)
             ret = thread_submit_packet(mux, ost, pkt);
             if (pkt) {
                 ms->muxing_queue_data_size -= pkt->size;
-                av_packet_free(&pkt);
+                zn_av_packet_free(&pkt);
             }
             if (ret < 0)
                 return ret;
@@ -544,7 +544,7 @@ static int print_sdp(void)
             return 0;
     }
 
-    avc = av_malloc_array(nb_output_files, sizeof(*avc));
+    avc = zn_av_malloc_array(nb_output_files, sizeof(*avc));
     if (!avc)
         return AVERROR(ENOMEM);
     for (i = 0, j = 0; i < nb_output_files; i++) {
@@ -575,15 +575,15 @@ static int print_sdp(void)
         }
 
         avio_print(sdp_pb, sdp);
-        avio_closep(&sdp_pb);
-        av_freep(&sdp_filename);
+        zn_avio_closep(&sdp_pb);
+        zn_av_freep(&sdp_filename);
     }
 
     // SDP successfully written, allow muxer threads to start
     ret = 1;
 
 fail:
-    av_freep(&avc);
+    zn_av_freep(&avc);
     return ret;
 }
 
@@ -599,16 +599,16 @@ int mux_check_init(Muxer *mux)
             return 0;
     }
 
-    ret = avformat_write_header(fc, &mux->opts);
+    ret = zn_avformat_write_header(fc, &mux->opts);
     if (ret < 0) {
         av_log(mux, AV_LOG_ERROR, "Could not write header (incorrect codec "
-               "parameters ?): %s\n", av_err2str(ret));
+               "parameters ?): %s\n", zn_av_err2str(ret));
         return ret;
     }
     //assert_avoptions(of->opts);
     mux->header_written = 1;
 
-    av_dump_format(fc, of->index, fc->url, 1);
+    zn_av_dump_format(fc, of->index, fc->url, 1);
     nb_output_dumped++;
 
     if (sdp_filename || want_sdp) {
@@ -641,9 +641,9 @@ static int bsf_init(MuxStream *ms)
     int ret;
 
     if (!ctx)
-        return avcodec_parameters_copy(ost->st->codecpar, ost->par_in);
+        return zn_avcodec_parameters_copy(ost->st->codecpar, ost->par_in);
 
-    ret = avcodec_parameters_copy(ctx->par_in, ost->par_in);
+    ret = zn_avcodec_parameters_copy(ctx->par_in, ost->par_in);
     if (ret < 0)
         return ret;
 
@@ -656,12 +656,12 @@ static int bsf_init(MuxStream *ms)
         return ret;
     }
 
-    ret = avcodec_parameters_copy(ost->st->codecpar, ctx->par_out);
+    ret = zn_avcodec_parameters_copy(ost->st->codecpar, ctx->par_out);
     if (ret < 0)
         return ret;
     ost->st->time_base = ctx->time_base_out;
 
-    ms->bsf_pkt = av_packet_alloc();
+    ms->bsf_pkt = zn_av_packet_alloc();
     if (!ms->bsf_pkt)
         return AVERROR(ENOMEM);
 
@@ -811,18 +811,18 @@ int of_write_trailer(OutputFile *of)
 
     mux_result = thread_stop(mux);
 
-    ret = av_write_trailer(fc);
+    ret = zn_av_write_trailer(fc);
     if (ret < 0) {
-        av_log(mux, AV_LOG_ERROR, "Error writing trailer: %s\n", av_err2str(ret));
+        av_log(mux, AV_LOG_ERROR, "Error writing trailer: %s\n", zn_av_err2str(ret));
         mux_result = err_merge(mux_result, ret);
     }
 
     mux->last_filesize = filesize(fc->pb);
 
     if (!(of->format->flags & AVFMT_NOFILE)) {
-        ret = avio_closep(&fc->pb);
+        ret = zn_avio_closep(&fc->pb);
         if (ret < 0) {
-            av_log(mux, AV_LOG_ERROR, "Error closing file: %s\n", av_err2str(ret));
+            av_log(mux, AV_LOG_ERROR, "Error closing file: %s\n", zn_av_err2str(ret));
             mux_result = err_merge(mux_result, ret);
         }
     }
@@ -851,33 +851,33 @@ static void ost_free(OutputStream **post)
         if (fclose(ost->logfile))
             av_log(ms, AV_LOG_ERROR,
                    "Error closing logfile, loss of information possible: %s\n",
-                   av_err2str(AVERROR(errno)));
+                   zn_av_err2str(AVERROR(errno)));
         ost->logfile = NULL;
     }
 
     if (ms->muxing_queue) {
         AVPacket *pkt;
         while (av_fifo_read(ms->muxing_queue, &pkt, 1) >= 0)
-            av_packet_free(&pkt);
+            zn_av_packet_free(&pkt);
         av_fifo_freep2(&ms->muxing_queue);
     }
 
     avcodec_parameters_free(&ost->par_in);
 
     av_bsf_free(&ms->bsf_ctx);
-    av_packet_free(&ms->bsf_pkt);
+    zn_av_packet_free(&ms->bsf_pkt);
 
-    av_packet_free(&ms->pkt);
+    zn_av_packet_free(&ms->pkt);
     av_dict_free(&ost->encoder_opts);
 
-    av_freep(&ost->kf.pts);
+    zn_av_freep(&ost->kf.pts);
     av_expr_free(ost->kf.pexpr);
 
-    av_freep(&ost->logfile_prefix);
-    av_freep(&ost->apad);
+    zn_av_freep(&ost->logfile_prefix);
+    zn_av_freep(&ost->apad);
 
 #if FFMPEG_OPT_MAP_CHANNEL
-    av_freep(&ost->audio_channels_map);
+    zn_av_freep(&ost->audio_channels_map);
     ost->audio_channels_mapped = 0;
 #endif
 
@@ -885,22 +885,22 @@ static void ost_free(OutputStream **post)
     av_dict_free(&ost->swr_opts);
 
     if (ost->enc_ctx)
-        av_freep(&ost->enc_ctx->stats_in);
+        zn_av_freep(&ost->enc_ctx->stats_in);
     avcodec_free_context(&ost->enc_ctx);
 
     for (int i = 0; i < ost->enc_stats_pre.nb_components; i++)
-        av_freep(&ost->enc_stats_pre.components[i].str);
-    av_freep(&ost->enc_stats_pre.components);
+        zn_av_freep(&ost->enc_stats_pre.components[i].str);
+    zn_av_freep(&ost->enc_stats_pre.components);
 
     for (int i = 0; i < ost->enc_stats_post.nb_components; i++)
-        av_freep(&ost->enc_stats_post.components[i].str);
-    av_freep(&ost->enc_stats_post.components);
+        zn_av_freep(&ost->enc_stats_post.components[i].str);
+    zn_av_freep(&ost->enc_stats_post.components);
 
     for (int i = 0; i < ms->stats.nb_components; i++)
-        av_freep(&ms->stats.components[i].str);
-    av_freep(&ms->stats.components);
+        zn_av_freep(&ms->stats.components[i].str);
+    zn_av_freep(&ms->stats.components);
 
-    av_freep(post);
+    zn_av_freep(post);
 }
 
 static void fc_close(AVFormatContext **pfc)
@@ -911,8 +911,8 @@ static void fc_close(AVFormatContext **pfc)
         return;
 
     if (!(fc->oformat->flags & AVFMT_NOFILE))
-        avio_closep(&fc->pb);
-    avformat_free_context(fc);
+        zn_avio_closep(&fc->pb);
+    zn_avformat_free_context(fc);
 
     *pfc = NULL;
 }
@@ -933,15 +933,15 @@ void of_free(OutputFile **pof)
 
     for (int i = 0; i < of->nb_streams; i++)
         ost_free(&of->streams[i]);
-    av_freep(&of->streams);
+    zn_av_freep(&of->streams);
 
     av_dict_free(&mux->opts);
 
-    av_packet_free(&mux->sq_pkt);
+    zn_av_packet_free(&mux->sq_pkt);
 
     fc_close(&mux->fc);
 
-    av_freep(pof);
+    zn_av_freep(pof);
 }
 
 int64_t of_filesize(OutputFile *of)

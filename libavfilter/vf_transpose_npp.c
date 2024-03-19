@@ -86,12 +86,12 @@ static int npptranspose_init(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->stages); i++) {
-        s->stages[i].frame = av_frame_alloc();
+        s->stages[i].frame = zn_av_frame_alloc();
         if (!s->stages[i].frame)
             return AVERROR(ENOMEM);
     }
 
-    s->tmp_frame = av_frame_alloc();
+    s->tmp_frame = zn_av_frame_alloc();
     if (!s->tmp_frame)
         return AVERROR(ENOMEM);
 
@@ -104,11 +104,11 @@ static void npptranspose_uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->stages); i++) {
-        av_frame_free(&s->stages[i].frame);
+        zn_av_frame_free(&s->stages[i].frame);
         av_buffer_unref(&s->stages[i].frames_ctx);
     }
 
-    av_frame_free(&s->tmp_frame);
+    zn_av_frame_free(&s->tmp_frame);
 }
 
 static int init_stage(NPPTransposeStageContext *stage, AVBufferRef *device_ctx)
@@ -396,7 +396,7 @@ static int npptranspose_filter_frame(AVFilterLink *link, AVFrame *in)
     if (s->passthrough)
         return ff_filter_frame(outlink, in);
 
-    out = av_frame_alloc();
+    out = zn_av_frame_alloc();
     if (!out) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -412,13 +412,13 @@ static int npptranspose_filter_frame(AVFilterLink *link, AVFrame *in)
     if (ret < 0)
         goto fail;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

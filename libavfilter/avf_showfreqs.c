@@ -170,32 +170,32 @@ static int config_output(AVFilterLink *outlink)
      * Note: we use free and malloc instead of a realloc-like function to
      * make sure the buffer is aligned in memory for the FFT functions. */
     for (i = 0; i < s->nb_channels; i++) {
-        av_freep(&s->fft_input[i]);
-        av_freep(&s->fft_data[i]);
-        av_freep(&s->avg_data[i]);
+        zn_av_freep(&s->fft_input[i]);
+        zn_av_freep(&s->fft_data[i]);
+        zn_av_freep(&s->avg_data[i]);
     }
-    av_freep(&s->bypass);
-    av_freep(&s->fft_input);
-    av_freep(&s->fft_data);
-    av_freep(&s->avg_data);
+    zn_av_freep(&s->bypass);
+    zn_av_freep(&s->fft_input);
+    zn_av_freep(&s->fft_data);
+    zn_av_freep(&s->avg_data);
     s->nb_channels = inlink->ch_layout.nb_channels;
 
-    s->bypass = av_calloc(s->nb_channels, sizeof(*s->bypass));
+    s->bypass = zn_av_calloc(s->nb_channels, sizeof(*s->bypass));
     if (!s->bypass)
         return AVERROR(ENOMEM);
-    s->fft_input = av_calloc(s->nb_channels, sizeof(*s->fft_input));
+    s->fft_input = zn_av_calloc(s->nb_channels, sizeof(*s->fft_input));
     if (!s->fft_input)
         return AVERROR(ENOMEM);
-    s->fft_data = av_calloc(s->nb_channels, sizeof(*s->fft_data));
+    s->fft_data = zn_av_calloc(s->nb_channels, sizeof(*s->fft_data));
     if (!s->fft_data)
         return AVERROR(ENOMEM);
-    s->avg_data = av_calloc(s->nb_channels, sizeof(*s->avg_data));
+    s->avg_data = zn_av_calloc(s->nb_channels, sizeof(*s->avg_data));
     if (!s->avg_data)
         return AVERROR(ENOMEM);
     for (i = 0; i < s->nb_channels; i++) {
-        s->fft_input[i] = av_calloc(FFALIGN(s->win_size, 512), sizeof(**s->fft_input));
-        s->fft_data[i] = av_calloc(FFALIGN(s->win_size, 512), sizeof(**s->fft_data));
-        s->avg_data[i] = av_calloc(s->nb_freq, sizeof(**s->avg_data));
+        s->fft_input[i] = zn_av_calloc(FFALIGN(s->win_size, 512), sizeof(**s->fft_input));
+        s->fft_data[i] = zn_av_calloc(FFALIGN(s->win_size, 512), sizeof(**s->fft_data));
+        s->avg_data[i] = zn_av_calloc(s->nb_freq, sizeof(**s->avg_data));
         if (!s->fft_data[i] || !s->avg_data[i] || !s->fft_input[i])
             return AVERROR(ENOMEM);
     }
@@ -228,7 +228,7 @@ static int config_output(AVFilterLink *outlink)
     outlink->w = s->w;
     outlink->h = s->h;
 
-    ret = av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
+    ret = zn_av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
     if (ret < 0)
         return ret;
     s->nb_draw_channels = s->nb_channels;
@@ -423,7 +423,7 @@ static int plot_freqs(AVFilterLink *inlink, int64_t pts)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_free(colors);
+        zn_av_free(colors);
         return AVERROR(ENOMEM);
     }
 
@@ -468,7 +468,7 @@ static int plot_freqs(AVFilterLink *inlink, int64_t pts)
         }
     }
 
-    av_free(colors);
+    zn_av_free(colors);
     out->pts = s->pts;
     out->duration = 1;
     out->sample_aspect_ratio = (AVRational){1,1};
@@ -490,7 +490,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         memset(&dst[offset + in->nb_samples], 0, (s->hop_size - in->nb_samples) * sizeof(float));
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return plot_freqs(inlink, pts);
 }
@@ -534,18 +534,18 @@ static av_cold void uninit(AVFilterContext *ctx)
     av_tx_uninit(&s->fft);
     for (i = 0; i < s->nb_channels; i++) {
         if (s->fft_input)
-            av_freep(&s->fft_input[i]);
+            zn_av_freep(&s->fft_input[i]);
         if (s->fft_data)
-            av_freep(&s->fft_data[i]);
+            zn_av_freep(&s->fft_data[i]);
         if (s->avg_data)
-            av_freep(&s->avg_data[i]);
+            zn_av_freep(&s->avg_data[i]);
     }
-    av_freep(&s->bypass);
-    av_freep(&s->fft_input);
-    av_freep(&s->fft_data);
-    av_freep(&s->avg_data);
-    av_freep(&s->window_func_lut);
-    av_frame_free(&s->window);
+    zn_av_freep(&s->bypass);
+    zn_av_freep(&s->fft_input);
+    zn_av_freep(&s->fft_data);
+    zn_av_freep(&s->avg_data);
+    zn_av_freep(&s->window_func_lut);
+    zn_av_frame_free(&s->window);
 }
 
 static const AVFilterPad showfreqs_outputs[] = {

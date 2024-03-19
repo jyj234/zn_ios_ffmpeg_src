@@ -76,13 +76,13 @@ struct SwrContext *swr_alloc_set_opts(struct SwrContext *s,
     return s;
 fail:
     av_log(s, AV_LOG_ERROR, "Failed to set option\n");
-    swr_free(&s);
+    zn_swr_free(&s);
     return NULL;
 }
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
 
-int swr_alloc_set_opts2(struct SwrContext **ps,
+int zn_swr_alloc_set_opts2(struct SwrContext **ps,
                         const AVChannelLayout *out_ch_layout, enum AVSampleFormat out_sample_fmt, int out_sample_rate,
                         const AVChannelLayout *in_ch_layout, enum AVSampleFormat  in_sample_fmt, int  in_sample_rate,
                         int log_offset, void *log_ctx) {
@@ -118,7 +118,7 @@ int swr_alloc_set_opts2(struct SwrContext **ps,
     av_opt_set_int(s, "uch", 0, 0);
 
 #if FF_API_OLD_CHANNEL_LAYOUT
-    // Clear old API values so they don't take precedence in swr_init()
+    // Clear old API values so they don't take precedence in zn_swr_init()
     av_opt_set_int(s, "icl", 0, 0);
     av_opt_set_int(s, "ocl", 0, 0);
     av_opt_set_int(s, "ich", 0, 0);
@@ -128,7 +128,7 @@ int swr_alloc_set_opts2(struct SwrContext **ps,
     return 0;
 fail:
     av_log(s, AV_LOG_ERROR, "Failed to set option\n");
-    swr_free(ps);
+    zn_swr_free(ps);
     return ret;
 }
 
@@ -141,7 +141,7 @@ static void set_audiodata_fmt(AudioData *a, enum AVSampleFormat fmt){
 }
 
 static void free_temp(AudioData *a){
-    av_free(a->data);
+    zn_av_free(a->data);
     memset(a, 0, sizeof(*a));
 }
 
@@ -171,7 +171,7 @@ static void clear_context(SwrContext *s){
     s->flushed = 0;
 }
 
-av_cold void swr_free(SwrContext **ss){
+av_cold void zn_swr_free(SwrContext **ss){
     SwrContext *s= *ss;
     if(s){
         clear_context(s);
@@ -183,14 +183,14 @@ av_cold void swr_free(SwrContext **ss){
             s->resampler->free(&s->resample);
     }
 
-    av_freep(ss);
+    zn_av_freep(ss);
 }
 
 av_cold void swr_close(SwrContext *s){
     clear_context(s);
 }
 
-av_cold int swr_init(struct SwrContext *s){
+av_cold int zn_swr_init(struct SwrContext *s){
     int ret;
     char l1[1024], l2[1024];
 
@@ -223,7 +223,7 @@ av_cold int swr_init(struct SwrContext *s){
         s->used_ch_layout.order       = AV_CHANNEL_ORDER_UNSPEC;
         s->used_ch_layout.nb_channels = s->user_used_ch_count;
     } else if (av_channel_layout_check(&s->user_used_chlayout)) {
-        ret = av_channel_layout_copy(&s->used_ch_layout, &s->user_used_chlayout);
+        ret = zn_av_channel_layout_copy(&s->used_ch_layout, &s->user_used_chlayout);
         if (ret < 0)
             return ret;
     }
@@ -238,7 +238,7 @@ av_cold int swr_init(struct SwrContext *s){
             s->in_ch_layout.nb_channels = s->user_in_ch_count;
         }
     } else if (av_channel_layout_check(&s->user_in_chlayout))
-        av_channel_layout_copy(&s->in_ch_layout, &s->user_in_chlayout);
+        zn_av_channel_layout_copy(&s->in_ch_layout, &s->user_in_chlayout);
 
     if ((s->user_out_ch_count && s->user_out_ch_count != s->user_out_chlayout.nb_channels) ||
         (s->user_out_ch_layout && (s->user_out_chlayout.order != AV_CHANNEL_ORDER_NATIVE ||
@@ -251,7 +251,7 @@ av_cold int swr_init(struct SwrContext *s){
             s->out_ch_layout.nb_channels = s->user_out_ch_count;
         }
     } else if (av_channel_layout_check(&s->user_out_chlayout))
-        av_channel_layout_copy(&s->out_ch_layout, &s->user_out_chlayout);
+        zn_av_channel_layout_copy(&s->out_ch_layout, &s->user_out_chlayout);
 
     if (!s->out.ch_count)
         s->out.ch_count  = s->out_ch_layout.nb_channels;
@@ -289,9 +289,9 @@ av_cold int swr_init(struct SwrContext *s){
         return AVERROR(EINVAL);
     }
 
-    ret  = av_channel_layout_copy(&s->in_ch_layout, &s->user_in_chlayout);
-    ret |= av_channel_layout_copy(&s->out_ch_layout, &s->user_out_chlayout);
-    ret |= av_channel_layout_copy(&s->used_ch_layout, &s->user_used_chlayout);
+    ret  = zn_av_channel_layout_copy(&s->in_ch_layout, &s->user_in_chlayout);
+    ret |= zn_av_channel_layout_copy(&s->out_ch_layout, &s->user_out_chlayout);
+    ret |= zn_av_channel_layout_copy(&s->used_ch_layout, &s->user_used_chlayout);
     if (ret < 0)
         return ret;
 #endif
@@ -311,20 +311,20 @@ av_cold int swr_init(struct SwrContext *s){
     }
 
     if (!av_channel_layout_check(&s->used_ch_layout))
-        av_channel_layout_default(&s->used_ch_layout, s->in.ch_count);
+        zn_av_channel_layout_default(&s->used_ch_layout, s->in.ch_count);
 
     if (s->used_ch_layout.nb_channels != s->in_ch_layout.nb_channels)
         av_channel_layout_uninit(&s->in_ch_layout);
 
     if (s->used_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
-        av_channel_layout_default(&s->used_ch_layout, s->used_ch_layout.nb_channels);
+        zn_av_channel_layout_default(&s->used_ch_layout, s->used_ch_layout.nb_channels);
     if (s->in_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC) {
-        ret = av_channel_layout_copy(&s->in_ch_layout, &s->used_ch_layout);
+        ret = zn_av_channel_layout_copy(&s->in_ch_layout, &s->used_ch_layout);
         if (ret < 0)
             return ret;
     }
     if (s->out_ch_layout.order == AV_CHANNEL_ORDER_UNSPEC)
-        av_channel_layout_default(&s->out_ch_layout, s->out.ch_count);
+        zn_av_channel_layout_default(&s->out_ch_layout, s->out.ch_count);
 
     s->rematrix = av_channel_layout_compare(&s->out_ch_layout, &s->in_ch_layout) ||
                  s->rematrix_volume!=1.0 ||
@@ -410,7 +410,7 @@ av_cold int swr_init(struct SwrContext *s){
     if(!s-> in.ch_count)
         s-> in.ch_count = s->in_ch_layout.nb_channels;
     if (!av_channel_layout_check(&s->used_ch_layout))
-        av_channel_layout_default(&s->used_ch_layout, s->in.ch_count);
+        zn_av_channel_layout_default(&s->used_ch_layout, s->in.ch_count);
     if(!s->out.ch_count)
         s->out.ch_count = s->out_ch_layout.nb_channels;
 
@@ -535,7 +535,7 @@ int swri_realloc_audio(AudioData *a, int count){
     av_assert0(a->bps);
     av_assert0(a->ch_count);
 
-    a->data = av_calloc(countb, a->ch_count);
+    a->data = zn_av_calloc(countb, a->ch_count);
     if(!a->data)
         return AVERROR(ENOMEM);
     for(i=0; i<a->ch_count; i++){
@@ -543,7 +543,7 @@ int swri_realloc_audio(AudioData *a, int count){
         if(a->count && a->planar) memcpy(a->ch[i], old.ch[i], a->count*a->bps);
     }
     if(a->count && !a->planar) memcpy(a->ch[0], old.ch[0], a->count*a->ch_count*a->bps);
-    av_freep(&old.data);
+    zn_av_freep(&old.data);
     a->count= count;
 
     return 1;
@@ -699,7 +699,7 @@ static int resample(SwrContext *s, AudioData *out_param, int out_count,
     return ret_sum;
 }
 
-static int swr_convert_internal(struct SwrContext *s, AudioData *out, int out_count,
+static int zn_swr_convert_internal(struct SwrContext *s, AudioData *out, int out_count,
                                                       AudioData *in , int  in_count){
     AudioData *postin, *midbuf, *preout;
     int ret/*, in_max*/;
@@ -833,7 +833,7 @@ int swr_is_initialized(struct SwrContext *s) {
     return !!s->in_buffer.ch_count;
 }
 
-int attribute_align_arg swr_convert(struct SwrContext *s,
+int attribute_align_arg zn_swr_convert(struct SwrContext *s,
                                           uint8_t **out_arg, int out_count,
                                     const uint8_t **in_arg,  int in_count)
 {
@@ -858,7 +858,7 @@ int attribute_align_arg swr_convert(struct SwrContext *s,
 
         reversefill_audiodata(&s->drop_temp, tmp_arg);
         s->drop_output *= -1; //FIXME find a less hackish solution
-        ret = swr_convert(s, tmp_arg, FFMIN(-s->drop_output, MAX_DROP_STEP), in_arg, in_count); //FIXME optimize but this is as good as never called so maybe it doesn't matter
+        ret = zn_swr_convert(s, tmp_arg, FFMIN(-s->drop_output, MAX_DROP_STEP), in_arg, in_count); //FIXME optimize but this is as good as never called so maybe it doesn't matter
         s->drop_output *= -1;
         in_count = 0;
         if(ret>0) {
@@ -887,7 +887,7 @@ int attribute_align_arg swr_convert(struct SwrContext *s,
     fill_audiodata(out, out_arg);
 
     if(s->resample){
-        int ret = swr_convert_internal(s, out, out_count, in, in_count);
+        int ret = zn_swr_convert_internal(s, out, out_count, in, in_count);
         if(ret>0 && !s->drop_output)
             s->outpts += ret * (int64_t)s->in_sample_rate;
 
@@ -901,7 +901,7 @@ int attribute_align_arg swr_convert(struct SwrContext *s,
         size = FFMIN(out_count, s->in_buffer_count);
         if(size){
             buf_set(&tmp, &s->in_buffer, s->in_buffer_index);
-            ret= swr_convert_internal(s, out, size, &tmp, size);
+            ret= zn_swr_convert_internal(s, out, size, &tmp, size);
             if(ret<0)
                 return ret;
             ret2= ret;
@@ -916,7 +916,7 @@ int attribute_align_arg swr_convert(struct SwrContext *s,
         if(in_count){
             size= s->in_buffer_index + s->in_buffer_count + in_count - out_count;
 
-            if(in_count > out_count) { //FIXME move after swr_convert_internal
+            if(in_count > out_count) { //FIXME move after zn_swr_convert_internal
                 if(   size > s->in_buffer.count
                 && s->in_buffer_count + in_count - out_count <= s->in_buffer_index){
                     buf_set(&tmp, &s->in_buffer, s->in_buffer_index);
@@ -929,7 +929,7 @@ int attribute_align_arg swr_convert(struct SwrContext *s,
 
             if(out_count){
                 size = FFMIN(in_count, out_count);
-                ret= swr_convert_internal(s, out, size, in, size);
+                ret= zn_swr_convert_internal(s, out, size, in, size);
                 if(ret<0)
                     return ret;
                 buf_set(in, in, ret);
@@ -957,7 +957,7 @@ int swr_drop_output(struct SwrContext *s, int count){
         return 0;
 
     av_log(s, AV_LOG_VERBOSE, "discarding %d audio samples\n", count);
-    return swr_convert(s, NULL, s->drop_output, tmp_arg, 0);
+    return zn_swr_convert(s, NULL, s->drop_output, tmp_arg, 0);
 }
 
 int swr_inject_silence(struct SwrContext *s, int count){
@@ -984,7 +984,7 @@ int swr_inject_silence(struct SwrContext *s, int count){
 
     reversefill_audiodata(&s->silence, tmp_arg);
     av_log(s, AV_LOG_VERBOSE, "adding %d audio samples of silence\n", count);
-    ret = swr_convert(s, NULL, 0, (const uint8_t**)tmp_arg, count);
+    ret = zn_swr_convert(s, NULL, 0, (const uint8_t**)tmp_arg, count);
     return ret;
 }
 
@@ -1027,7 +1027,7 @@ int swr_set_compensation(struct SwrContext *s, int sample_delta, int compensatio
         return AVERROR(EINVAL);
     if (!s->resample) {
         s->flags |= SWR_FLAG_RESAMPLE;
-        ret = swr_init(s);
+        ret = zn_swr_init(s);
         if (ret < 0)
             return ret;
     }

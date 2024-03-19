@@ -190,7 +190,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(ctx->outputs[0], in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -224,7 +224,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     av_fifo_write(s->fifo, &meta, 1);
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     new_out_samples = out->nb_samples;
     if (s->in_trim > 0) {
@@ -235,7 +235,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (new_out_samples <= 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return 0;
     } else if (new_out_samples < out->nb_samples) {
         int offset = out->nb_samples - new_out_samples;
@@ -353,7 +353,7 @@ static int connect_ports(AVFilterContext *ctx, AVFilterLink *link)
     int i, j;
 
     s->nb_handles = s->nb_inputs == 1 && s->nb_outputs == 1 ? link->ch_layout.nb_channels : 1;
-    s->handles    = av_calloc(s->nb_handles, sizeof(*s->handles));
+    s->handles    = zn_av_calloc(s->nb_handles, sizeof(*s->handles));
     if (!s->handles)
         return AVERROR(ENOMEM);
 
@@ -400,7 +400,7 @@ static int config_output(AVFilterLink *outlink)
         outlink->format      = inlink->format;
         outlink->sample_rate = inlink->sample_rate;
         if (s->nb_inputs == s->nb_outputs) {
-            if ((ret = av_channel_layout_copy(&outlink->ch_layout, &inlink->ch_layout)) < 0)
+            if ((ret = zn_av_channel_layout_copy(&outlink->ch_layout, &inlink->ch_layout)) < 0)
                 return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT
 FF_DISABLE_DEPRECATION_WARNINGS
@@ -446,7 +446,7 @@ static void *try_load(const char *dir, const char *soname)
 
     if (path) {
         ret = dlopen(path, RTLD_LOCAL|RTLD_NOW);
-        av_free(path);
+        zn_av_free(path);
     }
 
     return ret;
@@ -519,15 +519,15 @@ static av_cold int init(AVFilterContext *ctx)
             }
         }
 
-        av_free(paths);
+        zn_av_free(paths);
         if (!s->dl_handle && home_path && (paths = av_asprintf("%s/.ladspa", home_path))) {
             s->dl_handle = try_load(paths, s->dl_name);
-            av_free(paths);
+            zn_av_free(paths);
         }
 
         if (!s->dl_handle && home_path && (paths = av_asprintf("%s/.ladspa/lib", home_path))) {
             s->dl_handle = try_load(paths, s->dl_name);
-            av_free(paths);
+            zn_av_free(paths);
         }
 
         if (!s->dl_handle)
@@ -582,13 +582,13 @@ static av_cold int init(AVFilterContext *ctx)
     s->desc  = desc;
     nb_ports = desc->PortCount;
 
-    s->ipmap = av_calloc(nb_ports, sizeof(*s->ipmap));
-    s->opmap = av_calloc(nb_ports, sizeof(*s->opmap));
-    s->icmap = av_calloc(nb_ports, sizeof(*s->icmap));
-    s->ocmap = av_calloc(nb_ports, sizeof(*s->ocmap));
-    s->ictlv = av_calloc(nb_ports, sizeof(*s->ictlv));
-    s->octlv = av_calloc(nb_ports, sizeof(*s->octlv));
-    s->ctl_needs_value = av_calloc(nb_ports, sizeof(*s->ctl_needs_value));
+    s->ipmap = zn_av_calloc(nb_ports, sizeof(*s->ipmap));
+    s->opmap = zn_av_calloc(nb_ports, sizeof(*s->opmap));
+    s->icmap = zn_av_calloc(nb_ports, sizeof(*s->icmap));
+    s->ocmap = zn_av_calloc(nb_ports, sizeof(*s->ocmap));
+    s->ictlv = zn_av_calloc(nb_ports, sizeof(*s->ictlv));
+    s->octlv = zn_av_calloc(nb_ports, sizeof(*s->octlv));
+    s->ctl_needs_value = zn_av_calloc(nb_ports, sizeof(*s->ctl_needs_value));
     if (!s->ipmap || !s->opmap || !s->icmap ||
         !s->ocmap || !s->ictlv || !s->octlv || !s->ctl_needs_value)
         return AVERROR(ENOMEM);
@@ -786,14 +786,14 @@ static av_cold void uninit(AVFilterContext *ctx)
     if (s->dl_handle)
         dlclose(s->dl_handle);
 
-    av_freep(&s->ipmap);
-    av_freep(&s->opmap);
-    av_freep(&s->icmap);
-    av_freep(&s->ocmap);
-    av_freep(&s->ictlv);
-    av_freep(&s->octlv);
-    av_freep(&s->handles);
-    av_freep(&s->ctl_needs_value);
+    zn_av_freep(&s->ipmap);
+    zn_av_freep(&s->opmap);
+    zn_av_freep(&s->icmap);
+    zn_av_freep(&s->ocmap);
+    zn_av_freep(&s->ictlv);
+    zn_av_freep(&s->octlv);
+    zn_av_freep(&s->handles);
+    zn_av_freep(&s->ctl_needs_value);
 
     av_fifo_freep2(&s->fifo);
 }

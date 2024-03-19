@@ -70,7 +70,7 @@ static int av1_read_header(AVFormatContext *s)
         return AVERROR_BUG;
     }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     sti = ffstream(st);
@@ -87,7 +87,7 @@ static int av1_read_header(AVFormatContext *s)
     if (ret < 0)
         return ret;
 
-    ret = avcodec_parameters_copy(c->bsf->par_in, st->codecpar);
+    ret = zn_avcodec_parameters_copy(c->bsf->par_in, st->codecpar);
     if (ret < 0)
         return ret;
 

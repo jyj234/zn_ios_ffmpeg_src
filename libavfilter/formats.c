@@ -46,9 +46,9 @@ do {                                                                       \
         *ret->refs[ret->refcount++] = ret;                                 \
     }                                                                      \
                                                                            \
-    av_freep(&a->refs);                                                    \
-    av_freep(&a->fmts);                                                    \
-    av_freep(&a);                                                          \
+    zn_av_freep(&a->refs);                                                    \
+    zn_av_freep(&a->fmts);                                                    \
+    zn_av_freep(&a);                                                          \
 } while (0)
 
 /**
@@ -233,7 +233,7 @@ static int merge_channel_layouts_internal(AVFilterChannelLayouts *a,
                 if (KNOWN(&b->channel_layouts[i]) && i != j++) {
                     if (check)
                         return 1;
-                    av_channel_layout_copy(&b->channel_layouts[j], &b->channel_layouts[i]);
+                    zn_av_channel_layout_copy(&b->channel_layouts[j], &b->channel_layouts[i]);
                 }
             /* Not optimal: the unknown layouts of b may become known after
                another merge. */
@@ -246,7 +246,7 @@ static int merge_channel_layouts_internal(AVFilterChannelLayouts *a,
     }
 
     ret_max = a->nb_channel_layouts + b->nb_channel_layouts;
-    if (!check && !(channel_layouts = av_calloc(ret_max, sizeof(*channel_layouts))))
+    if (!check && !(channel_layouts = zn_av_calloc(ret_max, sizeof(*channel_layouts))))
         return AVERROR(ENOMEM);
 
     /* a[known] intersect b[known] */
@@ -257,7 +257,7 @@ static int merge_channel_layouts_internal(AVFilterChannelLayouts *a,
             if (!av_channel_layout_compare(&a->channel_layouts[i], &b->channel_layouts[j])) {
                 if (check)
                     return 1;
-                av_channel_layout_copy(&channel_layouts[ret_nb++], &a->channel_layouts[i]);
+                zn_av_channel_layout_copy(&channel_layouts[ret_nb++], &a->channel_layouts[i]);
                 av_channel_layout_uninit(&a->channel_layouts[i]);
                 av_channel_layout_uninit(&b->channel_layouts[j]);
                 break;
@@ -276,7 +276,7 @@ static int merge_channel_layouts_internal(AVFilterChannelLayouts *a,
                 if (!av_channel_layout_compare(&b->channel_layouts[j], &bfmt)) {
                     if (check)
                         return 1;
-                    av_channel_layout_copy(&channel_layouts[ret_nb++], fmt);
+                    zn_av_channel_layout_copy(&channel_layouts[ret_nb++], fmt);
                 }
         }
         /* 1st round: swap to prepare 2nd round; 2nd round: put it back */
@@ -290,12 +290,12 @@ static int merge_channel_layouts_internal(AVFilterChannelLayouts *a,
             if (!av_channel_layout_compare(&a->channel_layouts[i], &b->channel_layouts[j])) {
                 if (check)
                     return 1;
-                av_channel_layout_copy(&channel_layouts[ret_nb++], &a->channel_layouts[i]);
+                zn_av_channel_layout_copy(&channel_layouts[ret_nb++], &a->channel_layouts[i]);
             }
     }
 
     if (!ret_nb) {
-        av_free(channel_layouts);
+        zn_av_free(channel_layouts);
         return 0;
     }
 
@@ -303,8 +303,8 @@ static int merge_channel_layouts_internal(AVFilterChannelLayouts *a,
         FFSWAP(AVFilterChannelLayouts *, a, b);
 
     MERGE_REF(b, a, channel_layouts, AVFilterChannelLayouts,
-              { av_free(channel_layouts); return AVERROR(ENOMEM); });
-    av_freep(&b->channel_layouts);
+              { zn_av_free(channel_layouts); return AVERROR(ENOMEM); });
+    zn_av_freep(&b->channel_layouts);
     b->channel_layouts    = channel_layouts;
     b->nb_channel_layouts = ret_nb;
     return 1;
@@ -392,9 +392,9 @@ int ff_fmt_is_in(int fmt, const int *fmts)
         return NULL;                                                    \
     formats->count_field = count;                                       \
     if (count) {                                                        \
-        formats->field = av_malloc_array(count, sizeof(*formats->field));      \
+        formats->field = zn_av_malloc_array(count, sizeof(*formats->field));      \
         if (!formats->field) {                                          \
-            av_freep(&formats);                                         \
+            zn_av_freep(&formats);                                         \
             return NULL;                                                \
         }                                                               \
     }
@@ -421,13 +421,13 @@ AVFilterChannelLayouts *ff_make_channel_layout_list(const AVChannelLayout *fmts)
     ch_layouts->nb_channel_layouts = count;
     if (count) {
         ch_layouts->channel_layouts =
-            av_calloc(count, sizeof(*ch_layouts->channel_layouts));
+            zn_av_calloc(count, sizeof(*ch_layouts->channel_layouts));
         if (!ch_layouts->channel_layouts) {
-            av_freep(&ch_layouts);
+            zn_av_freep(&ch_layouts);
             return NULL;
         }
         for (int i = 0; i < count; i++) {
-            int ret = av_channel_layout_copy(&ch_layouts->channel_layouts[i], &fmts[i]);
+            int ret = zn_av_channel_layout_copy(&ch_layouts->channel_layouts[i], &fmts[i]);
             if (ret < 0)
                 goto fail;
         }
@@ -438,8 +438,8 @@ AVFilterChannelLayouts *ff_make_channel_layout_list(const AVChannelLayout *fmts)
 fail:
     for (int i = 0; i < count; i++)
         av_channel_layout_uninit(&ch_layouts->channel_layouts[i]);
-    av_free(ch_layouts->channel_layouts);
-    av_freep(&ch_layouts);
+    zn_av_free(ch_layouts->channel_layouts);
+    zn_av_freep(&ch_layouts);
 
     return NULL;
 }
@@ -479,7 +479,7 @@ int ff_add_format(AVFilterFormats **avff, int64_t fmt)
 do {                                                              \
     int ret;                                                      \
     memset((*f)->list + (*f)->nb, 0, sizeof(*(*f)->list));        \
-    ret = av_channel_layout_copy(&(*f)->list[(*f)->nb], fmt);     \
+    ret = zn_av_channel_layout_copy(&(*f)->list[(*f)->nb], fmt);     \
     if (ret < 0)                                                  \
         return ret;                                               \
     (*f)->nb++;                                                   \
@@ -548,9 +548,9 @@ AVFilterFormats *ff_formats_pixdesc_filter(unsigned want, unsigned rej)
             return NULL;
         formats->nb_formats = nb_formats;
         if (nb_formats) {
-            formats->formats = av_malloc_array(nb_formats, sizeof(*formats->formats));
+            formats->formats = zn_av_malloc_array(nb_formats, sizeof(*formats->formats));
             if (!formats->formats) {
-                av_freep(&formats);
+                zn_av_freep(&formats);
                 return NULL;
             }
         }
@@ -646,9 +646,9 @@ do {                                                               \
     }                                                              \
     if (!(*ref)->refcount) {                                       \
         FREE_LIST(ref, list);                                      \
-        av_free((*ref)->list);                                     \
-        av_free((*ref)->refs);                                     \
-        av_free(*ref);                                             \
+        zn_av_free((*ref)->list);                                     \
+        zn_av_free((*ref)->refs);                                     \
+        zn_av_free(*ref);                                             \
     }                                                              \
     *ref = NULL;                                                   \
 } while (0)

@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     recv_buf[recv_buf_size-1] = 0;
     printf("%s\n", recv_buf);
     zmq_msg_close(&msg);
-    av_free(recv_buf);
+    zn_av_free(recv_buf);
 
 end:
     zmq_close(socket);

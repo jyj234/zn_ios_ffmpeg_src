@@ -171,8 +171,8 @@ static void evcc_close(EVCDecoderConfigurationRecord *evcc)
     for (unsigned i = 0; i < FF_ARRAY_ELEMS(evcc->arrays); i++) {
         EVCNALUnitArray *const array = &evcc->arrays[i];
         array->numNalus = 0;
-        av_freep(&array->nalUnit);
-        av_freep(&array->nalUnitLength);
+        zn_av_freep(&array->nalUnit);
+        zn_av_freep(&array->nalUnitLength);
     }
 }
 

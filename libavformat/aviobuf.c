@@ -141,7 +141,7 @@ void ffio_init_write_context(FFIOContext *s, uint8_t *buffer, int buffer_size)
     ffio_init_context(s, buffer, buffer_size, 1, NULL, NULL, NULL, NULL);
 }
 
-AVIOContext *avio_alloc_context(
+AVIOContext *zn_avio_alloc_context(
                   unsigned char *buffer,
                   int buffer_size,
                   int write_flag,
@@ -162,9 +162,9 @@ AVIOContext *avio_alloc_context(
     return &s->pub;
 }
 
-void avio_context_free(AVIOContext **ps)
+void zn_avio_context_free(AVIOContext **ps)
 {
-    av_freep(ps);
+    zn_av_freep(ps);
 }
 
 static void writeout(AVIOContext *s, const uint8_t *data, int len)
@@ -991,20 +991,20 @@ int ffio_fdopen(AVIOContext **s, URLContext *h)
     if (!buffer)
         return AVERROR(ENOMEM);
 
-    *s = avio_alloc_context(buffer, buffer_size, h->flags & AVIO_FLAG_WRITE, h,
+    *s = zn_avio_alloc_context(buffer, buffer_size, h->flags & AVIO_FLAG_WRITE, h,
                             ffurl_read2, ffurl_write2, ffurl_seek2);
     if (!*s) {
-        av_freep(&buffer);
+        zn_av_freep(&buffer);
         return AVERROR(ENOMEM);
     }
     (*s)->protocol_whitelist = av_strdup(h->protocol_whitelist);
     if (!(*s)->protocol_whitelist && h->protocol_whitelist) {
-        avio_closep(s);
+        zn_avio_closep(s);
         return AVERROR(ENOMEM);
     }
     (*s)->protocol_blacklist = av_strdup(h->protocol_blacklist);
     if (!(*s)->protocol_blacklist && h->protocol_blacklist) {
-        avio_closep(s);
+        zn_avio_closep(s);
         return AVERROR(ENOMEM);
     }
     (*s)->direct = h->flags & AVIO_FLAG_DIRECT;
@@ -1051,7 +1051,7 @@ int ffio_copy_url_options(AVIOContext* pb, AVDictionary** avio_opts)
                 if (ret < 0)
                     return ret;
             } else {
-                av_freep(&buf);
+                zn_av_freep(&buf);
             }
         }
         opt++;
@@ -1096,7 +1096,7 @@ int ffio_ensure_seekback(AVIOContext *s, int64_t buf_size)
             return AVERROR(ENOMEM);
         update_checksum(s);
         memcpy(buffer, s->buf_ptr, filled);
-        av_free(s->buffer);
+        zn_av_free(s->buffer);
         s->buffer = buffer;
         s->buffer_size = buf_size;
     }
@@ -1139,7 +1139,7 @@ static int set_buf_size(AVIOContext *s, int buf_size)
     if (!buffer)
         return AVERROR(ENOMEM);
 
-    av_free(s->buffer);
+    zn_av_free(s->buffer);
     s->buffer = buffer;
     ffiocontext(s)->orig_buffer_size =
     s->buffer_size = buf_size;
@@ -1166,7 +1166,7 @@ int ffio_realloc_buf(AVIOContext *s, int buf_size)
     data_size = s->write_flag ? (s->buf_ptr - s->buffer) : (s->buf_end - s->buf_ptr);
     if (data_size > 0)
         memcpy(buffer, s->write_flag ? s->buffer : s->buf_ptr, data_size);
-    av_free(s->buffer);
+    zn_av_free(s->buffer);
     s->buffer = buffer;
     ffiocontext(s)->orig_buffer_size = buf_size;
     s->buffer_size = buf_size;
@@ -1201,7 +1201,7 @@ int ffio_rewind_with_probe_data(AVIOContext *s, unsigned char **bufp, int buf_si
     uint8_t *buf = *bufp;
 
     if (s->write_flag) {
-        av_freep(bufp);
+        zn_av_freep(bufp);
         return AVERROR(EINVAL);
     }
 
@@ -1209,7 +1209,7 @@ int ffio_rewind_with_probe_data(AVIOContext *s, unsigned char **bufp, int buf_si
 
     /* the buffers must touch or overlap */
     if ((buffer_start = s->pos - buffer_size) > buf_size) {
-        av_freep(bufp);
+        zn_av_freep(bufp);
         return AVERROR(EINVAL);
     }
 
@@ -1226,7 +1226,7 @@ int ffio_rewind_with_probe_data(AVIOContext *s, unsigned char **bufp, int buf_si
         buf_size = new_size;
     }
 
-    av_free(s->buffer);
+    zn_av_free(s->buffer);
     s->buf_ptr = s->buffer = buf;
     s->buffer_size = alloc_size;
     s->pos = buf_size;
@@ -1236,7 +1236,7 @@ int ffio_rewind_with_probe_data(AVIOContext *s, unsigned char **bufp, int buf_si
     return 0;
 }
 
-int avio_open(AVIOContext **s, const char *filename, int flags)
+int zn_avio_open(AVIOContext **s, const char *filename, int flags)
 {
     return avio_open2(s, filename, flags, NULL, NULL);
 }
@@ -1281,7 +1281,7 @@ int avio_close(AVIOContext *s)
     h         = s->opaque;
     s->opaque = NULL;
 
-    av_freep(&s->buffer);
+    zn_av_freep(&s->buffer);
     if (s->write_flag)
         av_log(s, AV_LOG_VERBOSE,
                "Statistics: %"PRId64" bytes written, %d seeks, %d writeouts\n",
@@ -1292,7 +1292,7 @@ int avio_close(AVIOContext *s)
     av_opt_free(s);
 
     error = s->error;
-    avio_context_free(&s);
+    zn_avio_context_free(&s);
 
     ret = ffurl_close(h);
     if (ret < 0)
@@ -1301,7 +1301,7 @@ int avio_close(AVIOContext *s)
     return error;
 }
 
-int avio_closep(AVIOContext **s)
+int zn_avio_closep(AVIOContext **s)
 {
     int ret = avio_close(*s);
     *s = NULL;
@@ -1572,7 +1572,7 @@ int avio_close_dyn_buf(AVIOContext *s, uint8_t **pbuffer)
     *pbuffer = d->buffer;
     size = d->size;
 
-    avio_context_free(&s);
+    zn_avio_context_free(&s);
 
     return size - padding;
 }
@@ -1585,8 +1585,8 @@ void ffio_free_dyn_buf(AVIOContext **s)
         return;
 
     d = (*s)->opaque;
-    av_free(d->buffer);
-    avio_context_free(s);
+    zn_av_free(d->buffer);
+    zn_avio_context_free(s);
 }
 
 #if FF_API_AVIO_WRITE_NONCONST
@@ -1622,7 +1622,7 @@ int ffio_close_null_buf(AVIOContext *s)
 
     size = d->size;
 
-    avio_context_free(&s);
+    zn_avio_context_free(&s);
 
     return size;
 }

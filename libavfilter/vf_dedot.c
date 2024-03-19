@@ -274,7 +274,7 @@ static int activate(AVFilterContext *ctx)
                 if (!s->frames[i])
                     s->frames[i] = av_frame_clone(frame);
             }
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
         } else if (s->frames[3]) {
             s->eof_frames--;
             s->frames[4] = av_frame_clone(s->frames[3]);
@@ -305,13 +305,13 @@ static int activate(AVFilterContext *ctx)
                                                 s->planeheight[2]));
                     }
                 } else
-                    av_frame_free(&out);
+                    zn_av_frame_free(&out);
             } else if (!out) {
                 ret = AVERROR(ENOMEM);
             }
         }
 
-        av_frame_free(&s->frames[0]);
+        zn_av_frame_free(&s->frames[0]);
         s->frames[0] = s->frames[1];
         s->frames[1] = s->frames[2];
         s->frames[2] = s->frames[3];
@@ -356,7 +356,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     DedotContext *s = ctx->priv;
 
     for (int i = 0; i < 5; i++)
-        av_frame_free(&s->frames[i]);
+        zn_av_frame_free(&s->frames[i]);
 }
 
 #define OFFSET(x) offsetof(DedotContext, x)

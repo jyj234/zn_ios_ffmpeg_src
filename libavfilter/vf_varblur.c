@@ -259,7 +259,7 @@ static int blur_frame(AVFilterContext *ctx, AVFrame *in, AVFrame *radius)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -286,7 +286,7 @@ static int blur_frame(AVFilterContext *ctx, AVFrame *in, AVFrame *radius)
                       FFMIN(s->planeheight[1], ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -351,7 +351,7 @@ static int config_output(AVFilterLink *outlink)
 
     for (int p = 0; p < s->nb_planes; p++) {
         s->sat_linesize[p] = (outlink->w + 1) * (4 + 4 * (s->depth > 8));
-        s->sat[p] = av_calloc(s->sat_linesize[p], outlink->h + 1);
+        s->sat[p] = zn_av_calloc(s->sat_linesize[p], outlink->h + 1);
         if (!s->sat[p])
             return AVERROR(ENOMEM);
     }
@@ -372,7 +372,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     ff_framesync_uninit(&s->fs);
     for (int p = 0; p < 4; p++)
-        av_freep(&s->sat[p]);
+        zn_av_freep(&s->sat[p]);
 }
 
 static const AVFilterPad varblur_inputs[] = {

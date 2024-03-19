@@ -269,11 +269,11 @@ static int config_input(AVFilterLink *inlink)
     else
         s->hysteresis = hysteresis16;
 
-    s->map = av_calloc(inlink->w, inlink->h * sizeof (*s->map));
+    s->map = zn_av_calloc(inlink->w, inlink->h * sizeof (*s->map));
     if (!s->map)
         return AVERROR(ENOMEM);
 
-    s->xy = av_calloc(inlink->w, inlink->h * sizeof(*s->xy));
+    s->xy = zn_av_calloc(inlink->w, inlink->h * sizeof(*s->xy));
     if (!s->xy)
         return AVERROR(ENOMEM);
 
@@ -336,8 +336,8 @@ static av_cold void uninit(AVFilterContext *ctx)
     HysteresisContext *s = ctx->priv;
 
     ff_framesync_uninit(&s->fs);
-    av_freep(&s->map);
-    av_freep(&s->xy);
+    zn_av_freep(&s->map);
+    zn_av_freep(&s->xy);
 }
 
 FRAMESYNC_DEFINE_CLASS(hysteresis, HysteresisContext, fs);

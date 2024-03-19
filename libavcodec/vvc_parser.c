@@ -398,7 +398,7 @@ static int combine_au(AVCodecParserContext *s, AVCodecContext *avctx,
 
     ctx->cbc->log_ctx = avctx;
 
-    av_packet_unref(&ctx->last_au);
+    zn_av_packet_unref(&ctx->last_au);
     ret = parse_nal_units(s, *buf, *buf_size, avctx);
     if (ret == 0) {
         if (ctx->last_au.size) {
@@ -500,12 +500,12 @@ static av_cold void vvc_parser_close(AVCodecParserContext *s)
 {
     VVCParserContext *ctx = s->priv_data;
 
-    av_packet_unref(&ctx->au);
-    av_packet_unref(&ctx->last_au);
+    zn_av_packet_unref(&ctx->au);
+    zn_av_packet_unref(&ctx->last_au);
     ff_cbs_fragment_free(&ctx->picture_unit);
 
     ff_cbs_close(&ctx->cbc);
-    av_freep(&ctx->pc.buffer);
+    zn_av_freep(&ctx->pc.buffer);
 }
 
 const AVCodecParser ff_vvc_parser = {

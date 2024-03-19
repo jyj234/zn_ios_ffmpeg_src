@@ -39,25 +39,25 @@ static av_cold int ftr_init(AVCodecContext *avctx)
         avctx->ch_layout.nb_channels <= 0)
         return AVERROR(EINVAL);
 
-    s->packet = av_packet_alloc();
+    s->packet = zn_av_packet_alloc();
     if (!s->packet)
         return AVERROR(ENOMEM);
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
     s->nb_context = avctx->ch_layout.nb_channels;
 
-    codec = avcodec_find_decoder(AV_CODEC_ID_AAC);
+    codec = zn_avcodec_find_decoder(AV_CODEC_ID_AAC);
     if (!codec)
         return AVERROR_BUG;
 
     for (int i = 0; i < s->nb_context; i++) {
-        s->aac_avctx[i] = avcodec_alloc_context3(codec);
+        s->aac_avctx[i] = zn_avcodec_alloc_context3(codec);
         if (!s->aac_avctx[i])
             return AVERROR(ENOMEM);
-        ret = avcodec_open2(s->aac_avctx[i], codec, NULL);
+        ret = zn_avcodec_open2(s->aac_avctx[i], codec, NULL);
         if (ret < 0)
             return ret;
     }
@@ -123,13 +123,13 @@ static int ftr_decode_frame(AVCodecContext *avctx, AVFrame *frame,
             }
         }
 
-        ret = avcodec_send_packet(codec_avctx, s->packet);
+        ret = zn_avcodec_send_packet(codec_avctx, s->packet);
         if (ret < 0) {
             av_log(avctx, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
             return ret;
         }
 
-        ret = avcodec_receive_frame(codec_avctx, s->frame);
+        ret = zn_avcodec_receive_frame(codec_avctx, s->frame);
         if (ret < 0)
             return ret;
 
@@ -187,8 +187,8 @@ static av_cold int ftr_close(AVCodecContext *avctx)
 
     for (int i = 0; i < s->nb_context; i++)
         avcodec_free_context(&s->aac_avctx[i]);
-    av_packet_free(&s->packet);
-    av_frame_free(&s->frame);
+    zn_av_packet_free(&s->packet);
+    zn_av_frame_free(&s->frame);
 
     return 0;
 }

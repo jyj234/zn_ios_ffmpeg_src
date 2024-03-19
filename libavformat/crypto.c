@@ -380,9 +380,9 @@ static int crypto_close(URLContext *h)
     }
 
     ffurl_closep(&c->hd);
-    av_freep(&c->aes_decrypt);
-    av_freep(&c->aes_encrypt);
-    av_freep(&c->write_buf);
+    zn_av_freep(&c->aes_decrypt);
+    zn_av_freep(&c->aes_encrypt);
+    zn_av_freep(&c->write_buf);
     return ret;
 }
 

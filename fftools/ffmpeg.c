@@ -356,7 +356,7 @@ static void ffmpeg_cleanup(int ret)
 
     for (i = 0; i < nb_filtergraphs; i++)
         fg_free(&filtergraphs[i]);
-    av_freep(&filtergraphs);
+    zn_av_freep(&filtergraphs);
 
     for (i = 0; i < nb_output_files; i++)
         of_free(&output_files[i]);
@@ -368,17 +368,17 @@ static void ffmpeg_cleanup(int ret)
         if (fclose(vstats_file))
             av_log(NULL, AV_LOG_ERROR,
                    "Error closing vstats file, loss of information possible: %s\n",
-                   av_err2str(AVERROR(errno)));
+                   zn_av_err2str(AVERROR(errno)));
     }
-    av_freep(&vstats_filename);
+    zn_av_freep(&vstats_filename);
     of_enc_stats_close();
 
     hw_device_free_all();
 
-    av_freep(&filter_nbthreads);
+    zn_av_freep(&filter_nbthreads);
 
-    av_freep(&input_files);
-    av_freep(&output_files);
+    zn_av_freep(&input_files);
+    zn_av_freep(&output_files);
 
     uninit_opts();
 
@@ -639,9 +639,9 @@ static void print_report(int is_last_report, int64_t timer_start, int64_t cur_ti
         avio_flush(progress_avio);
         av_bprint_finalize(&buf_script, NULL);
         if (is_last_report) {
-            if ((ret = avio_closep(&progress_avio)) < 0)
+            if ((ret = zn_avio_closep(&progress_avio)) < 0)
                 av_log(NULL, AV_LOG_ERROR,
-                       "Error closing progress log, loss of information possible: %s\n", av_err2str(ret));
+                       "Error closing progress log, loss of information possible: %s\n", zn_av_err2str(ret));
         }
     }
 
@@ -663,7 +663,7 @@ int copy_av_subtitle(AVSubtitle *dst, const AVSubtitle *src)
     if (!src->num_rects)
         goto success;
 
-    if (!(tmp.rects = av_calloc(src->num_rects, sizeof(*tmp.rects))))
+    if (!(tmp.rects = zn_av_calloc(src->num_rects, sizeof(*tmp.rects))))
         return AVERROR(ENOMEM);
 
     for (int i = 0; i < src->num_rects; i++) {
@@ -732,7 +732,7 @@ static void subtitle_free(void *opaque, uint8_t *data)
 {
     AVSubtitle *sub = (AVSubtitle*)data;
     avsubtitle_free(sub);
-    av_free(sub);
+    zn_av_free(sub);
 }
 
 int subtitle_wrap_frame(AVFrame *frame, AVSubtitle *subtitle, int copy)
@@ -745,7 +745,7 @@ int subtitle_wrap_frame(AVFrame *frame, AVSubtitle *subtitle, int copy)
         sub = av_mallocz(sizeof(*sub));
         ret = sub ? copy_av_subtitle(sub, subtitle) : AVERROR(ENOMEM);
         if (ret < 0) {
-            av_freep(&sub);
+            zn_av_freep(&sub);
             return ret;
         }
     } else {
@@ -759,7 +759,7 @@ int subtitle_wrap_frame(AVFrame *frame, AVSubtitle *subtitle, int copy)
                            subtitle_free, NULL, 0);
     if (!buf) {
         avsubtitle_free(sub);
-        av_freep(&sub);
+        zn_av_freep(&sub);
         return AVERROR(ENOMEM);
     }
 
@@ -1076,7 +1076,7 @@ static int process_input(int file_index)
     if (ret < 0) {
         if (ret != AVERROR_EOF) {
             av_log(ifile, AV_LOG_ERROR,
-                   "Error retrieving a packet from demuxer: %s\n", av_err2str(ret));
+                   "Error retrieving a packet from demuxer: %s\n", zn_av_err2str(ret));
             if (exit_on_error)
                 return ret;
         }
@@ -1114,7 +1114,7 @@ static int process_input(int file_index)
 
     ret = process_input_packet(ist, pkt, 0);
 
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
 
     return ret < 0 ? ret : 0;
 }
@@ -1203,7 +1203,7 @@ static int transcode(int *err_rate_exceeded)
 
         ret = transcode_step(ost);
         if (ret < 0 && ret != AVERROR_EOF) {
-            av_log(NULL, AV_LOG_ERROR, "Error while filtering: %s\n", av_err2str(ret));
+            av_log(NULL, AV_LOG_ERROR, "Error while filtering: %s\n", zn_av_err2str(ret));
             break;
         }
 

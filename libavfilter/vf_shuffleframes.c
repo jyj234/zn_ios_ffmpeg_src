@@ -49,9 +49,9 @@ static av_cold int init(AVFilterContext *ctx)
             nb_items++;
     }
 
-    s->frames = av_calloc(nb_items, sizeof(*s->frames));
-    s->map    = av_calloc(nb_items, sizeof(*s->map));
-    s->pts    = av_calloc(nb_items, sizeof(*s->pts));
+    s->frames = zn_av_calloc(nb_items, sizeof(*s->frames));
+    s->map    = zn_av_calloc(nb_items, sizeof(*s->map));
+    s->pts    = zn_av_calloc(nb_items, sizeof(*s->pts));
     if (!s->map || !s->frames || !s->pts) {
         return AVERROR(ENOMEM);
     }
@@ -63,19 +63,19 @@ static av_cold int init(AVFilterContext *ctx)
     for (n = 0; n < nb_items; n++) {
         char *map = av_strtok(n == 0 ? mapping : NULL, " |", &saveptr);
         if (!map || sscanf(map, "%d", &s->map[n]) != 1) {
-            av_free(mapping);
+            zn_av_free(mapping);
             return AVERROR(EINVAL);
         }
 
         if (s->map[n] < -1 || s->map[n] >= nb_items) {
             av_log(ctx, AV_LOG_ERROR, "Index %d out of range: [-1, %d].\n", s->map[n], nb_items - 1);
-            av_free(mapping);
+            zn_av_free(mapping);
             return AVERROR(EINVAL);
         }
     }
 
     s->nb_frames = nb_items;
-    av_free(mapping);
+    zn_av_free(mapping);
     return 0;
 }
 
@@ -109,7 +109,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         }
 
         for (n = 0; n < s->nb_frames; n++)
-            av_frame_free(&s->frames[n]);
+            zn_av_frame_free(&s->frames[n]);
     }
 
     return ret;
@@ -121,12 +121,12 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     while (s->in_frames > 0) {
         s->in_frames--;
-        av_frame_free(&s->frames[s->in_frames]);
+        zn_av_frame_free(&s->frames[s->in_frames]);
     }
 
-    av_freep(&s->frames);
-    av_freep(&s->map);
-    av_freep(&s->pts);
+    zn_av_freep(&s->frames);
+    zn_av_freep(&s->map);
+    zn_av_freep(&s->pts);
 }
 
 #define OFFSET(x) offsetof(ShuffleFramesContext, x)

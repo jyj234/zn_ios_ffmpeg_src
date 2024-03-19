@@ -320,16 +320,16 @@ static av_cold void free_tables(AVCodecContext *avctx)
 {
     Vp3DecodeContext *s = avctx->priv_data;
 
-    av_freep(&s->superblock_coding);
-    av_freep(&s->all_fragments);
-    av_freep(&s->nkf_coded_fragment_list);
-    av_freep(&s->kf_coded_fragment_list);
-    av_freep(&s->dct_tokens_base);
-    av_freep(&s->superblock_fragments);
-    av_freep(&s->macroblock_coding);
-    av_freep(&s->dc_pred_row);
-    av_freep(&s->motion_val[0]);
-    av_freep(&s->motion_val[1]);
+    zn_av_freep(&s->superblock_coding);
+    zn_av_freep(&s->all_fragments);
+    zn_av_freep(&s->nkf_coded_fragment_list);
+    zn_av_freep(&s->kf_coded_fragment_list);
+    zn_av_freep(&s->dct_tokens_base);
+    zn_av_freep(&s->superblock_fragments);
+    zn_av_freep(&s->macroblock_coding);
+    zn_av_freep(&s->dc_pred_row);
+    zn_av_freep(&s->motion_val[0]);
+    zn_av_freep(&s->motion_val[1]);
 }
 
 static void vp3_decode_flush(AVCodecContext *avctx)
@@ -349,15 +349,15 @@ static av_cold int vp3_decode_end(AVCodecContext *avctx)
     Vp3DecodeContext *s = avctx->priv_data;
 
     free_tables(avctx);
-    av_freep(&s->edge_emu_buffer);
+    zn_av_freep(&s->edge_emu_buffer);
 
     s->theora_tables = 0;
 
     /* release all frames */
     vp3_decode_flush(avctx);
-    av_frame_free(&s->current_frame.f);
-    av_frame_free(&s->last_frame.f);
-    av_frame_free(&s->golden_frame.f);
+    zn_av_frame_free(&s->current_frame.f);
+    zn_av_frame_free(&s->last_frame.f);
+    zn_av_frame_free(&s->golden_frame.f);
 
     for (int i = 0; i < FF_ARRAY_ELEMS(s->coeff_vlc); i++)
         ff_vlc_free(&s->coeff_vlc[i]);
@@ -2271,22 +2271,22 @@ static av_cold int allocate_tables(AVCodecContext *avctx)
 
     /* superblock_coding is used by unpack_superblocks (VP3/Theora) and vp4_unpack_macroblocks (VP4) */
     s->superblock_coding = av_mallocz(FFMAX(s->superblock_count, s->yuv_macroblock_count));
-    s->all_fragments     = av_calloc(s->fragment_count, sizeof(*s->all_fragments));
+    s->all_fragments     = zn_av_calloc(s->fragment_count, sizeof(*s->all_fragments));
 
-    s-> kf_coded_fragment_list = av_calloc(s->fragment_count, sizeof(int));
-    s->nkf_coded_fragment_list = av_calloc(s->fragment_count, sizeof(int));
+    s-> kf_coded_fragment_list = zn_av_calloc(s->fragment_count, sizeof(int));
+    s->nkf_coded_fragment_list = zn_av_calloc(s->fragment_count, sizeof(int));
     memset(s-> num_kf_coded_fragment, -1, sizeof(s-> num_kf_coded_fragment));
 
-    s->dct_tokens_base = av_calloc(s->fragment_count,
+    s->dct_tokens_base = zn_av_calloc(s->fragment_count,
                                    64 * sizeof(*s->dct_tokens_base));
-    s->motion_val[0] = av_calloc(y_fragment_count, sizeof(*s->motion_val[0]));
-    s->motion_val[1] = av_calloc(c_fragment_count, sizeof(*s->motion_val[1]));
+    s->motion_val[0] = zn_av_calloc(y_fragment_count, sizeof(*s->motion_val[0]));
+    s->motion_val[1] = zn_av_calloc(c_fragment_count, sizeof(*s->motion_val[1]));
 
     /* work out the block mapping tables */
-    s->superblock_fragments = av_calloc(s->superblock_count, 16 * sizeof(int));
+    s->superblock_fragments = zn_av_calloc(s->superblock_count, 16 * sizeof(int));
     s->macroblock_coding    = av_mallocz(s->macroblock_count + 1);
 
-    s->dc_pred_row = av_malloc_array(s->y_superblock_width * 4, sizeof(*s->dc_pred_row));
+    s->dc_pred_row = zn_av_malloc_array(s->y_superblock_width * 4, sizeof(*s->dc_pred_row));
 
     if (!s->superblock_coding    || !s->all_fragments          ||
         !s->dct_tokens_base      || !s->kf_coded_fragment_list ||
@@ -2304,9 +2304,9 @@ static av_cold int allocate_tables(AVCodecContext *avctx)
 
 static av_cold int init_frames(Vp3DecodeContext *s)
 {
-    s->current_frame.f = av_frame_alloc();
-    s->last_frame.f    = av_frame_alloc();
-    s->golden_frame.f  = av_frame_alloc();
+    s->current_frame.f = zn_av_frame_alloc();
+    s->last_frame.f    = zn_av_frame_alloc();
+    s->golden_frame.f  = zn_av_frame_alloc();
 
     if (!s->current_frame.f || !s->last_frame.f || !s->golden_frame.f)
         return AVERROR(ENOMEM);

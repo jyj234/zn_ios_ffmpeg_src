@@ -1531,7 +1531,7 @@ static int qsv_init_opaque_alloc(AVCodecContext *avctx, QSVEncContext *q)
     if (!q->opaque_alloc_buf)
         return AVERROR(ENOMEM);
 
-    q->opaque_surfaces = av_malloc_array(nb_surfaces, sizeof(*q->opaque_surfaces));
+    q->opaque_surfaces = zn_av_malloc_array(nb_surfaces, sizeof(*q->opaque_surfaces));
     if (!q->opaque_surfaces)
         return AVERROR(ENOMEM);
 
@@ -1672,7 +1672,7 @@ int ff_qsv_enc_init(AVCodecContext *avctx, QSVEncContext *q)
         AVQSVContext *qsv = avctx->hwaccel_context;
         int i, j;
 
-        q->extparam = av_calloc(qsv->nb_ext_buffers + q->nb_extparam_internal,
+        q->extparam = zn_av_calloc(qsv->nb_ext_buffers + q->nb_extparam_internal,
                                 sizeof(*q->extparam));
         if (!q->extparam)
             return AVERROR(ENOMEM);
@@ -1759,10 +1759,10 @@ static void free_encoder_ctrl(mfxEncodeCtrl* enc_ctrl)
 {
     if (enc_ctrl) {
         for (int i = 0; i < enc_ctrl->NumPayload && i < QSV_MAX_ENC_PAYLOAD; i++)
-            av_freep(&enc_ctrl->Payload[i]);
+            zn_av_freep(&enc_ctrl->Payload[i]);
 
         for (int i = 0; i < enc_ctrl->NumExtParam && i < QSV_MAX_ENC_EXTPARAM; i++)
-            av_freep(&enc_ctrl->ExtParam[i]);
+            zn_av_freep(&enc_ctrl->ExtParam[i]);
 
         enc_ctrl->NumPayload = 0;
         enc_ctrl->NumExtParam = 0;
@@ -1810,9 +1810,9 @@ static int get_free_frame(QSVEncContext *q, QSVFrame **f)
     frame = av_mallocz(sizeof(*frame));
     if (!frame)
         return AVERROR(ENOMEM);
-    frame->frame = av_frame_alloc();
+    frame->frame = zn_av_frame_alloc();
     if (!frame->frame) {
-        av_freep(&frame);
+        zn_av_freep(&frame);
         return AVERROR(ENOMEM);
     }
     frame->enc_ctrl.Payload = frame->payloads;
@@ -2470,12 +2470,12 @@ static int encode_frame(AVCodecContext *avctx, QSVEncContext *q,
             goto free;
     } else {
 free:
-        av_freep(&pkt.sync);
-        av_packet_unref(&pkt.pkt);
-        av_freep(&pkt.bs);
+        zn_av_freep(&pkt.sync);
+        zn_av_packet_unref(&pkt.pkt);
+        zn_av_freep(&pkt.bs);
         if (avctx->codec_id == AV_CODEC_ID_H264) {
-            av_freep(&enc_info);
-            av_freep(&enc_buf);
+            zn_av_freep(&enc_info);
+            zn_av_freep(&enc_buf);
         }
     }
 
@@ -2597,11 +2597,11 @@ int ff_qsv_encode(AVCodecContext *avctx, QSVEncContext *q,
             enc_info = (mfxExtAVCEncodedFrameInfo *)(*enc_buf);
             ff_side_data_set_encoder_stats(&qpkt.pkt,
                 enc_info->QP * FF_QP2LAMBDA, NULL, 0, pict_type);
-            av_freep(&enc_info);
-            av_freep(&enc_buf);
+            zn_av_freep(&enc_info);
+            zn_av_freep(&enc_buf);
         }
-        av_freep(&qpkt.bs);
-        av_freep(&qpkt.sync);
+        zn_av_freep(&qpkt.bs);
+        zn_av_freep(&qpkt.sync);
 
         av_packet_move_ref(pkt, &qpkt.pkt);
 
@@ -2627,9 +2627,9 @@ int ff_qsv_enc_close(AVCodecContext *avctx, QSVEncContext *q)
     cur = q->work_frames;
     while (cur) {
         q->work_frames = cur->next;
-        av_frame_free(&cur->frame);
+        zn_av_frame_free(&cur->frame);
         free_encoder_ctrl(&cur->enc_ctrl);
-        av_freep(&cur);
+        zn_av_freep(&cur);
         cur = q->work_frames;
     }
 
@@ -2639,22 +2639,22 @@ int ff_qsv_enc_close(AVCodecContext *avctx, QSVEncContext *q)
             if (avctx->codec_id == AV_CODEC_ID_H264) {
                 mfxExtBuffer **enc_buf = pkt.bs->ExtParam;
                 mfxExtAVCEncodedFrameInfo *enc_info = (mfxExtAVCEncodedFrameInfo *)(*enc_buf);
-                av_freep(&enc_info);
-                av_freep(&enc_buf);
+                zn_av_freep(&enc_info);
+                zn_av_freep(&enc_buf);
             }
-            av_freep(&pkt.sync);
-            av_freep(&pkt.bs);
-            av_packet_unref(&pkt.pkt);
+            zn_av_freep(&pkt.sync);
+            zn_av_freep(&pkt.bs);
+            zn_av_packet_unref(&pkt.pkt);
         }
         av_fifo_freep2(&q->async_fifo);
     }
 
 #if QSV_HAVE_OPAQUE
-    av_freep(&q->opaque_surfaces);
+    zn_av_freep(&q->opaque_surfaces);
     av_buffer_unref(&q->opaque_alloc_buf);
 #endif
 
-    av_freep(&q->extparam);
+    zn_av_freep(&q->extparam);
 
     return 0;
 }

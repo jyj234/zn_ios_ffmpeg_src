@@ -110,7 +110,7 @@ static int activate(AVFilterContext *ctx)
                 ret = ff_inlink_consume_frame(ctx->inputs[i], &frame);
                 if (ret < 0)
                     return ret;
-                av_frame_free(&frame);
+                zn_av_frame_free(&frame);
                 return AVERROR_INVALIDDATA;
             }
 

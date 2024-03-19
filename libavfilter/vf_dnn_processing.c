@@ -257,7 +257,7 @@ static int flush_frame(AVFilterLink *outlink, int64_t pts, int64_t *out_pts)
         if (out_frame) {
             if (isPlanarYUV(in_frame->format))
                 copy_uv_planes(ctx, out_frame, in_frame);
-            av_frame_free(&in_frame);
+            zn_av_frame_free(&in_frame);
             ret = ff_filter_frame(outlink, out_frame);
             if (ret < 0)
                 return ret;
@@ -291,7 +291,7 @@ static int activate(AVFilterContext *filter_ctx)
         if (ret > 0) {
             out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
             if (!out) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return AVERROR(ENOMEM);
             }
             av_frame_copy_props(out, in);
@@ -309,7 +309,7 @@ static int activate(AVFilterContext *filter_ctx)
         if (out_frame) {
             if (isPlanarYUV(in_frame->format))
                 copy_uv_planes(ctx, out_frame, in_frame);
-            av_frame_free(&in_frame);
+            zn_av_frame_free(&in_frame);
             ret = ff_filter_frame(outlink, out_frame);
             if (ret < 0)
                 return ret;

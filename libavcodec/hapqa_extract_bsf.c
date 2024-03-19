@@ -101,7 +101,7 @@ static int hapqa_extract(AVBSFContext *bsf, AVPacket *pkt)
 
 fail:
     if (ret < 0)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     return ret;
 }
 

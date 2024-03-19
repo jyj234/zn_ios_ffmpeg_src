@@ -1041,8 +1041,8 @@ static av_cold int wavpack_decode_init(AVCodecContext *avctx)
 
     s->fdec_num = 0;
 
-    s->curr_frame.f = av_frame_alloc();
-    s->prev_frame.f = av_frame_alloc();
+    s->curr_frame.f = zn_av_frame_alloc();
+    s->prev_frame.f = zn_av_frame_alloc();
 
     if (!s->curr_frame.f || !s->prev_frame.f)
         return AVERROR(ENOMEM);
@@ -1057,15 +1057,15 @@ static av_cold int wavpack_decode_end(AVCodecContext *avctx)
     WavpackContext *s = avctx->priv_data;
 
     for (int i = 0; i < s->fdec_num; i++)
-        av_freep(&s->fdec[i]);
-    av_freep(&s->fdec);
+        zn_av_freep(&s->fdec[i]);
+    zn_av_freep(&s->fdec);
     s->fdec_num = 0;
 
     ff_thread_release_ext_buffer(&s->curr_frame);
-    av_frame_free(&s->curr_frame.f);
+    zn_av_frame_free(&s->curr_frame.f);
 
     ff_thread_release_ext_buffer(&s->prev_frame);
-    av_frame_free(&s->prev_frame.f);
+    zn_av_frame_free(&s->prev_frame.f);
 
     ff_refstruct_unref(&s->dsdctx);
 
@@ -1510,10 +1510,10 @@ static int wavpack_decode_block(AVCodecContext *avctx, int block_no,
                     return AVERROR_INVALIDDATA;
                 }
             } else {
-                av_channel_layout_default(&new_ch_layout, chan);
+                zn_av_channel_layout_default(&new_ch_layout, chan);
             }
         } else {
-            av_channel_layout_default(&new_ch_layout, s->stereo + 1);
+            zn_av_channel_layout_default(&new_ch_layout, s->stereo + 1);
         }
 
         /* clear DSD state if stream properties change */
@@ -1528,7 +1528,7 @@ static int wavpack_decode_block(AVCodecContext *avctx, int block_no,
             }
             ff_thread_release_ext_buffer(&wc->curr_frame);
         }
-        av_channel_layout_copy(&avctx->ch_layout, &new_ch_layout);
+        zn_av_channel_layout_copy(&avctx->ch_layout, &new_ch_layout);
         avctx->sample_rate         = new_samplerate;
         avctx->sample_fmt          = sample_fmt;
         avctx->bits_per_raw_sample = orig_bpp;

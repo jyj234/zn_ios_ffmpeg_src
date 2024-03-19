@@ -77,7 +77,7 @@ static int cdata_read_header(AVFormatContext *s)
     sample_rate = avio_rb16(pb);
     avio_skip(pb, (avio_r8(pb) & 0x20) ? 15 : 11);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

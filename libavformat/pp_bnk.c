@@ -135,7 +135,7 @@ static int pp_bnk_read_header(AVFormatContext *s)
 
     ctx->track_count = hdr.track_count;
 
-    if (!(ctx->tracks = av_malloc_array(hdr.track_count, sizeof(PPBnkCtxTrack))))
+    if (!(ctx->tracks = zn_av_malloc_array(hdr.track_count, sizeof(PPBnkCtxTrack))))
         return AVERROR(ENOMEM);
 
     /* Parse and validate each track. */
@@ -197,7 +197,7 @@ static int pp_bnk_read_header(AVFormatContext *s)
 
     /* Build the streams. */
     for (int i = 0; i < (ctx->is_music ? 1 : ctx->track_count); i++) {
-        if (!(st = avformat_new_stream(s, NULL)))
+        if (!(st = zn_avformat_new_stream(s, NULL)))
             return AVERROR(ENOMEM);
 
         par                         = st->codecpar;
@@ -205,7 +205,7 @@ static int pp_bnk_read_header(AVFormatContext *s)
         par->codec_id               = AV_CODEC_ID_ADPCM_IMA_CUNNING;
         par->format                 = AV_SAMPLE_FMT_S16P;
 
-        av_channel_layout_default(&par->ch_layout, ctx->is_music + 1);
+        zn_av_channel_layout_default(&par->ch_layout, ctx->is_music + 1);
         par->sample_rate            = hdr.sample_rate;
         par->bits_per_coded_sample  = 4;
         par->block_align            = 1;
@@ -291,7 +291,7 @@ static int pp_bnk_read_close(AVFormatContext *s)
 {
     PPBnkCtx *ctx = s->priv_data;
 
-    av_freep(&ctx->tracks);
+    zn_av_freep(&ctx->tracks);
 
     return 0;
 }

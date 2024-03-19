@@ -59,7 +59,7 @@ static int init_encoder(const AVCodec *enc, AVCodecContext **enc_ctx,
     av_channel_layout_describe(ch_layout, name_buff, NAME_BUFF_SIZE);
     av_log(NULL, AV_LOG_INFO, "channel layout: %s, sample rate: %i\n", name_buff, sample_rate);
 
-    ctx = avcodec_alloc_context3(enc);
+    ctx = zn_avcodec_alloc_context3(enc);
     if (!ctx) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate encoder context\n");
         return AVERROR(ENOMEM);
@@ -67,9 +67,9 @@ static int init_encoder(const AVCodec *enc, AVCodecContext **enc_ctx,
 
     ctx->sample_fmt = AV_SAMPLE_FMT_S16;
     ctx->sample_rate = sample_rate;
-    av_channel_layout_copy(&ctx->ch_layout, ch_layout);
+    zn_av_channel_layout_copy(&ctx->ch_layout, ch_layout);
 
-    result = avcodec_open2(ctx, enc, NULL);
+    result = zn_avcodec_open2(ctx, enc, NULL);
     if (result < 0) {
         av_log(ctx, AV_LOG_ERROR, "Can't open encoder\n");
         return result;
@@ -85,16 +85,16 @@ static int init_decoder(const AVCodec *dec, AVCodecContext **dec_ctx,
     AVCodecContext *ctx;
     int result;
 
-    ctx = avcodec_alloc_context3(dec);
+    ctx = zn_avcodec_alloc_context3(dec);
     if (!ctx) {
         av_log(NULL, AV_LOG_ERROR , "Can't allocate decoder context\n");
         return AVERROR(ENOMEM);
     }
 
     ctx->request_sample_fmt = AV_SAMPLE_FMT_S16;
-    av_channel_layout_copy(&ctx->ch_layout, ch_layout);
+    zn_av_channel_layout_copy(&ctx->ch_layout, ch_layout);
 
-    result = avcodec_open2(ctx, dec, NULL);
+    result = zn_avcodec_open2(ctx, dec, NULL);
     if (result < 0) {
         av_log(ctx, AV_LOG_ERROR, "Can't open decoder\n");
         return result;
@@ -115,13 +115,13 @@ static int run_test(const AVCodec *enc, const AVCodec *dec,
     int i = 0;
     int in_frame_bytes, out_frame_bytes;
 
-    enc_pkt = av_packet_alloc();
+    enc_pkt = zn_av_packet_alloc();
     if (!enc_pkt) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate output packet\n");
         return AVERROR(ENOMEM);
     }
 
-    in_frame = av_frame_alloc();
+    in_frame = zn_av_frame_alloc();
     if (!in_frame) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate input frame\n");
         return AVERROR(ENOMEM);
@@ -129,15 +129,15 @@ static int run_test(const AVCodec *enc, const AVCodec *dec,
 
     in_frame->nb_samples = enc_ctx->frame_size;
     in_frame->format = enc_ctx->sample_fmt;
-    result = av_channel_layout_copy(&in_frame->ch_layout, &enc_ctx->ch_layout);
+    result = zn_av_channel_layout_copy(&in_frame->ch_layout, &enc_ctx->ch_layout);
     if (result < 0)
         return result;
-    if (av_frame_get_buffer(in_frame, 0) != 0) {
+    if (zn_av_frame_get_buffer(in_frame, 0) != 0) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate a buffer for input frame\n");
         return AVERROR(ENOMEM);
     }
 
-    out_frame = av_frame_alloc();
+    out_frame = zn_av_frame_alloc();
     if (!out_frame) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate output frame\n");
         return AVERROR(ENOMEM);
@@ -169,14 +169,14 @@ static int run_test(const AVCodec *enc, const AVCodec *dec,
         }
         memcpy(raw_in + in_offset, in_frame->data[0], in_frame_bytes);
         in_offset += in_frame_bytes;
-        result = avcodec_send_frame(enc_ctx, in_frame);
+        result = zn_avcodec_send_frame(enc_ctx, in_frame);
         if (result < 0) {
             av_log(NULL, AV_LOG_ERROR, "Error submitting a frame for encoding\n");
             return result;
         }
 
         while (result >= 0) {
-            result = avcodec_receive_packet(enc_ctx, enc_pkt);
+            result = zn_avcodec_receive_packet(enc_ctx, enc_pkt);
             if (result == AVERROR(EAGAIN))
                 break;
             else if (result < 0 && result != AVERROR_EOF) {
@@ -185,14 +185,14 @@ static int run_test(const AVCodec *enc, const AVCodec *dec,
             }
 
             /* if we get an encoded packet, feed it straight to the decoder */
-            result = avcodec_send_packet(dec_ctx, enc_pkt);
-            av_packet_unref(enc_pkt);
+            result = zn_avcodec_send_packet(dec_ctx, enc_pkt);
+            zn_av_packet_unref(enc_pkt);
             if (result < 0) {
                 av_log(NULL, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
                 return result;
             }
 
-            result = avcodec_receive_frame(dec_ctx, out_frame);
+            result = zn_avcodec_receive_frame(dec_ctx, out_frame);
             if (result == AVERROR(EAGAIN)) {
                 result = 0;
                 continue;
@@ -235,11 +235,11 @@ static int run_test(const AVCodec *enc, const AVCodec *dec,
 
     av_log(NULL, AV_LOG_INFO, "OK\n");
 
-    av_freep(&raw_in);
-    av_freep(&raw_out);
-    av_packet_free(&enc_pkt);
-    av_frame_free(&in_frame);
-    av_frame_free(&out_frame);
+    zn_av_freep(&raw_in);
+    zn_av_freep(&raw_out);
+    zn_av_packet_free(&enc_pkt);
+    zn_av_frame_free(&in_frame);
+    zn_av_frame_free(&out_frame);
     return 0;
 }
 
@@ -254,13 +254,13 @@ int main(void)
     int sample_rates[] = {8000, 44100, 48000, 192000};
     int cl, sr;
 
-    enc = avcodec_find_encoder(AV_CODEC_ID_FLAC);
+    enc = zn_avcodec_find_encoder(AV_CODEC_ID_FLAC);
     if (!enc) {
         av_log(NULL, AV_LOG_ERROR, "Can't find encoder\n");
         return 1;
     }
 
-    dec = avcodec_find_decoder(AV_CODEC_ID_FLAC);
+    dec = zn_avcodec_find_decoder(AV_CODEC_ID_FLAC);
     if (!dec) {
         av_log(NULL, AV_LOG_ERROR, "Can't find decoder\n");
         return 1;

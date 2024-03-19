@@ -350,7 +350,7 @@ abort:
 
 static av_cold int gem_close(AVCodecContext *avctx)
 {
-    av_freep(&avctx->priv_data);
+    zn_av_freep(&avctx->priv_data);
     return 0;
 }
 

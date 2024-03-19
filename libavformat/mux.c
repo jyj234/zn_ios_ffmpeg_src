@@ -90,10 +90,10 @@ static void frac_add(FFFrac *f, int64_t incr)
     f->num = num;
 }
 
-int avformat_alloc_output_context2(AVFormatContext **avctx, const AVOutputFormat *oformat,
+int zn_avformat_alloc_output_context2(AVFormatContext **avctx, const AVOutputFormat *oformat,
                                    const char *format, const char *filename)
 {
-    AVFormatContext *s = avformat_alloc_context();
+    AVFormatContext *s = zn_avformat_alloc_context();
     int ret = 0;
 
     *avctx = NULL;
@@ -102,14 +102,14 @@ int avformat_alloc_output_context2(AVFormatContext **avctx, const AVOutputFormat
 
     if (!oformat) {
         if (format) {
-            oformat = av_guess_format(format, NULL, NULL);
+            oformat = zn_av_guess_format(format, NULL, NULL);
             if (!oformat) {
                 av_log(s, AV_LOG_ERROR, "Requested output format '%s' is not known.\n", format);
                 ret = AVERROR(EINVAL);
                 goto error;
             }
         } else {
-            oformat = av_guess_format(NULL, filename, NULL);
+            oformat = zn_av_guess_format(NULL, filename, NULL);
             if (!oformat) {
                 ret = AVERROR(EINVAL);
                 av_log(s, AV_LOG_ERROR,
@@ -144,7 +144,7 @@ nomem:
     av_log(s, AV_LOG_ERROR, "Out of memory\n");
     ret = AVERROR(ENOMEM);
 error:
-    avformat_free_context(s);
+    zn_avformat_free_context(s);
     return ret;
 }
 
@@ -261,7 +261,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                 goto fail;
             }
             if (av_cmp_q(st->sample_aspect_ratio, par->sample_aspect_ratio)
-                && fabs(av_q2d(st->sample_aspect_ratio) - av_q2d(par->sample_aspect_ratio)) > 0.004*av_q2d(st->sample_aspect_ratio)
+                && fabs(zn_av_q2d(st->sample_aspect_ratio) - zn_av_q2d(par->sample_aspect_ratio)) > 0.004*zn_av_q2d(st->sample_aspect_ratio)
             ) {
                 if (st->sample_aspect_ratio.num != 0 &&
                     st->sample_aspect_ratio.den != 0 &&
@@ -474,7 +474,7 @@ int avformat_init_output(AVFormatContext *s, AVDictionary **options)
     return AVSTREAM_INIT_IN_WRITE_HEADER;
 }
 
-int avformat_write_header(AVFormatContext *s, AVDictionary **options)
+int zn_avformat_write_header(AVFormatContext *s, AVDictionary **options)
 {
     FFFormatContext *const si = ffformatcontext(s);
     int already_initialized = si->initialized;
@@ -663,7 +663,7 @@ static void handle_avoid_negative_ts(FFFormatContext *si, FFStream *sti,
         ts -= sti->lowest_ts_allowed;
 
         /* Peek into the muxing queue to improve our estimate
-         * of the lowest timestamp if av_interleaved_write_frame() is used. */
+         * of the lowest timestamp if zn_av_interleaved_write_frame() is used. */
         for (const PacketListEntry *pktl = si->packet_buffer.head;
              pktl; pktl = pktl->next) {
             AVRational cmp_tb = s->streams[pktl->pkt.stream_index]->time_base;
@@ -854,12 +854,12 @@ int ff_interleave_add_packet(AVFormatContext *s, AVPacket *pkt,
 
     this_pktl    = av_malloc(sizeof(*this_pktl));
     if (!this_pktl) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR(ENOMEM);
     }
     if ((ret = av_packet_make_refcounted(pkt)) < 0) {
-        av_free(this_pktl);
-        av_packet_unref(pkt);
+        zn_av_free(this_pktl);
+        zn_av_packet_unref(pkt);
         return ret;
     }
 
@@ -1044,8 +1044,8 @@ int ff_interleave_packet_per_dts(AVFormatContext *s, AVPacket *pkt,
             if (sti->last_in_packet_buffer == pktl)
                 sti->last_in_packet_buffer = NULL;
 
-            av_packet_unref(&pktl->pkt);
-            av_freep(&pktl);
+            zn_av_packet_unref(&pktl->pkt);
+            zn_av_freep(&pktl);
             flush = 0;
         }
     }
@@ -1132,7 +1132,7 @@ static int interleaved_write_packet(AVFormatContext *s, AVPacket *pkt,
         has_packet = 0;
 
         ret = write_packet(s, pkt);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0)
             return ret;
     }
@@ -1181,7 +1181,7 @@ static int write_packets_from_bsfs(AVFormatContext *s, AVStream *st, AVPacket *p
             if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                 return 0;
             av_log(s, AV_LOG_ERROR, "Error applying bitstream filters to an output "
-                   "packet for stream #%d: %s\n", st->index, av_err2str(ret));
+                   "packet for stream #%d: %s\n", st->index, zn_av_err2str(ret));
             if (!(s->error_recognition & AV_EF_EXPLODE) && ret != AVERROR(ENOMEM))
                 continue;
             return ret;
@@ -1189,7 +1189,7 @@ static int write_packets_from_bsfs(AVFormatContext *s, AVStream *st, AVPacket *p
         av_packet_rescale_ts(pkt, bsfc->time_base_out, st->time_base);
         ret = write_packet_common(s, st, pkt, interleaved);
         if (ret >= 0 && !interleaved) // a successful write_packet_common already unrefed pkt for interleaved
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
     } while (ret >= 0);
 
     return ret;
@@ -1269,26 +1269,26 @@ int av_write_frame(AVFormatContext *s, AVPacket *in)
 
 fail:
     // Uncoded frames using the noninterleaved codepath are also freed here
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     return ret;
 }
 
-int av_interleaved_write_frame(AVFormatContext *s, AVPacket *pkt)
+int zn_av_interleaved_write_frame(AVFormatContext *s, AVPacket *pkt)
 {
     int ret;
 
     if (pkt) {
         ret = write_packets_common(s, pkt, 1/*interleaved*/);
         if (ret < 0)
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
         return ret;
     } else {
-        av_log(s, AV_LOG_TRACE, "av_interleaved_write_frame FLUSH\n");
+        av_log(s, AV_LOG_TRACE, "zn_av_interleaved_write_frame FLUSH\n");
         return interleaved_write_packet(s, ffformatcontext(s)->parse_pkt, 1/*flush*/, 0);
     }
 }
 
-int av_write_trailer(AVFormatContext *s)
+int zn_av_write_trailer(AVFormatContext *s)
 {
     FFFormatContext *const si = ffformatcontext(s);
     AVPacket *const pkt = si->parse_pkt;
@@ -1300,7 +1300,7 @@ int av_write_trailer(AVFormatContext *s)
         if (sti->bsfc) {
             ret1 = write_packets_from_bsfs(s, st, pkt, 1/*interleaved*/);
             if (ret1 < 0)
-                av_packet_unref(pkt);
+                zn_av_packet_unref(pkt);
             if (ret >= 0)
                 ret = ret1;
         }
@@ -1324,13 +1324,13 @@ int av_write_trailer(AVFormatContext *s)
     if (ret == 0)
        ret = s->pb ? s->pb->error : 0;
     for (unsigned i = 0; i < s->nb_streams; i++) {
-        av_freep(&s->streams[i]->priv_data);
-        av_freep(&ffstream(s->streams[i])->index_entries);
+        zn_av_freep(&s->streams[i]->priv_data);
+        zn_av_freep(&ffstream(s->streams[i])->index_entries);
     }
     if (s->oformat->priv_class)
         av_opt_free(s->priv_data);
-    av_freep(&s->priv_data);
-    av_packet_unref(si->pkt);
+    zn_av_freep(&s->priv_data);
+    zn_av_packet_unref(si->pkt);
     return ret;
 }
 
@@ -1362,7 +1362,7 @@ int ff_stream_add_bitstream_filter(AVStream *st, const char *name, const char *a
         return ret;
 
     bsfc->time_base_in = st->time_base;
-    if ((ret = avcodec_parameters_copy(bsfc->par_in, st->codecpar)) < 0) {
+    if ((ret = zn_avcodec_parameters_copy(bsfc->par_in, st->codecpar)) < 0) {
         av_bsf_free(&bsfc);
         return ret;
     }
@@ -1412,15 +1412,15 @@ int ff_write_chained(AVFormatContext *dst, int dst_stream, AVPacket *pkt,
         pkt->stream_index = stream_index;
         pkt->time_base    = time_base;
     } else
-        ret = av_interleaved_write_frame(dst, pkt);
+        ret = zn_av_interleaved_write_frame(dst, pkt);
 
     return ret;
 }
 
 static void uncoded_frame_free(void *unused, uint8_t *data)
 {
-    av_frame_free((AVFrame **)data);
-    av_free(data);
+    zn_av_frame_free((AVFrame **)data);
+    zn_av_free(data);
 }
 
 static int write_uncoded_frame_internal(AVFormatContext *s, int stream_index,
@@ -1431,7 +1431,7 @@ static int write_uncoded_frame_internal(AVFormatContext *s, int stream_index,
 
     av_assert0(s->oformat);
     if (!ffofmt(s->oformat)->write_uncoded_frame) {
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         return AVERROR(ENOSYS);
     }
 
@@ -1446,9 +1446,9 @@ static int write_uncoded_frame_internal(AVFormatContext *s, int stream_index,
         pkt->buf = av_buffer_create((void *)framep, bufsize,
                                    uncoded_frame_free, NULL, 0);
         if (!pkt->buf) {
-            av_free(framep);
+            zn_av_free(framep);
     fail:
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
         *framep = frame;
@@ -1469,7 +1469,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         pkt->flags |= AV_PKT_FLAG_UNCODED_FRAME;
     }
 
-    return interleaved ? av_interleaved_write_frame(s, pkt) :
+    return interleaved ? zn_av_interleaved_write_frame(s, pkt) :
                          av_write_frame(s, pkt);
 }
 

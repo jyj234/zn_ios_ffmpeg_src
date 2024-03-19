@@ -78,7 +78,7 @@ typedef struct AVDCT {
  * This needs to be initialized with avcodec_dct_init() after optionally
  * configuring it with AVOptions.
  *
- * To free it use av_free()
+ * To free it use zn_av_free()
  */
 AVDCT *avcodec_dct_alloc(void);
 int avcodec_dct_init(AVDCT *);

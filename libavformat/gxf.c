@@ -108,7 +108,7 @@ static int get_sindex(AVFormatContext *s, int id, int format) {
     i = ff_find_stream_index(s, id);
     if (i >= 0)
         return i;
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     sti = ffstream(st);

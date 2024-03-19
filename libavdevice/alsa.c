@@ -285,13 +285,13 @@ av_cold int ff_alsa_open(AVFormatContext *ctx, snd_pcm_stream_t mode,
         }
         if (s->reorder_func) {
             s->reorder_buf_size = buffer_size;
-            s->reorder_buf = av_malloc_array(s->reorder_buf_size, s->frame_size);
+            s->reorder_buf = zn_av_malloc_array(s->reorder_buf_size, s->frame_size);
             if (!s->reorder_buf)
                 goto fail1;
         }
     }
 
-    s->pkt = av_packet_alloc();
+    s->pkt = zn_av_packet_alloc();
     if (!s->pkt)
         goto fail1;
 
@@ -313,11 +313,11 @@ av_cold int ff_alsa_close(AVFormatContext *s1)
         snd_pcm_nonblock(s->h, 0);
         snd_pcm_drain(s->h);
     }
-    av_freep(&s->reorder_buf);
+    zn_av_freep(&s->reorder_buf);
     if (CONFIG_ALSA_INDEV)
         ff_timefilter_destroy(s->timefilter);
     snd_pcm_close(s->h);
-    av_packet_free(&s->pkt);
+    zn_av_packet_free(&s->pkt);
     return 0;
 }
 
@@ -404,9 +404,9 @@ int ff_alsa_get_device_list(AVDeviceInfoList *device_list, snd_pcm_stream_t stre
         n++;
     }
     if (new_device) {
-        av_free(new_device->device_description);
-        av_free(new_device->device_name);
-        av_free(new_device);
+        zn_av_free(new_device->device_description);
+        zn_av_free(new_device->device_name);
+        zn_av_free(new_device);
     }
     snd_device_name_free_hint(hints);
     return ret;

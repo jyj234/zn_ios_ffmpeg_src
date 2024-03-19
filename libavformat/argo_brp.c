@@ -177,7 +177,7 @@ static int argo_brp_read_header(AVFormatContext *s)
         ArgoBRPStreamHeader *hdr = brp->streams + i;
         AVStream *st;
 
-        if (!(st = avformat_new_stream(s, NULL)))
+        if (!(st = zn_avformat_new_stream(s, NULL)))
             return AVERROR(ENOMEM);
 
         if ((ret = avio_read(pb, buf, BRP_STREAM_HEADER_SIZE)) < 0)

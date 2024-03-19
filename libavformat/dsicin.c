@@ -110,7 +110,7 @@ static int cin_read_header(AVFormatContext *s)
     cin->audio_buffer_size = 0;
 
     /* initialize the video decoder stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -123,7 +123,7 @@ static int cin_read_header(AVFormatContext *s)
     st->codecpar->height = hdr->video_frame_height;
 
     /* initialize the audio decoder stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

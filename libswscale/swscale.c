@@ -1092,7 +1092,7 @@ int sws_frame_start(struct SwsContext *c, AVFrame *dst, const AVFrame *src)
         dst->height = c->dstH;
         dst->format = c->dstFormat;
 
-        ret = av_frame_get_buffer(dst, 0);
+        ret = zn_av_frame_get_buffer(dst, 0);
         if (ret < 0)
             return ret;
         allocated = 1;

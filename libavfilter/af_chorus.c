@@ -143,8 +143,8 @@ static av_cold int init(AVFilterContext *ctx)
         return AVERROR(EINVAL);
     }
 
-    s->length = av_calloc(s->num_chorus, sizeof(*s->length));
-    s->lookup_table = av_calloc(s->num_chorus, sizeof(*s->lookup_table));
+    s->length = zn_av_calloc(s->num_chorus, sizeof(*s->length));
+    s->lookup_table = zn_av_calloc(s->num_chorus, sizeof(*s->lookup_table));
 
     if (!s->length || !s->lookup_table)
         return AVERROR(ENOMEM);
@@ -184,23 +184,23 @@ static int config_output(AVFilterLink *outlink)
     if (s->in_gain * (sum_in_volume) > 1.0 / s->out_gain)
         av_log(ctx, AV_LOG_WARNING, "output gain can cause saturation or clipping of output\n");
 
-    s->counter = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->counter));
+    s->counter = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->counter));
     if (!s->counter)
         return AVERROR(ENOMEM);
 
-    s->phase = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->phase));
+    s->phase = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->phase));
     if (!s->phase)
         return AVERROR(ENOMEM);
 
     for (n = 0; n < outlink->ch_layout.nb_channels; n++) {
-        s->phase[n] = av_calloc(s->num_chorus, sizeof(int));
+        s->phase[n] = zn_av_calloc(s->num_chorus, sizeof(int));
         if (!s->phase[n])
             return AVERROR(ENOMEM);
     }
 
     s->fade_out = s->max_samples;
 
-    return av_samples_alloc_array_and_samples(&s->chorusbuf, NULL,
+    return zn_zn_av_samples_alloc_array_and_samples(&s->chorusbuf, NULL,
                                               outlink->ch_layout.nb_channels,
                                               s->max_samples,
                                               outlink->format, 0);
@@ -220,7 +220,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     } else {
         out_frame = ff_get_audio_buffer(ctx->outputs[0], frame->nb_samples);
         if (!out_frame) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out_frame, frame);
@@ -256,7 +256,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
     s->next_pts = frame->pts + av_rescale_q(frame->nb_samples, (AVRational){1, inlink->sample_rate}, inlink->time_base);
 
     if (frame != out_frame)
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
 
     return ff_filter_frame(ctx->outputs[0], out_frame);
 }
@@ -298,27 +298,27 @@ static av_cold void uninit(AVFilterContext *ctx)
     ChorusContext *s = ctx->priv;
     int n;
 
-    av_freep(&s->delays);
-    av_freep(&s->decays);
-    av_freep(&s->speeds);
-    av_freep(&s->depths);
+    zn_av_freep(&s->delays);
+    zn_av_freep(&s->decays);
+    zn_av_freep(&s->speeds);
+    zn_av_freep(&s->depths);
 
     if (s->chorusbuf)
-        av_freep(&s->chorusbuf[0]);
-    av_freep(&s->chorusbuf);
+        zn_av_freep(&s->chorusbuf[0]);
+    zn_av_freep(&s->chorusbuf);
 
     if (s->phase)
         for (n = 0; n < s->channels; n++)
-            av_freep(&s->phase[n]);
-    av_freep(&s->phase);
+            zn_av_freep(&s->phase[n]);
+    zn_av_freep(&s->phase);
 
-    av_freep(&s->counter);
-    av_freep(&s->length);
+    zn_av_freep(&s->counter);
+    zn_av_freep(&s->length);
 
     if (s->lookup_table)
         for (n = 0; n < s->num_chorus; n++)
-            av_freep(&s->lookup_table[n]);
-    av_freep(&s->lookup_table);
+            zn_av_freep(&s->lookup_table[n]);
+    zn_av_freep(&s->lookup_table);
 }
 
 static const AVFilterPad chorus_inputs[] = {

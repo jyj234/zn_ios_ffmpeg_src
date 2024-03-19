@@ -73,7 +73,7 @@ static int ilbc_read_header(AVFormatContext *s)
 
     avio_read(pb, header, 9);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_id = AV_CODEC_ID_ILBC;

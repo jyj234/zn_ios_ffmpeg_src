@@ -201,7 +201,7 @@ static int config_props(AVFilterLink *inlink)
 
     eq->var_values[VAR_N] = 0;
     eq->var_values[VAR_R] = inlink->frame_rate.num == 0 || inlink->frame_rate.den == 0 ?
-        NAN : av_q2d(inlink->frame_rate);
+        NAN : zn_av_q2d(inlink->frame_rate);
 
     return 0;
 }
@@ -227,7 +227,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, inlink->w, inlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -270,7 +270,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                                  in->data[i], in->linesize[i], w, h);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

@@ -1237,7 +1237,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     ff_permute_scantable(s->permutated_scantable, ff_zigzag_direct,
                          s->idsp.idct_permutation);
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 
@@ -1256,14 +1256,14 @@ static av_cold int decode_close(AVCodecContext *avctx)
     AGMContext *s = avctx->priv_data;
 
     ff_vlc_free(&s->vlc);
-    av_frame_free(&s->prev_frame);
-    av_freep(&s->mvectors);
+    zn_av_frame_free(&s->prev_frame);
+    zn_av_freep(&s->mvectors);
     s->mvectors_size = 0;
-    av_freep(&s->wblocks);
+    zn_av_freep(&s->wblocks);
     s->wblocks_size = 0;
-    av_freep(&s->output);
+    zn_av_freep(&s->output);
     s->padded_output_size = 0;
-    av_freep(&s->map);
+    zn_av_freep(&s->map);
     s->map_size = 0;
 
     return 0;

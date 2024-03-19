@@ -89,7 +89,7 @@ int ff_fbdev_get_device_list(AVDeviceInfoList *device_list)
             int err = AVERROR(errno);
             if (err != AVERROR(ENOENT))
                 av_log(NULL, AV_LOG_ERROR, "Could not open framebuffer device '%s': %s\n",
-                       device_file, av_err2str(err));
+                       device_file, zn_av_err2str(err));
             continue;
         }
         if (ioctl(fd, FBIOGET_VSCREENINFO, &varinfo) == -1)
@@ -122,9 +122,9 @@ int ff_fbdev_get_device_list(AVDeviceInfoList *device_list)
 
       fail_device:
         if (device) {
-            av_freep(&device->device_name);
-            av_freep(&device->device_description);
-            av_freep(&device);
+            zn_av_freep(&device->device_name);
+            zn_av_freep(&device->device_description);
+            zn_av_freep(&device);
         }
         if (fd >= 0)
             close(fd);

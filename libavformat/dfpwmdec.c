@@ -44,7 +44,7 @@ static int dfpwm_read_header(AVFormatContext *s)
     AVStream *st;
     int ret;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     par = st->codecpar;
@@ -55,7 +55,7 @@ static int dfpwm_read_header(AVFormatContext *s)
 #if FF_API_OLD_CHANNEL_LAYOUT
     if (s1->ch_layout.nb_channels) {
 #endif
-    ret = av_channel_layout_copy(&par->ch_layout, &s1->ch_layout);
+    ret = zn_av_channel_layout_copy(&par->ch_layout, &s1->ch_layout);
     if (ret < 0)
         return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT

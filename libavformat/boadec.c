@@ -43,7 +43,7 @@ static int probe(const AVProbeData *p)
 
 static int read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     uint32_t data_offset;
 
     if (!st)

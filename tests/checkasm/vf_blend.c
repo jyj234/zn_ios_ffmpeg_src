@@ -140,10 +140,10 @@ void checkasm_check_blend(void)
 
     report("16bit");
 
-    av_freep(&top1);
-    av_freep(&top2);
-    av_freep(&bot1);
-    av_freep(&bot2);
-    av_freep(&dst1);
-    av_freep(&dst2);
+    zn_av_freep(&top1);
+    zn_av_freep(&top2);
+    zn_av_freep(&bot1);
+    zn_av_freep(&bot2);
+    zn_av_freep(&dst1);
+    zn_av_freep(&dst2);
 }

@@ -4122,21 +4122,21 @@ static int allocate_plane(V360Context *s, int sizeof_uv, int sizeof_ker, int siz
         const int height = slice_end - slice_start;
 
         if (!r->u[p])
-            r->u[p] = av_calloc(s->uv_linesize[p] * height, sizeof_uv);
+            r->u[p] = zn_av_calloc(s->uv_linesize[p] * height, sizeof_uv);
         if (!r->v[p])
-            r->v[p] = av_calloc(s->uv_linesize[p] * height, sizeof_uv);
+            r->v[p] = zn_av_calloc(s->uv_linesize[p] * height, sizeof_uv);
         if (!r->u[p] || !r->v[p])
             return AVERROR(ENOMEM);
         if (sizeof_ker) {
             if (!r->ker[p])
-                r->ker[p] = av_calloc(s->uv_linesize[p] * height, sizeof_ker);
+                r->ker[p] = zn_av_calloc(s->uv_linesize[p] * height, sizeof_ker);
             if (!r->ker[p])
                 return AVERROR(ENOMEM);
         }
 
         if (sizeof_mask && !p) {
             if (!r->mask)
-                r->mask = av_calloc(s->pr_width[p] * height, sizeof_mask);
+                r->mask = zn_av_calloc(s->pr_width[p] * height, sizeof_mask);
             if (!r->mask)
                 return AVERROR(ENOMEM);
         }
@@ -4873,7 +4873,7 @@ static int config_output(AVFilterLink *outlink)
     }
 
     if (!s->slice_remap)
-        s->slice_remap = av_calloc(s->nb_threads, sizeof(*s->slice_remap));
+        s->slice_remap = zn_av_calloc(s->nb_threads, sizeof(*s->slice_remap));
     if (!s->slice_remap)
         return AVERROR(ENOMEM);
 
@@ -4903,7 +4903,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -4913,7 +4913,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     ff_filter_execute(ctx, s->remap_slice, &td, NULL, s->nb_threads);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -4961,15 +4961,15 @@ static av_cold void uninit(AVFilterContext *ctx)
         SliceXYRemap *r = &s->slice_remap[n];
 
         for (int p = 0; p < s->nb_allocated; p++) {
-            av_freep(&r->u[p]);
-            av_freep(&r->v[p]);
-            av_freep(&r->ker[p]);
+            zn_av_freep(&r->u[p]);
+            zn_av_freep(&r->v[p]);
+            zn_av_freep(&r->ker[p]);
         }
 
-        av_freep(&r->mask);
+        zn_av_freep(&r->mask);
     }
 
-    av_freep(&s->slice_remap);
+    zn_av_freep(&s->slice_remap);
 }
 
 static const AVFilterPad inputs[] = {

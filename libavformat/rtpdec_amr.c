@@ -68,7 +68,7 @@ static int amr_handle_packet(AVFormatContext *ctx, PayloadContext *data,
         av_log(ctx, AV_LOG_ERROR, "Only mono AMR is supported\n");
         return AVERROR_INVALIDDATA;
     }
-    av_channel_layout_default(&st->codecpar->ch_layout, 1);
+    zn_av_channel_layout_default(&st->codecpar->ch_layout, 1);
 
     /* The AMR RTP packet consists of one header byte, followed
      * by one TOC byte for each AMR frame in the packet, followed

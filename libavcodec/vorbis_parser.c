@@ -179,7 +179,7 @@ static int parse_setup_header(AVVorbisParseContext *s,
     }
 
 bad_header:
-    av_free(rev_buf);
+    zn_av_free(rev_buf);
     return ret;
 }
 
@@ -278,7 +278,7 @@ void av_vorbis_parse_reset(AVVorbisParseContext *s)
 
 void av_vorbis_parse_free(AVVorbisParseContext **s)
 {
-    av_freep(s);
+    zn_av_freep(s);
 }
 
 AVVorbisParseContext *av_vorbis_parse_init(const uint8_t *extradata,

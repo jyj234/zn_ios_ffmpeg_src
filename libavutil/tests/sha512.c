@@ -84,7 +84,7 @@ int main(void)
             break;
         }
     }
-    av_free(ctx);
+    zn_av_free(ctx);
 
     return 0;
 }

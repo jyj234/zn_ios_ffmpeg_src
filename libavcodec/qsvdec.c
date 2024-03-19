@@ -553,9 +553,9 @@ static int get_surface(AVCodecContext *avctx, QSVContext *q, mfxFrameSurface1 **
     frame = av_mallocz(sizeof(*frame));
     if (!frame)
         return AVERROR(ENOMEM);
-    frame->frame = av_frame_alloc();
+    frame->frame = zn_av_frame_alloc();
     if (!frame->frame) {
-        av_freep(&frame);
+        zn_av_freep(&frame);
         return AVERROR(ENOMEM);
     }
     *last = frame;
@@ -715,14 +715,14 @@ static int qsv_decode(AVCodecContext *avctx, QSVContext *q,
 
     sync = av_mallocz(sizeof(*sync));
     if (!sync) {
-        av_freep(&sync);
+        zn_av_freep(&sync);
         return AVERROR(ENOMEM);
     }
 
     do {
         ret = get_surface(avctx, q, &insurf);
         if (ret < 0) {
-            av_freep(&sync);
+            zn_av_freep(&sync);
             return ret;
         }
 
@@ -736,7 +736,7 @@ static int qsv_decode(AVCodecContext *avctx, QSVContext *q,
     if (ret == MFX_ERR_INCOMPATIBLE_VIDEO_PARAM) {
         q->reinit_flag = 1;
         av_log(avctx, AV_LOG_DEBUG, "Video parameter change\n");
-        av_freep(&sync);
+        zn_av_freep(&sync);
         return 0;
     }
 
@@ -744,7 +744,7 @@ static int qsv_decode(AVCodecContext *avctx, QSVContext *q,
         ret != MFX_ERR_MORE_DATA &&
         ret != MFX_WRN_VIDEO_PARAM_CHANGED &&
         ret != MFX_ERR_MORE_SURFACE) {
-        av_freep(&sync);
+        zn_av_freep(&sync);
         return ff_qsv_print_error(avctx, ret,
                                   "Error during QSV decoding.");
     }
@@ -767,7 +767,7 @@ static int qsv_decode(AVCodecContext *avctx, QSVContext *q,
         if (!out_frame) {
             av_log(avctx, AV_LOG_ERROR,
                    "The returned surface does not correspond to any frame\n");
-            av_freep(&sync);
+            zn_av_freep(&sync);
             return AVERROR_BUG;
         }
 
@@ -776,7 +776,7 @@ static int qsv_decode(AVCodecContext *avctx, QSVContext *q,
         aframe = (QSVAsyncFrame){ sync, out_frame };
         av_fifo_write(q->async_fifo, &aframe, 1);
     } else {
-        av_freep(&sync);
+        zn_av_freep(&sync);
     }
 
     if ((av_fifo_can_read(q->async_fifo) >= q->async_depth) ||
@@ -793,7 +793,7 @@ static int qsv_decode(AVCodecContext *avctx, QSVContext *q,
             } while (ret == MFX_WRN_IN_EXECUTION);
         }
 
-        av_freep(&aframe.sync);
+        zn_av_freep(&aframe.sync);
 
         src_frame = aframe.frame->frame;
 
@@ -861,14 +861,14 @@ static void qsv_decode_close_qsvcontext(QSVContext *q)
     if (q->async_fifo) {
         QSVAsyncFrame aframe;
         while (av_fifo_read(q->async_fifo, &aframe, 1) >= 0)
-            av_freep(&aframe.sync);
+            zn_av_freep(&aframe.sync);
         av_fifo_freep2(&q->async_fifo);
     }
 
     while (cur) {
         q->work_frames = cur->next;
-        av_frame_free(&cur->frame);
-        av_freep(&cur);
+        zn_av_frame_free(&cur->frame);
+        zn_av_freep(&cur);
         cur = q->work_frames;
     }
 
@@ -976,9 +976,9 @@ static void qsv_clear_buffers(QSVDecContext *s)
 {
     AVPacket pkt;
     while (av_fifo_read(s->packet_fifo, &pkt, 1) >= 0)
-        av_packet_unref(&pkt);
+        zn_av_packet_unref(&pkt);
 
-    av_packet_unref(&s->buffer_pkt);
+    zn_av_packet_unref(&s->buffer_pkt);
 }
 
 static av_cold int qsv_decode_close(AVCodecContext *avctx)
@@ -1021,7 +1021,7 @@ static av_cold int qsv_decode_init(AVCodecContext *avctx)
         }
     }
     if (uid) {
-        av_freep(&s->qsv.load_plugins);
+        zn_av_freep(&s->qsv.load_plugins);
         s->qsv.load_plugins = av_strdup(uid);
         if (!s->qsv.load_plugins)
             return AVERROR(ENOMEM);
@@ -1069,7 +1069,7 @@ static int qsv_decode_frame(AVCodecContext *avctx, AVFrame *frame,
                 return avpkt->size ? avpkt->size : qsv_process_data(avctx, &s->qsv, frame, got_frame, avpkt);
             /* in progress of reinit, no read from fifo and keep the buffer_pkt */
             if (!s->qsv.reinit_flag) {
-                av_packet_unref(&s->buffer_pkt);
+                zn_av_packet_unref(&s->buffer_pkt);
                 av_fifo_read(s->packet_fifo, &s->buffer_pkt, 1);
             }
         }
@@ -1081,7 +1081,7 @@ static int qsv_decode_frame(AVCodecContext *avctx, AVFrame *frame,
 
             /* Drop buffer_pkt when failed to decode the packet. Otherwise,
                the decoder will keep decoding the failure packet. */
-            av_packet_unref(&s->buffer_pkt);
+            zn_av_packet_unref(&s->buffer_pkt);
             return ret;
         }
         if (s->qsv.reinit_flag)

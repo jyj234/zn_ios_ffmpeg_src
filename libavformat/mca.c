@@ -53,7 +53,7 @@ static int read_header(AVFormatContext *s)
     int ch, ret;
     int64_t ret_size;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     par = st->codecpar;

@@ -80,12 +80,12 @@ static int get_metadata(AVFormatContext *s, const char *const tag, const unsigne
         return AVERROR(ENOMEM);
 
     if (avio_read(s->pb, buf, size) != size) {
-        av_free(buf);
+        zn_av_free(buf);
         return AVERROR(EIO);
     }
 
     if (empty_string(buf, size)) {
-        av_free(buf);
+        zn_av_free(buf);
         return 0;
     }
 
@@ -102,7 +102,7 @@ static int wsd_read_header(AVFormatContext *s)
     uint32_t text_offset, data_offset, channel_assign;
     char playback_time[AV_TIMECODE_STR_SIZE];
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

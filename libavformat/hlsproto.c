@@ -71,8 +71,8 @@ static void free_segment_list(HLSContext *s)
 {
     int i;
     for (i = 0; i < s->n_segments; i++)
-        av_freep(&s->segments[i]);
-    av_freep(&s->segments);
+        zn_av_freep(&s->segments[i]);
+    zn_av_freep(&s->segments);
     s->n_segments = 0;
 }
 
@@ -80,8 +80,8 @@ static void free_variant_list(HLSContext *s)
 {
     int i;
     for (i = 0; i < s->n_variants; i++)
-        av_freep(&s->variants[i]);
-    av_freep(&s->variants);
+        zn_av_freep(&s->variants[i]);
+    zn_av_freep(&s->variants);
     s->n_variants = 0;
 }
 

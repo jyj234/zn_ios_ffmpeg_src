@@ -127,7 +127,7 @@ static int vorbis_parse_single_comment(AVFormatContext *as, AVDictionary **m,
         ret = av_base64_decode(pict, v, len);
         if (ret > 0)
             ret = ff_flac_parse_picture(as, &pict, ret, 0);
-        av_freep(&pict);
+        zn_av_freep(&pict);
         if (ret < 0) {
             av_log(as, AV_LOG_WARNING, "Failed to parse cover art block.\n");
             goto end;
@@ -242,7 +242,7 @@ static int fixup_vorbis_headers(AVFormatContext *as,
     for (i = 0; i < 3; i++) {
         memcpy(&ptr[offset], priv->packet[i], priv->len[i]);
         offset += priv->len[i];
-        av_freep(&priv->packet[i]);
+        zn_av_freep(&priv->packet[i]);
     }
     if ((err = av_reallocp(buf, offset + AV_INPUT_BUFFER_PADDING_SIZE)) < 0)
         return err;
@@ -258,7 +258,7 @@ static void vorbis_cleanup(AVFormatContext *s, int idx)
     if (os->private) {
         av_vorbis_parse_free(&priv->vp);
         for (i = 0; i < 3; i++)
-            av_freep(&priv->packet[i]);
+            zn_av_freep(&priv->packet[i]);
     }
 }
 
@@ -280,7 +280,7 @@ static int vorbis_update_metadata(AVFormatContext *s, int idx)
         return ret;
 
     /* Update the metadata if possible. */
-    av_freep(&os->new_metadata);
+    zn_av_freep(&os->new_metadata);
     if (st->metadata) {
         os->new_metadata = av_packet_pack_dictionary(st->metadata, &os->new_metadata_size);
     /* Send an empty dictionary to indicate that metadata has been cleared. */
@@ -402,7 +402,7 @@ static int vorbis_header(AVFormatContext *s, int idx)
 
         priv->vp = av_vorbis_parse_init(st->codecpar->extradata, st->codecpar->extradata_size);
         if (!priv->vp) {
-            av_freep(&st->codecpar->extradata);
+            zn_av_freep(&st->codecpar->extradata);
             st->codecpar->extradata_size = 0;
             return AVERROR_UNKNOWN;
         }

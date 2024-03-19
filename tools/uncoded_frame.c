@@ -69,13 +69,13 @@ int main(int argc, char **argv)
     if (!(in_graph = avfilter_graph_alloc())) {
         ret = AVERROR(ENOMEM);
         av_log(NULL, AV_LOG_ERROR, "Unable to alloc graph graph: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto fail;
     }
     ret = avfilter_graph_parse_ptr(in_graph, in_graph_desc, NULL, NULL, NULL);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Unable to parse graph: %s\n",
-               av_err2str(ret));
+               zn_av_err2str(ret));
         goto fail;
     }
     nb_streams = 0;
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
         goto fail;
     }
 
-    if (!(streams = av_calloc(nb_streams, sizeof(*streams)))) {
+    if (!(streams = zn_av_calloc(nb_streams, sizeof(*streams)))) {
         ret = AVERROR(ENOMEM);
         av_log(NULL, AV_LOG_ERROR, "Could not allocate streams\n");
     }
@@ -133,10 +133,10 @@ int main(int argc, char **argv)
             *(dev++) = 0;
             fmt = out_dev_name[i];
         }
-        ret = avformat_alloc_output_context2(&st->mux, NULL, fmt, dev);
+        ret = zn_avformat_alloc_output_context2(&st->mux, NULL, fmt, dev);
         if (ret < 0) {
             av_log(NULL, AV_LOG_ERROR, "Failed to allocate output: %s\n",
-                   av_err2str(ret));
+                   zn_av_err2str(ret));
             goto fail;
         }
         if (!(st->mux->oformat->flags & AVFMT_NOFILE)) {
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
                              NULL, NULL);
             if (ret < 0) {
                 av_log(st->mux, AV_LOG_ERROR, "Failed to init output: %s\n",
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
                 goto fail;
             }
         }
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
     /* Create output device streams */
     for (i = 0; i < nb_streams; i++) {
         st = &streams[i];
-        if (!(st->stream = avformat_new_stream(st->mux, NULL))) {
+        if (!(st->stream = zn_avformat_new_stream(st->mux, NULL))) {
             ret = AVERROR(ENOMEM);
             av_log(NULL, AV_LOG_ERROR, "Failed to create output stream\n");
             goto fail;
@@ -188,9 +188,9 @@ int main(int argc, char **argv)
     /* Init output devices */
     for (i = 0; i < nb_out_dev; i++) {
         st = &streams[i];
-        if ((ret = avformat_write_header(st->mux, NULL)) < 0) {
+        if ((ret = zn_avformat_write_header(st->mux, NULL)) < 0) {
             av_log(st->mux, AV_LOG_ERROR, "Failed to init output: %s\n",
-                   av_err2str(ret));
+                   zn_av_err2str(ret));
             goto fail;
         }
     }
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
         if (ret < 0) {
             av_log(st->mux, AV_LOG_ERROR,
                    "Uncoded frames not supported on stream #%d: %s\n",
-                   i, av_err2str(ret));
+                   i, zn_av_err2str(ret));
             goto fail;
         }
     }
@@ -214,14 +214,14 @@ int main(int argc, char **argv)
                 run = 0;
             } else {
                 av_log(NULL, AV_LOG_ERROR, "Error filtering: %s\n",
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
                 break;
             }
         }
         for (i = 0; i < nb_streams; i++) {
             st = &streams[i];
             while (1) {
-                if (!frame && !(frame = av_frame_alloc())) {
+                if (!frame && !(frame = zn_av_frame_alloc())) {
                     ret = AVERROR(ENOMEM);
                     av_log(NULL, AV_LOG_ERROR, "Could not allocate frame\n");
                     goto fail;
@@ -231,7 +231,7 @@ int main(int argc, char **argv)
                 if (ret < 0) {
                     if (ret != AVERROR(EAGAIN) && ret != AVERROR_EOF)
                         av_log(NULL, AV_LOG_WARNING, "Error in sink: %s\n",
-                               av_err2str(ret));
+                               zn_av_err2str(ret));
                     break;
                 }
                 if (frame->pts != AV_NOPTS_VALUE)
@@ -244,7 +244,7 @@ int main(int argc, char **argv)
                 frame = NULL;
                 if (ret < 0) {
                     av_log(st->mux, AV_LOG_ERROR,
-                           "Error writing frame: %s\n", av_err2str(ret));
+                           "Error writing frame: %s\n", zn_av_err2str(ret));
                     goto fail;
                 }
             }
@@ -254,22 +254,22 @@ int main(int argc, char **argv)
 
     for (i = 0; i < nb_out_dev; i++) {
         st = &streams[i];
-        av_write_trailer(st->mux);
+        zn_av_write_trailer(st->mux);
     }
 
 fail:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     avfilter_graph_free(&in_graph);
     if (streams) {
         for (i = 0; i < nb_out_dev; i++) {
             st = &streams[i];
             if (st->mux) {
                 if (st->mux->pb)
-                    avio_closep(&st->mux->pb);
-                avformat_free_context(st->mux);
+                    zn_avio_closep(&st->mux->pb);
+                zn_avformat_free_context(st->mux);
             }
         }
     }
-    av_freep(&streams);
+    zn_av_freep(&streams);
     return ret < 0;
 }

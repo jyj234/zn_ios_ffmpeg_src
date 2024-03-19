@@ -50,7 +50,7 @@ static int aqt_probe(const AVProbeData *p)
 static int aqt_read_header(AVFormatContext *s)
 {
     AQTitleContext *aqt = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     int new_event = 1;
     int64_t pos = 0, frame = AV_NOPTS_VALUE;
     AVPacket *sub = NULL;

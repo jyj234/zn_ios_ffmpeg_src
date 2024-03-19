@@ -156,7 +156,7 @@ static int convert_str(void *dest, const char *buf, int len)
         memcpy(str, buf, len);
         str[len] = 0;
         if (*(void **)dest)
-            av_free(*(void **)dest);
+            zn_av_free(*(void **)dest);
         *(char **)dest = str;
     }
     return !str;
@@ -240,7 +240,7 @@ static inline const char *skip_space(const char *buf)
 static int *get_default_field_orders(const ASSSection *section, int *number)
 {
     int i;
-    int *order = av_malloc_array(FF_ARRAY_ELEMS(section->fields), sizeof(*order));
+    int *order = zn_av_malloc_array(FF_ARRAY_ELEMS(section->fields), sizeof(*order));
 
     if (!order)
         return NULL;
@@ -410,12 +410,12 @@ static void free_section(ASSSplitContext *ctx, const ASSSection *section)
             for (j=0; section->fields[j].name; j++) {
                 const ASSFields *field = &section->fields[j];
                 if (field->type == ASS_STR)
-                    av_freep(ptr + field->offset);
+                    zn_av_freep(ptr + field->offset);
             }
     *count = 0;
 
     if (section->format_header)
-        av_freep((uint8_t *)&ctx->ass + section->offset);
+        zn_av_freep((uint8_t *)&ctx->ass + section->offset);
 }
 
 void ff_ass_free_dialog(ASSDialog **dialogp)
@@ -423,11 +423,11 @@ void ff_ass_free_dialog(ASSDialog **dialogp)
     ASSDialog *dialog = *dialogp;
     if (!dialog)
         return;
-    av_freep(&dialog->style);
-    av_freep(&dialog->name);
-    av_freep(&dialog->effect);
-    av_freep(&dialog->text);
-    av_freep(dialogp);
+    zn_av_freep(&dialog->style);
+    zn_av_freep(&dialog->name);
+    zn_av_freep(&dialog->effect);
+    zn_av_freep(&dialog->text);
+    zn_av_freep(dialogp);
 }
 
 ASSDialog *ff_ass_split_dialog(ASSSplitContext *ctx, const char *buf)
@@ -473,9 +473,9 @@ void ff_ass_split_free(ASSSplitContext *ctx)
         int i;
         for (i=0; i<FF_ARRAY_ELEMS(ass_sections); i++) {
             free_section(ctx, &ass_sections[i]);
-            av_freep(&(ctx->field_order[i]));
+            zn_av_freep(&(ctx->field_order[i]));
         }
-        av_free(ctx);
+        zn_av_free(ctx);
     }
 }
 

@@ -188,7 +188,7 @@ static int seq_read_close(AVFormatContext *s)
     SeqDemuxContext *seq = s->priv_data;
 
     for (i = 0; i < SEQ_NUM_FRAME_BUFFERS; i++)
-        av_freep(&seq->frame_buffers[i].data);
+        zn_av_freep(&seq->frame_buffers[i].data);
 
     return 0;
 }
@@ -219,7 +219,7 @@ static int seq_read_header(AVFormatContext *s)
     seq->audio_buffer_full = 0;
 
     /* initialize the video decoder stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -232,7 +232,7 @@ static int seq_read_header(AVFormatContext *s)
     st->codecpar->height = SEQ_FRAME_H;
 
     /* initialize the audio decoder stream */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

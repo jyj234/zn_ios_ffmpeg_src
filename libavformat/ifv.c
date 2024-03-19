@@ -136,7 +136,7 @@ static int ifv_read_header(AVFormatContext *s)
     if (ret < 0)
         return ret;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -150,7 +150,7 @@ static int ifv_read_header(AVFormatContext *s)
     avpriv_set_pts_info(st, 32, 1, 1000);
 
     if (ifv->is_audio_present) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
 

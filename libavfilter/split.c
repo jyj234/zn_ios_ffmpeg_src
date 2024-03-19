@@ -96,7 +96,7 @@ static int activate(AVFilterContext *ctx)
                 break;
         }
 
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         if (ret < 0)
             return ret;
     }

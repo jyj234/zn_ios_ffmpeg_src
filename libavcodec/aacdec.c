@@ -328,7 +328,7 @@ static int latm_decode_audio_specific_config(struct LATMContext *latmctx,
         esize = (asclen + 7) / 8;
 
         if (avctx->extradata_size < esize) {
-            av_free(avctx->extradata);
+            zn_av_free(avctx->extradata);
             avctx->extradata = av_malloc(esize + AV_INPUT_BUFFER_PADDING_SIZE);
             if (!avctx->extradata)
                 return AVERROR(ENOMEM);

@@ -433,9 +433,9 @@ static int xpm_decode_frame(AVCodecContext *avctx, AVFrame *p,
 static av_cold int xpm_decode_close(AVCodecContext *avctx)
 {
     XPMDecContext *x = avctx->priv_data;
-    av_freep(&x->pixels);
+    zn_av_freep(&x->pixels);
 
-    av_freep(&x->buf);
+    zn_av_freep(&x->buf);
     x->buf_size = 0;
 
     return 0;

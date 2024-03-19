@@ -250,7 +250,7 @@ static int wavesynth_parse_extradata(AVCodecContext *avc)
     edata += 4;
     if (ws->nb_inter < 0 || (edata_end - edata) / 24 < ws->nb_inter)
         return AVERROR(EINVAL);
-    ws->inter = av_calloc(ws->nb_inter, sizeof(*ws->inter));
+    ws->inter = zn_av_calloc(ws->nb_inter, sizeof(*ws->inter));
     if (!ws->inter)
         return AVERROR(ENOMEM);
     for (i = 0; i < ws->nb_inter; i++) {
@@ -454,8 +454,8 @@ static av_cold int wavesynth_close(AVCodecContext *avc)
 {
     struct wavesynth_context *ws = avc->priv_data;
 
-    av_freep(&ws->sin);
-    av_freep(&ws->inter);
+    zn_av_freep(&ws->sin);
+    zn_av_freep(&ws->inter);
     return 0;
 }
 

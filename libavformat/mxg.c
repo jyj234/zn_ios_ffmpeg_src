@@ -45,14 +45,14 @@ static int mxg_read_header(AVFormatContext *s)
     MXGContext *mxg = s->priv_data;
 
     /* video parameters will be extracted from the compressed bitstream */
-    video_st = avformat_new_stream(s, NULL);
+    video_st = zn_avformat_new_stream(s, NULL);
     if (!video_st)
         return AVERROR(ENOMEM);
     video_st->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
     video_st->codecpar->codec_id = AV_CODEC_ID_MXPEG;
     avpriv_set_pts_info(video_st, 64, 1, 1000000);
 
-    audio_st = avformat_new_stream(s, NULL);
+    audio_st = zn_avformat_new_stream(s, NULL);
     if (!audio_st)
         return AVERROR(ENOMEM);
     audio_st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
@@ -244,7 +244,7 @@ static int mxg_read_packet(AVFormatContext *s, AVPacket *pkt)
 static int mxg_close(struct AVFormatContext *s)
 {
     MXGContext *mxg = s->priv_data;
-    av_freep(&mxg->buffer);
+    zn_av_freep(&mxg->buffer);
     return 0;
 }
 

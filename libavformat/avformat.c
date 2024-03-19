@@ -51,33 +51,33 @@ void ff_free_stream(AVStream **pst)
 #if FF_API_AVSTREAM_SIDE_DATA
 FF_DISABLE_DEPRECATION_WARNINGS
     for (int i = 0; i < st->nb_side_data; i++)
-        av_freep(&st->side_data[i].data);
-    av_freep(&st->side_data);
+        zn_av_freep(&st->side_data[i].data);
+    zn_av_freep(&st->side_data);
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
 
     if (st->attached_pic.data)
-        av_packet_unref(&st->attached_pic);
+        zn_av_packet_unref(&st->attached_pic);
 
     av_parser_close(sti->parser);
     avcodec_free_context(&sti->avctx);
     av_bsf_free(&sti->bsfc);
-    av_freep(&sti->priv_pts);
-    av_freep(&sti->index_entries);
-    av_freep(&sti->probe_data.buf);
+    zn_av_freep(&sti->priv_pts);
+    zn_av_freep(&sti->index_entries);
+    zn_av_freep(&sti->probe_data.buf);
 
     av_bsf_free(&sti->extract_extradata.bsf);
 
     if (sti->info) {
-        av_freep(&sti->info->duration_error);
-        av_freep(&sti->info);
+        zn_av_freep(&sti->info->duration_error);
+        zn_av_freep(&sti->info);
     }
 
     av_dict_free(&st->metadata);
     avcodec_parameters_free(&st->codecpar);
-    av_freep(&st->priv_data);
+    zn_av_freep(&st->priv_data);
 
-    av_freep(pst);
+    zn_av_freep(pst);
 }
 
 void ff_remove_stream(AVFormatContext *s, AVStream *st)
@@ -99,7 +99,7 @@ void ff_flush_packet_queue(AVFormatContext *s)
     si->raw_packet_buffer_size = 0;
 }
 
-void avformat_free_context(AVFormatContext *s)
+void zn_avformat_free_context(AVFormatContext *s)
 {
     FFFormatContext *si;
 
@@ -122,26 +122,26 @@ void avformat_free_context(AVFormatContext *s)
 
     for (unsigned i = 0; i < s->nb_programs; i++) {
         av_dict_free(&s->programs[i]->metadata);
-        av_freep(&s->programs[i]->stream_index);
-        av_freep(&s->programs[i]);
+        zn_av_freep(&s->programs[i]->stream_index);
+        zn_av_freep(&s->programs[i]);
     }
     s->nb_programs = 0;
 
-    av_freep(&s->programs);
-    av_freep(&s->priv_data);
+    zn_av_freep(&s->programs);
+    zn_av_freep(&s->priv_data);
     while (s->nb_chapters--) {
         av_dict_free(&s->chapters[s->nb_chapters]->metadata);
-        av_freep(&s->chapters[s->nb_chapters]);
+        zn_av_freep(&s->chapters[s->nb_chapters]);
     }
-    av_freep(&s->chapters);
+    zn_av_freep(&s->chapters);
     av_dict_free(&s->metadata);
     av_dict_free(&si->id3v2_meta);
-    av_packet_free(&si->pkt);
-    av_packet_free(&si->parse_pkt);
-    av_freep(&s->streams);
+    zn_av_packet_free(&si->pkt);
+    zn_av_packet_free(&si->parse_pkt);
+    zn_av_freep(&s->streams);
     ff_flush_packet_queue(s);
-    av_freep(&s->url);
-    av_free(s);
+    zn_av_freep(&s->url);
+    zn_av_free(s);
 }
 
 #if FF_API_AVSTREAM_SIDE_DATA
@@ -170,7 +170,7 @@ int av_stream_add_side_data(AVStream *st, enum AVPacketSideDataType type,
         sd = &st->side_data[i];
 
         if (sd->type == type) {
-            av_freep(&sd->data);
+            zn_av_freep(&sd->data);
             sd->data = data;
             sd->size = size;
             return 0;
@@ -207,7 +207,7 @@ uint8_t *av_stream_new_side_data(AVStream *st, enum AVPacketSideDataType type,
 
     ret = av_stream_add_side_data(st, type, data, size);
     if (ret < 0) {
-        av_freep(&data);
+        zn_av_freep(&data);
         return NULL;
     }
 
@@ -218,7 +218,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
 /**
  * Copy all stream parameters from source to destination stream, with the
- * exception of the index field, which is usually set by avformat_new_stream().
+ * exception of the index field, which is usually set by zn_avformat_new_stream().
  *
  * @param dst pointer to destination AVStream
  * @param src pointer to source AVStream
@@ -246,11 +246,11 @@ static int stream_params_copy(AVStream *dst, const AVStream *src)
     if (ret < 0)
         return ret;
 
-    ret = avcodec_parameters_copy(dst->codecpar, src->codecpar);
+    ret = zn_avcodec_parameters_copy(dst->codecpar, src->codecpar);
     if (ret < 0)
         return ret;
 
-    av_packet_unref(&dst->attached_pic);
+    zn_av_packet_unref(&dst->attached_pic);
     if (src->attached_pic.data) {
         ret = av_packet_ref(&dst->attached_pic, &src->attached_pic);
         if (ret < 0)
@@ -265,7 +265,7 @@ AVStream *ff_stream_clone(AVFormatContext *dst_ctx, const AVStream *src)
     AVStream *st;
     int ret;
 
-    st = avformat_new_stream(dst_ctx, NULL);
+    st = zn_avformat_new_stream(dst_ctx, NULL);
     if (!st)
         return NULL;
 
@@ -295,7 +295,7 @@ AVProgram *av_new_program(AVFormatContext *ac, int id)
             return NULL;
         ret = av_dynarray_add_nofree(&ac->programs, &ac->nb_programs, program);
         if (ret < 0) {
-            av_free(program);
+            zn_av_free(program);
             return NULL;
         }
         program->discard = AVDISCARD_NONE;
@@ -552,7 +552,7 @@ static int match_stream_specifier(const AVFormatContext *s, const AVStream *st,
                 } else
                     ret = 0;
 
-                av_freep(&key);
+                zn_av_freep(&key);
             }
             return match && ret;
         } else if (*spec == 'u' && *(spec + 1) == '\0') {
@@ -661,13 +661,13 @@ AVRational av_guess_frame_rate(AVFormatContext *format, AVStream *st, AVFrame *f
     AVRational   avg_fr = st->avg_frame_rate;
 
     if (avg_fr.num > 0 && avg_fr.den > 0 && fr.num > 0 && fr.den > 0 &&
-        av_q2d(avg_fr) < 70 && av_q2d(fr) > 210) {
+        zn_av_q2d(avg_fr) < 70 && zn_av_q2d(fr) > 210) {
         fr = avg_fr;
     }
 
     if (desc && (desc->props & AV_CODEC_PROP_FIELDS)) {
         if (   codec_fr.num > 0 && codec_fr.den > 0 &&
-            (fr.num == 0 || av_q2d(codec_fr) < av_q2d(fr)*0.7 && fabs(1.0 - av_q2d(av_div_q(avg_fr, fr))) > 0.1))
+            (fr.num == 0 || zn_av_q2d(codec_fr) < zn_av_q2d(fr)*0.7 && fabs(1.0 - zn_av_q2d(av_div_q(avg_fr, fr))) > 0.1))
             fr = codec_fr;
     }
 
@@ -695,10 +695,10 @@ int avformat_transfer_internal_stream_timing_info(const AVOutputFormat *ofmt,
     if (!strcmp(ofmt->name, "avi")) {
 #if FF_API_R_FRAME_RATE
         if (copy_tb == AVFMT_TBCF_AUTO && ist->r_frame_rate.num
-            && av_q2d(ist->r_frame_rate) >= av_q2d(ist->avg_frame_rate)
-            && 0.5/av_q2d(ist->r_frame_rate) > av_q2d(ist->time_base)
-            && 0.5/av_q2d(ist->r_frame_rate) > av_q2d(dec_ctx_tb)
-            && av_q2d(ist->time_base) < 1.0/500 && av_q2d(dec_ctx_tb) < 1.0/500
+            && zn_av_q2d(ist->r_frame_rate) >= zn_av_q2d(ist->avg_frame_rate)
+            && 0.5/zn_av_q2d(ist->r_frame_rate) > zn_av_q2d(ist->time_base)
+            && 0.5/zn_av_q2d(ist->r_frame_rate) > zn_av_q2d(dec_ctx_tb)
+            && zn_av_q2d(ist->time_base) < 1.0/500 && zn_av_q2d(dec_ctx_tb) < 1.0/500
             || copy_tb == AVFMT_TBCF_R_FRAMERATE) {
             enc_ctx->time_base.num = ist->r_frame_rate.den;
             enc_ctx->time_base.den = 2*ist->r_frame_rate.num;
@@ -710,8 +710,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
         } else
 #endif
             if (copy_tb == AVFMT_TBCF_AUTO && dec_ctx->framerate.num &&
-                av_q2d(av_inv_q(dec_ctx->framerate)) > 2*av_q2d(ist->time_base)
-                   && av_q2d(ist->time_base) < 1.0/500
+                zn_av_q2d(av_inv_q(dec_ctx->framerate)) > 2*zn_av_q2d(ist->time_base)
+                   && zn_av_q2d(ist->time_base) < 1.0/500
                    || (copy_tb == AVFMT_TBCF_DECODER &&
                        (dec_ctx->framerate.num || ist->codecpar->codec_type == AVMEDIA_TYPE_AUDIO))) {
             enc_ctx->time_base = dec_ctx_tb;
@@ -726,8 +726,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
     } else if (!(ofmt->flags & AVFMT_VARIABLE_FPS)
                && !av_match_name(ofmt->name, "mov,mp4,3gp,3g2,psp,ipod,ismv,f4v")) {
         if (copy_tb == AVFMT_TBCF_AUTO && dec_ctx->framerate.num
-            && av_q2d(av_inv_q(dec_ctx->framerate)) > av_q2d(ist->time_base)
-            && av_q2d(ist->time_base) < 1.0/500
+            && zn_av_q2d(av_inv_q(dec_ctx->framerate)) > zn_av_q2d(ist->time_base)
+            && zn_av_q2d(ist->time_base) < 1.0/500
             || (copy_tb == AVFMT_TBCF_DECODER &&
                 (dec_ctx->framerate.num || ist->codecpar->codec_type == AVMEDIA_TYPE_AUDIO))) {
             enc_ctx->time_base = dec_ctx_tb;
@@ -799,7 +799,7 @@ const AVCodec *ff_find_decoder(AVFormatContext *s, const AVStream *st,
         break;
     }
 
-    return avcodec_find_decoder(codec_id);
+    return zn_avcodec_find_decoder(codec_id);
 }
 
 int ff_copy_whiteblacklists(AVFormatContext *dst, const AVFormatContext *src)
@@ -836,7 +836,7 @@ int ff_is_intra_only(enum AVCodecID id)
 void ff_format_set_url(AVFormatContext *s, char *url)
 {
     av_assert0(url);
-    av_freep(&s->url);
+    zn_av_freep(&s->url);
     s->url = url;
 }
 

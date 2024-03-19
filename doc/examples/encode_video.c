@@ -45,14 +45,14 @@ static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
     if (frame)
         printf("Send frame %3"PRId64"\n", frame->pts);
 
-    ret = avcodec_send_frame(enc_ctx, frame);
+    ret = zn_avcodec_send_frame(enc_ctx, frame);
     if (ret < 0) {
         fprintf(stderr, "Error sending a frame for encoding\n");
         exit(1);
     }
 
     while (ret >= 0) {
-        ret = avcodec_receive_packet(enc_ctx, pkt);
+        ret = zn_avcodec_receive_packet(enc_ctx, pkt);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
             return;
         else if (ret < 0) {
@@ -62,7 +62,7 @@ static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
 
         printf("Write packet %3"PRId64" (size=%5d)\n", pkt->pts, pkt->size);
         fwrite(pkt->data, 1, pkt->size, outfile);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     }
 }
 
@@ -91,13 +91,13 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    c = avcodec_alloc_context3(codec);
+    c = zn_avcodec_alloc_context3(codec);
     if (!c) {
         fprintf(stderr, "Could not allocate video codec context\n");
         exit(1);
     }
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt)
         exit(1);
 
@@ -124,9 +124,9 @@ int main(int argc, char **argv)
         av_opt_set(c->priv_data, "preset", "slow", 0);
 
     /* open it */
-    ret = avcodec_open2(c, codec, NULL);
+    ret = zn_avcodec_open2(c, codec, NULL);
     if (ret < 0) {
-        fprintf(stderr, "Could not open codec: %s\n", av_err2str(ret));
+        fprintf(stderr, "Could not open codec: %s\n", zn_av_err2str(ret));
         exit(1);
     }
 
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         fprintf(stderr, "Could not allocate video frame\n");
         exit(1);
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
     frame->width  = c->width;
     frame->height = c->height;
 
-    ret = av_frame_get_buffer(frame, 0);
+    ret = zn_av_frame_get_buffer(frame, 0);
     if (ret < 0) {
         fprintf(stderr, "Could not allocate the video frame data\n");
         exit(1);
@@ -156,10 +156,10 @@ int main(int argc, char **argv)
         fflush(stdout);
 
         /* Make sure the frame data is writable.
-           On the first round, the frame is fresh from av_frame_get_buffer()
+           On the first round, the frame is fresh from zn_av_frame_get_buffer()
            and therefore we know it is writable.
            But on the next rounds, encode() will have called
-           avcodec_send_frame(), and the codec may have kept a reference to
+           zn_avcodec_send_frame(), and the codec may have kept a reference to
            the frame in its internal structures, that makes the frame
            unwritable.
            av_frame_make_writable() checks that and allocates a new buffer
@@ -209,8 +209,8 @@ int main(int argc, char **argv)
     fclose(f);
 
     avcodec_free_context(&c);
-    av_frame_free(&frame);
-    av_packet_free(&pkt);
+    zn_av_frame_free(&frame);
+    zn_av_packet_free(&pkt);
 
     return 0;
 }

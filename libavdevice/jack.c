@@ -160,7 +160,7 @@ static int start_jack(AVFormatContext *context)
     sem_init(&self->packet_count, 0, 0);
 
     self->sample_rate = jack_get_sample_rate(self->client);
-    self->ports       = av_malloc_array(self->nports, sizeof(*self->ports));
+    self->ports       = zn_av_malloc_array(self->nports, sizeof(*self->ports));
     if (!self->ports)
         return AVERROR(ENOMEM);
     self->buffer_size = jack_get_buffer_size(self->client);
@@ -214,7 +214,7 @@ static void free_pkt_fifo(AVFifo **fifop)
     AVFifo *fifo = *fifop;
     AVPacket pkt;
     while (av_fifo_read(fifo, &pkt, 1) >= 0)
-        av_packet_unref(&pkt);
+        zn_av_packet_unref(&pkt);
     av_fifo_freep2(fifop);
 }
 
@@ -228,7 +228,7 @@ static void stop_jack(JackData *self)
     sem_destroy(&self->packet_count);
     free_pkt_fifo(&self->new_pkts);
     free_pkt_fifo(&self->filled_pkts);
-    av_freep(&self->ports);
+    zn_av_freep(&self->ports);
     ff_timefilter_destroy(self->timefilter);
 }
 
@@ -241,7 +241,7 @@ static int audio_read_header(AVFormatContext *context)
     if ((test = start_jack(context)))
         return test;
 
-    stream = avformat_new_stream(context, NULL);
+    stream = zn_avformat_new_stream(context, NULL);
     if (!stream) {
         stop_jack(self);
         return AVERROR(ENOMEM);

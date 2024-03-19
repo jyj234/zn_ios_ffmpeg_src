@@ -671,7 +671,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
 
     ff_blockdsp_init(&s->bdsp);
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 
@@ -691,10 +691,10 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     MV30Context *s = avctx->priv_data;
 
-    av_frame_free(&s->prev_frame);
-    av_freep(&s->coeffs);
+    zn_av_frame_free(&s->prev_frame);
+    zn_av_freep(&s->coeffs);
     s->coeffs_size = 0;
-    av_freep(&s->mvectors);
+    zn_av_freep(&s->mvectors);
     s->mvectors_size = 0;
 
     return 0;

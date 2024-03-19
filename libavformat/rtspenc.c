@@ -77,14 +77,14 @@ int ff_rtsp_setup_output_streams(AVFormatContext *s, const char *addr)
                 "rtsp", NULL, addr, -1, NULL);
     ctx_array[0] = &sdp_ctx;
     if (av_sdp_create(ctx_array, 1, sdp, SDP_MAX_SIZE)) {
-        av_free(sdp);
+        zn_av_free(sdp);
         return AVERROR_INVALIDDATA;
     }
     av_log(s, AV_LOG_VERBOSE, "SDP:\n%s\n", sdp);
     ff_rtsp_send_cmd_with_content(s, "ANNOUNCE", rt->control_uri,
                                   "Content-Type: application/sdp\r\n",
                                   reply, NULL, sdp, strlen(sdp));
-    av_free(sdp);
+    zn_av_free(sdp);
     if (reply->status_code != RTSP_STATUS_OK)
         return ff_rtsp_averror(reply->status_code, AVERROR_INVALIDDATA);
 
@@ -174,7 +174,7 @@ int ff_rtsp_tcp_write_packet(AVFormatContext *s, RTSPStream *rtsp_st)
         ptr += packet_len;
         size -= packet_len;
     }
-    av_free(buf);
+    zn_av_free(buf);
     return ffio_open_dyn_packet_buf(&rtpctx->pb, rt->pkt_size);
 }
 
@@ -231,7 +231,7 @@ static int rtsp_write_close(AVFormatContext *s)
 {
     RTSPState *rt = s->priv_data;
 
-    // If we want to send RTCP_BYE packets, these are sent by av_write_trailer.
+    // If we want to send RTCP_BYE packets, these are sent by zn_av_write_trailer.
     // Thus call this on all streams before doing the teardown. This is
     // done within ff_rtsp_undo_setup.
     ff_rtsp_undo_setup(s, 1);

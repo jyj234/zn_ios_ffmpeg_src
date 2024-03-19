@@ -244,7 +244,7 @@ static int generate_joint_tables(HYuvDecContext *s)
     }
     ret = 0;
 out:
-    av_freep(&symbols);
+    zn_av_freep(&symbols);
     return ret;
 }
 
@@ -323,7 +323,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
     int i;
 
     ff_huffyuv_common_end(s->temp, s->temp16);
-    av_freep(&s->bitstream_buffer);
+    zn_av_freep(&s->bitstream_buffer);
 
     for (i = 0; i < 8; i++)
         ff_vlc_free(&s->vlc[i]);

@@ -458,7 +458,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     NormalizeContext *s = ctx->priv;
 
-    av_freep(&s->history_mem);
+    zn_av_freep(&s->history_mem);
 }
 
 // This function is pretty much standard from doc/writing_filters.txt.  It
@@ -479,7 +479,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -490,12 +490,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     normalize(s, in, out);
 
     if (ctx->is_disabled) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ff_filter_frame(outlink, in);
     }
 
     if (!direct)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 }

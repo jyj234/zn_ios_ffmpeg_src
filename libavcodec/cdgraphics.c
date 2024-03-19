@@ -77,7 +77,7 @@ static av_cold int cdg_decode_init(AVCodecContext *avctx)
 {
     CDGraphicsContext *cc = avctx->priv_data;
 
-    cc->frame = av_frame_alloc();
+    cc->frame = zn_av_frame_alloc();
     if (!cc->frame)
         return AVERROR(ENOMEM);
 
@@ -389,7 +389,7 @@ static av_cold int cdg_decode_end(AVCodecContext *avctx)
 {
     CDGraphicsContext *cc = avctx->priv_data;
 
-    av_frame_free(&cc->frame);
+    zn_av_frame_free(&cc->frame);
 
     return 0;
 }

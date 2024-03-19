@@ -114,7 +114,7 @@ static void drm_unmap_frame(AVHWFramesContext *hwfc,
         munmap(map->address[i], map->length[i]);
     }
 
-    av_free(map);
+    zn_av_free(map);
 }
 
 static int drm_map_frame(AVHWFramesContext *hwfc,
@@ -198,7 +198,7 @@ fail:
         if (map->address[i])
             munmap(map->address[i], map->length[i]);
     }
-    av_free(map);
+    zn_av_free(map);
     return err;
 }
 
@@ -208,7 +208,7 @@ static int drm_transfer_get_formats(AVHWFramesContext *ctx,
 {
     enum AVPixelFormat *pix_fmts;
 
-    pix_fmts = av_malloc_array(2, sizeof(*pix_fmts));
+    pix_fmts = zn_av_malloc_array(2, sizeof(*pix_fmts));
     if (!pix_fmts)
         return AVERROR(ENOMEM);
 
@@ -228,7 +228,7 @@ static int drm_transfer_data_from(AVHWFramesContext *hwfc,
     if (dst->width > hwfc->width || dst->height > hwfc->height)
         return AVERROR(EINVAL);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = dst->format;
@@ -246,7 +246,7 @@ static int drm_transfer_data_from(AVHWFramesContext *hwfc,
 
     err = 0;
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return err;
 }
 
@@ -259,7 +259,7 @@ static int drm_transfer_data_to(AVHWFramesContext *hwfc,
     if (src->width > hwfc->width || src->height > hwfc->height)
         return AVERROR(EINVAL);
 
-    map = av_frame_alloc();
+    map = zn_av_frame_alloc();
     if (!map)
         return AVERROR(ENOMEM);
     map->format = src->format;
@@ -278,7 +278,7 @@ static int drm_transfer_data_to(AVHWFramesContext *hwfc,
 
     err = 0;
 fail:
-    av_frame_free(&map);
+    zn_av_frame_free(&map);
     return err;
 }
 

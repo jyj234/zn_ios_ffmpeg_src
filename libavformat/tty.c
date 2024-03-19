@@ -103,7 +103,7 @@ static int read_header(AVFormatContext *avctx)
 {
     TtyDemuxContext *s = avctx->priv_data;
     int ret = 0;
-    AVStream *st = avformat_new_stream(avctx, NULL);
+    AVStream *st = zn_avformat_new_stream(avctx, NULL);
 
     if (!st) {
         ret = AVERROR(ENOMEM);
@@ -119,7 +119,7 @@ static int read_header(AVFormatContext *avctx)
     st->avg_frame_rate = s->framerate;
 
     /* simulate tty display speed */
-    s->chars_per_frame = FFMAX(av_q2d(st->time_base)*s->chars_per_frame, 1);
+    s->chars_per_frame = FFMAX(zn_av_q2d(st->time_base)*s->chars_per_frame, 1);
 
     if (avctx->pb->seekable & AVIO_SEEKABLE_NORMAL) {
         s->fsize = avio_size(avctx->pb);

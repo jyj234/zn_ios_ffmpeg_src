@@ -433,14 +433,14 @@ static int d3d11va_get_decoder_configuration(AVCodecContext *avctx,
         return AVERROR(EINVAL);
     }
 
-    cfg_list = av_malloc_array(cfg_count, sizeof(D3D11_VIDEO_DECODER_CONFIG));
+    cfg_list = zn_av_malloc_array(cfg_count, sizeof(D3D11_VIDEO_DECODER_CONFIG));
     if (cfg_list == NULL)
         return AVERROR(ENOMEM);
     for (i = 0; i < cfg_count; i++) {
         hr = ID3D11VideoDevice_GetVideoDecoderConfig(video_device, desc, i, &cfg_list[i]);
         if (FAILED(hr)) {
             av_log(avctx, AV_LOG_ERROR, "Unable to retrieve decoder configurations. (hr=0x%lX)\n", hr);
-            av_free(cfg_list);
+            zn_av_free(cfg_list);
             return AVERROR(EINVAL);
         }
     }
@@ -448,7 +448,7 @@ static int d3d11va_get_decoder_configuration(AVCodecContext *avctx,
     ret = dxva_get_decoder_configuration(avctx, cfg_list, cfg_count);
     if (ret >= 0)
         *config = cfg_list[ret];
-    av_free(cfg_list);
+    zn_av_free(cfg_list);
     return ret;
 }
 
@@ -485,24 +485,24 @@ static int d3d11va_create_decoder(AVCodecContext *avctx)
     ID3D11Texture2D_GetDesc(frames_hwctx->texture, &texdesc);
 
     guid_count = ID3D11VideoDevice_GetVideoDecoderProfileCount(device_hwctx->video_device);
-    guid_list = av_malloc_array(guid_count, sizeof(*guid_list));
+    guid_list = zn_av_malloc_array(guid_count, sizeof(*guid_list));
     if (guid_list == NULL || guid_count == 0) {
         av_log(avctx, AV_LOG_ERROR, "Failed to get the decoder GUIDs\n");
-        av_free(guid_list);
+        zn_av_free(guid_list);
         return AVERROR(EINVAL);
     }
     for (i = 0; i < guid_count; i++) {
         hr = ID3D11VideoDevice_GetVideoDecoderProfile(device_hwctx->video_device, i, &guid_list[i]);
         if (FAILED(hr)) {
             av_log(avctx, AV_LOG_ERROR, "Failed to retrieve decoder GUID %d\n", i);
-            av_free(guid_list);
+            zn_av_free(guid_list);
             return AVERROR(EINVAL);
         }
     }
 
     ret = dxva_get_decoder_guid(avctx, device_hwctx->video_device, &surface_format,
                                 guid_count, guid_list, &decoder_guid);
-    av_free(guid_list);
+    zn_av_free(guid_list);
     if (ret < 0)
         return AVERROR(EINVAL);
 
@@ -515,7 +515,7 @@ static int d3d11va_create_decoder(AVCodecContext *avctx)
     if (ret < 0)
         return AVERROR(EINVAL);
 
-    sctx->d3d11_views = av_calloc(texdesc.ArraySize, sizeof(sctx->d3d11_views[0]));
+    sctx->d3d11_views = zn_av_calloc(texdesc.ArraySize, sizeof(sctx->d3d11_views[0]));
     if (!sctx->d3d11_views)
         return AVERROR(ENOMEM);
     sctx->nb_d3d11_views = texdesc.ArraySize;
@@ -739,7 +739,7 @@ int ff_dxva2_decode_uninit(AVCodecContext *avctx)
         if (sctx->d3d11_views[i])
             ID3D11VideoDecoderOutputView_Release(sctx->d3d11_views[i]);
     }
-    av_freep(&sctx->d3d11_views);
+    zn_av_freep(&sctx->d3d11_views);
 #endif
 
 #if CONFIG_DXVA2

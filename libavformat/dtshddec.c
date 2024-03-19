@@ -60,7 +60,7 @@ static int dtshd_read_header(AVFormatContext *s)
     int ret;
     char *value;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

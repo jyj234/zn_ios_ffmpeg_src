@@ -381,7 +381,7 @@ av_cold int ff_opus_parse_extradata(AVCodecContext *avctx,
                 ret = AVERROR_INVALIDDATA;
                 goto fail;
             }
-            av_channel_layout_copy(&layout, &ff_vorbis_ch_layouts[channels - 1]);
+            zn_av_channel_layout_copy(&layout, &ff_vorbis_ch_layouts[channels - 1]);
             channel_reorder = channel_reorder_vorbis;
         } else if (map_type == 2) {
             int ambisonic_order = ff_sqrt(channels) - 1;
@@ -415,7 +415,7 @@ av_cold int ff_opus_parse_extradata(AVCodecContext *avctx,
         return AVERROR_PATCHWELCOME;
     }
 
-    s->channel_maps = av_calloc(channels, sizeof(*s->channel_maps));
+    s->channel_maps = zn_av_calloc(channels, sizeof(*s->channel_maps));
     if (!s->channel_maps) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -431,7 +431,7 @@ av_cold int ff_opus_parse_extradata(AVCodecContext *avctx,
         } else if (idx >= streams + stereo_streams) {
             av_log(avctx, AV_LOG_ERROR,
                    "Invalid channel map for output channel %d: %d\n", i, idx);
-            av_freep(&s->channel_maps);
+            zn_av_freep(&s->channel_maps);
             ret = AVERROR_INVALIDDATA;
             goto fail;
         }
@@ -454,7 +454,7 @@ av_cold int ff_opus_parse_extradata(AVCodecContext *avctx,
         }
     }
 
-    ret = av_channel_layout_copy(&avctx->ch_layout, &layout);
+    ret = zn_av_channel_layout_copy(&avctx->ch_layout, &layout);
     if (ret < 0)
         goto fail;
 

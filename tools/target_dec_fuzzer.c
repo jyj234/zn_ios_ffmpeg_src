@@ -75,7 +75,7 @@ static const FFCodec *AVCodecInitialize(enum AVCodecID codec_id)
 {
     const AVCodec *res;
 
-    res = avcodec_find_decoder(codec_id);
+    res = zn_avcodec_find_decoder(codec_id);
     if (!res)
         error("Failed to find decoder");
     return ffcodec(res);
@@ -94,7 +94,7 @@ static int subtitle_handler(AVCodecContext *avctx, AVFrame *unused,
 static int audio_video_handler(AVCodecContext *avctx, AVFrame *frame,
                                int *got_frame, const AVPacket *dummy)
 {
-    int ret = avcodec_receive_frame(avctx, frame);
+    int ret = zn_avcodec_receive_frame(avctx, frame);
     *got_frame = ret >= 0;
     return ret;
 }
@@ -321,8 +321,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     maxsamples_per_frame = FFMIN(maxsamples_per_frame, maxsamples);
     maxpixels_per_frame  = FFMIN(maxpixels_per_frame , maxpixels);
 
-    AVCodecContext* ctx = avcodec_alloc_context3(&c->p);
-    AVCodecContext* parser_avctx = avcodec_alloc_context3(NULL);
+    AVCodecContext* ctx = zn_avcodec_alloc_context3(&c->p);
+    AVCodecContext* parser_avctx = zn_avcodec_alloc_context3(NULL);
     if (!ctx || !parser_avctx)
         error("Failed memory allocation");
 
@@ -450,13 +450,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
             ctx->width = ctx->height = 0;
     }
 
-    int res = avcodec_open2(ctx, &c->p, &opts);
+    int res = zn_avcodec_open2(ctx, &c->p, &opts);
     if (res < 0) {
         avcodec_free_context(&ctx);
-        av_free(parser_avctx);
+        zn_av_free(parser_avctx);
         av_parser_close(parser);
         av_dict_free(&opts);
-        return 0; // Failure of avcodec_open2() does not imply that a issue was found
+        return 0; // Failure of zn_avcodec_open2() does not imply that a issue was found
     }
     parser_avctx->codec_id = ctx->codec_id;
     parser_avctx->extradata_size = ctx->extradata_size;
@@ -464,9 +464,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
 
     int got_frame;
-    AVFrame *frame = av_frame_alloc();
-    AVPacket *avpkt = av_packet_alloc();
-    AVPacket *parsepkt = av_packet_alloc();
+    AVFrame *frame = zn_av_frame_alloc();
+    AVPacket *avpkt = zn_av_packet_alloc();
+    AVPacket *parsepkt = zn_av_packet_alloc();
     if (!frame || !avpkt || !parsepkt)
         error("Failed memory allocation");
 
@@ -524,7 +524,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
           flushpattern = (flushpattern >> 3) + (flushpattern << 61);
 
           if (ctx->codec_type != AVMEDIA_TYPE_SUBTITLE) {
-              int ret = avcodec_send_packet(ctx, avpkt);
+              int ret = zn_avcodec_send_packet(ctx, avpkt);
               decode_more = ret >= 0;
               if(!decode_more) {
                     ec_pixels += (ctx->width + 32LL) * (ctx->height + 32LL);
@@ -570,16 +570,16 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
             } else
                 decode_more = ret >= 0;
           }
-          av_packet_unref(avpkt);
+          zn_av_packet_unref(avpkt);
         }
-        av_packet_unref(parsepkt);
+        zn_av_packet_unref(parsepkt);
     }
 maximums_reached:
 
-    av_packet_unref(avpkt);
+    zn_av_packet_unref(avpkt);
 
     if (ctx->codec_type != AVMEDIA_TYPE_SUBTITLE)
-        avcodec_send_packet(ctx, NULL);
+        zn_avcodec_send_packet(ctx, NULL);
 
     do {
         got_frame = 0;
@@ -593,12 +593,12 @@ maximums_reached:
 
     fprintf(stderr, "pixels decoded: %"PRId64", samples decoded: %"PRId64", iterations: %d\n", ec_pixels, nb_samples, it);
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     avcodec_free_context(&ctx);
     avcodec_free_context(&parser_avctx);
     av_parser_close(parser);
-    av_packet_free(&avpkt);
-    av_packet_free(&parsepkt);
+    zn_av_packet_free(&avpkt);
+    zn_av_packet_free(&parsepkt);
     av_dict_free(&opts);
     return 0;
 }

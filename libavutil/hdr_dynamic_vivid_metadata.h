@@ -327,7 +327,7 @@ typedef struct AVDynamicHDRVivid {
 
 /**
  * Allocate an AVDynamicHDRVivid structure and set its fields to
- * default values. The resulting struct can be freed using av_freep().
+ * default values. The resulting struct can be freed using zn_av_freep().
  *
  * @return An AVDynamicHDRVivid filled with default values or NULL
  *         on failure.

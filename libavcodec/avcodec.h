@@ -92,28 +92,28 @@ struct AVCodecParameters;
  * @defgroup lavc_encdec send/receive encoding and decoding API overview
  * @{
  *
- * The avcodec_send_packet()/avcodec_receive_frame()/avcodec_send_frame()/
- * avcodec_receive_packet() functions provide an encode/decode API, which
+ * The zn_avcodec_send_packet()/zn_avcodec_receive_frame()/zn_avcodec_send_frame()/
+ * zn_avcodec_receive_packet() functions provide an encode/decode API, which
  * decouples input and output.
  *
  * The API is very similar for encoding/decoding and audio/video, and works as
  * follows:
  * - Set up and open the AVCodecContext as usual.
  * - Send valid input:
- *   - For decoding, call avcodec_send_packet() to give the decoder raw
+ *   - For decoding, call zn_avcodec_send_packet() to give the decoder raw
  *     compressed data in an AVPacket.
- *   - For encoding, call avcodec_send_frame() to give the encoder an AVFrame
+ *   - For encoding, call zn_avcodec_send_frame() to give the encoder an AVFrame
  *     containing uncompressed audio or video.
  *
  *   In both cases, it is recommended that AVPackets and AVFrames are
  *   refcounted, or libavcodec might have to copy the input data. (libavformat
- *   always returns refcounted AVPackets, and av_frame_get_buffer() allocates
+ *   always returns refcounted AVPackets, and zn_av_frame_get_buffer() allocates
  *   refcounted AVFrames.)
  * - Receive output in a loop. Periodically call one of the avcodec_receive_*()
  *   functions and process their output:
- *   - For decoding, call avcodec_receive_frame(). On success, it will return
+ *   - For decoding, call zn_avcodec_receive_frame(). On success, it will return
  *     an AVFrame containing uncompressed audio or video data.
- *   - For encoding, call avcodec_receive_packet(). On success, it will return
+ *   - For encoding, call zn_avcodec_receive_packet(). On success, it will return
  *     an AVPacket with a compressed frame.
  *
  *   Repeat this call until it returns AVERROR(EAGAIN) or an error. The
@@ -137,10 +137,10 @@ struct AVCodecParameters;
  * as the codec might buffer multiple frames or packets internally for
  * performance or out of necessity (consider B-frames).
  * This is handled as follows:
- * - Instead of valid input, send NULL to the avcodec_send_packet() (decoding)
- *   or avcodec_send_frame() (encoding) functions. This will enter draining
+ * - Instead of valid input, send NULL to the zn_avcodec_send_packet() (decoding)
+ *   or zn_avcodec_send_frame() (encoding) functions. This will enter draining
  *   mode.
- * - Call avcodec_receive_frame() (decoding) or avcodec_receive_packet()
+ * - Call zn_avcodec_receive_frame() (decoding) or zn_avcodec_receive_packet()
  *   (encoding) in a loop until AVERROR_EOF is returned. The functions will
  *   not return AVERROR(EAGAIN), unless you forgot to enter draining mode.
  * - Before decoding can be resumed again, the codec has to be reset with
@@ -148,8 +148,8 @@ struct AVCodecParameters;
  *
  * Using the API as outlined above is highly recommended. But it is also
  * possible to call functions outside of this rigid schema. For example, you can
- * call avcodec_send_packet() repeatedly without calling
- * avcodec_receive_frame(). In this case, avcodec_send_packet() will succeed
+ * call zn_avcodec_send_packet() repeatedly without calling
+ * zn_avcodec_receive_frame(). In this case, zn_avcodec_send_packet() will succeed
  * until the codec's internal buffer has been filled up (which is typically of
  * size 1 per output frame, after initial input), and then reject input with
  * AVERROR(EAGAIN). Once it starts rejecting input, you have no choice but to
@@ -164,7 +164,7 @@ struct AVCodecParameters;
  * A codec is not allowed to return AVERROR(EAGAIN) for both sending and receiving. This
  * would be an invalid state, which could put the codec user into an endless
  * loop. The API has no concept of time either: it cannot happen that trying to
- * do avcodec_send_packet() results in AVERROR(EAGAIN), but a repeated call 1 second
+ * do zn_avcodec_send_packet() results in AVERROR(EAGAIN), but a repeated call 1 second
  * later accepts the packet (with no other receive/flush API calls involved).
  * The API is a strict state machine, and the passage of time is not supposed
  * to influence it. Some timing-dependent behavior might still be deemed
@@ -174,7 +174,7 @@ struct AVCodecParameters;
  * the send/receive APIs allowing progress. For example, it's not allowed that
  * the codec randomly decides that it actually wants to consume a packet now
  * instead of returning a frame, after it just returned AVERROR(EAGAIN) on an
- * avcodec_send_packet() call.
+ * zn_avcodec_send_packet() call.
  * @}
  */
 
@@ -242,8 +242,8 @@ typedef struct RcOverride{
 /**
  * Request the encoder to output reconstructed frames, i.e.\ frames that would
  * be produced by decoding the encoded bistream. These frames may be retrieved
- * by calling avcodec_receive_frame() immediately after a successful call to
- * avcodec_receive_packet().
+ * by calling zn_avcodec_receive_frame() immediately after a successful call to
+ * zn_avcodec_receive_packet().
  *
  * Should only be used with encoders flagged with the
  * @ref AV_CODEC_CAP_ENCODER_RECON_FRAME capability.
@@ -441,7 +441,7 @@ typedef struct RcOverride{
 typedef struct AVCodecContext {
     /**
      * information on struct for av_log
-     * - set by avcodec_alloc_context3
+     * - set by zn_avcodec_alloc_context3
      */
     const AVClass *av_class;
     int log_level_offset;
@@ -609,7 +609,7 @@ typedef struct AVCodecContext {
      * picture width / height.
      *
      * @note Those fields may not match the values of the last
-     * AVFrame output by avcodec_receive_frame() due frame
+     * AVFrame output by zn_avcodec_receive_frame() due frame
      * reordering.
      *
      * - encoding: MUST be set by user.
@@ -625,7 +625,7 @@ typedef struct AVCodecContext {
      * the decoded frame is cropped before being output or lowres is enabled.
      *
      * @note Those field may not match the value of the last
-     * AVFrame output by avcodec_receive_frame() due frame
+     * AVFrame output by zn_avcodec_receive_frame() due frame
      * reordering.
      *
      * - encoding: unused
@@ -648,7 +648,7 @@ typedef struct AVCodecContext {
      * May be overridden by the decoder if it knows better.
      *
      * @note This field may not match the value of the last
-     * AVFrame output by avcodec_receive_frame() due frame
+     * AVFrame output by zn_avcodec_receive_frame() due frame
      * reordering.
      *
      * - encoding: Set by user.
@@ -686,7 +686,7 @@ typedef struct AVCodecContext {
 
     /**
      * Callback to negotiate the pixel format. Decoding only, may be set by the
-     * caller before avcodec_open2().
+     * caller before zn_avcodec_open2().
      *
      * Called by some decoders to select the pixel format that will be used for
      * the output frames. This is mainly used to set up hardware acceleration,
@@ -1083,7 +1083,7 @@ typedef struct AVCodecContext {
     /**
      * Number of samples per channel in an audio frame.
      *
-     * - encoding: set by libavcodec in avcodec_open2(). Each submitted frame
+     * - encoding: set by libavcodec in zn_avcodec_open2(). Each submitted frame
      *   except the last must contain exactly frame_size samples per channel.
      *   May be 0 when the codec has AV_CODEC_CAP_VARIABLE_FRAME_SIZE set, then the
      *   frame size is not restricted.
@@ -1450,7 +1450,7 @@ typedef struct AVCodecContext {
      *
      * The struct and its contents are owned by the caller.
      *
-     * - encoding: May be set by the caller before avcodec_open2(). Must remain
+     * - encoding: May be set by the caller before zn_avcodec_open2(). Must remain
      *             valid until avcodec_free_context().
      * - decoding: May be set by the caller in the get_format() callback.
      *             Must remain valid until the next get_format() call,
@@ -1770,8 +1770,8 @@ typedef struct AVCodecContext {
      * For SUBTITLE_ASS subtitle type, it should contain the whole ASS
      * [Script Info] and [V4+ Styles] section, plus the [Events] line and
      * the Format line following. It shouldn't include any Dialogue line.
-     * - encoding: Set/allocated/freed by user (before avcodec_open2())
-     * - decoding: Set/allocated/freed by libavcodec (by avcodec_open2())
+     * - encoding: Set/allocated/freed by user (before zn_avcodec_open2())
+     * - decoding: Set/allocated/freed by libavcodec (by zn_avcodec_open2())
      */
     uint8_t *subtitle_header;
     int subtitle_header_size;
@@ -1909,8 +1909,8 @@ typedef struct AVCodecContext {
     /**
      * Additional data associated with the entire coded stream.
      *
-     * - decoding: may be set by user before calling avcodec_open2().
-     * - encoding: may be set by libavcodec after avcodec_open2().
+     * - decoding: may be set by user before calling zn_avcodec_open2().
+     * - encoding: may be set by libavcodec after zn_avcodec_open2().
      */
     AVPacketSideData *coded_side_data;
     int            nb_coded_side_data;
@@ -1935,7 +1935,7 @@ typedef struct AVCodecContext {
      *             AVHWFramesContext.format must be equal to
      *             AVCodecContext.pix_fmt.
      *
-     *             This field should be set before avcodec_open2() is called.
+     *             This field should be set before zn_avcodec_open2() is called.
      */
     AVBufferRef *hw_frames_ctx;
 
@@ -1972,7 +1972,7 @@ typedef struct AVCodecContext {
      * may again be used on a following one after another get_format() call.
      *
      * For both encoders and decoders this field should be set before
-     * avcodec_open2() is called and must not be written to thereafter.
+     * zn_avcodec_open2() is called and must not be written to thereafter.
      *
      * Note that some decoders may require this field to be set initially in
      * order to support hw_frames_ctx at all - in that case, all frames
@@ -1984,7 +1984,7 @@ typedef struct AVCodecContext {
      * Bit set of AV_HWACCEL_FLAG_* flags, which affect hardware accelerated
      * decoding (if active).
      * - encoding: unused
-     * - decoding: Set by user (either before avcodec_open2(), or in the
+     * - decoding: Set by user (either before zn_avcodec_open2(), or in the
      *             AVCodecContext.get_format callback)
      */
     int hwaccel_flags;
@@ -2019,7 +2019,7 @@ typedef struct AVCodecContext {
     /*
      * Video decoding only.  Sets the number of extra hardware frames which
      * the decoder will allocate for use by the caller.  This must be set
-     * before avcodec_open2() is called.
+     * before zn_avcodec_open2() is called.
      *
      * Some hardware decoders require all frames that they will use for
      * output to be defined in advance before decoding starts.  For such
@@ -2068,7 +2068,7 @@ typedef struct AVCodecContext {
      *
      * In some specific cases, the encoder may not use the entire buffer allocated by this
      * callback. This will be reflected in the size value in the packet once returned by
-     * avcodec_receive_packet().
+     * zn_avcodec_receive_packet().
      *
      * This callback must fill the following fields in the packet:
      * - data: alignment requirements for AVPacket apply, if any. Some architectures and
@@ -2295,7 +2295,7 @@ const char *avcodec_license(void);
  * resulting struct should be freed with avcodec_free_context().
  *
  * @param codec if non-NULL, allocate private data and initialize defaults
- *              for the given codec. It is illegal to then call avcodec_open2()
+ *              for the given codec. It is illegal to then call zn_avcodec_open2()
  *              with a different codec.
  *              If NULL, then the codec-specific defaults won't be initialized,
  *              which may result in suboptimal default settings (this is
@@ -2303,7 +2303,7 @@ const char *avcodec_license(void);
  *
  * @return An AVCodecContext filled with default values or NULL on failure.
  */
-AVCodecContext *avcodec_alloc_context3(const AVCodec *codec);
+AVCodecContext *zn_avcodec_alloc_context3(const AVCodec *codec);
 
 /**
  * Free the codec context and everything associated with it and write NULL to
@@ -2345,15 +2345,15 @@ int avcodec_parameters_from_context(struct AVCodecParameters *par,
  *
  * @return >= 0 on success, a negative AVERROR code on failure.
  */
-int avcodec_parameters_to_context(AVCodecContext *codec,
+int zn_avcodec_parameters_to_context(AVCodecContext *codec,
                                   const struct AVCodecParameters *par);
 
 /**
  * Initialize the AVCodecContext to use the given AVCodec. Prior to using this
- * function the context has to be allocated with avcodec_alloc_context3().
+ * function the context has to be allocated with zn_avcodec_alloc_context3().
  *
  * The functions avcodec_find_decoder_by_name(), avcodec_find_encoder_by_name(),
- * avcodec_find_decoder() and avcodec_find_encoder() provide an easy way for
+ * zn_avcodec_find_decoder() and zn_avcodec_find_encoder() provide an easy way for
  * retrieving a codec.
  *
  * Depending on the codec, you might need to set options in the codec context
@@ -2368,36 +2368,36 @@ int avcodec_parameters_to_context(AVCodecContext *codec,
  * Example:
  * @code
  * av_dict_set(&opts, "b", "2.5M", 0);
- * codec = avcodec_find_decoder(AV_CODEC_ID_H264);
+ * codec = zn_avcodec_find_decoder(AV_CODEC_ID_H264);
  * if (!codec)
  *     exit(1);
  *
- * context = avcodec_alloc_context3(codec);
+ * context = zn_avcodec_alloc_context3(codec);
  *
- * if (avcodec_open2(context, codec, opts) < 0)
+ * if (zn_avcodec_open2(context, codec, opts) < 0)
  *     exit(1);
  * @endcode
  *
  * In the case AVCodecParameters are available (e.g. when demuxing a stream
  * using libavformat, and accessing the AVStream contained in the demuxer), the
  * codec parameters can be copied to the codec context using
- * avcodec_parameters_to_context(), as in the following example:
+ * zn_avcodec_parameters_to_context(), as in the following example:
  *
  * @code
  * AVStream *stream = ...;
- * context = avcodec_alloc_context3(codec);
- * if (avcodec_parameters_to_context(context, stream->codecpar) < 0)
+ * context = zn_avcodec_alloc_context3(codec);
+ * if (zn_avcodec_parameters_to_context(context, stream->codecpar) < 0)
  *     exit(1);
- * if (avcodec_open2(context, codec, NULL) < 0)
+ * if (zn_avcodec_open2(context, codec, NULL) < 0)
  *     exit(1);
  * @endcode
  *
  * @note Always call this function before using decoding routines (such as
- * @ref avcodec_receive_frame()).
+ * @ref zn_avcodec_receive_frame()).
  *
  * @param avctx The context to initialize.
  * @param codec The codec to open this context for. If a non-NULL codec has been
- *              previously passed to avcodec_alloc_context3() or
+ *              previously passed to zn_avcodec_alloc_context3() or
  *              for this context, then this parameter MUST be either NULL or
  *              equal to the previously passed codec.
  * @param options A dictionary filled with AVCodecContext and codec-private
@@ -2406,17 +2406,17 @@ int avcodec_parameters_to_context(AVCodecContext *codec,
  *                options that were not found in the avctx codec context.
  *
  * @return zero on success, a negative value on error
- * @see avcodec_alloc_context3(), avcodec_find_decoder(), avcodec_find_encoder(),
- *      av_dict_set(), av_opt_set(), av_opt_find(), avcodec_parameters_to_context()
+ * @see zn_avcodec_alloc_context3(), zn_avcodec_find_decoder(), zn_avcodec_find_encoder(),
+ *      av_dict_set(), av_opt_set(), av_opt_find(), zn_avcodec_parameters_to_context()
  */
-int avcodec_open2(AVCodecContext *avctx, const AVCodec *codec, AVDictionary **options);
+int zn_avcodec_open2(AVCodecContext *avctx, const AVCodec *codec, AVDictionary **options);
 
 /**
  * Close a given AVCodecContext and free all the data associated with it
  * (but not the AVCodecContext itself).
  *
  * Calling this function on an AVCodecContext that hasn't been opened will free
- * the codec-specific data allocated in avcodec_alloc_context3() with a non-NULL
+ * the codec-specific data allocated in zn_avcodec_alloc_context3() with a non-NULL
  * codec. Subsequent calls will do nothing.
  *
  * @note Do not use this function. Use avcodec_free_context() to destroy a
@@ -2521,7 +2521,7 @@ enum AVChromaLocation avcodec_chroma_pos_to_enum(int xpos, int ypos);
  * returning subtitles. It is safe to flush even those decoders that are not
  * marked with AV_CODEC_CAP_DELAY, then no subtitles will be returned.
  *
- * @note The AVCodecContext MUST have been opened with @ref avcodec_open2()
+ * @note The AVCodecContext MUST have been opened with @ref zn_avcodec_open2()
  * before packets may be fed to the decoder.
  *
  * @param avctx the codec context
@@ -2545,7 +2545,7 @@ int avcodec_decode_subtitle2(AVCodecContext *avctx, AVSubtitle *sub,
  *          larger than the actual read bytes because some optimized bitstream
  *          readers read 32 or 64 bits at once and could read over the end.
  *
- * @note The AVCodecContext MUST have been opened with @ref avcodec_open2()
+ * @note The AVCodecContext MUST have been opened with @ref zn_avcodec_open2()
  *       before packets may be fed to the decoder.
  *
  * @param avctx codec context
@@ -2557,7 +2557,7 @@ int avcodec_decode_subtitle2(AVCodecContext *avctx, AVSubtitle *sub,
  *                  not reference-counted).
  *                  Unlike with older APIs, the packet is always fully consumed,
  *                  and if it contains multiple frames (e.g. some audio codecs),
- *                  will require you to call avcodec_receive_frame() multiple
+ *                  will require you to call zn_avcodec_receive_frame() multiple
  *                  times afterwards before you can send a new packet.
  *                  It can be NULL (or an AVPacket with data set to NULL and
  *                  size set to 0); in this case, it is considered a flush
@@ -2569,7 +2569,7 @@ int avcodec_decode_subtitle2(AVCodecContext *avctx, AVSubtitle *sub,
  *
  * @retval 0                 success
  * @retval AVERROR(EAGAIN)   input is not accepted in the current state - user
- *                           must read output with avcodec_receive_frame() (once
+ *                           must read output with zn_avcodec_receive_frame() (once
  *                           all output is read, the packet should be resent,
  *                           and the call will not fail with EAGAIN).
  * @retval AVERROR_EOF       the decoder has been flushed, and no new packets can be
@@ -2579,7 +2579,7 @@ int avcodec_decode_subtitle2(AVCodecContext *avctx, AVSubtitle *sub,
  * @retval AVERROR(ENOMEM)   failed to add packet to internal queue, or similar
  * @retval "another negative error code" legitimate decoding errors
  */
-int avcodec_send_packet(AVCodecContext *avctx, const AVPacket *avpkt);
+int zn_avcodec_send_packet(AVCodecContext *avctx, const AVPacket *avpkt);
 
 /**
  * Return decoded output data from a decoder or encoder (when the
@@ -2600,10 +2600,10 @@ int avcodec_send_packet(AVCodecContext *avctx, const AVPacket *avpkt);
  *                          @ref AV_CODEC_FLAG_RECON_FRAME flag enabled
  * @retval "other negative error code" legitimate decoding errors
  */
-int avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame);
+int zn_avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame);
 
 /**
- * Supply a raw video or audio frame to the encoder. Use avcodec_receive_packet()
+ * Supply a raw video or audio frame to the encoder. Use zn_avcodec_receive_packet()
  * to retrieve buffered output packets.
  *
  * @param avctx     codec context
@@ -2627,7 +2627,7 @@ int avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame);
  *                  The final frame may be smaller than avctx->frame_size.
  * @retval 0                 success
  * @retval AVERROR(EAGAIN)   input is not accepted in the current state - user must
- *                           read output with avcodec_receive_packet() (once all
+ *                           read output with zn_avcodec_receive_packet() (once all
  *                           output is read, the packet should be resent, and the
  *                           call will not fail with EAGAIN).
  * @retval AVERROR_EOF       the encoder has been flushed, and no new frames can
@@ -2636,7 +2636,7 @@ int avcodec_receive_frame(AVCodecContext *avctx, AVFrame *frame);
  * @retval AVERROR(ENOMEM)   failed to add packet to internal queue, or similar
  * @retval "another negative error code" legitimate encoding errors
  */
-int avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
+int zn_avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
 
 /**
  * Read encoded data from the encoder.
@@ -2644,7 +2644,7 @@ int avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
  * @param avctx codec context
  * @param avpkt This will be set to a reference-counted packet allocated by the
  *              encoder. Note that the function will always call
- *              av_packet_unref(avpkt) before doing anything else.
+ *              zn_av_packet_unref(avpkt) before doing anything else.
  * @retval 0               success
  * @retval AVERROR(EAGAIN) output is not available in the current state - user must
  *                         try to send input
@@ -2653,7 +2653,7 @@ int avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
  * @retval AVERROR(EINVAL) codec not opened, or it is a decoder
  * @retval "another negative error code" legitimate encoding errors
  */
-int avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt);
+int zn_avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt);
 
 /**
  * Create and return a AVHWFramesContext with values adequate for hardware
@@ -3142,7 +3142,7 @@ void av_fast_padded_malloc(void *ptr, unsigned int *size, size_t min_size);
 void av_fast_padded_mallocz(void *ptr, unsigned int *size, size_t min_size);
 
 /**
- * @return a positive value if s is open (i.e. avcodec_open2() was called on it
+ * @return a positive value if s is open (i.e. zn_avcodec_open2() was called on it
  * with no corresponding avcodec_close()), 0 otherwise.
  */
 int avcodec_is_open(AVCodecContext *s);

@@ -81,10 +81,10 @@ void ff_fill_rgb2xyz_table(const AVPrimaryCoefficients *coeffs,
                            double rgb2xyz[3][3])
 {
     double i[3][3], sr, sg, sb, zw;
-    double xr = av_q2d(coeffs->r.x), yr = av_q2d(coeffs->r.y);
-    double xg = av_q2d(coeffs->g.x), yg = av_q2d(coeffs->g.y);
-    double xb = av_q2d(coeffs->b.x), yb = av_q2d(coeffs->b.y);
-    double xw = av_q2d(wp->x), yw = av_q2d(wp->y);
+    double xr = zn_av_q2d(coeffs->r.x), yr = zn_av_q2d(coeffs->r.y);
+    double xg = zn_av_q2d(coeffs->g.x), yg = zn_av_q2d(coeffs->g.y);
+    double xb = zn_av_q2d(coeffs->b.x), yb = zn_av_q2d(coeffs->b.y);
+    double xw = zn_av_q2d(wp->x), yw = zn_av_q2d(wp->y);
 
     rgb2xyz[0][0] = xr / yr;
     rgb2xyz[0][1] = xg / yg;
@@ -126,7 +126,7 @@ void ff_fill_rgb2yuv_table(const AVLumaCoefficients *coeffs,
                            double rgb2yuv[3][3])
 {
     double bscale, rscale;
-    double cr = av_q2d(coeffs->cr), cg = av_q2d(coeffs->cg), cb = av_q2d(coeffs->cb);
+    double cr = zn_av_q2d(coeffs->cr), cg = zn_av_q2d(coeffs->cg), cb = zn_av_q2d(coeffs->cb);
 
     // special ycgco matrix
     if (cr == 0.25 && cg == 0.5 && cb == 0.25) {
@@ -164,7 +164,7 @@ double ff_determine_signal_peak(AVFrame *in)
     if (!peak && sd) {
         AVMasteringDisplayMetadata *metadata = (AVMasteringDisplayMetadata *)sd->data;
         if (metadata->has_luminance)
-            peak = av_q2d(metadata->max_luminance) / REFERENCE_WHITE;
+            peak = zn_av_q2d(metadata->max_luminance) / REFERENCE_WHITE;
     }
 
     // For untagged source, use peak of 10000 if SMPTE ST.2084

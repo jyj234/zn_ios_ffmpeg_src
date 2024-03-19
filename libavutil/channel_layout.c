@@ -456,7 +456,7 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
             } else {
                 channel_layout->order = AV_CHANNEL_ORDER_CUSTOM;
                 channel_layout->u.map =
-                    av_calloc(channel_layout->nb_channels + extra.nb_channels,
+                    zn_av_calloc(channel_layout->nb_channels + extra.nb_channels,
                               sizeof(*channel_layout->u.map));
                 if (!channel_layout->u.map) {
                     av_channel_layout_uninit(&extra);
@@ -499,13 +499,13 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
         char *channel, *chname;
         int ret = av_opt_get_key_value(&dup, "@", "+", AV_OPT_FLAG_IMPLICIT_KEY, &channel, &chname);
         if (ret < 0) {
-            av_free(chlist);
+            zn_av_free(chlist);
             return ret;
         }
         if (*dup)
             dup++; // skip separator
         if (channel && !*channel)
-            av_freep(&channel);
+            zn_av_freep(&channel);
         for (i = 0; i < FF_ARRAY_ELEMS(channel_names); i++) {
             if (channel_names[i].name && !strcmp(channel ? channel : chname, channel_names[i].name)) {
                 if (channel || i < highest_channel || mask & (1ULL << i))
@@ -528,7 +528,7 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
                 native = 0; // Unknown channel name
                 channels = 0;
                 mask = 0;
-                av_free(chname);
+                zn_av_free(chname);
                 break;
             }
             if (id > 63)
@@ -541,12 +541,12 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
             }
         }
         channels++;
-        av_free(channel);
-        av_free(chname);
+        zn_av_free(channel);
+        zn_av_free(chname);
     }
 
     if (mask && native) {
-        av_free(chlist);
+        zn_av_free(chlist);
         if (nb_channels && ((nb_channels != channels) || (!end || *++end)))
             return AVERROR(EINVAL);
         av_channel_layout_from_mask(channel_layout, mask);
@@ -558,13 +558,13 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
         int idx = 0;
 
         if (nb_channels && ((nb_channels != channels) || (!end || *++end))) {
-            av_free(chlist);
+            zn_av_free(chlist);
             return AVERROR(EINVAL);
         }
 
-        channel_layout->u.map = av_calloc(channels, sizeof(*channel_layout->u.map));
+        channel_layout->u.map = zn_av_calloc(channels, sizeof(*channel_layout->u.map));
         if (!channel_layout->u.map) {
-            av_free(chlist);
+            zn_av_free(chlist);
             return AVERROR(ENOMEM);
         }
 
@@ -576,8 +576,8 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
             char *channel, *chname;
             int ret = av_opt_get_key_value(&dup, "@", "+", AV_OPT_FLAG_IMPLICIT_KEY, &channel, &chname);
             if (ret < 0) {
-                av_freep(&channel_layout->u.map);
-                av_free(chlist);
+                zn_av_freep(&channel_layout->u.map);
+                zn_av_free(chlist);
                 return ret;
             }
             if (*dup)
@@ -598,14 +598,14 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
                     av_strlcpy(channel_layout->u.map[idx].name, chname, sizeof(channel_layout->u.map[idx].name));
                 idx++;
             }
-            av_free(channel);
-            av_free(chname);
+            zn_av_free(channel);
+            zn_av_free(chname);
         }
-        av_free(chlist);
+        zn_av_free(chlist);
 
         return 0;
     }
-    av_freep(&chlist);
+    zn_av_freep(&chlist);
 
     errno = 0;
     mask = strtoull(str, &end, 0);
@@ -621,7 +621,7 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
 
     /* number of channels */
     if (!errno && !strcmp(end, "c") && channels > 0) {
-        av_channel_layout_default(channel_layout, channels);
+        zn_av_channel_layout_default(channel_layout, channels);
         if (channel_layout->order == AV_CHANNEL_ORDER_NATIVE)
             return 0;
     }
@@ -640,16 +640,16 @@ int av_channel_layout_from_string(AVChannelLayout *channel_layout,
 void av_channel_layout_uninit(AVChannelLayout *channel_layout)
 {
     if (channel_layout->order == AV_CHANNEL_ORDER_CUSTOM)
-        av_freep(&channel_layout->u.map);
+        zn_av_freep(&channel_layout->u.map);
     memset(channel_layout, 0, sizeof(*channel_layout));
 }
 
-int av_channel_layout_copy(AVChannelLayout *dst, const AVChannelLayout *src)
+int zn_av_channel_layout_copy(AVChannelLayout *dst, const AVChannelLayout *src)
 {
     av_channel_layout_uninit(dst);
     *dst = *src;
     if (src->order == AV_CHANNEL_ORDER_CUSTOM) {
-        dst->u.map = av_malloc_array(src->nb_channels, sizeof(*dst->u.map));
+        dst->u.map = zn_av_malloc_array(src->nb_channels, sizeof(*dst->u.map));
         if (!dst->u.map)
             return AVERROR(ENOMEM);
         memcpy(dst->u.map, src->u.map, src->nb_channels * sizeof(*src->u.map));
@@ -969,7 +969,7 @@ int av_channel_layout_compare(const AVChannelLayout *chl, const AVChannelLayout 
     return 0;
 }
 
-void av_channel_layout_default(AVChannelLayout *ch_layout, int nb_channels)
+void zn_av_channel_layout_default(AVChannelLayout *ch_layout, int nb_channels)
 {
     int i;
     for (i = 0; i < FF_ARRAY_ELEMS(channel_layout_map); i++)

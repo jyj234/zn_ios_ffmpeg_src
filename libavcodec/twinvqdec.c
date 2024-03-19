@@ -354,7 +354,7 @@ static av_cold int twinvq_decode_init(AVCodecContext *avctx)
         return -1;
     }
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, channels);
 
     ibps = avctx->bit_rate / (1000 * channels);
     if (ibps < 8 || ibps > 48) {

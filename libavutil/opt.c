@@ -192,7 +192,7 @@ static int set_string_binary(void *obj, const AVOption *o, const char *val, uint
     uint8_t *bin, *ptr;
     int len;
 
-    av_freep(dst);
+    zn_av_freep(dst);
     *lendst = 0;
 
     if (!val || !(len = strlen(val)))
@@ -209,7 +209,7 @@ static int set_string_binary(void *obj, const AVOption *o, const char *val, uint
         int a = hexchar2int(*val++);
         int b = hexchar2int(*val++);
         if (a < 0 || b < 0) {
-            av_free(bin);
+            zn_av_free(bin);
             return AVERROR(EINVAL);
         }
         *ptr++ = (a << 4) | b;
@@ -222,7 +222,7 @@ static int set_string_binary(void *obj, const AVOption *o, const char *val, uint
 
 static int set_string(void *obj, const AVOption *o, const char *val, uint8_t **dst)
 {
-    av_freep(dst);
+    zn_av_freep(dst);
     *dst = av_strdup(val);
     return *dst ? 0 : AVERROR(ENOMEM);
 }
@@ -657,7 +657,7 @@ int av_opt_set_bin(void *obj, const char *name, const uint8_t *val, int len, int
     dst    = (uint8_t **)(((uint8_t *)target_obj) + o->offset);
     lendst = (int *)(dst + 1);
 
-    av_free(*dst);
+    zn_av_free(*dst);
     *dst    = ptr;
     *lendst = len;
     if (len)
@@ -796,7 +796,7 @@ int av_opt_set_chlayout(void *obj, const char *name,
 
     dst = (AVChannelLayout*)((uint8_t*)target_obj + o->offset);
 
-    return av_channel_layout_copy(dst, channel_layout);
+    return zn_av_channel_layout_copy(dst, channel_layout);
 }
 
 static void format_duration(char *buf, size_t size, int64_t d)
@@ -1114,7 +1114,7 @@ int av_opt_get_chlayout(void *obj, const char *name, int search_flags, AVChannel
     }
 
     dst = ((uint8_t*)target_obj) + o->offset;
-    return av_channel_layout_copy(cl, dst);
+    return zn_av_channel_layout_copy(cl, dst);
 }
 
 int av_opt_get_dict_val(void *obj, const char *name, int search_flags, AVDictionary **out_val)
@@ -1383,7 +1383,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                 char *def_flags = get_opt_flags_string(obj, opt->unit, opt->default_val.i64);
                 if (def_flags) {
                     av_log(av_log_obj, AV_LOG_INFO, "%s", def_flags);
-                    av_freep(&def_flags);
+                    zn_av_freep(&def_flags);
                 } else {
                     av_log(av_log_obj, AV_LOG_INFO, "%"PRIX64, opt->default_val.i64);
                 }
@@ -1564,12 +1564,12 @@ static int parse_key_value_pair(void *ctx, const char **buf,
         (*buf)++;
         val = av_get_token(buf, pairs_sep);
         if (!val) {
-            av_freep(&key);
+            zn_av_freep(&key);
             return AVERROR(ENOMEM);
         }
     } else {
         av_log(ctx, AV_LOG_ERROR, "Missing key or no key/value separator found after key '%s'\n", key);
-        av_free(key);
+        zn_av_free(key);
         return AVERROR(EINVAL);
     }
 
@@ -1579,8 +1579,8 @@ static int parse_key_value_pair(void *ctx, const char **buf,
     if (ret == AVERROR_OPTION_NOT_FOUND)
         av_log(ctx, AV_LOG_ERROR, "Key '%s' not found.\n", key);
 
-    av_free(key);
-    av_free(val);
+    zn_av_free(key);
+    zn_av_free(val);
     return ret;
 }
 
@@ -1655,7 +1655,7 @@ int av_opt_get_key_value(const char **ropts,
         !(flags & AV_OPT_FLAG_IMPLICIT_KEY))
         return AVERROR(EINVAL);
     if (!(val = av_get_token(&opts, pairs_sep))) {
-        av_free(key);
+        zn_av_free(key);
         return AVERROR(ENOMEM);
     }
     *ropts = opts;
@@ -1687,7 +1687,7 @@ int av_opt_set_from_string(void *ctx, const char *opts,
                 av_log(ctx, AV_LOG_ERROR, "No option name near '%s'\n", opts);
             else
                 av_log(ctx, AV_LOG_ERROR, "Unable to parse '%s': %s\n", opts,
-                       av_err2str(ret));
+                       zn_av_err2str(ret));
             return ret;
         }
         if (*opts)
@@ -1704,13 +1704,13 @@ int av_opt_set_from_string(void *ctx, const char *opts,
         if ((ret = av_opt_set(ctx, key, value, 0)) < 0) {
             if (ret == AVERROR_OPTION_NOT_FOUND)
                 av_log(ctx, AV_LOG_ERROR, "Option '%s' not found\n", key);
-            av_free(value);
-            av_free(parsed_key);
+            zn_av_free(value);
+            zn_av_free(parsed_key);
             return ret;
         }
 
-        av_free(value);
-        av_free(parsed_key);
+        zn_av_free(value);
+        zn_av_free(parsed_key);
         count++;
     }
     return count;
@@ -1723,7 +1723,7 @@ void av_opt_free(void *obj)
         switch (o->type) {
         case AV_OPT_TYPE_STRING:
         case AV_OPT_TYPE_BINARY:
-            av_freep((uint8_t *)obj + o->offset);
+            zn_av_freep((uint8_t *)obj + o->offset);
             break;
 
         case AV_OPT_TYPE_DICT:
@@ -1903,14 +1903,14 @@ int av_opt_copy(void *dst, const void *src)
 
         if (o->type == AV_OPT_TYPE_STRING) {
             if (*field_dst8 != *field_src8)
-                av_freep(field_dst8);
+                zn_av_freep(field_dst8);
             *field_dst8 = av_strdup(*field_src8);
             if (*field_src8 && !*field_dst8)
                 ret = AVERROR(ENOMEM);
         } else if (o->type == AV_OPT_TYPE_BINARY) {
             int len = *(int *)(field_src8 + 1);
             if (*field_dst8 != *field_src8)
-                av_freep(field_dst8);
+                zn_av_freep(field_dst8);
             *field_dst8 = av_memdup(*field_src8, len);
             if (len && !*field_dst8) {
                 ret = AVERROR(ENOMEM);
@@ -1931,7 +1931,7 @@ int av_opt_copy(void *dst, const void *src)
                 ret = ret2;
         } else if (o->type == AV_OPT_TYPE_CHLAYOUT) {
             if (field_dst != field_src)
-                ret = av_channel_layout_copy(field_dst, field_src);
+                ret = zn_av_channel_layout_copy(field_dst, field_src);
         } else {
             int size = opt_size(o->type);
             if (size < 0)
@@ -2031,9 +2031,9 @@ FF_ENABLE_DEPRECATION_WARNINGS
     *ranges_arg = ranges;
     return 1;
 fail:
-    av_free(ranges);
-    av_free(range);
-    av_free(range_array);
+    zn_av_free(ranges);
+    zn_av_free(range);
+    zn_av_free(range_array);
     return ret;
 }
 
@@ -2048,12 +2048,12 @@ void av_opt_freep_ranges(AVOptionRanges **rangesp)
     for (i = 0; i < ranges->nb_ranges * ranges->nb_components; i++) {
         AVOptionRange *range = ranges->range[i];
         if (range) {
-            av_freep(&range->str);
-            av_freep(&ranges->range[i]);
+            zn_av_freep(&range->str);
+            zn_av_freep(&ranges->range[i]);
         }
     }
-    av_freep(&ranges->range);
-    av_freep(rangesp);
+    zn_av_freep(&ranges->range);
+    zn_av_freep(rangesp);
 }
 
 int av_opt_is_set_to_default(void *obj, const AVOption *o)
@@ -2131,7 +2131,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         ret = set_string_binary(NULL, NULL, o->default_val.str, &tmp.data);
         if (!ret)
             ret = !memcmp(opt_ptr, tmp.data, tmp.size);
-        av_free(tmp.data);
+        zn_av_free(tmp.data);
         return ret;
     }
     case AV_OPT_TYPE_DICT: {
@@ -2231,7 +2231,7 @@ int av_opt_serialize(void *obj, int opt_flags, int flags, char **buffer,
             av_bprint_escape(&bprint, o->name, special_chars, AV_ESCAPE_MODE_BACKSLASH, 0);
             av_bprint_append_data(&bprint, &key_val_sep, 1);
             av_bprint_escape(&bprint, buf, special_chars, AV_ESCAPE_MODE_BACKSLASH, 0);
-            av_freep(&buf);
+            zn_av_freep(&buf);
         }
     }
     ret = av_bprint_finalize(&bprint, buffer);

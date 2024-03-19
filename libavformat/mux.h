@@ -190,9 +190,9 @@ int ff_stream_add_bitstream_filter(AVStream *st, const char *name, const char *a
  * @param dst the muxer to write the packet to
  * @param dst_stream the stream index within dst to write the packet to
  * @param pkt the packet to be written. It will be returned blank when
- *            av_interleaved_write_frame() is used, unchanged otherwise.
+ *            zn_av_interleaved_write_frame() is used, unchanged otherwise.
  * @param src the muxer the packet originally was intended for
- * @param interleave 0->use av_write_frame, 1->av_interleaved_write_frame
+ * @param interleave 0->use av_write_frame, 1->zn_av_interleaved_write_frame
  * @return the value av_write_frame returned
  */
 int ff_write_chained(AVFormatContext *dst, int dst_stream, AVPacket *pkt,

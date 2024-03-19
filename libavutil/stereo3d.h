@@ -189,7 +189,7 @@ typedef struct AVStereo3D {
 
 /**
  * Allocate an AVStereo3D structure and set its fields to default values.
- * The resulting struct can be freed using av_freep().
+ * The resulting struct can be freed using zn_av_freep().
  *
  * @return An AVStereo3D filled with default values or NULL on failure.
  */

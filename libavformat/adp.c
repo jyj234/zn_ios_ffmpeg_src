@@ -49,7 +49,7 @@ static int adp_read_header(AVFormatContext *s)
 {
     AVStream *st;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

@@ -103,7 +103,7 @@ static int modplug_read_close(AVFormatContext *s)
 {
     ModPlugContext *modplug = s->priv_data;
     ModPlug_Unload(modplug->f);
-    av_freep(&modplug->buf);
+    zn_av_freep(&modplug->buf);
     return 0;
 }
 
@@ -134,7 +134,7 @@ static int modplug_read_close(AVFormatContext *s)
         if (!extra)                                                            \
             return AVERROR(ENOMEM);                                            \
         av_dict_set(&s->metadata, "extra info", extra, AV_DICT_APPEND);        \
-        av_free(extra);                                                        \
+        zn_av_free(extra);                                                        \
     }                                                                          \
 } while (0)
 
@@ -226,10 +226,10 @@ static int modplug_read_header(AVFormatContext *s)
 
     modplug->f = ModPlug_Load(modplug->buf, sz);
     if (!modplug->f) {
-        av_freep(&modplug->buf);
+        zn_av_freep(&modplug->buf);
         return AVERROR_INVALIDDATA;
     }
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -245,7 +245,7 @@ static int modplug_read_header(AVFormatContext *s)
     modplug->ts_per_packet = 1000*AUDIO_PKT_SIZE / (4*44100.);
 
     if (modplug->video_stream) {
-        AVStream *vst = avformat_new_stream(s, NULL);
+        AVStream *vst = zn_avformat_new_stream(s, NULL);
         if (!vst) {
             ret = AVERROR(ENOMEM);
             goto fail;

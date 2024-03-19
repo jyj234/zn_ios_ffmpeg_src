@@ -110,10 +110,10 @@ static av_cold int flashsv_decode_end(AVCodecContext *avctx)
 
     ff_inflate_end(&s->zstream);
     /* release the frame if needed */
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 
     /* free the tmpblock */
-    av_freep(&s->tmpblock);
+    zn_av_freep(&s->tmpblock);
 
     return 0;
 }
@@ -125,7 +125,7 @@ static av_cold int flashsv_decode_init(AVCodecContext *avctx)
     s->avctx          = avctx;
     avctx->pix_fmt = AV_PIX_FMT_BGR24;
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame) {
         return AVERROR(ENOMEM);
     }
@@ -293,7 +293,7 @@ static int flashsv_decode_frame(AVCodecContext *avctx, AVFrame *rframe,
 
     if (   last_blockwidth != s->block_width
         || last_blockheight!= s->block_height)
-        av_freep(&s->blocks);
+        zn_av_freep(&s->blocks);
 
     if (s->ver == 2) {
         skip_bits(&gb, 6);
@@ -561,8 +561,8 @@ static av_cold int flashsv2_decode_end(AVCodecContext *avctx)
 
     av_buffer_unref(&s->keyframedata_buf);
     s->keyframedata = NULL;
-    av_freep(&s->blocks);
-    av_freep(&s->keyframe);
+    zn_av_freep(&s->blocks);
+    zn_av_freep(&s->keyframe);
     flashsv_decode_end(avctx);
 
     return 0;

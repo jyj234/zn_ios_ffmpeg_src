@@ -1540,13 +1540,13 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_audio_buffer(outlink, in->nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     result = av_frame_copy_props(out, in);
     if (result) {
-        av_frame_free(&out);
-        av_frame_free(&in);
+        zn_av_frame_free(&out);
+        zn_av_frame_free(&in);
         return result;
     }
     out->format = outlink->format; // is this needed?
@@ -1597,7 +1597,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     s->sample_count += in->nb_samples * in->ch_layout.nb_channels;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

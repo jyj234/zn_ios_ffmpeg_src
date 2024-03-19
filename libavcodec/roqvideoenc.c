@@ -274,7 +274,7 @@ static int create_cel_evals(RoqEncContext *enc)
 {
     RoqContext *const roq = &enc->common;
 
-    enc->cel_evals = av_malloc_array(roq->width * roq->height / 64, sizeof(CelEvaluation));
+    enc->cel_evals = zn_av_malloc_array(roq->width * roq->height / 64, sizeof(CelEvaluation));
     if (!enc->cel_evals)
         return AVERROR(ENOMEM);
 
@@ -950,15 +950,15 @@ static av_cold int roq_encode_end(AVCodecContext *avctx)
 {
     RoqEncContext *const enc = avctx->priv_data;
 
-    av_frame_free(&enc->common.current_frame);
-    av_frame_free(&enc->common.last_frame);
+    zn_av_frame_free(&enc->common.current_frame);
+    zn_av_frame_free(&enc->common.last_frame);
 
-    av_freep(&enc->cel_evals);
-    av_freep(&enc->closest_cb);
-    av_freep(&enc->this_motion4);
-    av_freep(&enc->last_motion4);
-    av_freep(&enc->this_motion8);
-    av_freep(&enc->last_motion8);
+    zn_av_freep(&enc->cel_evals);
+    zn_av_freep(&enc->closest_cb);
+    zn_av_freep(&enc->this_motion4);
+    zn_av_freep(&enc->last_motion4);
+    zn_av_freep(&enc->this_motion8);
+    zn_av_freep(&enc->last_motion8);
 
     avpriv_elbg_free(&enc->elbg);
 
@@ -994,27 +994,27 @@ static av_cold int roq_encode_init(AVCodecContext *avctx)
     enc->framesSinceKeyframe = 0;
     enc->first_frame = 1;
 
-    roq->last_frame    = av_frame_alloc();
-    roq->current_frame = av_frame_alloc();
+    roq->last_frame    = zn_av_frame_alloc();
+    roq->current_frame = zn_av_frame_alloc();
     if (!roq->last_frame || !roq->current_frame)
         return AVERROR(ENOMEM);
 
     enc->this_motion4 =
-        av_calloc(roq->width * roq->height / 16, sizeof(*enc->this_motion4));
+        zn_av_calloc(roq->width * roq->height / 16, sizeof(*enc->this_motion4));
 
     enc->last_motion4 =
-        av_malloc_array (roq->width * roq->height / 16, sizeof(motion_vect));
+        zn_av_malloc_array (roq->width * roq->height / 16, sizeof(motion_vect));
 
     enc->this_motion8 =
-        av_calloc(roq->width * roq->height / 64, sizeof(*enc->this_motion8));
+        zn_av_calloc(roq->width * roq->height / 64, sizeof(*enc->this_motion8));
 
     enc->last_motion8 =
-        av_malloc_array (roq->width * roq->height / 64, sizeof(motion_vect));
+        zn_av_malloc_array (roq->width * roq->height / 64, sizeof(motion_vect));
 
     /* 4x4 codebook needs 6 * 4 * 4 / 4 * width * height / 16 * sizeof(int);
      * and so does the points buffer. */
     enc->closest_cb   =
-        av_malloc_array(roq->width * roq->height, 3 * sizeof(int));
+        zn_av_malloc_array(roq->width * roq->height, 3 * sizeof(int));
 
     if (!enc->this_motion4 || !enc->last_motion4 ||
         !enc->this_motion8 || !enc->last_motion8 || !enc->closest_cb)

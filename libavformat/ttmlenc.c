@@ -153,7 +153,7 @@ static int ttml_write_header(AVFormatContext *ctx)
             if (ret < 0) {
                 av_log(ctx, AV_LOG_ERROR,
                        "Failed to parse TTML header values from extradata: "
-                       "%s!\n", av_err2str(ret));
+                       "%s!\n", zn_av_err2str(ret));
                 return ret;
             }
 

@@ -147,15 +147,15 @@ static int aax_read_header(AVFormatContext *s)
     if (a->columns <= 0)
         return AVERROR_INVALIDDATA;
 
-    a->segments = av_calloc(a->nb_segments, sizeof(*a->segments));
+    a->segments = zn_av_calloc(a->nb_segments, sizeof(*a->segments));
     if (!a->segments)
         return AVERROR(ENOMEM);
 
-    a->xcolumns = av_calloc(a->columns, sizeof(*a->xcolumns));
+    a->xcolumns = zn_av_calloc(a->columns, sizeof(*a->xcolumns));
     if (!a->xcolumns)
         return AVERROR(ENOMEM);
 
-    a->string_table = av_calloc(a->strings_size + 1, sizeof(*a->string_table));
+    a->string_table = zn_av_calloc(a->strings_size + 1, sizeof(*a->string_table));
     if (!a->string_table)
         return AVERROR(ENOMEM);
 
@@ -266,7 +266,7 @@ static int aax_read_header(AVFormatContext *s)
     if (!a->segments[0].end)
         return AVERROR_INVALIDDATA;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->start_time = 0;
@@ -345,7 +345,7 @@ static int aax_read_packet(AVFormatContext *s, AVPacket *pkt)
             if (!extradata)
                 return AVERROR(ENOMEM);
             if (avio_read(pb, extradata, extradata_size) != extradata_size) {
-                av_free(extradata);
+                zn_av_free(extradata);
                 return AVERROR(EIO);
             }
             memset(extradata + extradata_size, 0, AV_INPUT_BUFFER_PADDING_SIZE);
@@ -354,7 +354,7 @@ static int aax_read_packet(AVFormatContext *s, AVPacket *pkt)
 
     ret = av_get_packet(pb, pkt, size);
     if (ret != size) {
-        av_free(extradata);
+        zn_av_free(extradata);
         return ret < 0 ? ret : AVERROR(EIO);
     }
     pkt->duration = 1;
@@ -364,7 +364,7 @@ static int aax_read_packet(AVFormatContext *s, AVPacket *pkt)
     if (extradata) {
         ret = av_packet_add_side_data(pkt, AV_PKT_DATA_NEW_EXTRADATA, extradata, extradata_size);
         if (ret < 0) {
-            av_free(extradata);
+            zn_av_free(extradata);
             return ret;
         }
     }
@@ -376,9 +376,9 @@ static int aax_read_close(AVFormatContext *s)
 {
     AAXContext *a = s->priv_data;
 
-    av_freep(&a->segments);
-    av_freep(&a->xcolumns);
-    av_freep(&a->string_table);
+    zn_av_freep(&a->segments);
+    zn_av_freep(&a->xcolumns);
+    zn_av_freep(&a->string_table);
 
     return 0;
 }

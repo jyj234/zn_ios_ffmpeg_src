@@ -152,11 +152,11 @@ static int config_filter(AVFilterContext *ctx, int start, int end)
         ScanItem *scan = &s->scan[i];
 
         if (!scan->histogram)
-            scan->histogram = av_calloc(s->max + 1, sizeof(*scan->histogram));
+            scan->histogram = zn_av_calloc(s->max + 1, sizeof(*scan->histogram));
         if (!scan->line)
-            scan->line = av_calloc(size, sizeof(*scan->line));
+            scan->line = zn_av_calloc(size, sizeof(*scan->line));
         if (!scan->code)
-            scan->code = av_calloc(size, sizeof(*scan->code));
+            scan->code = zn_av_calloc(size, sizeof(*scan->code));
         if (!scan->line || !scan->code || !scan->histogram)
             return AVERROR(ENOMEM);
     }
@@ -500,13 +500,13 @@ static av_cold void uninit(AVFilterContext *ctx)
     for (int i = 0; i < s->nb_allocated; i++) {
         ScanItem *scan = &s->scan[i];
 
-        av_freep(&scan->histogram);
-        av_freep(&scan->code);
-        av_freep(&scan->line);
+        zn_av_freep(&scan->histogram);
+        zn_av_freep(&scan->code);
+        zn_av_freep(&scan->line);
     }
 
     s->nb_allocated = 0;
-    av_freep(&s->scan);
+    zn_av_freep(&s->scan);
 }
 
 static int process_command(AVFilterContext *ctx, const char *cmd, const char *args,

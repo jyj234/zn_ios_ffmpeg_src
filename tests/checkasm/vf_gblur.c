@@ -111,8 +111,8 @@ void checkasm_check_vf_gblur(void)
     report("verti_slice");
 
     if (s.localbuf)
-        av_free(s.localbuf);
+        zn_av_free(s.localbuf);
 
-    av_freep(&dst_ref);
-    av_freep(&dst_new);
+    zn_av_freep(&dst_ref);
+    zn_av_freep(&dst_new);
 }

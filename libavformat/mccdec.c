@@ -91,7 +91,7 @@ static const alias aliases[20] = {
 static int mcc_read_header(AVFormatContext *s)
 {
     MCCContext *mcc = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     AVRational rate;
     int64_t ts, pos;
     uint8_t out[4096];

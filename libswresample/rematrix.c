@@ -120,7 +120,7 @@ static int clean_layout(AVChannelLayout *out, const AVChannelLayout *in, void *s
         av_log(s, AV_LOG_VERBOSE, "Treating %s as mono\n", buf);
         *out = (AVChannelLayout)AV_CHANNEL_LAYOUT_MONO;
     } else
-        ret = av_channel_layout_copy(out, in);
+        ret = zn_av_channel_layout_copy(out, in);
 
     return ret;
 }
@@ -504,7 +504,7 @@ av_cold int swri_rematrix_init(SwrContext *s){
     }
     if (s->midbuf.fmt == AV_SAMPLE_FMT_S16P){
         int maxsum = 0;
-        s->native_matrix = av_calloc(nb_in * nb_out, sizeof(int));
+        s->native_matrix = zn_av_calloc(nb_in * nb_out, sizeof(int));
         s->native_one    = av_mallocz(sizeof(int));
         if (!s->native_matrix || !s->native_one)
             return AVERROR(ENOMEM);
@@ -531,7 +531,7 @@ av_cold int swri_rematrix_init(SwrContext *s){
             s->mix_any_f = (mix_any_func_type*)get_mix_any_func_clip_s16(s);
         }
     }else if(s->midbuf.fmt == AV_SAMPLE_FMT_FLTP){
-        s->native_matrix = av_calloc(nb_in * nb_out, sizeof(float));
+        s->native_matrix = zn_av_calloc(nb_in * nb_out, sizeof(float));
         s->native_one    = av_mallocz(sizeof(float));
         if (!s->native_matrix || !s->native_one)
             return AVERROR(ENOMEM);
@@ -543,7 +543,7 @@ av_cold int swri_rematrix_init(SwrContext *s){
         s->mix_2_1_f = (mix_2_1_func_type*)sum2_float;
         s->mix_any_f = (mix_any_func_type*)get_mix_any_func_float(s);
     }else if(s->midbuf.fmt == AV_SAMPLE_FMT_DBLP){
-        s->native_matrix = av_calloc(nb_in * nb_out, sizeof(double));
+        s->native_matrix = zn_av_calloc(nb_in * nb_out, sizeof(double));
         s->native_one    = av_mallocz(sizeof(double));
         if (!s->native_matrix || !s->native_one)
             return AVERROR(ENOMEM);
@@ -558,9 +558,9 @@ av_cold int swri_rematrix_init(SwrContext *s){
         s->native_one    = av_mallocz(sizeof(int));
         if (!s->native_one)
             return AVERROR(ENOMEM);
-        s->native_matrix = av_calloc(nb_in * nb_out, sizeof(int));
+        s->native_matrix = zn_av_calloc(nb_in * nb_out, sizeof(int));
         if (!s->native_matrix) {
-            av_freep(&s->native_one);
+            zn_av_freep(&s->native_one);
             return AVERROR(ENOMEM);
         }
         for (i = 0; i < nb_out; i++) {
@@ -597,10 +597,10 @@ av_cold int swri_rematrix_init(SwrContext *s){
 }
 
 av_cold void swri_rematrix_free(SwrContext *s){
-    av_freep(&s->native_matrix);
-    av_freep(&s->native_one);
-    av_freep(&s->native_simd_matrix);
-    av_freep(&s->native_simd_one);
+    zn_av_freep(&s->native_matrix);
+    zn_av_freep(&s->native_one);
+    zn_av_freep(&s->native_simd_matrix);
+    zn_av_freep(&s->native_simd_one);
 }
 
 int swri_rematrix(SwrContext *s, AudioData *out, AudioData *in, int len, int mustcopy){

@@ -266,7 +266,7 @@ static int sga_video_packet(AVFormatContext *s, AVPacket *pkt)
     if (sga->video_stream_index == -1) {
         AVRational frame_rate;
 
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
 
@@ -315,7 +315,7 @@ static int sga_audio_packet(AVFormatContext *s, AVPacket *pkt)
         return AVERROR_INVALIDDATA;
 
     if (sga->audio_stream_index == -1) {
-        AVStream *st = avformat_new_stream(s, NULL);
+        AVStream *st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
 

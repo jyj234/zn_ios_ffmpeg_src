@@ -281,12 +281,12 @@ static int config_input_ref(AVFilterLink *inlink)
     s->planewidth[1]  = s->planewidth[2]  = AV_CEIL_RSHIFT(inlink->w, desc->log2_chroma_w);
     s->planewidth[0]  = s->planewidth[3]  = inlink->w;
 
-    s->scores = av_calloc(s->nb_threads, sizeof(*s->scores));
+    s->scores = zn_av_calloc(s->nb_threads, sizeof(*s->scores));
     if (!s->scores)
         return AVERROR(ENOMEM);
 
     for (int t = 0; t < s->nb_threads; t++) {
-        s->scores[t] = av_calloc(s->nb_components, sizeof(*s->scores[0]));
+        s->scores[t] = zn_av_calloc(s->nb_components, sizeof(*s->scores[0]));
         if (!s->scores[t])
             return AVERROR(ENOMEM);
     }
@@ -368,8 +368,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     ff_framesync_uninit(&s->fs);
     for (int t = 0; t < s->nb_threads && s->scores; t++)
-        av_freep(&s->scores[t]);
-    av_freep(&s->scores);
+        zn_av_freep(&s->scores[t]);
+    zn_av_freep(&s->scores);
 }
 
 static const AVFilterPad identity_inputs[] = {

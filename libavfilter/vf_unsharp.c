@@ -242,13 +242,13 @@ static int init_filter_param(AVFilterContext *ctx, UnsharpFilterParam *fp, const
     av_log(ctx, AV_LOG_VERBOSE, "effect:%s type:%s msize_x:%d msize_y:%d amount:%0.2f\n",
            effect, effect_type, fp->msize_x, fp->msize_y, fp->amount / 65535.0);
 
-    fp->sr = av_malloc_array((MAX_MATRIX_SIZE - 1) * s->nb_threads, sizeof(uint32_t));
-    fp->sc = av_calloc(fp->steps_y * s->nb_threads, 2 * sizeof(*fp->sc));
+    fp->sr = zn_av_malloc_array((MAX_MATRIX_SIZE - 1) * s->nb_threads, sizeof(uint32_t));
+    fp->sc = zn_av_calloc(fp->steps_y * s->nb_threads, 2 * sizeof(*fp->sc));
     if (!fp->sr || !fp->sc)
         return AVERROR(ENOMEM);
 
     for (z = 0; z < 2 * fp->steps_y * s->nb_threads; z++)
-        if (!(fp->sc[z] = av_malloc_array(width + 2 * fp->steps_x,
+        if (!(fp->sc[z] = zn_av_malloc_array(width + 2 * fp->steps_x,
                                           sizeof(*(fp->sc[z])))))
             return AVERROR(ENOMEM);
 
@@ -289,10 +289,10 @@ static void free_filter_param(UnsharpFilterParam *fp, int nb_threads)
 
     if (fp->sc) {
         for (z = 0; z < 2 * fp->steps_y * nb_threads; z++)
-            av_freep(&fp->sc[z]);
-        av_freep(&fp->sc);
+            zn_av_freep(&fp->sc[z]);
+        zn_av_freep(&fp->sc);
     }
-    av_freep(&fp->sr);
+    zn_av_freep(&fp->sr);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
@@ -312,17 +312,17 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
 
     ret = s->apply_unsharp(link->dst, in, out);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     if (ret < 0) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ret;
     }
     return ff_filter_frame(outlink, out);

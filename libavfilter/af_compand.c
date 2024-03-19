@@ -95,9 +95,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     CompandContext *s = ctx->priv;
 
-    av_freep(&s->channels);
-    av_freep(&s->segments);
-    av_frame_free(&s->delay_frame);
+    zn_av_freep(&s->channels);
+    zn_av_freep(&s->segments);
+    zn_av_frame_free(&s->delay_frame);
 }
 
 static void count_items(char *item_str, int *nb_items)
@@ -157,13 +157,13 @@ static int compand_nodelay(AVFilterContext *ctx, AVFrame *frame)
     } else {
         out_frame = ff_get_audio_buffer(ctx->outputs[0], nb_samples);
         if (!out_frame) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
         err = av_frame_copy_props(out_frame, frame);
         if (err < 0) {
-            av_frame_free(&out_frame);
-            av_frame_free(&frame);
+            zn_av_frame_free(&out_frame);
+            zn_av_frame_free(&frame);
             return err;
         }
     }
@@ -181,7 +181,7 @@ static int compand_nodelay(AVFilterContext *ctx, AVFrame *frame)
     }
 
     if (frame != out_frame)
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
 
     return ff_filter_frame(ctx->outputs[0], out_frame);
 }
@@ -221,13 +221,13 @@ static int compand_delay(AVFilterContext *ctx, AVFrame *frame)
                 if (!out_frame) {
                     out_frame = ff_get_audio_buffer(ctx->outputs[0], nb_samples - i);
                     if (!out_frame) {
-                        av_frame_free(&frame);
+                        zn_av_frame_free(&frame);
                         return AVERROR(ENOMEM);
                     }
                     err = av_frame_copy_props(out_frame, frame);
                     if (err < 0) {
-                        av_frame_free(&out_frame);
-                        av_frame_free(&frame);
+                        zn_av_frame_free(&out_frame);
+                        zn_av_frame_free(&frame);
                         return err;
                     }
                     out_frame->pts = s->pts;
@@ -250,7 +250,7 @@ static int compand_delay(AVFilterContext *ctx, AVFrame *frame)
     s->delay_count = count;
     s->delay_index = dindex;
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
 
     if (out_frame) {
         err = ff_filter_frame(ctx->outputs[0], out_frame);
@@ -325,9 +325,9 @@ static int config_output(AVFilterLink *outlink)
 
     uninit(ctx);
 
-    s->channels = av_calloc(channels, sizeof(*s->channels));
+    s->channels = zn_av_calloc(channels, sizeof(*s->channels));
     s->nb_segments = (nb_points + 4) * 2;
-    s->segments = av_calloc(s->nb_segments, sizeof(*s->segments));
+    s->segments = zn_av_calloc(s->nb_segments, sizeof(*s->segments));
 
     if (!s->channels || !s->segments) {
         uninit(ctx);

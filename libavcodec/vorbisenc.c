@@ -183,8 +183,8 @@ static int ready_codebook(vorbis_enc_codebook *cb)
         cb->pow2 = cb->dimensions = NULL;
     } else {
         int vals = cb_lookup_vals(cb->lookup, cb->ndimensions, cb->nentries);
-        cb->dimensions = av_malloc_array(cb->nentries, sizeof(float) * cb->ndimensions);
-        cb->pow2 = av_calloc(cb->nentries, sizeof(*cb->pow2));
+        cb->dimensions = zn_av_malloc_array(cb->nentries, sizeof(float) * cb->ndimensions);
+        cb->pow2 = zn_av_calloc(cb->nentries, sizeof(*cb->pow2));
         if (!cb->dimensions || !cb->pow2)
             return AVERROR(ENOMEM);
         for (i = 0; i < cb->nentries; i++) {
@@ -214,7 +214,7 @@ static int ready_residue(vorbis_enc_residue *rc, vorbis_enc_context *venc)
 {
     int i;
     av_assert0(rc->type == 2);
-    rc->maxes = av_calloc(rc->classifications, sizeof(*rc->maxes));
+    rc->maxes = zn_av_calloc(rc->classifications, sizeof(*rc->maxes));
     if (!rc->maxes)
         return AVERROR(ENOMEM);
     for (i = 0; i < rc->classifications; i++) {
@@ -305,8 +305,8 @@ static int create_vorbis_context(vorbis_enc_context *venc,
         cb->lookup      = cvectors[book].lookup;
         cb->seq_p       = 0;
 
-        cb->lens      = av_malloc_array(cb->nentries, sizeof(uint8_t));
-        cb->codewords = av_malloc_array(cb->nentries, sizeof(uint32_t));
+        cb->lens      = zn_av_malloc_array(cb->nentries, sizeof(uint8_t));
+        cb->codewords = zn_av_malloc_array(cb->nentries, sizeof(uint32_t));
         if (!cb->lens || !cb->codewords)
             return AVERROR(ENOMEM);
         memcpy(cb->lens, clens, cvectors[book].len);
@@ -315,7 +315,7 @@ static int create_vorbis_context(vorbis_enc_context *venc,
 
         if (cb->lookup) {
             vals = cb_lookup_vals(cb->lookup, cb->ndimensions, cb->nentries);
-            cb->quantlist = av_malloc_array(vals, sizeof(int));
+            cb->quantlist = zn_av_malloc_array(vals, sizeof(int));
             if (!cb->quantlist)
                 return AVERROR(ENOMEM);
             for (i = 0; i < vals; i++)
@@ -345,7 +345,7 @@ static int create_vorbis_context(vorbis_enc_context *venc,
         fc->nclasses = FFMAX(fc->nclasses, fc->partition_to_class[i]);
     }
     fc->nclasses++;
-    fc->classes = av_calloc(fc->nclasses, sizeof(vorbis_enc_floor_class));
+    fc->classes = zn_av_calloc(fc->nclasses, sizeof(vorbis_enc_floor_class));
     if (!fc->classes)
         return AVERROR(ENOMEM);
     for (i = 0; i < fc->nclasses; i++) {
@@ -355,7 +355,7 @@ static int create_vorbis_context(vorbis_enc_context *venc,
         c->subclass   = floor_classes[i].subclass;
         c->masterbook = floor_classes[i].masterbook;
         books         = (1 << c->subclass);
-        c->books      = av_malloc_array(books, sizeof(int));
+        c->books      = zn_av_malloc_array(books, sizeof(int));
         if (!c->books)
             return AVERROR(ENOMEM);
         for (j = 0; j < books; j++)
@@ -368,7 +368,7 @@ static int create_vorbis_context(vorbis_enc_context *venc,
     for (i = 0; i < fc->partitions; i++)
         fc->values += fc->classes[fc->partition_to_class[i]].dim;
 
-    fc->list = av_malloc_array(fc->values, sizeof(vorbis_floor1_entry));
+    fc->list = zn_av_malloc_array(fc->values, sizeof(vorbis_floor1_entry));
     if (!fc->list)
         return AVERROR(ENOMEM);
     fc->list[0].x = 0;
@@ -462,11 +462,11 @@ static int create_vorbis_context(vorbis_enc_context *venc,
     venc->modes[1].mapping   = 0;
 
     venc->have_saved = 0;
-    venc->saved      = av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]) / 2);
-    venc->samples    = av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]));
-    venc->floor      = av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]) / 2);
-    venc->coeffs     = av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]) / 2);
-    venc->scratch    = av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]));
+    venc->saved      = zn_av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]) / 2);
+    venc->samples    = zn_av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]));
+    venc->floor      = zn_av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]) / 2);
+    venc->coeffs     = zn_av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]) / 2);
+    venc->scratch    = zn_av_malloc_array(sizeof(float) * venc->channels, (1 << venc->log2_blocksize[1]));
 
     if (!venc->saved || !venc->samples || !venc->floor || !venc->coeffs || !venc->scratch)
         return AVERROR(ENOMEM);
@@ -752,7 +752,7 @@ static int put_main_header(vorbis_enc_context *venc, uint8_t **out)
         buffer_len += hlens[i];
     }
 
-    av_freep(&buffer);
+    zn_av_freep(&buffer);
     return p - *out;
 }
 
@@ -1035,7 +1035,7 @@ static int apply_window_and_mdct(vorbis_enc_context *venc)
 /* Used for padding the last encoded packet */
 static AVFrame *spawn_empty_frame(AVCodecContext *avctx, int channels)
 {
-    AVFrame *f = av_frame_alloc();
+    AVFrame *f = zn_av_frame_alloc();
     int ch;
 
     if (!f)
@@ -1046,8 +1046,8 @@ static AVFrame *spawn_empty_frame(AVCodecContext *avctx, int channels)
     f->ch_layout.order = AV_CHANNEL_ORDER_UNSPEC;
     f->ch_layout.nb_channels = channels;
 
-    if (av_frame_get_buffer(f, 4)) {
-        av_frame_free(&f);
+    if (zn_av_frame_get_buffer(f, 4)) {
+        zn_av_frame_free(&f);
         return NULL;
     }
 
@@ -1087,7 +1087,7 @@ static void move_audio(vorbis_enc_context *venc, int sf_size)
             memcpy(offset + sf*sf_size, input, len);
             memcpy(save + sf*sf_size, input, len);   // Move samples for next frame
         }
-        av_frame_free(&cur);
+        zn_av_frame_free(&cur);
     }
     venc->have_saved = 1;
     memcpy(venc->scratch, venc->samples, 2 * venc->channels * frame_size);
@@ -1214,51 +1214,51 @@ static av_cold int vorbis_encode_close(AVCodecContext *avctx)
 
     if (venc->codebooks)
         for (i = 0; i < venc->ncodebooks; i++) {
-            av_freep(&venc->codebooks[i].lens);
-            av_freep(&venc->codebooks[i].codewords);
-            av_freep(&venc->codebooks[i].quantlist);
-            av_freep(&venc->codebooks[i].dimensions);
-            av_freep(&venc->codebooks[i].pow2);
+            zn_av_freep(&venc->codebooks[i].lens);
+            zn_av_freep(&venc->codebooks[i].codewords);
+            zn_av_freep(&venc->codebooks[i].quantlist);
+            zn_av_freep(&venc->codebooks[i].dimensions);
+            zn_av_freep(&venc->codebooks[i].pow2);
         }
-    av_freep(&venc->codebooks);
+    zn_av_freep(&venc->codebooks);
 
     if (venc->floors)
         for (i = 0; i < venc->nfloors; i++) {
             int j;
             if (venc->floors[i].classes)
                 for (j = 0; j < venc->floors[i].nclasses; j++)
-                    av_freep(&venc->floors[i].classes[j].books);
-            av_freep(&venc->floors[i].classes);
-            av_freep(&venc->floors[i].partition_to_class);
-            av_freep(&venc->floors[i].list);
+                    zn_av_freep(&venc->floors[i].classes[j].books);
+            zn_av_freep(&venc->floors[i].classes);
+            zn_av_freep(&venc->floors[i].partition_to_class);
+            zn_av_freep(&venc->floors[i].list);
         }
-    av_freep(&venc->floors);
+    zn_av_freep(&venc->floors);
 
     if (venc->residues)
         for (i = 0; i < venc->nresidues; i++) {
-            av_freep(&venc->residues[i].books);
-            av_freep(&venc->residues[i].maxes);
+            zn_av_freep(&venc->residues[i].books);
+            zn_av_freep(&venc->residues[i].maxes);
         }
-    av_freep(&venc->residues);
+    zn_av_freep(&venc->residues);
 
     if (venc->mappings)
         for (i = 0; i < venc->nmappings; i++) {
-            av_freep(&venc->mappings[i].mux);
-            av_freep(&venc->mappings[i].floor);
-            av_freep(&venc->mappings[i].residue);
-            av_freep(&venc->mappings[i].magnitude);
-            av_freep(&venc->mappings[i].angle);
+            zn_av_freep(&venc->mappings[i].mux);
+            zn_av_freep(&venc->mappings[i].floor);
+            zn_av_freep(&venc->mappings[i].residue);
+            zn_av_freep(&venc->mappings[i].magnitude);
+            zn_av_freep(&venc->mappings[i].angle);
         }
-    av_freep(&venc->mappings);
+    zn_av_freep(&venc->mappings);
 
-    av_freep(&venc->modes);
+    zn_av_freep(&venc->modes);
 
-    av_freep(&venc->saved);
-    av_freep(&venc->samples);
-    av_freep(&venc->floor);
-    av_freep(&venc->coeffs);
-    av_freep(&venc->scratch);
-    av_freep(&venc->fdsp);
+    zn_av_freep(&venc->saved);
+    zn_av_freep(&venc->samples);
+    zn_av_freep(&venc->floor);
+    zn_av_freep(&venc->coeffs);
+    zn_av_freep(&venc->scratch);
+    zn_av_freep(&venc->fdsp);
 
     av_tx_uninit(&venc->mdct[0]);
     av_tx_uninit(&venc->mdct[1]);

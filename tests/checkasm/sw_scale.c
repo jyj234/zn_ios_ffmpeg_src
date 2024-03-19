@@ -244,8 +244,8 @@ static void check_yuv2yuvX(int accurate)
                         bench_new((const int16_t*)vFilterData, filter_sizes[fsi], src, dst1, dstW - osi, dither, osi);
 
                 }
-                av_freep(&src);
-                av_freep(&vFilterData);
+                zn_av_freep(&src);
+                zn_av_freep(&vFilterData);
             }
         }
     }

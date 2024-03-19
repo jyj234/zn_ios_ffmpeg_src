@@ -175,9 +175,9 @@ static matrix *generate_inverse_quantized_transform_coefficients(size_t width, s
     for (int i = 0; i < width * height; ++i) {
         if (D->d[i] < -2048/ATTENUATION || D->d[i] > 2048/ATTENUATION-1) {
             /* Rare, so simply try again */
-            av_free(raw);
-            av_free(tmp);
-            av_free(D);
+            zn_av_free(raw);
+            zn_av_free(tmp);
+            zn_av_free(D);
             return generate_inverse_quantized_transform_coefficients(width, height);
         }
     }
@@ -186,10 +186,10 @@ static matrix *generate_inverse_quantized_transform_coefficients(size_t width, s
     for (int i = 0; i < width * height; ++i)
         if (E->d[i] < -4096/ATTENUATION || E->d[i] > 4096/ATTENUATION-1) {
             /* Rare, so simply try again */
-            av_free(raw);
-            av_free(tmp);
-            av_free(D);
-            av_free(E);
+            zn_av_free(raw);
+            zn_av_free(tmp);
+            zn_av_free(D);
+            zn_av_free(E);
             return generate_inverse_quantized_transform_coefficients(width, height);
         }
     R = multiply(height == 8 ? &T8t : &T4t, E);
@@ -198,17 +198,17 @@ static matrix *generate_inverse_quantized_transform_coefficients(size_t width, s
     for (int i = 0; i < width * height; ++i)
         if (R->d[i] < -512/ATTENUATION || R->d[i] > 512/ATTENUATION-1) {
             /* Rare, so simply try again */
-            av_free(raw);
-            av_free(tmp);
-            av_free(D);
-            av_free(E);
-            av_free(R);
+            zn_av_free(raw);
+            zn_av_free(tmp);
+            zn_av_free(D);
+            zn_av_free(E);
+            zn_av_free(R);
             return generate_inverse_quantized_transform_coefficients(width, height);
         }
-    av_free(raw);
-    av_free(tmp);
-    av_free(E);
-    av_free(R);
+    zn_av_free(raw);
+    zn_av_free(tmp);
+    zn_av_free(E);
+    zn_av_free(R);
     return D;
 }
 
@@ -274,7 +274,7 @@ static void check_inv_trans_inplace(void)
         if (memcmp(inv_trans_in0,  inv_trans_in1,  10 * 8 * sizeof (int16_t)))
             fail();
         bench_new(inv_trans_in1 + 8);
-        av_free(coeffs);
+        zn_av_free(coeffs);
     }
 }
 
@@ -323,7 +323,7 @@ static void check_inv_trans_adding(void)
             if (memcmp(inv_trans_out0, inv_trans_out1, 10 * 24))
                 fail();
             bench_new(inv_trans_out1 + 24 + 8, 24, inv_trans_in1 + 8);
-            av_free(coeffs);
+            zn_av_free(coeffs);
         }
     }
 }

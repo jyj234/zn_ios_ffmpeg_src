@@ -342,7 +342,7 @@ static int read_tfra(struct Tracks *tracks, int start_index, AVIOContext *f)
     }
     fieldlength = avio_rb32(f);
     track->chunks  = avio_rb32(f);
-    track->offsets = av_calloc(track->chunks, sizeof(*track->offsets));
+    track->offsets = zn_av_calloc(track->chunks, sizeof(*track->offsets));
     if (!track->offsets) {
         track->chunks = 0;
         ret = AVERROR(ENOMEM);
@@ -502,14 +502,14 @@ static int handle_file(struct Tracks *tracks, const char *file, int split,
     char errbuf[50], *ptr;
     struct Track *track;
 
-    err = avformat_open_input(&ctx, file, NULL, NULL);
+    err = zn_avformat_open_input(&ctx, file, NULL, NULL);
     if (err < 0) {
         av_strerror(err, errbuf, sizeof(errbuf));
         fprintf(stderr, "Unable to open %s: %s\n", file, errbuf);
         return 1;
     }
 
-    err = avformat_find_stream_info(ctx, NULL);
+    err = zn_avformat_find_stream_info(ctx, NULL);
     if (err < 0) {
         av_strerror(err, errbuf, sizeof(errbuf));
         fprintf(stderr, "Unable to identify %s: %s\n", file, errbuf);
@@ -540,7 +540,7 @@ static int handle_file(struct Tracks *tracks, const char *file, int split,
                                 tracks->nb_tracks + 1,
                                 sizeof(*tracks->tracks));
         if (!temp) {
-            av_free(track);
+            zn_av_free(track);
             err = AVERROR(ENOMEM);
             goto fail;
         }
@@ -562,7 +562,7 @@ static int handle_file(struct Tracks *tracks, const char *file, int split,
             fprintf(stderr,
                     "Track %d in %s is neither video nor audio, skipping\n",
                     track->track_id, file);
-            av_freep(&tracks->tracks[tracks->nb_tracks]);
+            zn_av_freep(&tracks->tracks[tracks->nb_tracks]);
             continue;
         }
 
@@ -603,14 +603,14 @@ static int handle_file(struct Tracks *tracks, const char *file, int split,
         tracks->nb_tracks++;
     }
 
-    avformat_close_input(&ctx);
+    zn_avformat_close_input(&ctx);
 
     err = read_mfra(tracks, orig_tracks, file, split, ismf, basename,
                     output_prefix);
 
 fail:
     if (ctx)
-        avformat_close_input(&ctx);
+        zn_avformat_close_input(&ctx);
     return err;
 }
 
@@ -774,11 +774,11 @@ static void clean_tracks(struct Tracks *tracks)
 {
     int i;
     for (i = 0; i < tracks->nb_tracks; i++) {
-        av_freep(&tracks->tracks[i]->codec_private);
-        av_freep(&tracks->tracks[i]->offsets);
-        av_freep(&tracks->tracks[i]);
+        zn_av_freep(&tracks->tracks[i]->codec_private);
+        zn_av_freep(&tracks->tracks[i]->offsets);
+        zn_av_freep(&tracks->tracks[i]);
     }
-    av_freep(&tracks->tracks);
+    zn_av_freep(&tracks->tracks);
     tracks->nb_tracks = 0;
 }
 

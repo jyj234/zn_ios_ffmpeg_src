@@ -286,7 +286,7 @@ static av_cold int decode_end(WMAProDecodeCtx *s)
 {
     int i;
 
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
 
     for (i = 0; i < WMAPRO_BLOCK_SIZES; i++)
         av_tx_uninit(&s->tx[i]);
@@ -1879,9 +1879,9 @@ static int xma_decode_packet(AVCodecContext *avctx, AVFrame *frame,
         void *left[1] = { s->frames[s->current_stream]->extended_data[0] };
         void *right[1] = { s->frames[s->current_stream]->extended_data[1] };
 
-        av_audio_fifo_write(s->samples[0][s->current_stream], left, nb_samples);
+        zn_av_audio_fifo_write(s->samples[0][s->current_stream], left, nb_samples);
         if (s->xma[s->current_stream].nb_channels > 1)
-            av_audio_fifo_write(s->samples[1][s->current_stream], right, nb_samples);
+            zn_av_audio_fifo_write(s->samples[1][s->current_stream], right, nb_samples);
     } else if (ret < 0) {
         s->current_stream = 0;
         return ret;
@@ -1914,7 +1914,7 @@ static int xma_decode_packet(AVCodecContext *avctx, AVFrame *frame,
         /* all other streams skip next packet */
         for (i = 0; i < s->num_streams; i++) {
             s->xma[i].skip_packets = FFMAX(0, s->xma[i].skip_packets - 1);
-            nb_samples = FFMIN(nb_samples, av_audio_fifo_size(s->samples[0][i]));
+            nb_samples = FFMIN(nb_samples, zn_av_audio_fifo_size(s->samples[0][i]));
         }
 
         if (!eof && avpkt->size)
@@ -2001,7 +2001,7 @@ static av_cold int xma_decode_init(AVCodecContext *avctx)
         ret = decode_init(&s->xma[i], avctx, i);
         if (ret < 0)
             return ret;
-        s->frames[i] = av_frame_alloc();
+        s->frames[i] = zn_av_frame_alloc();
         if (!s->frames[i])
             return AVERROR(ENOMEM);
 
@@ -2012,8 +2012,8 @@ static av_cold int xma_decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
 
     for (int i = 0; i < XMA_MAX_STREAMS; i++) {
-        s->samples[0][i] = av_audio_fifo_alloc(avctx->sample_fmt, 1, 64 * 512);
-        s->samples[1][i] = av_audio_fifo_alloc(avctx->sample_fmt, 1, 64 * 512);
+        s->samples[0][i] = zn_av_audio_fifo_alloc(avctx->sample_fmt, 1, 64 * 512);
+        s->samples[1][i] = zn_av_audio_fifo_alloc(avctx->sample_fmt, 1, 64 * 512);
         if (!s->samples[0][i] || !s->samples[1][i])
             return AVERROR(ENOMEM);
     }
@@ -2028,7 +2028,7 @@ static av_cold int xma_decode_end(AVCodecContext *avctx)
 
     for (i = 0; i < s->num_streams; i++) {
         decode_end(&s->xma[i]);
-        av_frame_free(&s->frames[i]);
+        zn_av_frame_free(&s->frames[i]);
     }
     s->num_streams = 0;
 

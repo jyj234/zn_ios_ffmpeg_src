@@ -70,7 +70,7 @@ static av_cold int libopus_decode_init(AVCodecContext *avc)
         avc->ch_layout.order       = AV_CHANNEL_ORDER_UNSPEC;
         avc->ch_layout.nb_channels = channels;
     } else {
-        av_channel_layout_copy(&avc->ch_layout, &ff_vorbis_ch_layouts[channels - 1]);
+        zn_av_channel_layout_copy(&avc->ch_layout, &ff_vorbis_ch_layouts[channels - 1]);
     }
 
     if (avc->extradata_size >= OPUS_HEAD_SIZE) {

@@ -13,7 +13,7 @@ API changes, most recent first:
 
 2023-10-06 - 804be7f9e3c - lavc 60.30.101 - avcodec.h
   AVCodecContext.coded_side_data may now be used during decoding, to be set
-  by user before calling avcodec_open2() for initialization.
+  by user before calling zn_avcodec_open2() for initialization.
 
 2023-10-06 - 5432d2aacad - lavc 60.15.100 - avformat.h
   Deprecate AVFormatContext.{nb_,}side_data, av_stream_add_side_data(),
@@ -57,7 +57,7 @@ API changes, most recent first:
   Constify the AVFifo pointees in av_fifo_peek() and av_fifo_peek_to_cb().
 
 2023-09-07 - fa4bf5793a0 - lavu 58.22.100 - audio_fifo.h
-  Constify some pointees in av_audio_fifo_write(), av_audio_fifo_read(),
+  Constify some pointees in zn_av_audio_fifo_write(), av_audio_fifo_read(),
   av_audio_fifo_peek() and av_audio_fifo_peek_at().
 
 2023-09-07 - 9bf31f60960 - lavu 58.21.100 - samplefmt.h
@@ -291,7 +291,7 @@ API changes, most recent first:
 
 2022-08-02 - e3838b856f - lavc 59.41.100 - avcodec.h codec.h
   Add AV_CODEC_FLAG_RECON_FRAME and AV_CODEC_CAP_ENCODER_RECON_FRAME.
-  avcodec_receive_frame() may now be used on encoders when
+  zn_avcodec_receive_frame() may now be used on encoders when
   AV_CODEC_FLAG_RECON_FRAME is active.
 
 2022-08-02 - eede1d2927 - lavu 57.31.100 - frame.h
@@ -332,7 +332,7 @@ API changes, most recent first:
   defines).
 
 2022-03-15 - cdba98bb80 - swr 4.5.100 - swresample.h
-  Add swr_alloc_set_opts2() and swr_build_matrix2().
+  Add zn_swr_alloc_set_opts2() and swr_build_matrix2().
   Deprecate swr_alloc_set_opts() and swr_build_matrix().
 
 2022-03-15 - cdba98bb80 - lavfi 8.28.100 - avfilter.h buffersink.h buffersrc.h
@@ -457,7 +457,7 @@ API changes, most recent first:
   Add AV_PIX_FMT_X2BGR10.
 
 2021-09-20 - 8d5de914d31 - lavu 57.6.100 - mem.h
-  Deprecate av_mallocz_array() as it is identical to av_calloc().
+  Deprecate av_mallocz_array() as it is identical to zn_av_calloc().
 
 2021-09-20 - 176b8d785bf - lavc 59.9.100 - avcodec.h
   Deprecate AVCodecContext.sub_text_format and the corresponding
@@ -556,8 +556,8 @@ API changes, most recent first:
   for the returned decoder.
 
 2021-04-27 - 626535f6a1 - lavc 59.0.100 - codec.h
-  avcodec_find_encoder_by_name(), avcodec_find_encoder(),
-  avcodec_find_decoder_by_name() and avcodec_find_decoder()
+  avcodec_find_encoder_by_name(), zn_avcodec_find_encoder(),
+  avcodec_find_decoder_by_name() and zn_avcodec_find_decoder()
   now return a pointer to const AVCodec.
 
 2021-04-27 - 14fa0a4efb - lavf 59.0.100 - avformat.h
@@ -565,11 +565,11 @@ API changes, most recent first:
 
 2021-04-27 - 56450a0ee4 - lavf 59.0.100 - avformat.h
   Constified the pointers to AVInputFormats and AVOutputFormats
-  in AVFormatContext, avformat_alloc_output_context2(),
+  in AVFormatContext, zn_avformat_alloc_output_context2(),
   av_find_input_format(), av_probe_input_format(),
   av_probe_input_format2(), av_probe_input_format3(),
   av_probe_input_buffer2(), av_probe_input_buffer(),
-  avformat_open_input(), av_guess_format() and av_guess_codec().
+  zn_avformat_open_input(), zn_av_guess_format() and av_guess_codec().
   Furthermore, constified the AVProbeData in av_probe_input_format(),
   av_probe_input_format2() and av_probe_input_format3().
 
@@ -770,7 +770,7 @@ API changes, most recent first:
   Move AVPacket-related public API to new header packet.h.
 
 2020-03-29 - 4cb0dda555 - lavf 58.42.100 - avformat.h
-  av_read_frame() now guarantees to handle uninitialized input packets
+  zn_av_read_frame() now guarantees to handle uninitialized input packets
   and to return refcounted packets on success.
 
 2020-03-27 - c52ec0367d - lavc 58.77.100 - avcodec.h
@@ -844,7 +844,7 @@ API changes, most recent first:
   Add av_tx_init(), av_tx_uninit() and related definitions.
 
 2019-04-20 - 3153a6502a - lavc 58.52.100 - avcodec.h
-  Add AV_CODEC_FLAG_DROPCHANGED to allow avcodec_receive_frame to drop
+  Add AV_CODEC_FLAG_DROPCHANGED to allow zn_avcodec_receive_frame to drop
   frames whose parameters differ from first decoded frame in stream.
 
 2019-04-12 - abfeba9724 - lavf 58.27.102
@@ -1049,7 +1049,7 @@ API changes, most recent first:
 
 2017-09-27 - 7aa6b8a68f - lavu 55.77.101 / lavu 55.31.1 - frame.h
   Allow passing the value of 0 (meaning "automatic") as the required alignment
-  to av_frame_get_buffer().
+  to zn_av_frame_get_buffer().
 
 2017-09-27 - 522f877086 - lavu 55.77.100 / lavu 55.31.0 - cpu.h
   Add av_cpu_max_align() for querying maximum required data alignment.
@@ -1057,7 +1057,7 @@ API changes, most recent first:
 2017-09-26 - b1cf151c4d - lavc 57.106.102 - avcodec.h
   Deprecate AVCodecContext.refcounted_frames. This was useful for deprecated
   API only (avcodec_decode_video2/avcodec_decode_audio4). The new decode APIs
-  (avcodec_send_packet/avcodec_receive_frame) always work with reference
+  (zn_avcodec_send_packet/zn_avcodec_receive_frame) always work with reference
   counted frames.
 
 2017-09-21 - 6f15f1cdc8 - lavu 55.76.100 / 56.6.0 - pixdesc.h
@@ -1082,7 +1082,7 @@ API changes, most recent first:
   Add avio_read_partial().
 
 2017-09-01 - xxxxxxx - lavf 57.80.100 / 57.11.0 - avio.h
-  Add avio_context_free(). From now on it must be used for freeing AVIOContext.
+  Add zn_avio_context_free(). From now on it must be used for freeing AVIOContext.
 
 2017-08-08 - 1460408703 - lavu 55.74.100 - pixdesc.h
   Add AV_PIX_FMT_FLAG_FLOAT pixel format flag.
@@ -1366,8 +1366,8 @@ API changes, most recent first:
 
 2016-04-21 - 7fc329e - lavc 57.37.100 - avcodec.h
   Add a new audio/video encoding and decoding API with decoupled input
-  and output -- avcodec_send_packet(), avcodec_receive_frame(),
-  avcodec_send_frame() and avcodec_receive_packet().
+  and output -- zn_avcodec_send_packet(), zn_avcodec_receive_frame(),
+  zn_avcodec_send_frame() and zn_avcodec_receive_packet().
 
 2016-04-17 - af9cac1 / 33d1898 - lavc 57.35.100 / 57.15.0 - avcodec.h
   Add a new bitstream filtering API working with AVPackets.
@@ -1502,11 +1502,11 @@ API changes, most recent first:
   Add av_fast_mallocz()
 
 2015-10-29 - lavc 57.12.100 / 57.8.0 - avcodec.h
-  xxxxxx - Deprecate av_free_packet(). Use av_packet_unref() as replacement,
+  xxxxxx - Deprecate av_free_packet(). Use zn_av_packet_unref() as replacement,
            it resets the packet in a more consistent way.
   xxxxxx - Deprecate av_dup_packet(), it is a no-op for most cases.
            Use av_packet_ref() to make a non-refcounted AVPacket refcounted.
-  xxxxxx - Add av_packet_alloc(), av_packet_clone(), av_packet_free().
+  xxxxxx - Add zn_av_packet_alloc(), av_packet_clone(), zn_av_packet_free().
            They match the AVFrame functions with the same name.
 
 2015-10-27 - 1e477a9 - lavu 55.5.100 - cpu.h
@@ -2124,7 +2124,7 @@ API changes, most recent first:
   Install ffversion.h and make it public.
 
 2013-12-11 - 29c83d2 / b9fb59d,409a143 / 9431356,44967ab / d7b3ee9 - lavc 55.45.101 / 55.28.1 - avcodec.h
-  av_frame_alloc(), av_frame_unref() and av_frame_free() now can and should be
+  zn_av_frame_alloc(), av_frame_unref() and zn_av_frame_free() now can and should be
   used instead of avcodec_alloc_frame(), avcodec_get_frame_defaults() and
   avcodec_free_frame() respectively. The latter three functions are deprecated.
 
@@ -2208,7 +2208,7 @@ API changes, most recent first:
   avcodec_close() argument can be NULL.
 
 2013-09-04 - 36cd017a - lavf 55.16.101 - avformat.h
-  avformat_close_input() argument can be NULL and point on NULL.
+  zn_avformat_close_input() argument can be NULL and point on NULL.
 
 2013-08-29 - e31db62 - lavf 55.15.100 - avformat.h
   Add av_format_get_probe_score().
@@ -2224,7 +2224,7 @@ API changes, most recent first:
   to extend it in the future without breaking ABI/API.
 
 2013-08-10 - 67a580f / 5a9a9d4 - lavc 55.25.100 / 55.16.0 - avcodec.h
-  Extend AVPacket API with av_packet_unref, av_packet_ref,
+  Extend AVPacket API with zn_av_packet_unref, av_packet_ref,
   av_packet_move_ref, av_packet_copy_props, av_packet_free_side_data.
 
 2013-08-05 - 9547e3e / f824535 - lavc 55.22.100 / 55.13.0 - avcodec.h
@@ -2312,7 +2312,7 @@ API changes, most recent first:
   and av_opt_set_int_list().
 
 2013-03-30 - 5c73645 - lavu 52.24.100 - samplefmt.h
-  Add av_samples_alloc_array_and_samples().
+  Add zn_zn_av_samples_alloc_array_and_samples().
 
 2013-03-29 - ef7b6b4 - lavf 55.1.100 - avformat.h
   Add av_guess_frame_rate()
@@ -2439,7 +2439,7 @@ API changes, most recent first:
   version moved from avutil.h to version.h
 
 2012-04-11 - 359abb1 - lavu 51.58.100 - error.h
-  Add av_make_error_string() and av_err2str() utilities to
+  Add av_make_error_string() and zn_av_err2str() utilities to
   libavutil/error.h.
 
 2012-06-05 - 62b39d4 - lavc 54.24.100
@@ -2577,7 +2577,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   Add functions for allocating the opaque contexts for the algorithms,
 
 2012-10-10 - de31814 / b522000 - lavf 54.32.100 / 54.18.0 - avio.h
-  Add avio_closep to complement avio_close.
+  Add zn_avio_closep to complement avio_close.
 
 2012-10-08 - ae77266 / 78071a1 - lavu 51.74.100 / 51.42.0 - pixfmt.h
   Rename PixelFormat to AVPixelFormat and all PIX_FMT_* to AV_PIX_FMT_*.
@@ -2638,7 +2638,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   Add AVFMT_FLAG_NOBUFFER for low latency use cases.
 
 2012-07-10 - fbe0245 / f3e5e6f - lavu 51.65.100 / 51.37.0
-  Add av_malloc_array() and av_mallocz_array()
+  Add zn_av_malloc_array() and av_mallocz_array()
 
 2012-06-22 - e847f41 / d3d3a32 - lavu 51.61.100 / 51.34.0
   Add av_usleep()
@@ -2700,13 +2700,13 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
 2012-04-20 - 3194ab7 / 0c0d1bc - lavu 51.47.100 / 51.28.0 - audio_fifo.h
   Add audio FIFO functions:
     av_audio_fifo_free()
-    av_audio_fifo_alloc()
-    av_audio_fifo_realloc()
-    av_audio_fifo_write()
+    zn_av_audio_fifo_alloc()
+    zn_av_audio_fifo_realloc()
+    zn_av_audio_fifo_write()
     av_audio_fifo_read()
     av_audio_fifo_drain()
     av_audio_fifo_reset()
-    av_audio_fifo_size()
+    zn_av_audio_fifo_size()
     av_audio_fifo_space()
 
 2012-04-14 - lavfi 2.70.100 / 2.16.0 - avfiltergraph.h
@@ -2741,7 +2741,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   Add avfilter_graph_dump.
 
 2012-03-20 - 0ebd836 / 3c90cc2 - lavfo 54.2.0
-  Deprecate av_read_packet(), use av_read_frame() with
+  Deprecate av_read_packet(), use zn_av_read_frame() with
   AVFMT_FLAG_NOPARSE | AVFMT_FLAG_NOFILLIN in AVFormatContext.flags
 
 2012-03-05 - lavc 54.10.100 / 54.8.0
@@ -2837,7 +2837,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   Deprecate AVFrame.age. The field is unused.
 
 2011-12-12 - 8bc7fe4 / 5266045 - lavf 53.25.0 / 53.17.0
-  Add avformat_close_input().
+  Add zn_avformat_close_input().
   Deprecate av_close_input_file() and av_close_input_stream().
 
 2011-12-09 - c59b80c / b2890f5 - lavu 51.32.0 / 51.20.0 - audioconvert.h
@@ -2902,7 +2902,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   Deprecate AVCodecContext.parse_only and CODEC_CAP_PARSE_ONLY.
 
 2011-10-19 - d049257 / 569129a - lavf 53.17.0 / 53.10.0
-  Add avformat_new_stream(). Deprecate av_new_stream().
+  Add zn_avformat_new_stream(). Deprecate av_new_stream().
 
 2011-10-13 - 91eb1b1 / b631fba - lavf 53.16.0 / 53.9.0
   Add AVFMT_NO_BYTE_SEEK AVInputFormat flag.
@@ -3005,14 +3005,14 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   avfilter_all_packing_formats()
 
 2011-07-10 - 3602ad7 / a67c061 - lavf 53.6.0
-  Add avformat_find_stream_info(), deprecate av_find_stream_info().
+  Add zn_avformat_find_stream_info(), deprecate av_find_stream_info().
   NOTE: this was backported to 0.7
 
 2011-07-10 - 3602ad7 / 0b950fe - lavc 53.8.0
-  Add avcodec_open2(), deprecate avcodec_open().
+  Add zn_avcodec_open2(), deprecate avcodec_open().
   NOTE: this was backported to 0.7
 
-  Add avcodec_alloc_context3. Deprecate avcodec_alloc_context() and
+  Add zn_avcodec_alloc_context3. Deprecate avcodec_alloc_context() and
   avcodec_alloc_context2().
 
 2011-07-01 - b442ca6 - lavf 53.5.0 - avformat.h
@@ -3062,7 +3062,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   Add av_printf_format().
 
 2011-06-16 - 2905e3f / 05e84c9, 2905e3f / 25de595 - lavf 53.4.0 / 53.2.0 - avformat.h
-  Add avformat_open_input and avformat_write_header().
+  Add zn_avformat_open_input and zn_avformat_write_header().
   Deprecate av_open_input_stream, av_open_input_file,
   AVFormatParameters and av_write_header.
 
@@ -3120,7 +3120,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
   Add fps_probe_size to AVFormatContext.
 
 2011-05-22 - 5ecdfd0 - lavf 53.2.0 - avformat.h
-  Introduce avformat_alloc_output_context2() and deprecate
+  Introduce zn_avformat_alloc_output_context2() and deprecate
   avformat_alloc_output_context().
 
 2011-05-22 - 83db719 - lavfi 2.10.0 - vsrc_buffer.h
@@ -3249,7 +3249,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
     0300db8,2af07d3 rename url_fskip -> avio_skip
     6b4aa5d rename url_fseek -> avio_seek
     61840b4 deprecate put_tag
-    22a3212 rename url_fopen/fclose -> avio_open/close.
+    22a3212 rename url_fopen/fclose -> zn_avio_open/close.
     0ac8e2b deprecate put_nbyte
     77eb550 rename put_byte          -> avio_w8
                    put_[b/l]e<type>  -> avio_w[b/l]<type>
@@ -3258,7 +3258,7 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
                    get_[b/l]e<type>  -> avio_r[b/l]<type>
                    get_buffer        -> avio_read
     b3db9ce deprecate get_partial_buffer
-    8d9ac96 rename av_alloc_put_byte -> avio_alloc_context
+    8d9ac96 rename av_alloc_put_byte -> zn_avio_alloc_context
 
 2011-03-25 - 27ef7b1 / 34b47d7 - lavc 52.115.0 - AVCodecContext.audio_service_type
   Add audio_service_type field to AVCodecContext.
@@ -3314,8 +3314,8 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
 2011-02-06 - fe174fc - lavf 52.97.0 - avio.h
   Add flag for non-blocking protocols: URL_FLAG_NONBLOCK
 
-2011-02-04 - f124b08 - lavf 52.96.0 - avformat_free_context()
-  Add avformat_free_context() in avformat.h.
+2011-02-04 - f124b08 - lavf 52.96.0 - zn_avformat_free_context()
+  Add zn_avformat_free_context() in avformat.h.
 
 2011-02-03 - f5b82f4 - lavc 52.109.0 - add CODEC_ID_PRORES
   Add CODEC_ID_PRORES to avcodec.h.
@@ -3806,8 +3806,8 @@ lavd 54.4.100 / 54.0.0, lavfi 3.5.0
 2010-01-02 - 8eb631f - lavf 52.46.0 - av_match_ext()
   Add av_match_ext(), it should be used in place of match_ext().
 
-2010-01-01 - a1f547b - lavf 52.45.0 - av_guess_format()
-  Add av_guess_format(), it should be used in place of guess_format().
+2010-01-01 - a1f547b - lavf 52.45.0 - zn_av_guess_format()
+  Add zn_av_guess_format(), it should be used in place of guess_format().
 
 2009-12-13 - a181981 - lavf 52.43.0 - metadata API
   Add av_metadata_set2(), AV_METADATA_DONT_STRDUP_KEY and

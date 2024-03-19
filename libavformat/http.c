@@ -363,7 +363,7 @@ redo:
 
     cached = redirect_cache_get(s);
     if (cached) {
-        av_free(s->location);
+        zn_av_free(s->location);
         s->location = av_strdup(cached);
         if (!s->location) {
             ret = AVERROR(ENOMEM);
@@ -430,7 +430,7 @@ redo:
             redirect_cache_set(s, s->location, s->new_location, s->expires);
         }
 
-        av_free(s->location);
+        zn_av_free(s->location);
         s->location = s->new_location;
         s->new_location = NULL;
 
@@ -495,12 +495,12 @@ int ff_http_do_new_request2(URLContext *h, const char *uri, AVDictionary **opts)
     s->off           = 0;
     s->icy_data_read = 0;
 
-    av_free(s->location);
+    zn_av_free(s->location);
     s->location = av_strdup(uri);
     if (!s->location)
         return AVERROR(ENOMEM);
 
-    av_free(s->uri);
+    zn_av_free(s->uri);
     s->uri = av_strdup(uri);
     if (!s->uri)
         return AVERROR(ENOMEM);
@@ -726,8 +726,8 @@ bail_out:
         av_dict_free(&s->chained_options);
         av_dict_free(&s->cookie_dict);
         av_dict_free(&s->redirect_cache);
-        av_freep(&s->new_location);
-        av_freep(&s->uri);
+        zn_av_freep(&s->new_location);
+        zn_av_freep(&s->uri);
     }
     return ret;
 }
@@ -817,7 +817,7 @@ static int parse_location(HTTPContext *s, const char *p)
     char redirected_location[MAX_URL_SIZE];
     ff_make_absolute_url(redirected_location, sizeof(redirected_location),
                          s->location, p);
-    av_freep(&s->new_location);
+    zn_av_freep(&s->new_location);
     s->new_location = av_strdup(redirected_location);
     if (!s->new_location)
         return AVERROR(ENOMEM);
@@ -948,13 +948,13 @@ static int parse_set_cookie(const char *set_cookie, AVDictionary **dict)
         param += strspn(param, WHITESPACES);
         if ((name = av_strtok(param, "=", &value))) {
             if (av_dict_set(dict, name, value, 0) < 0) {
-                av_free(cstr);
+                zn_av_free(cstr);
                 return -1;
             }
         }
     }
 
-    av_free(cstr);
+    zn_av_free(cstr);
     return 0;
 }
 
@@ -1031,7 +1031,7 @@ static int cookie_string(AVDictionary *dict, char **cookies)
 
     // reallocate the cookies
     e = NULL;
-    if (*cookies) av_free(*cookies);
+    if (*cookies) zn_av_free(*cookies);
     *cookies = av_malloc(len);
     if (!*cookies) return AVERROR(ENOMEM);
     *cookies[0] = '\0';
@@ -1149,7 +1149,7 @@ static int process_line(URLContext *h, char *line, int line_count)
                 p++;
             while (*p == '/')
                 p++;
-            av_freep(&s->http_version);
+            zn_av_freep(&s->http_version);
             s->http_version = av_strndup(p, 3);
             while (!av_isspace(*p) && *p != '\0')
                 p++;
@@ -1205,7 +1205,7 @@ static int process_line(URLContext *h, char *line, int line_count)
                 s->is_mediagateway = 1;
             }
         } else if (!av_strcasecmp(tag, "Content-Type")) {
-            av_free(s->mime_type);
+            zn_av_free(s->mime_type);
             s->mime_type = av_get_token((const char **)&p, ";");
         } else if (!av_strcasecmp(tag, "Set-Cookie")) {
             if (parse_cookie(s, p, &s->cookie_dict))
@@ -1305,7 +1305,7 @@ static int get_cookies(HTTPContext *s, char **cookies, const char *path,
         } else {
             char *tmp = *cookies;
             *cookies = av_asprintf("%s; %s=%s", tmp, cookie_entry->key, cookie_entry->value);
-            av_free(tmp);
+            zn_av_free(tmp);
         }
         if (!*cookies)
             ret = AVERROR(ENOMEM);
@@ -1314,7 +1314,7 @@ static int get_cookies(HTTPContext *s, char **cookies, const char *path,
         av_dict_free(&cookie_params);
     }
 
-    av_free(set_cookies);
+    zn_av_free(set_cookies);
 
     return ret;
 }
@@ -1333,7 +1333,7 @@ static int http_read_header(URLContext *h)
     char line[MAX_URL_SIZE];
     int err = 0;
 
-    av_freep(&s->new_location);
+    zn_av_freep(&s->new_location);
     s->expires = 0;
     s->chunksize = UINT64_MAX;
     s->filesize_from_content_range = UINT64_MAX;
@@ -1489,7 +1489,7 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
         char *cookies = NULL;
         if (!get_cookies(s, &cookies, path, hoststr) && cookies) {
             av_bprintf(&request, "Cookie: %s\r\n", cookies);
-            av_free(cookies);
+            zn_av_free(cookies);
         }
     }
     if (!has_header(s->headers, "\r\nIcy-MetaData: ") && s->icy)
@@ -1552,8 +1552,8 @@ static int http_connect(URLContext *h, const char *path, const char *local_path,
 
     err = (off == s->off) ? 0 : -1;
 done:
-    av_freep(&authstr);
-    av_freep(&proxyauthstr);
+    zn_av_freep(&authstr);
+    zn_av_freep(&proxyauthstr);
     return err;
 }
 
@@ -1703,7 +1703,7 @@ static int http_read_stream(URLContext *h, uint8_t *buf, int size)
         if (reconnect_delay > s->reconnect_delay_max)
             return AVERROR(EIO);
 
-        av_log(h, AV_LOG_WARNING, "Will reconnect at %"PRIu64" in %d second(s), error=%s.\n", s->off, reconnect_delay, av_err2str(read_ret));
+        av_log(h, AV_LOG_WARNING, "Will reconnect at %"PRIu64" in %d second(s), error=%s.\n", s->off, reconnect_delay, zn_av_err2str(read_ret));
         err = ff_network_sleep_interruptible(1000U*1000*reconnect_delay, &h->interrupt_callback);
         if (err != AVERROR(ETIMEDOUT))
             return err;
@@ -1862,7 +1862,7 @@ static int http_shutdown(URLContext *h, int flags)
             read_ret = ffurl_read(s->hd, buf, sizeof(buf));
             s->hd->flags &= ~AVIO_FLAG_NONBLOCK;
             if (read_ret < 0 && read_ret != AVERROR(EAGAIN)) {
-                av_log(h, AV_LOG_ERROR, "URL read error: %s\n", av_err2str(read_ret));
+                av_log(h, AV_LOG_ERROR, "URL read error: %s\n", zn_av_err2str(read_ret));
                 ret = read_ret;
             }
         }
@@ -1879,7 +1879,7 @@ static int http_close(URLContext *h)
 
 #if CONFIG_ZLIB
     inflateEnd(&s->inflate_stream);
-    av_freep(&s->inflate_buffer);
+    zn_av_freep(&s->inflate_buffer);
 #endif /* CONFIG_ZLIB */
 
     if (s->hd && !s->end_chunked_post)
@@ -1891,8 +1891,8 @@ static int http_close(URLContext *h)
     av_dict_free(&s->chained_options);
     av_dict_free(&s->cookie_dict);
     av_dict_free(&s->redirect_cache);
-    av_freep(&s->new_location);
-    av_freep(&s->uri);
+    zn_av_freep(&s->new_location);
+    zn_av_freep(&s->uri);
     return ret;
 }
 
@@ -1940,7 +1940,7 @@ static int64_t http_seek_internal(URLContext *h, int64_t off, int whence, int fo
         new_uri = av_strdup(s->uri);
         if (!new_uri)
             return AVERROR(ENOMEM);
-        av_free(s->location);
+        zn_av_free(s->location);
         s->location = new_uri;
     }
 
@@ -2084,7 +2084,7 @@ redo:
              path,
              hoststr,
              authstr ? "Proxy-" : "", authstr ? authstr : "");
-    av_freep(&authstr);
+    zn_av_freep(&authstr);
 
     if ((ret = ffurl_write(s->hd, s->buffer, strlen(s->buffer))) < 0)
         goto fail;

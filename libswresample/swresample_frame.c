@@ -41,7 +41,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
         } else
 #endif
-        if ((ret = av_channel_layout_copy(&ch_layout, &in->ch_layout)) < 0)
+        if ((ret = zn_av_channel_layout_copy(&ch_layout, &in->ch_layout)) < 0)
             goto fail;
         if ((ret = av_opt_set_chlayout(s, "ichl", &ch_layout, 0)) < 0)
             goto fail;
@@ -62,7 +62,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
         } else
 #endif
-        if ((ret = av_channel_layout_copy(&ch_layout, &out->ch_layout)) < 0)
+        if ((ret = zn_av_channel_layout_copy(&ch_layout, &out->ch_layout)) < 0)
             goto fail;
         if ((ret = av_opt_set_chlayout(s, "ochl", &ch_layout, 0)) < 0)
             goto fail;
@@ -96,7 +96,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
         } else
 #endif
-        if ((err = av_channel_layout_copy(&ch_layout, &in->ch_layout)) < 0)
+        if ((err = zn_av_channel_layout_copy(&ch_layout, &in->ch_layout)) < 0)
             return err;
         if (av_channel_layout_compare(&s->in_ch_layout, &ch_layout) ||
             s->in_sample_rate != in->sample_rate ||
@@ -116,7 +116,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
 FF_ENABLE_DEPRECATION_WARNINGS
         } else
 #endif
-        if ((err = av_channel_layout_copy(&ch_layout, &out->ch_layout)) < 0)
+        if ((err = zn_av_channel_layout_copy(&ch_layout, &out->ch_layout)) < 0)
             return err;
         if (av_channel_layout_compare(&s->out_ch_layout, &ch_layout) ||
             s->out_sample_rate != out->sample_rate ||
@@ -147,7 +147,7 @@ static inline int convert_frame(SwrContext *s,
         in_nb_samples = in->nb_samples;
     }
 
-    ret = swr_convert(s, out_data, out_nb_samples, in_data, in_nb_samples);
+    ret = zn_swr_convert(s, out_data, out_nb_samples, in_data, in_nb_samples);
 
     if (ret < 0) {
         if (out)
@@ -181,7 +181,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     }
 }
 
-int swr_convert_frame(SwrContext *s,
+int zn_swr_convert_frame(SwrContext *s,
                       AVFrame *out, const AVFrame *in)
 {
     int ret, setup = 0;
@@ -189,7 +189,7 @@ int swr_convert_frame(SwrContext *s,
     if (!swr_is_initialized(s)) {
         if ((ret = swr_config_frame(s, out, in)) < 0)
             return ret;
-        if ((ret = swr_init(s)) < 0)
+        if ((ret = zn_swr_init(s)) < 0)
             return ret;
         setup = 1;
     } else {
@@ -204,7 +204,7 @@ int swr_convert_frame(SwrContext *s,
             if (in) {
                 out->nb_samples += in->nb_samples*(int64_t)s->out_sample_rate / s->in_sample_rate;
             }
-            if ((ret = av_frame_get_buffer(out, 0)) < 0) {
+            if ((ret = zn_av_frame_get_buffer(out, 0)) < 0) {
                 if (setup)
                     swr_close(s);
                 return ret;

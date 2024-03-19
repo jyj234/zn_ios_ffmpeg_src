@@ -233,7 +233,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -286,7 +286,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         }
     }
 
-    av_frame_free(&s->frames[59]);
+    zn_av_frame_free(&s->frames[59]);
     memmove(&s->frames[1], &s->frames[0], 59 * sizeof(AVFrame *));
     s->frames[0] = NULL;
 
@@ -325,7 +325,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     Audio3dScopeContext *s = ctx->priv;
 
     for (int n = 0; n < 60; n++)
-        av_frame_free(&s->frames[n]);
+        zn_av_frame_free(&s->frames[n]);
 }
 
 static const AVFilterPad audio3dscope_inputs[] = {

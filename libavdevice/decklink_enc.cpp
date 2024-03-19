@@ -117,8 +117,8 @@ public:
     {
         int ret = --_refs;
         if (!ret) {
-            av_frame_free(&_avframe);
-            av_packet_free(&_avpacket);
+            zn_av_frame_free(&_avframe);
+            zn_av_packet_free(&_avpacket);
             if (_ancillary)
                 _ancillary->Release();
             delete this;
@@ -149,7 +149,7 @@ public:
         if (frame->_avframe)
             av_frame_unref(frame->_avframe);
         if (frame->_avpacket)
-            av_packet_unref(frame->_avpacket);
+            zn_av_packet_unref(frame->_avpacket);
 
         pthread_mutex_lock(&ctx->mutex);
         ctx->frames_buffer_available_spots++;
@@ -393,7 +393,7 @@ av_cold int ff_decklink_write_trailer(AVFormatContext *avctx)
     ff_decklink_packet_queue_end(&ctx->vanc_queue);
 
     ff_ccfifo_uninit(&ctx->cc_fifo);
-    av_freep(&cctx->ctx);
+    zn_av_freep(&cctx->ctx);
 
     return 0;
 }
@@ -589,7 +589,7 @@ static int decklink_construct_vanc(AVFormatContext *avctx, struct decklink_ctx *
         ret = ff_decklink_packet_queue_get(&ctx->vanc_queue, &vanc_pkt, 1);
         if (vanc_pkt.pts + 1 < ctx->last_pts) {
             av_log(avctx, AV_LOG_WARNING, "VANC packet too old, throwing away\n");
-            av_packet_unref(&vanc_pkt);
+            zn_av_packet_unref(&vanc_pkt);
             continue;
         }
 
@@ -600,7 +600,7 @@ static int decklink_construct_vanc(AVFormatContext *avctx, struct decklink_ctx *
             klvanc_smpte2038_parse_pes_payload(vanc_pkt.data, vanc_pkt.size, &pkt_2038);
             if (pkt_2038 == NULL) {
                 av_log(avctx, AV_LOG_ERROR, "failed to decode SMPTE 2038 PES packet");
-                av_packet_unref(&vanc_pkt);
+                zn_av_packet_unref(&vanc_pkt);
                 continue;
             }
             for (int i = 0; i < pkt_2038->lineCount; i++) {
@@ -622,7 +622,7 @@ static int decklink_construct_vanc(AVFormatContext *avctx, struct decklink_ctx *
             }
             klvanc_smpte2038_anc_data_packet_free(pkt_2038);
         }
-        av_packet_unref(&vanc_pkt);
+        zn_av_packet_unref(&vanc_pkt);
     }
 
     IDeckLinkVideoFrameAncillary *vanc;
@@ -722,8 +722,8 @@ static int decklink_write_video_packet(AVFormatContext *avctx, AVPacket *pkt)
 
     if (!frame) {
         av_log(avctx, AV_LOG_ERROR, "Could not create new frame.\n");
-        av_frame_free(&avframe);
-        av_packet_free(&avpacket);
+        zn_av_frame_free(&avframe);
+        zn_av_packet_free(&avpacket);
         return AVERROR(EIO);
     }
 
@@ -808,7 +808,7 @@ static int decklink_write_audio_packet(AVFormatContext *avctx, AVPacket *pkt)
     }
 
     if (st->codecpar->codec_id == AV_CODEC_ID_AC3)
-        av_freep(&outbuf);
+        zn_av_freep(&outbuf);
 
     return ret;
 }

@@ -270,15 +270,15 @@ static int alloc_lut(LUT *Ty, chord_set *SE, int type_size, int mode)
     Ty->pre_pad_x = pre_pad_x;
     Ty->type_size = type_size;
 
-    Ty->base_arr = av_calloc(max + 1, sizeof(*Ty->base_arr));
+    Ty->base_arr = zn_av_calloc(max + 1, sizeof(*Ty->base_arr));
     if (!Ty->base_arr)
         return AVERROR(ENOMEM);
     for (int r = min; r <= max; r++) {
-        uint8_t **arr = Ty->base_arr[r] = av_calloc(Ty->I, sizeof(uint8_t *));
+        uint8_t **arr = Ty->base_arr[r] = zn_av_calloc(Ty->I, sizeof(uint8_t *));
         if (!Ty->base_arr[r])
             return AVERROR(ENOMEM);
         for (int i = 0; i < Ty->I; i++) {
-            arr[i] = av_calloc(Ty->X + pre_pad_x, type_size);
+            arr[i] = zn_av_calloc(Ty->X + pre_pad_x, type_size);
             if (!arr[i])
                 return AVERROR(ENOMEM);
             if (mode == ERODE)
@@ -310,11 +310,11 @@ static void free_lut(LUT *table)
             if (!table->base_arr[r][i])
                 break;
             // The X index was also shifted, for padding purposes.
-            av_free(table->base_arr[r][i] - table->pre_pad_x * table->type_size);
+            zn_av_free(table->base_arr[r][i] - table->pre_pad_x * table->type_size);
         }
-        av_freep(&table->base_arr[r]);
+        zn_av_freep(&table->base_arr[r]);
     }
-    av_freep(&table->base_arr);
+    zn_av_freep(&table->base_arr);
     table->arr = NULL;
 }
 
@@ -530,11 +530,11 @@ static int insert_chord_set(chord_set *chords, chord c)
 
 static void free_chord_set(chord_set *SE)
 {
-    av_freep(&SE->C);
+    zn_av_freep(&SE->C);
     SE->size = 0;
     SE->cap = 0;
 
-    av_freep(&SE->R);
+    zn_av_freep(&SE->R);
     SE->Lnum = 0;
 }
 
@@ -542,7 +542,7 @@ static int init_chordset(chord_set *chords)
 {
     chords->nb_elements = 0;
     chords->size = 0;
-    chords->C = av_calloc(1, sizeof(chord));
+    chords->C = zn_av_calloc(1, sizeof(chord));
     if (!chords->C)
         return AVERROR(ENOMEM);
 
@@ -651,7 +651,7 @@ static int build_chord_set(IPlane *SE, chord_set *chords)
      * length index i.
      */
     qsort(chords->C, chords->size, sizeof(chord), comp_chord_length);
-    chords->R = av_calloc(1, sizeof(*chords->R));
+    chords->R = zn_av_calloc(1, sizeof(*chords->R));
     if (!chords->R)
         return AVERROR(ENOMEM);
     chords->Lnum = 0;
@@ -719,14 +719,14 @@ static int build_chord_set(IPlane *SE, chord_set *chords)
 
 static void free_iplane(IPlane *imp)
 {
-    av_freep(&imp->img);
+    zn_av_freep(&imp->img);
 }
 
 static int read_iplane(IPlane *imp, const uint8_t *dst, int dst_linesize,
                        int w, int h, int R, int type_size, int depth)
 {
     if (!imp->img)
-        imp->img = av_calloc(h, sizeof(*imp->img));
+        imp->img = zn_av_calloc(h, sizeof(*imp->img));
     if (!imp->img)
         return AVERROR(ENOMEM);
 
@@ -924,7 +924,7 @@ static int do_morpho(FFFrameSync *fs)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -987,12 +987,12 @@ static int do_morpho(FFFrameSync *fs)
                                  FFMIN(MAX_THREADS, ff_filter_get_nb_threads(ctx))));
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     out->pts = av_rescale_q(s->fs.pts, s->fs.time_base, outlink->time_base);
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&out);
-    av_frame_free(&in);
+    zn_av_frame_free(&out);
+    zn_av_frame_free(&in);
     return ret;
 }
 
@@ -1021,8 +1021,8 @@ static int config_output(AVFilterLink *outlink)
     if (!s->temp)
         return AVERROR(ENOMEM);
 
-    s->plane_f = av_calloc(outlink->w * outlink->h, sizeof(*s->plane_f));
-    s->plane_g = av_calloc(outlink->w * outlink->h, sizeof(*s->plane_g));
+    s->plane_f = zn_av_calloc(outlink->w * outlink->h, sizeof(*s->plane_f));
+    s->plane_g = zn_av_calloc(outlink->w * outlink->h, sizeof(*s->plane_g));
     if (!s->plane_f || !s->plane_g)
         return AVERROR(ENOMEM);
 
@@ -1047,9 +1047,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     ff_framesync_uninit(&s->fs);
 
-    av_frame_free(&s->temp);
-    av_freep(&s->plane_f);
-    av_freep(&s->plane_g);
+    zn_av_frame_free(&s->temp);
+    zn_av_freep(&s->plane_f);
+    zn_av_freep(&s->plane_g);
 }
 
 static const AVFilterPad morpho_inputs[] = {

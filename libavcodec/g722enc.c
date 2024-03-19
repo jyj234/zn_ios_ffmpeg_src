@@ -51,9 +51,9 @@ static av_cold int g722_encode_close(AVCodecContext *avctx)
     G722Context *c = avctx->priv_data;
     int i;
     for (i = 0; i < 2; i++) {
-        av_freep(&c->paths[i]);
-        av_freep(&c->node_buf[i]);
-        av_freep(&c->nodep_buf[i]);
+        zn_av_freep(&c->paths[i]);
+        zn_av_freep(&c->node_buf[i]);
+        zn_av_freep(&c->nodep_buf[i]);
     }
     return 0;
 }
@@ -104,9 +104,9 @@ static av_cold int g722_encode_init(AVCodecContext * avctx)
             int max_paths = frontier * FREEZE_INTERVAL;
 
             for (int i = 0; i < 2; i++) {
-                c->paths[i]     = av_calloc(max_paths, sizeof(**c->paths));
-                c->node_buf[i]  = av_calloc(frontier, 2 * sizeof(**c->node_buf));
-                c->nodep_buf[i] = av_calloc(frontier, 2 * sizeof(**c->nodep_buf));
+                c->paths[i]     = zn_av_calloc(max_paths, sizeof(**c->paths));
+                c->node_buf[i]  = zn_av_calloc(frontier, 2 * sizeof(**c->node_buf));
+                c->nodep_buf[i] = zn_av_calloc(frontier, 2 * sizeof(**c->nodep_buf));
                 if (!c->paths[i] || !c->node_buf[i] || !c->nodep_buf[i])
                     return AVERROR(ENOMEM);
             }

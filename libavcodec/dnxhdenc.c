@@ -1323,27 +1323,27 @@ static av_cold int dnxhd_encode_end(AVCodecContext *avctx)
     DNXHDEncContext *ctx = avctx->priv_data;
     int i;
 
-    av_freep(&ctx->orig_vlc_codes);
-    av_freep(&ctx->orig_vlc_bits);
-    av_freep(&ctx->run_codes);
-    av_freep(&ctx->run_bits);
+    zn_av_freep(&ctx->orig_vlc_codes);
+    zn_av_freep(&ctx->orig_vlc_bits);
+    zn_av_freep(&ctx->run_codes);
+    zn_av_freep(&ctx->run_bits);
 
-    av_freep(&ctx->mb_bits);
-    av_freep(&ctx->mb_qscale);
-    av_freep(&ctx->mb_rc);
-    av_freep(&ctx->mb_cmp);
-    av_freep(&ctx->mb_cmp_tmp);
-    av_freep(&ctx->slice_size);
-    av_freep(&ctx->slice_offs);
+    zn_av_freep(&ctx->mb_bits);
+    zn_av_freep(&ctx->mb_qscale);
+    zn_av_freep(&ctx->mb_rc);
+    zn_av_freep(&ctx->mb_cmp);
+    zn_av_freep(&ctx->mb_cmp_tmp);
+    zn_av_freep(&ctx->slice_size);
+    zn_av_freep(&ctx->slice_offs);
 
-    av_freep(&ctx->qmatrix_c);
-    av_freep(&ctx->qmatrix_l);
-    av_freep(&ctx->qmatrix_c16);
-    av_freep(&ctx->qmatrix_l16);
+    zn_av_freep(&ctx->qmatrix_c);
+    zn_av_freep(&ctx->qmatrix_l);
+    zn_av_freep(&ctx->qmatrix_c16);
+    zn_av_freep(&ctx->qmatrix_l16);
 
     if (ctx->thread[1]) {
         for (i = 1; i < avctx->thread_count; i++)
-            av_freep(&ctx->thread[i]);
+            zn_av_freep(&ctx->thread[i]);
     }
 
     return 0;

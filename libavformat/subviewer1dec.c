@@ -45,7 +45,7 @@ static int subviewer1_read_header(AVFormatContext *s)
     int delay = 0;
     AVPacket *sub = NULL;
     SubViewer1Context *subviewer1 = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

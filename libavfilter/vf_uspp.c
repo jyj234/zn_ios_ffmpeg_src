@@ -206,7 +206,7 @@ static int filter_1phase(AVFilterContext *ctx, void *arg, int i, int nb_jobs)
     int offset;
     AVPacket *pkt = p->pkt[i];
 
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     pkt->data = p->outbuf;
     pkt->size = p->outbuf_size;
 
@@ -221,32 +221,32 @@ static int filter_1phase(AVFilterContext *ctx, void *arg, int i, int nb_jobs)
     p->frame[i]->format  = p->avctx_enc[i]->pix_fmt;
     p->frame[i]->quality = p->quality;
 
-    ret = avcodec_send_frame(p->avctx_enc[i], p->frame[i]);
+    ret = zn_avcodec_send_frame(p->avctx_enc[i], p->frame[i]);
     if (ret < 0) {
         av_log(p->avctx_enc[i], AV_LOG_ERROR, "Error sending a frame for encoding\n");
         return ret;
     }
-    ret = avcodec_receive_packet(p->avctx_enc[i], pkt);
+    ret = zn_avcodec_receive_packet(p->avctx_enc[i], pkt);
     if (ret < 0) {
         av_log(p->avctx_enc[i], AV_LOG_ERROR, "Error receiving a packet from encoding\n");
         return ret;
     }
 
     if (p->avctx_enc[i]->flags & AV_CODEC_FLAG_RECON_FRAME) {
-        av_packet_unref(pkt);
-        ret = avcodec_receive_frame(p->avctx_enc[i], p->frame_dec[i]);
+        zn_av_packet_unref(pkt);
+        ret = zn_avcodec_receive_frame(p->avctx_enc[i], p->frame_dec[i]);
         if (ret < 0) {
             av_log(p->avctx_dec[i], AV_LOG_ERROR, "Error receiving a frame from encoding\n");
             return ret;
         }
     } else {
-        ret = avcodec_send_packet(p->avctx_dec[i], pkt);
-        av_packet_unref(pkt);
+        ret = zn_avcodec_send_packet(p->avctx_dec[i], pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0) {
             av_log(p->avctx_dec[i], AV_LOG_ERROR, "Error sending a packet for decoding\n");
             return ret;
         }
-        ret = avcodec_receive_frame(p->avctx_dec[i], p->frame_dec[i]);
+        ret = zn_avcodec_receive_frame(p->avctx_dec[i], p->frame_dec[i]);
         if (ret < 0) {
             av_log(p->avctx_dec[i], AV_LOG_ERROR, "Error receiving a frame from decoding\n");
             return ret;
@@ -380,9 +380,9 @@ static int config_input(AVFilterLink *inlink)
         }
 
         uspp->temp_stride[i] = w;
-        if (!(uspp->temp[i] = av_malloc_array(uspp->temp_stride[i], h * sizeof(int16_t))))
+        if (!(uspp->temp[i] = zn_av_malloc_array(uspp->temp_stride[i], h * sizeof(int16_t))))
             return AVERROR(ENOMEM);
-        if (!(uspp->src [i] = av_malloc_array(uspp->temp_stride[i], h * sizeof(uint8_t))))
+        if (!(uspp->src [i] = zn_av_malloc_array(uspp->temp_stride[i], h * sizeof(uint8_t))))
             return AVERROR(ENOMEM);
     }
 
@@ -391,7 +391,7 @@ static int config_input(AVFilterLink *inlink)
         AVDictionary *opts = NULL;
         int ret;
 
-        if (!(uspp->avctx_enc[i] = avcodec_alloc_context3(NULL)))
+        if (!(uspp->avctx_enc[i] = zn_avcodec_alloc_context3(NULL)))
             return AVERROR(ENOMEM);
 
         avctx_enc = uspp->avctx_enc[i];
@@ -409,7 +409,7 @@ static int config_input(AVFilterLink *inlink)
         avctx_enc->strict_std_compliance = FF_COMPLIANCE_EXPERIMENTAL;
         avctx_enc->global_quality = 123;
         avctx_enc->thread_count = 1; // We do threading in the filter with muiltiple codecs
-        ret = avcodec_open2(avctx_enc, enc, &opts);
+        ret = zn_avcodec_open2(avctx_enc, enc, &opts);
         av_dict_free(&opts);
         if (ret < 0)
             return ret;
@@ -417,22 +417,22 @@ static int config_input(AVFilterLink *inlink)
 
 
         if (!(enc->capabilities & AV_CODEC_CAP_ENCODER_RECON_FRAME)) {
-            if (!(uspp->avctx_dec[i] = avcodec_alloc_context3(NULL)))
+            if (!(uspp->avctx_dec[i] = zn_avcodec_alloc_context3(NULL)))
                 return AVERROR(ENOMEM);
             avctx_dec = uspp->avctx_dec[i];
             avctx_dec->width  = avctx_enc->width;
             avctx_dec->height = avctx_enc->height;
             avctx_dec->thread_count = 1;
-            ret = avcodec_open2(avctx_dec, dec, NULL);
+            ret = zn_avcodec_open2(avctx_dec, dec, NULL);
             if (ret < 0)
                 return ret;
         }
 
-        if (!(uspp->frame[i] = av_frame_alloc()))
+        if (!(uspp->frame[i] = zn_av_frame_alloc()))
             return AVERROR(ENOMEM);
-        if (!(uspp->frame_dec[i] = av_frame_alloc()))
+        if (!(uspp->frame_dec[i] = zn_av_frame_alloc()))
             return AVERROR(ENOMEM);
-        if (!(uspp->pkt[i] = av_packet_alloc()))
+        if (!(uspp->pkt[i] = zn_av_packet_alloc()))
             return AVERROR(ENOMEM);
     }
 
@@ -461,12 +461,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     if (!uspp->qp && (uspp->use_bframe_qp || in->pict_type != AV_PICTURE_TYPE_B)) {
         ret = ff_qp_table_extract(in, &qp_table, &qp_stride, NULL, &uspp->qscale_type);
         if (ret < 0) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return ret;
         }
 
         if (!uspp->use_bframe_qp && in->pict_type != AV_PICTURE_TYPE_B) {
-            av_freep(&uspp->non_b_qp_table);
+            zn_av_freep(&uspp->non_b_qp_table);
             uspp->non_b_qp_table  = qp_table;
             uspp->non_b_qp_stride = qp_stride;
         }
@@ -488,9 +488,9 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
                 out = ff_get_video_buffer(outlink, aligned_w, aligned_h);
                 if (!out) {
-                    av_frame_free(&in);
+                    zn_av_frame_free(&in);
                     if (qp_table != uspp->non_b_qp_table)
-                        av_free(qp_table);
+                        zn_av_free(qp_table);
                     return AVERROR(ENOMEM);
                 }
                 av_frame_copy_props(out, in);
@@ -508,11 +508,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
             av_image_copy_plane(out->data[3], out->linesize[3],
                                 in ->data[3], in ->linesize[3],
                                 inlink->w, inlink->h);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     }
     ret = ff_filter_frame(outlink, out);
     if (qp_table != uspp->non_b_qp_table)
-        av_freep(&qp_table);
+        zn_av_freep(&qp_table);
     return ret;
 }
 
@@ -522,20 +522,20 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < 3; i++) {
-        av_freep(&uspp->temp[i]);
-        av_freep(&uspp->src[i]);
+        zn_av_freep(&uspp->temp[i]);
+        zn_av_freep(&uspp->src[i]);
     }
 
     for (i = 0; i < uspp->count; i++) {
         avcodec_free_context(&uspp->avctx_enc[i]);
         avcodec_free_context(&uspp->avctx_dec[i]);
-        av_frame_free(&uspp->frame[i]);
-        av_frame_free(&uspp->frame_dec[i]);
-        av_packet_free(&uspp->pkt[i]);
+        zn_av_frame_free(&uspp->frame[i]);
+        zn_av_frame_free(&uspp->frame_dec[i]);
+        zn_av_packet_free(&uspp->pkt[i]);
     }
 
-    av_freep(&uspp->non_b_qp_table);
-    av_freep(&uspp->outbuf);
+    zn_av_freep(&uspp->non_b_qp_table);
+    zn_av_freep(&uspp->outbuf);
 }
 
 static const AVFilterPad uspp_inputs[] = {

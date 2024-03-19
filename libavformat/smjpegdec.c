@@ -72,7 +72,7 @@ static int smjpeg_read_header(AVFormatContext *s)
             if (!comment)
                 return AVERROR(ENOMEM);
             if (avio_read(pb, comment, hlength) != hlength) {
-                av_freep(&comment);
+                zn_av_freep(&comment);
                 av_log(s, AV_LOG_ERROR, "error when reading comment\n");
                 return AVERROR_INVALIDDATA;
             }
@@ -88,7 +88,7 @@ static int smjpeg_read_header(AVFormatContext *s)
             hlength = avio_rb32(pb);
             if (hlength < 8)
                 return AVERROR_INVALIDDATA;
-            ast = avformat_new_stream(s, 0);
+            ast = zn_avformat_new_stream(s, 0);
             if (!ast)
                 return AVERROR(ENOMEM);
             ast->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;
@@ -111,7 +111,7 @@ static int smjpeg_read_header(AVFormatContext *s)
             hlength = avio_rb32(pb);
             if (hlength < 12)
                 return AVERROR_INVALIDDATA;
-            vst = avformat_new_stream(s, 0);
+            vst = zn_avformat_new_stream(s, 0);
             if (!vst)
                 return AVERROR(ENOMEM);
             vst->nb_frames            = avio_rb32(pb);

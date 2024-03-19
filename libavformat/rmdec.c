@@ -116,7 +116,7 @@ void ff_rm_free_rmstream (RMStream *rms)
     if (!rms)
         return;
 
-    av_packet_unref(&rms->pkt);
+    zn_av_packet_unref(&rms->pkt);
 }
 
 static int rm_read_audio_stream_info(AVFormatContext *s, AVIOContext *pb,
@@ -206,7 +206,7 @@ static int rm_read_audio_stream_info(AVFormatContext *s, AVIOContext *pb,
             break;
         case AV_CODEC_ID_RA_288:
             st->codecpar->extradata_size= 0;
-            av_freep(&st->codecpar->extradata);
+            zn_av_freep(&st->codecpar->extradata);
             ast->audio_framesize = st->codecpar->block_align;
             st->codecpar->block_align = coded_framesize;
             break;
@@ -489,7 +489,7 @@ static int rm_read_header_old(AVFormatContext *s)
     AVStream *st;
 
     rm->old_format = 1;
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return -1;
     st->priv_data = ff_rm_alloc_rmstream();
@@ -514,7 +514,7 @@ static int rm_read_multi(AVFormatContext *s, AVIOContext *pb,
     for (i = 0; i < number_of_mdpr; i++) {
         AVStream *st2;
         if (i > 0) {
-            st2 = avformat_new_stream(s, NULL);
+            st2 = zn_avformat_new_stream(s, NULL);
             if (!st2) {
                 ret = AVERROR(ENOMEM);
                 return ret;
@@ -597,7 +597,7 @@ static int rm_read_header(AVFormatContext *s)
             rm_read_metadata(s, pb, 1);
             break;
         case MKTAG('M', 'D', 'P', 'R'):
-            st = avformat_new_stream(s, NULL);
+            st = zn_avformat_new_stream(s, NULL);
             if (!st)
                 return AVERROR(ENOMEM);
             st->id = avio_rb16(pb);
@@ -798,7 +798,7 @@ static int rm_assemble_video_frame(AVFormatContext *s, AVIOContext *pb,
         AV_WL32(pkt->data + 1, 1);
         AV_WL32(pkt->data + 5, 0);
         if ((ret = avio_read(pb, pkt->data + 9, len)) != len) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             av_log(s, AV_LOG_ERROR, "Failed to read %d bytes\n", len);
             return ret < 0 ? ret : AVERROR(EIO);
         }
@@ -814,7 +814,7 @@ static int rm_assemble_video_frame(AVFormatContext *s, AVIOContext *pb,
         }
         vst->slices = ((hdr & 0x3F) << 1) + 1;
         vst->videobufsize = len2 + 8*vst->slices + 1;
-        av_packet_unref(&vst->pkt); //FIXME this should be output.
+        zn_av_packet_unref(&vst->pkt); //FIXME this should be output.
         if ((ret = av_new_packet(&vst->pkt, vst->videobufsize)) < 0)
             return ret;
         vst->videobufpos = 8*vst->slices + 1;
@@ -1056,7 +1056,7 @@ static int rm_read_packet(AVFormatContext *s, AVPacket *pkt)
 
         if(  (st->discard >= AVDISCARD_NONKEY && !(flags&2))
            || st->discard >= AVDISCARD_ALL){
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
         } else
             break;
     }
@@ -1250,7 +1250,7 @@ static int ivr_read_header(AVFormatContext *s)
     }
 
     for (n = 0; n < nb_streams; n++) {
-        if (!(st = avformat_new_stream(s, NULL)) ||
+        if (!(st = zn_avformat_new_stream(s, NULL)) ||
             !(st->priv_data = ff_rm_alloc_rmstream()))
             return AVERROR(ENOMEM);
 

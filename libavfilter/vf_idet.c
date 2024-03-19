@@ -270,7 +270,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         return ff_filter_frame(ctx->outputs[0], picref);
     }
 
-    av_frame_free(&idet->prev);
+    zn_av_frame_free(&idet->prev);
 
     if(   picref->width  != link->w
        || picref->height != link->h
@@ -279,8 +279,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
         link->dst->inputs[0]->w      = picref->width;
         link->dst->inputs[0]->h      = picref->height;
 
-        av_frame_free(&idet->cur );
-        av_frame_free(&idet->next);
+        zn_av_frame_free(&idet->cur );
+        zn_av_frame_free(&idet->next);
     }
 
     idet->prev = idet->cur;
@@ -388,9 +388,9 @@ static av_cold void uninit(AVFilterContext *ctx)
            idet->total_poststat[UNDETERMINED]
         );
 
-    av_frame_free(&idet->prev);
-    av_frame_free(&idet->cur );
-    av_frame_free(&idet->next);
+    zn_av_frame_free(&idet->prev);
+    zn_av_frame_free(&idet->cur );
+    zn_av_frame_free(&idet->next);
 }
 
 static const enum AVPixelFormat pix_fmts[] = {

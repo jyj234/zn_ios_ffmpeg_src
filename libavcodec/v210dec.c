@@ -203,7 +203,7 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *pic,
         decode_row((const uint32_t *)psrc, (uint16_t *)pointers[0], (uint16_t *)pointers[1], (uint16_t *)pointers[2], avctx->width * avctx->height, s->unpack_frame);
         av_image_copy2(pic->data, pic->linesize, pointers, linesizes,
                        avctx->pix_fmt, avctx->width, avctx->height);
-        av_freep(&pointers[0]);
+        zn_av_freep(&pointers[0]);
     }
 
     if (avctx->field_order > AV_FIELD_PROGRESSIVE) {

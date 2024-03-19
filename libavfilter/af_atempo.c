@@ -214,7 +214,7 @@ static void yae_clear(ATempoContext *atempo)
     atempo->frag[0].position[0] = -(int64_t)(atempo->window / 2);
     atempo->frag[0].position[1] = -(int64_t)(atempo->window / 2);
 
-    av_frame_free(&atempo->dst_buffer);
+    zn_av_frame_free(&atempo->dst_buffer);
     atempo->dst     = NULL;
     atempo->dst_end = NULL;
 
@@ -229,17 +229,17 @@ static void yae_release_buffers(ATempoContext *atempo)
 {
     yae_clear(atempo);
 
-    av_freep(&atempo->frag[0].data);
-    av_freep(&atempo->frag[1].data);
-    av_freep(&atempo->frag[0].xdat_in);
-    av_freep(&atempo->frag[1].xdat_in);
-    av_freep(&atempo->frag[0].xdat);
-    av_freep(&atempo->frag[1].xdat);
+    zn_av_freep(&atempo->frag[0].data);
+    zn_av_freep(&atempo->frag[1].data);
+    zn_av_freep(&atempo->frag[0].xdat_in);
+    zn_av_freep(&atempo->frag[1].xdat_in);
+    zn_av_freep(&atempo->frag[0].xdat);
+    zn_av_freep(&atempo->frag[1].xdat);
 
-    av_freep(&atempo->buffer);
-    av_freep(&atempo->hann);
-    av_freep(&atempo->correlation_in);
-    av_freep(&atempo->correlation);
+    zn_av_freep(&atempo->buffer);
+    zn_av_freep(&atempo->hann);
+    zn_av_freep(&atempo->correlation_in);
+    zn_av_freep(&atempo->correlation);
 
     av_tx_uninit(&atempo->real_to_complex);
     av_tx_uninit(&atempo->complex_to_real);
@@ -249,8 +249,8 @@ static void yae_release_buffers(ATempoContext *atempo)
  * be preserved */
 #define RE_MALLOC_OR_FAIL(field, field_size, element_size)      \
     do {                                                        \
-        av_freep(&field);                                       \
-        field = av_calloc(field_size, element_size);            \
+        zn_av_freep(&field);                                       \
+        field = zn_av_calloc(field_size, element_size);            \
         if (!field) {                                           \
             yae_release_buffers(atempo);                        \
             return AVERROR(ENOMEM);                             \
@@ -1069,7 +1069,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *src_buffer)
         if (!atempo->dst_buffer) {
             atempo->dst_buffer = ff_get_audio_buffer(outlink, n_out);
             if (!atempo->dst_buffer) {
-                av_frame_free(&src_buffer);
+                zn_av_frame_free(&src_buffer);
                 return AVERROR(ENOMEM);
             }
             av_frame_copy_props(atempo->dst_buffer, src_buffer);
@@ -1091,7 +1091,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *src_buffer)
 
     atempo->nsamples_in += n_in;
 end:
-    av_frame_free(&src_buffer);
+    zn_av_frame_free(&src_buffer);
     return ret;
 }
 
@@ -1131,7 +1131,7 @@ static int request_frame(AVFilterLink *outlink)
             }
         }
 
-        av_frame_free(&atempo->dst_buffer);
+        zn_av_frame_free(&atempo->dst_buffer);
         atempo->dst     = NULL;
         atempo->dst_end = NULL;
 

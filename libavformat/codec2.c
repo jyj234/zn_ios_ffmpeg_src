@@ -150,7 +150,7 @@ static int codec2_read_header_common(AVFormatContext *s, AVStream *st)
 
 static int codec2_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     int ret, version;
 
     if (!st) {
@@ -246,7 +246,7 @@ static int codec2raw_read_header(AVFormatContext *s)
         return AVERROR(EINVAL);
     }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st) {
         return AVERROR(ENOMEM);
     }

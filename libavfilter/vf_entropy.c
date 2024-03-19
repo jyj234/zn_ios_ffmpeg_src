@@ -90,7 +90,7 @@ static int config_input(AVFilterLink *inlink)
     s->planenames[2] = s->is_rgb ? 'B' : 'V';
     s->planenames[3] = 'A';
 
-    s->histogram = av_malloc_array(1 << s->depth, sizeof(*s->histogram));
+    s->histogram = zn_av_malloc_array(1 << s->depth, sizeof(*s->histogram));
     if (!s->histogram)
         return AVERROR(ENOMEM);
 
@@ -162,7 +162,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     EntropyContext *s = ctx->priv;
 
-    av_freep(&s->histogram);
+    zn_av_freep(&s->histogram);
 }
 
 static const AVFilterPad inputs[] = {

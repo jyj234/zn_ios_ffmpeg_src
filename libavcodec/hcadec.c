@@ -603,7 +603,7 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     HCAContext *c = avctx->priv_data;
 
-    av_freep(&c->fdsp);
+    zn_av_freep(&c->fdsp);
     av_tx_uninit(&c->tx_ctx);
 
     return 0;

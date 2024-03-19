@@ -159,8 +159,8 @@ static int activate(AVFilterContext *ctx)
         for (int i = 0; i < 2; i++) {
             ret = ff_inlink_consume_samples(ctx->inputs[i], available, available, &s->cache[i]);
             if (ret < 0) {
-                av_frame_free(&s->cache[0]);
-                av_frame_free(&s->cache[1]);
+                zn_av_frame_free(&s->cache[0]);
+                zn_av_frame_free(&s->cache[1]);
                 return ret;
             }
         }
@@ -169,7 +169,7 @@ static int activate(AVFilterContext *ctx)
             ff_filter_execute(ctx, s->filter, NULL, NULL,
                               FFMIN(outlink->ch_layout.nb_channels, ff_filter_get_nb_threads(ctx)));
 
-        av_frame_free(&s->cache[1]);
+        zn_av_frame_free(&s->cache[1]);
         out = s->cache[0];
         s->cache[0] = NULL;
 
@@ -212,7 +212,7 @@ static int config_output(AVFilterLink *outlink)
         s->filter = inlink->format == AV_SAMPLE_FMT_FLTP ? psnr_fltp : psnr_dblp;
     s->max = inlink->format == AV_SAMPLE_FMT_FLTP ? FLT_MAX : DBL_MAX;
 
-    s->chs  = av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->chs));
+    s->chs  = zn_av_calloc(outlink->ch_layout.nb_channels, sizeof(*s->chs));
     if (!s->chs)
         return AVERROR(ENOMEM);
 
@@ -241,10 +241,10 @@ static av_cold void uninit(AVFilterContext *ctx)
         }
     }
 
-    av_frame_free(&s->cache[0]);
-    av_frame_free(&s->cache[1]);
+    zn_av_frame_free(&s->cache[0]);
+    zn_av_frame_free(&s->cache[1]);
 
-    av_freep(&s->chs);
+    zn_av_freep(&s->chs);
 }
 
 static const AVFilterPad inputs[] = {

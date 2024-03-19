@@ -91,7 +91,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, channels);
 
     s->version_b = avctx->extradata_size >= 4 && avctx->extradata[3] == 'b';
 
@@ -341,7 +341,7 @@ again:
     get_bits_align32(gb);
     if (!get_bits_left(gb)) {
         memset(gb, 0, sizeof(*gb));
-        av_packet_unref(s->pkt);
+        zn_av_packet_unref(s->pkt);
     }
     if (s->ch_offset >= s->channels) {
         s->ch_offset = 0;
@@ -354,7 +354,7 @@ again:
     return 0;
 fail:
     s->ch_offset = 0;
-    av_packet_unref(s->pkt);
+    zn_av_packet_unref(s->pkt);
     return ret;
 }
 

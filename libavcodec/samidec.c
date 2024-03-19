@@ -128,7 +128,7 @@ static int sami_paragraph_to_ass(AVCodecContext *avctx, const char *src)
     av_bprintf(&sami->full, "%s", sami->encoded_content.str);
 
 end:
-    av_free(dupsrc);
+    zn_av_free(dupsrc);
     return ret;
 }
 

@@ -88,7 +88,7 @@ static int adx_read_header(AVFormatContext *s)
     int ret;
     int channels;
 
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     par = s->streams[0]->codecpar;

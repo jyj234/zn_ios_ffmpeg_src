@@ -72,7 +72,7 @@ static av_cold int write_header(AVFormatContext *s1)
 
     if (ioctl(s->fd, VIDIOC_G_FMT, &fmt) < 0) {
         res = AVERROR(errno);
-        av_log(s1, AV_LOG_ERROR, "ioctl(VIDIOC_G_FMT): %s\n", av_err2str(res));
+        av_log(s1, AV_LOG_ERROR, "ioctl(VIDIOC_G_FMT): %s\n", zn_av_err2str(res));
         return res;
     }
 
@@ -83,7 +83,7 @@ static av_cold int write_header(AVFormatContext *s1)
 
     if (ioctl(s->fd, VIDIOC_S_FMT, &fmt) < 0) {
         res = AVERROR(errno);
-        av_log(s1, AV_LOG_ERROR, "ioctl(VIDIOC_S_FMT): %s\n", av_err2str(res));
+        av_log(s1, AV_LOG_ERROR, "ioctl(VIDIOC_S_FMT): %s\n", zn_av_err2str(res));
         return res;
     }
 

@@ -277,7 +277,7 @@ static av_cold int pcm_decode_init(AVCodecContext *avctx)
         if (!fdsp)
             return AVERROR(ENOMEM);
         s->vector_fmul_scalar = fdsp->vector_fmul_scalar;
-        av_free(fdsp);
+        zn_av_free(fdsp);
         break;
     default:
         break;

@@ -1059,7 +1059,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
 
-    c->buffer = av_calloc(avctx->width + 8, c->pro?2:1);
+    c->buffer = zn_av_calloc(avctx->width + 8, c->pro?2:1);
     if (!c->buffer)
         return AVERROR(ENOMEM);
 
@@ -1070,8 +1070,8 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     UtvideoContext * const c = avctx->priv_data;
 
-    av_freep(&c->slice_bits);
-    av_freep(&c->buffer);
+    zn_av_freep(&c->slice_bits);
+    zn_av_freep(&c->buffer);
 
     return 0;
 }

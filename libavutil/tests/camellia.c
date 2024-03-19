@@ -74,6 +74,6 @@ int main(int argc, char *argv[])
             err = 1;
         }
     }
-    av_free(cs);
+    zn_av_free(cs);
     return err;
 }

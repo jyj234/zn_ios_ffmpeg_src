@@ -58,12 +58,12 @@ static int bfi_read_header(AVFormatContext * s)
     int ret, fps, chunk_header;
 
     /* Initialize the video codec... */
-    vstream = avformat_new_stream(s, NULL);
+    vstream = zn_avformat_new_stream(s, NULL);
     if (!vstream)
         return AVERROR(ENOMEM);
 
     /* Initialize the audio codec... */
-    astream = avformat_new_stream(s, NULL);
+    astream = zn_avformat_new_stream(s, NULL);
     if (!astream)
         return AVERROR(ENOMEM);
 

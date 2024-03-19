@@ -56,21 +56,21 @@ static int initialize_fifo_tst_muxer_chain(AVFormatContext **oc, AVPacket **pkt)
     int ret = 0;
     AVStream *s;
 
-    ret = avformat_alloc_output_context2(oc, NULL, "fifo", "-");
+    ret = zn_avformat_alloc_output_context2(oc, NULL, "fifo", "-");
     if (ret) {
         fprintf(stderr, "Failed to create format context: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         return EXIT_FAILURE;
     }
 
-    s = avformat_new_stream(*oc, NULL);
+    s = zn_avformat_new_stream(*oc, NULL);
     if (!s) {
         fprintf(stderr, "Failed to create stream: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         return AVERROR(ENOMEM);
     }
 
-    *pkt = av_packet_alloc();
+    *pkt = zn_av_packet_alloc();
     if (!*pkt)
         return AVERROR(ENOMEM);
 
@@ -82,10 +82,10 @@ static int fifo_basic_test(AVFormatContext *oc, AVDictionary **opts,
 {
     int ret = 0, i;
 
-    ret = avformat_write_header(oc, opts);
+    ret = zn_avformat_write_header(oc, opts);
     if (ret) {
         fprintf(stderr, "Unexpected write_header failure: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         goto fail;
     }
 
@@ -93,14 +93,14 @@ static int fifo_basic_test(AVFormatContext *oc, AVDictionary **opts,
         ret = prepare_packet(pkt, pkt_data, i);
         if (ret < 0) {
             fprintf(stderr, "Failed to prepare test packet: %s\n",
-                    av_err2str(ret));
+                    zn_av_err2str(ret));
             goto write_trailer_and_fail;
         }
         ret = av_write_frame(oc, pkt);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0) {
             fprintf(stderr, "Unexpected write_frame error: %s\n",
-                    av_err2str(ret));
+                    zn_av_err2str(ret));
             goto write_trailer_and_fail;
         }
     }
@@ -108,20 +108,20 @@ static int fifo_basic_test(AVFormatContext *oc, AVDictionary **opts,
     ret = av_write_frame(oc, NULL);
     if (ret < 0) {
         fprintf(stderr, "Unexpected write_frame error during flushing: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         goto write_trailer_and_fail;
     }
 
-    ret = av_write_trailer(oc);
+    ret = zn_av_write_trailer(oc);
     if (ret < 0) {
         fprintf(stderr, "Unexpected write_trailer error during flushing: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         goto fail;
     }
 
     return ret;
 write_trailer_and_fail:
-    av_write_trailer(oc);
+    zn_av_write_trailer(oc);
 fail:
     return ret;
 }
@@ -132,10 +132,10 @@ static int fifo_overflow_drop_test(AVFormatContext *oc, AVDictionary **opts,
     int ret = 0, i;
     int64_t write_pkt_start, write_pkt_end, duration;
 
-    ret = avformat_write_header(oc, opts);
+    ret = zn_avformat_write_header(oc, opts);
     if (ret) {
         fprintf(stderr, "Unexpected write_header failure: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         return ret;
     }
 
@@ -144,11 +144,11 @@ static int fifo_overflow_drop_test(AVFormatContext *oc, AVDictionary **opts,
         ret = prepare_packet(pkt, data, i);
         if (ret < 0) {
             fprintf(stderr, "Failed to prepare test packet: %s\n",
-                    av_err2str(ret));
+                    zn_av_err2str(ret));
             goto fail;
         }
         ret = av_write_frame(oc, pkt);
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         if (ret < 0) {
             break;
         }
@@ -164,17 +164,17 @@ static int fifo_overflow_drop_test(AVFormatContext *oc, AVDictionary **opts,
     }
 
     if (ret) {
-        fprintf(stderr, "Unexpected write_packet error: %s\n", av_err2str(ret));
+        fprintf(stderr, "Unexpected write_packet error: %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
-    ret = av_write_trailer(oc);
+    ret = zn_av_write_trailer(oc);
     if (ret < 0)
-        fprintf(stderr, "Unexpected write_trailer error: %s\n", av_err2str(ret));
+        fprintf(stderr, "Unexpected write_trailer error: %s\n", zn_av_err2str(ret));
 
     return ret;
 fail:
-    av_write_trailer(oc);
+    zn_av_write_trailer(oc);
     return ret;
 }
 
@@ -204,14 +204,14 @@ static int run_test(const TestCase *test)
 
     ret = initialize_fifo_tst_muxer_chain(&oc, &pkt);
     if (ret < 0) {
-        fprintf(stderr, "Muxer initialization failed: %s\n", av_err2str(ret));
+        fprintf(stderr, "Muxer initialization failed: %s\n", zn_av_err2str(ret));
         goto end;
     }
 
     if (test->options) {
         ret = av_dict_parse_string(&opts, test->options, "=", ":", 0);
         if (ret < 0) {
-            fprintf(stderr, "Failed to parse options: %s\n", av_err2str(ret));
+            fprintf(stderr, "Failed to parse options: %s\n", zn_av_err2str(ret));
             goto end;
         }
     }
@@ -224,7 +224,7 @@ static int run_test(const TestCase *test)
     ret1 = av_dict_set(&opts, "fifo_format", "fifo_test", 0);
     if (ret < 0 || ret1 < 0) {
         fprintf(stderr, "Failed to set options for test muxer: %s\n",
-                av_err2str(ret));
+                zn_av_err2str(ret));
         goto end;
     }
 
@@ -232,8 +232,8 @@ static int run_test(const TestCase *test)
 
 end:
     printf("%s: %s\n", test->test_name, ret < 0 ? "fail" : "ok");
-    avformat_free_context(oc);
-    av_packet_free(&pkt);
+    zn_avformat_free_context(oc);
+    zn_av_packet_free(&pkt);
     av_dict_free(&opts);
     return ret;
 }

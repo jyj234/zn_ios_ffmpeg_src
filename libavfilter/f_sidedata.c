@@ -117,7 +117,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         av_assert0(0);
     };
 
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
 
     return 0;
 }

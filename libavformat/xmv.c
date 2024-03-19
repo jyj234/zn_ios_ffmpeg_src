@@ -136,7 +136,7 @@ static int xmv_read_close(AVFormatContext *s)
 {
     XMVDemuxContext *xmv = s->priv_data;
 
-    av_freep(&xmv->audio);
+    zn_av_freep(&xmv->audio);
 
     return 0;
 }
@@ -175,7 +175,7 @@ static int xmv_read_header(AVFormatContext *s)
 
     avio_skip(pb, 2); /* Unknown (padding?) */
 
-    xmv->audio = av_calloc(xmv->audio_track_count, sizeof(*xmv->audio));
+    xmv->audio = zn_av_calloc(xmv->audio_track_count, sizeof(*xmv->audio));
     if (!xmv->audio)
         return AVERROR(ENOMEM);
 
@@ -280,7 +280,7 @@ static int xmv_process_packet_header(AVFormatContext *s)
     xmv->video.has_extradata = (data[3] & 0x80) != 0;
 
     if (!xmv->video.created) {
-        AVStream *vst = avformat_new_stream(s, NULL);
+        AVStream *vst = zn_avformat_new_stream(s, NULL);
         if (!vst)
             return AVERROR(ENOMEM);
 
@@ -325,7 +325,7 @@ static int xmv_process_packet_header(AVFormatContext *s)
             return AVERROR(EIO);
 
         if (!packet->created) {
-            AVStream *ast = avformat_new_stream(s, NULL);
+            AVStream *ast = zn_avformat_new_stream(s, NULL);
             if (!ast)
                 return AVERROR(ENOMEM);
 

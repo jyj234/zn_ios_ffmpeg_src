@@ -332,7 +332,7 @@ static int config_input(AVFilterLink *inlink)
         s->calc_avgy = calc_avgy16;
     }
 
-    s->histogram = av_calloc(1 << s->depth, sizeof(*s->histogram));
+    s->histogram = zn_av_calloc(1 << s->depth, sizeof(*s->histogram));
     if (!s->histogram)
         return AVERROR(ENOMEM);
 
@@ -370,7 +370,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&buf);
+        zn_av_frame_free(&buf);
         return AVERROR(ENOMEM);
     }
 
@@ -400,7 +400,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *buf)
     }
 
     in = ff_bufqueue_get(&s->q);
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     memmove(&s->luminance[0], &s->luminance[1], sizeof(*s->luminance) * (s->size - 1));
     s->luminance[s->available - 1] = s->calc_avgy(ctx, buf);
     ff_bufqueue_add(ctx, &s->q, buf);
@@ -436,7 +436,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     DeflickerContext *s = ctx->priv;
 
     ff_bufqueue_discard_all(&s->q);
-    av_freep(&s->histogram);
+    zn_av_freep(&s->histogram);
 }
 
 static const AVFilterPad inputs[] = {

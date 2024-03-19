@@ -57,7 +57,7 @@ static int aea_read_probe(const AVProbeData *p)
 
 static int aea_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     int channels;
     if (!st)
         return AVERROR(ENOMEM);
@@ -78,7 +78,7 @@ static int aea_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     }
 
-    av_channel_layout_default(&st->codecpar->ch_layout, channels);
+    zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
 
     st->codecpar->block_align = AT1_SU_SIZE * st->codecpar->ch_layout.nb_channels;
     return 0;

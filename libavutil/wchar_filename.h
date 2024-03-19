@@ -36,7 +36,7 @@ static inline int utf8towchar(const char *filename_utf8, wchar_t **filename_w)
         errno = EINVAL;
         return -1;
     }
-    *filename_w = (wchar_t *)av_calloc(num_chars, sizeof(wchar_t));
+    *filename_w = (wchar_t *)zn_av_calloc(num_chars, sizeof(wchar_t));
     if (!*filename_w) {
         errno = ENOMEM;
         return -1;
@@ -57,7 +57,7 @@ static inline int wchartocp(unsigned int code_page, const wchar_t *filename_w,
         errno = EINVAL;
         return -1;
     }
-    *filename = (char*)av_malloc_array(num_chars, sizeof *filename);
+    *filename = (char*)zn_av_malloc_array(num_chars, sizeof *filename);
     if (!*filename) {
         errno = ENOMEM;
         return -1;
@@ -93,7 +93,7 @@ static inline int utf8toansi(const char *filename_utf8, char **filename)
     }
 
     ret = wchartoansi(filename_w, filename);
-    av_free(filename_w);
+    zn_av_free(filename_w);
     return ret;
 }
 
@@ -140,7 +140,7 @@ static inline int get_full_path_name(wchar_t **ppath_w)
         return -1;
     }
 
-    temp_w = (wchar_t *)av_calloc(num_chars, sizeof(wchar_t));
+    temp_w = (wchar_t *)zn_av_calloc(num_chars, sizeof(wchar_t));
     if (!temp_w) {
         errno = ENOMEM;
         return -1;
@@ -148,12 +148,12 @@ static inline int get_full_path_name(wchar_t **ppath_w)
 
     num_chars = GetFullPathNameW(*ppath_w, num_chars, temp_w, NULL);
     if (num_chars <= 0) {
-        av_free(temp_w);
+        zn_av_free(temp_w);
         errno = EINVAL;
         return -1;
     }
 
-    av_freep(ppath_w);
+    zn_av_freep(ppath_w);
     *ppath_w = temp_w;
 
     return 0;
@@ -208,7 +208,7 @@ static inline int add_extended_prefix(wchar_t **ppath_w)
     if (path_w[0] == L'\\' && path_w[1] == L'\\') {
         /* unc_prefix length is 8 plus 1 for terminating zeros,
          * we subtract 2 for the leading '\\' of the original path */
-        temp_w = (wchar_t *)av_calloc(len - 2 + 8 + 1, sizeof(wchar_t));
+        temp_w = (wchar_t *)zn_av_calloc(len - 2 + 8 + 1, sizeof(wchar_t));
         if (!temp_w) {
             errno = ENOMEM;
             return -1;
@@ -217,7 +217,7 @@ static inline int add_extended_prefix(wchar_t **ppath_w)
         wcscat(temp_w, path_w + 2);
     } else {
         // The length of extended_path_prefix is 4 plus 1 for terminating zeros
-        temp_w = (wchar_t *)av_calloc(len + 4 + 1, sizeof(wchar_t));
+        temp_w = (wchar_t *)zn_av_calloc(len + 4 + 1, sizeof(wchar_t));
         if (!temp_w) {
             errno = ENOMEM;
             return -1;
@@ -226,7 +226,7 @@ static inline int add_extended_prefix(wchar_t **ppath_w)
         wcscat(temp_w, path_w);
     }
 
-    av_freep(ppath_w);
+    zn_av_freep(ppath_w);
     *ppath_w = temp_w;
 
     return 0;
@@ -258,7 +258,7 @@ static inline int get_extended_win32_path(const char *path, wchar_t **ppath_w)
     }
 
     if ((ret = path_normalize(ppath_w)) < 0) {
-        av_freep(ppath_w);
+        zn_av_freep(ppath_w);
         return ret;
     }
 
@@ -268,7 +268,7 @@ static inline int get_extended_win32_path(const char *path, wchar_t **ppath_w)
     len = wcslen(*ppath_w);
     if (len >= MAX_PATH) {
         if ((ret = add_extended_prefix(ppath_w)) < 0) {
-            av_freep(ppath_w);
+            zn_av_freep(ppath_w);
             return ret;
         }
     }

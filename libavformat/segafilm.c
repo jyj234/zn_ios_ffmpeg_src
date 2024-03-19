@@ -79,7 +79,7 @@ static int film_read_close(AVFormatContext *s)
 {
     FilmDemuxContext *film = s->priv_data;
 
-    av_freep(&film->sample_table);
+    zn_av_freep(&film->sample_table);
 
     return 0;
 }
@@ -149,7 +149,7 @@ static int film_read_header(AVFormatContext *s)
 
     /* initialize the decoder streams */
     if (film->video_type != AV_CODEC_ID_NONE) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         film->video_stream_index = st->index;
@@ -170,7 +170,7 @@ static int film_read_header(AVFormatContext *s)
     }
 
     if (film->audio_type != AV_CODEC_ID_NONE) {
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         film->audio_stream_index = st->index;
@@ -201,7 +201,7 @@ static int film_read_header(AVFormatContext *s)
         return AVERROR_INVALIDDATA;
     film->base_clock = AV_RB32(&scratch[8]);
     film->sample_count = AV_RB32(&scratch[12]);
-    film->sample_table = av_malloc_array(film->sample_count, sizeof(film_sample));
+    film->sample_table = zn_av_malloc_array(film->sample_count, sizeof(film_sample));
     if (!film->sample_table)
         return AVERROR(ENOMEM);
 

@@ -314,13 +314,13 @@ static av_cold int mobiclip_init(AVCodecContext *avctx)
 
     avctx->pix_fmt = AV_PIX_FMT_YUV420P;
 
-    s->motion = av_calloc(avctx->width / 16 + 3, sizeof(MotionXY));
+    s->motion = zn_av_calloc(avctx->width / 16 + 3, sizeof(MotionXY));
     if (!s->motion)
         return AVERROR(ENOMEM);
     s->motion_size = (avctx->width / 16 + 3) * sizeof(MotionXY);
 
     for (int i = 0; i < 6; i++) {
-        s->pic[i] = av_frame_alloc();
+        s->pic[i] = zn_av_frame_alloc();
         if (!s->pic[i])
             return AVERROR(ENOMEM);
     }
@@ -1331,13 +1331,13 @@ static av_cold int mobiclip_close(AVCodecContext *avctx)
 {
     MobiClipContext *s = avctx->priv_data;
 
-    av_freep(&s->bitstream);
+    zn_av_freep(&s->bitstream);
     s->bitstream_size = 0;
-    av_freep(&s->motion);
+    zn_av_freep(&s->motion);
     s->motion_size = 0;
 
     for (int i = 0; i < 6; i++) {
-        av_frame_free(&s->pic[i]);
+        zn_av_frame_free(&s->pic[i]);
     }
 
     return 0;

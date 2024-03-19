@@ -63,7 +63,7 @@ static av_cold int escape124_decode_init(AVCodecContext *avctx)
     s->num_superblocks = ((unsigned)avctx->width / 8) *
                          ((unsigned)avctx->height / 8);
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
@@ -76,9 +76,9 @@ static av_cold int escape124_decode_close(AVCodecContext *avctx)
     Escape124Context *s = avctx->priv_data;
 
     for (i = 0; i < 3; i++)
-        av_freep(&s->codebooks[i].blocks);
+        zn_av_freep(&s->codebooks[i].blocks);
 
-    av_frame_free(&s->frame);
+    zn_av_frame_free(&s->frame);
 
     return 0;
 }
@@ -267,7 +267,7 @@ static int escape124_decode_frame(AVCodecContext *avctx, AVFrame *frame,
                 return AVERROR_INVALIDDATA;
             }
 
-            av_freep(&s->codebooks[i].blocks);
+            zn_av_freep(&s->codebooks[i].blocks);
             if (cb_size >= INT_MAX / 34 || get_bits_left(&gb) < (int)cb_size * 34)
                 return AVERROR_INVALIDDATA;
 

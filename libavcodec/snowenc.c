@@ -228,7 +228,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
     mpv->mb_num  = (avctx->width * avctx->height + 255) / 256; // For ratecontrol
 
     mpv->me.temp      =
-    mpv->me.scratchpad = av_calloc(avctx->width + 64, 2*16*2*sizeof(uint8_t));
+    mpv->me.scratchpad = zn_av_calloc(avctx->width + 64, 2*16*2*sizeof(uint8_t));
     mpv->sc.obmc_scratchpad= av_mallocz(MB_SIZE*MB_SIZE*12*sizeof(uint32_t));
     mpv->me.map       = av_mallocz(2 * ME_MAP_SIZE * sizeof(*mpv->me.map));
     if (!mpv->me.scratchpad || !mpv->me.map || !mpv->sc.obmc_scratchpad)
@@ -281,7 +281,7 @@ static av_cold int encode_init(AVCodecContext *avctx)
     if (ret < 0)
         return AVERROR(EINVAL);
 
-    s->input_picture = av_frame_alloc();
+    s->input_picture = zn_av_frame_alloc();
     if (!s->input_picture)
         return AVERROR(ENOMEM);
 
@@ -291,8 +291,8 @@ static av_cold int encode_init(AVCodecContext *avctx)
     if (enc->motion_est == FF_ME_ITER) {
         int size= s->b_width * s->b_height << 2*s->block_max_depth;
         for(i=0; i<s->max_ref_frames; i++){
-            s->ref_mvs[i]    = av_calloc(size, sizeof(*s->ref_mvs[i]));
-            s->ref_scores[i] = av_calloc(size, sizeof(*s->ref_scores[i]));
+            s->ref_mvs[i]    = zn_av_calloc(size, sizeof(*s->ref_mvs[i]));
+            s->ref_scores[i] = zn_av_calloc(size, sizeof(*s->ref_scores[i]));
             if (!s->ref_mvs[i] || !s->ref_scores[i])
                 return AVERROR(ENOMEM);
         }
@@ -2077,19 +2077,19 @@ static av_cold int encode_end(AVCodecContext *avctx)
 
     ff_snow_common_end(s);
     ff_rate_control_uninit(&enc->m);
-    av_frame_free(&s->input_picture);
+    zn_av_frame_free(&s->input_picture);
 
     for (int i = 0; i < MAX_REF_FRAMES; i++) {
-        av_freep(&s->ref_mvs[i]);
-        av_freep(&s->ref_scores[i]);
+        zn_av_freep(&s->ref_mvs[i]);
+        zn_av_freep(&s->ref_scores[i]);
     }
 
     enc->m.me.temp = NULL;
-    av_freep(&enc->m.me.scratchpad);
-    av_freep(&enc->m.me.map);
-    av_freep(&enc->m.sc.obmc_scratchpad);
+    zn_av_freep(&enc->m.me.scratchpad);
+    zn_av_freep(&enc->m.me.map);
+    zn_av_freep(&enc->m.sc.obmc_scratchpad);
 
-    av_freep(&avctx->stats_out);
+    zn_av_freep(&avctx->stats_out);
 
     return 0;
 }

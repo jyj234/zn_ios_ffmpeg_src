@@ -72,8 +72,8 @@ int main(int argc, char *argv[]) {
     else
         av_log(NULL, AV_LOG_ERROR, "decompression OK\n");
     fclose(in);
-    av_free(orig);
-    av_free(comp);
-    av_free(decomp);
+    zn_av_free(orig);
+    zn_av_free(comp);
+    zn_av_free(decomp);
     return 0;
 }

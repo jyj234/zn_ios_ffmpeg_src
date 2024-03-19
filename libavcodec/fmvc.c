@@ -583,7 +583,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     s->nb_blocks = s->xb * s->yb;
     if (!s->nb_blocks)
         return AVERROR_INVALIDDATA;
-    s->blocks    = av_calloc(s->nb_blocks, sizeof(*s->blocks));
+    s->blocks    = zn_av_calloc(s->nb_blocks, sizeof(*s->blocks));
     if (!s->blocks)
         return AVERROR(ENOMEM);
 
@@ -627,9 +627,9 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     FMVCContext *s = avctx->priv_data;
 
-    av_freep(&s->buffer);
-    av_freep(&s->pbuffer);
-    av_freep(&s->blocks);
+    zn_av_freep(&s->buffer);
+    zn_av_freep(&s->pbuffer);
+    zn_av_freep(&s->blocks);
 
     return 0;
 }

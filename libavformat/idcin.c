@@ -193,7 +193,7 @@ static int idcin_read_header(AVFormatContext *s)
         idcin->audio_present = 0;
     }
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 33, 1, IDCIN_FPS);
@@ -211,7 +211,7 @@ static int idcin_read_header(AVFormatContext *s)
 
     if (idcin->audio_present) {
         idcin->audio_present = 1;
-        st = avformat_new_stream(s, NULL);
+        st = zn_avformat_new_stream(s, NULL);
         if (!st)
             return AVERROR(ENOMEM);
         avpriv_set_pts_info(st, 63, 1, sample_rate);
@@ -219,7 +219,7 @@ static int idcin_read_header(AVFormatContext *s)
         idcin->audio_stream_index = st->index;
         st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
         st->codecpar->codec_tag = 1;
-        av_channel_layout_default(&st->codecpar->ch_layout, channels);
+        zn_av_channel_layout_default(&st->codecpar->ch_layout, channels);
         st->codecpar->sample_rate = sample_rate;
         st->codecpar->bits_per_coded_sample = bytes_per_sample * 8;
         st->codecpar->bit_rate = sample_rate * bytes_per_sample * 8 * channels;

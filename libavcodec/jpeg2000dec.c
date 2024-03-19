@@ -287,7 +287,7 @@ static int get_siz(Jpeg2000DecoderContext *s)
         return AVERROR(EINVAL);
     }
 
-    s->tile = av_calloc(s->numXtiles * s->numYtiles, sizeof(*s->tile));
+    s->tile = zn_av_calloc(s->numXtiles * s->numYtiles, sizeof(*s->tile));
     if (!s->tile) {
         s->numXtiles = s->numYtiles = 0;
         return AVERROR(ENOMEM);
@@ -1111,8 +1111,8 @@ static int jpeg2000_decode_packet(Jpeg2000DecoderContext *s, Jpeg2000Tile *tile,
 
             cblk->nb_lengthinc = 0;
             cblk->nb_terminationsinc = 0;
-            av_free(cblk->lengthinc);
-            cblk->lengthinc = av_calloc(newpasses, sizeof(*cblk->lengthinc));
+            zn_av_free(cblk->lengthinc);
+            cblk->lengthinc = zn_av_calloc(newpasses, sizeof(*cblk->lengthinc));
             if (!cblk->lengthinc)
                 return AVERROR(ENOMEM);
             tmp = av_realloc_array(cblk->data_start, cblk->nb_terminations + newpasses + 1, sizeof(*cblk->data_start));
@@ -1222,7 +1222,7 @@ static int jpeg2000_decode_packet(Jpeg2000DecoderContext *s, Jpeg2000Tile *tile,
                     cblk->data_start[cblk->nb_terminations] = cblk->length;
                 }
             }
-            av_freep(&cblk->lengthinc);
+            zn_av_freep(&cblk->lengthinc);
         }
     }
     // Save state of stream
@@ -2077,15 +2077,15 @@ static void jpeg2000_dec_cleanup(Jpeg2000DecoderContext *s)
 
                 ff_jpeg2000_cleanup(comp, codsty);
             }
-            av_freep(&s->tile[tileno].comp);
-            av_freep(&s->tile[tileno].packed_headers);
+            zn_av_freep(&s->tile[tileno].comp);
+            zn_av_freep(&s->tile[tileno].packed_headers);
             s->tile[tileno].packed_headers_size = 0;
         }
     }
-    av_freep(&s->packed_headers);
+    zn_av_freep(&s->packed_headers);
     s->packed_headers_size = 0;
     memset(&s->packed_headers_stream, 0, sizeof(s->packed_headers_stream));
-    av_freep(&s->tile);
+    zn_av_freep(&s->tile);
     memset(s->codsty, 0, sizeof(s->codsty));
     memset(s->qntsty, 0, sizeof(s->qntsty));
     memset(s->properties, 0, sizeof(s->properties));

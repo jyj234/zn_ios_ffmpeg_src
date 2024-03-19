@@ -151,7 +151,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     }
     avctx->sample_fmt     = AV_SAMPLE_FMT_S16P;
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, channels);
 
     ctx->max_frame_size = AV_RB32(avctx->extradata + 16);
     if (ctx->max_frame_size > (1 << 20) || !ctx->max_frame_size) {

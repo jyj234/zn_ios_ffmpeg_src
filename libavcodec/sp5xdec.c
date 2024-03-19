@@ -88,7 +88,7 @@ static int sp5x_decode_frame(AVCodecContext *avctx,
     ret = ff_mjpeg_decode_frame_from_buf(avctx, frame, got_frame,
                                          avpkt, recoded, j);
 
-    av_free(recoded);
+    zn_av_free(recoded);
 
     return ret < 0 ? ret : avpkt->size;
 }

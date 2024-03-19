@@ -55,7 +55,7 @@ int ff_adts_header_parse(GetBitContext *gbc, AACADTSHeaderInfo *hdr);
  * @param[in]  size Size of buffer containing the first 54 bits of the frame.
  * @param[out] phdr Pointer to pointer to struct AACADTSHeaderInfo for which
  * memory is allocated and header info is written into it. After using the header
- * information, the allocated memory must be freed by using av_free.
+ * information, the allocated memory must be freed by using zn_av_free.
  * @return Returns 0 on success, -1 if there is a sync word mismatch,
  * -2 if the version element is invalid, -3 if the sample rate
  * element is invalid, or -4 if the bit rate element is invalid.

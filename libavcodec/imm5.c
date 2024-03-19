@@ -54,29 +54,29 @@ static av_cold int imm5_init(AVCodecContext *avctx)
     const AVCodec *codec;
     int ret;
 
-    codec = avcodec_find_decoder(AV_CODEC_ID_H264);
+    codec = zn_avcodec_find_decoder(AV_CODEC_ID_H264);
     if (!codec)
         return AVERROR_BUG;
-    ctx->h264_avctx = avcodec_alloc_context3(codec);
+    ctx->h264_avctx = zn_avcodec_alloc_context3(codec);
     if (!ctx->h264_avctx)
         return AVERROR(ENOMEM);
     ctx->h264_avctx->thread_count = 1;
     ctx->h264_avctx->flags        = avctx->flags;
     ctx->h264_avctx->flags2       = avctx->flags2;
-    ret = avcodec_open2(ctx->h264_avctx, codec, NULL);
+    ret = zn_avcodec_open2(ctx->h264_avctx, codec, NULL);
     if (ret < 0)
         return ret;
 
-    codec = avcodec_find_decoder(AV_CODEC_ID_HEVC);
+    codec = zn_avcodec_find_decoder(AV_CODEC_ID_HEVC);
     if (!codec)
         return AVERROR_BUG;
-    ctx->hevc_avctx = avcodec_alloc_context3(codec);
+    ctx->hevc_avctx = zn_avcodec_alloc_context3(codec);
     if (!ctx->hevc_avctx)
         return AVERROR(ENOMEM);
     ctx->hevc_avctx->thread_count = 1;
     ctx->hevc_avctx->flags        = avctx->flags;
     ctx->hevc_avctx->flags2       = avctx->flags2;
-    ret = avcodec_open2(ctx->hevc_avctx, codec, NULL);
+    ret = zn_avcodec_open2(ctx->hevc_avctx, codec, NULL);
     if (ret < 0)
         return ret;
 
@@ -132,13 +132,13 @@ static int imm5_decode_frame(AVCodecContext *avctx, AVFrame *frame,
         }
     }
 
-    ret = avcodec_send_packet(codec_avctx, avpkt);
+    ret = zn_avcodec_send_packet(codec_avctx, avpkt);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
         return ret;
     }
 
-    ret = avcodec_receive_frame(codec_avctx, frame);
+    ret = zn_avcodec_receive_frame(codec_avctx, frame);
     if (ret < 0)
         return ret;
 

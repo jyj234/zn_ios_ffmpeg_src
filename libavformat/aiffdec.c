@@ -78,7 +78,7 @@ static void get_meta(AVFormatContext *s, const char *key, int64_t size)
     if (str) {
         int res = avio_read(s->pb, str, size);
         if (res < 0){
-            av_free(str);
+            zn_av_free(str);
             return;
         }
         size -= res;
@@ -238,7 +238,7 @@ static int aiff_read_header(AVFormatContext *s)
 
     filesize -= 4;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

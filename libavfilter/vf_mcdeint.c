@@ -108,18 +108,18 @@ static int config_props(AVFilterLink *inlink)
     AVDictionary *opts = NULL;
     int ret;
 
-    if (!(enc = avcodec_find_encoder(AV_CODEC_ID_SNOW))) {
+    if (!(enc = zn_avcodec_find_encoder(AV_CODEC_ID_SNOW))) {
         av_log(ctx, AV_LOG_ERROR, "Snow encoder is not enabled in libavcodec\n");
         return AVERROR(EINVAL);
     }
 
-    mcdeint->pkt = av_packet_alloc();
+    mcdeint->pkt = zn_av_packet_alloc();
     if (!mcdeint->pkt)
         return AVERROR(ENOMEM);
-    mcdeint->frame_dec = av_frame_alloc();
+    mcdeint->frame_dec = zn_av_frame_alloc();
     if (!mcdeint->frame_dec)
         return AVERROR(ENOMEM);
-    mcdeint->enc_ctx = avcodec_alloc_context3(enc);
+    mcdeint->enc_ctx = zn_avcodec_alloc_context3(enc);
     if (!mcdeint->enc_ctx)
         return AVERROR(ENOMEM);
     enc_ctx = mcdeint->enc_ctx;
@@ -149,7 +149,7 @@ static int config_props(AVFilterLink *inlink)
         enc_ctx->flags |= AV_CODEC_FLAG_QPEL;
     }
 
-    ret = avcodec_open2(enc_ctx, enc, &opts);
+    ret = zn_avcodec_open2(enc_ctx, enc, &opts);
     av_dict_free(&opts);
     if (ret < 0)
         return ret;
@@ -161,9 +161,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     MCDeintContext *mcdeint = ctx->priv;
 
-    av_packet_free(&mcdeint->pkt);
+    zn_av_packet_free(&mcdeint->pkt);
     avcodec_free_context(&mcdeint->enc_ctx);
-    av_frame_free(&mcdeint->frame_dec);
+    zn_av_frame_free(&mcdeint->frame_dec);
 }
 
 static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
@@ -176,24 +176,24 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
 
     outpic = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!outpic) {
-        av_frame_free(&inpic);
+        zn_av_frame_free(&inpic);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(outpic, inpic);
     inpic->quality = mcdeint->qp * FF_QP2LAMBDA;
 
-    ret = avcodec_send_frame(mcdeint->enc_ctx, inpic);
+    ret = zn_avcodec_send_frame(mcdeint->enc_ctx, inpic);
     if (ret < 0) {
         av_log(mcdeint->enc_ctx, AV_LOG_ERROR, "Error sending a frame for encoding\n");
         goto end;
     }
-    ret = avcodec_receive_packet(mcdeint->enc_ctx, pkt);
+    ret = zn_avcodec_receive_packet(mcdeint->enc_ctx, pkt);
     if (ret < 0) {
         av_log(mcdeint->enc_ctx, AV_LOG_ERROR, "Error receiving a packet from encoding\n");
         goto end;
     }
-    av_packet_unref(pkt);
-    ret = avcodec_receive_frame(mcdeint->enc_ctx, frame_dec);
+    zn_av_packet_unref(pkt);
+    ret = zn_avcodec_receive_frame(mcdeint->enc_ctx, frame_dec);
     if (ret < 0) {
         av_log(mcdeint->enc_ctx, AV_LOG_ERROR, "Error receiving a frame from encoding\n");
         goto end;
@@ -281,10 +281,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *inpic)
     mcdeint->parity ^= 1;
 
 end:
-    av_packet_unref(pkt);
-    av_frame_free(&inpic);
+    zn_av_packet_unref(pkt);
+    zn_av_frame_free(&inpic);
     if (ret < 0) {
-        av_frame_free(&outpic);
+        zn_av_frame_free(&outpic);
         return ret;
     }
     return ff_filter_frame(outlink, outpic);

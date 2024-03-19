@@ -346,7 +346,7 @@ static int config_input(AVFilterLink *inlink)
 
     for (i = 0; i < NB_FRAMES; i++) {
         Frame *frame = &mi_ctx->frames[i];
-        frame->blocks = av_calloc(mi_ctx->b_count, sizeof(*frame->blocks));
+        frame->blocks = zn_av_calloc(mi_ctx->b_count, sizeof(*frame->blocks));
         if (!frame->blocks)
             return AVERROR(ENOMEM);
     }
@@ -366,9 +366,9 @@ static int config_input(AVFilterLink *inlink)
         else if (mi_ctx->me_mode == ME_MODE_BILAT)
             me_ctx->get_cost = &get_sbad_ob;
 
-        mi_ctx->pixel_mvs     = av_calloc(width * height, sizeof(*mi_ctx->pixel_mvs));
-        mi_ctx->pixel_weights = av_calloc(width * height, sizeof(*mi_ctx->pixel_weights));
-        mi_ctx->pixel_refs    = av_calloc(width * height, sizeof(*mi_ctx->pixel_refs));
+        mi_ctx->pixel_mvs     = zn_av_calloc(width * height, sizeof(*mi_ctx->pixel_mvs));
+        mi_ctx->pixel_weights = zn_av_calloc(width * height, sizeof(*mi_ctx->pixel_weights));
+        mi_ctx->pixel_refs    = zn_av_calloc(width * height, sizeof(*mi_ctx->pixel_refs));
         if (!mi_ctx->pixel_mvs || !mi_ctx->pixel_weights || !mi_ctx->pixel_refs)
             return AVERROR(ENOMEM);
 
@@ -378,7 +378,7 @@ static int config_input(AVFilterLink *inlink)
 
         if (mi_ctx->me_method == AV_ME_METHOD_EPZS) {
             for (i = 0; i < 3; i++) {
-                mi_ctx->mv_table[i] = av_calloc(mi_ctx->b_count, sizeof(*mi_ctx->mv_table[0]));
+                mi_ctx->mv_table[i] = zn_av_calloc(mi_ctx->b_count, sizeof(*mi_ctx->mv_table[0]));
                 if (!mi_ctx->mv_table[i])
                     return AVERROR(ENOMEM);
             }
@@ -733,7 +733,7 @@ static int inject_frame(AVFilterLink *inlink, AVFrame *avf_in)
     Frame frame_tmp;
     int mb_x, mb_y, dir;
 
-    av_frame_free(&mi_ctx->frames[0].avf);
+    zn_av_frame_free(&mi_ctx->frames[0].avf);
     frame_tmp = mi_ctx->frames[0];
     memmove(&mi_ctx->frames[0], &mi_ctx->frames[1], sizeof(mi_ctx->frames[0]) * (NB_FRAMES - 1));
     mi_ctx->frames[NB_FRAMES - 1] = frame_tmp;
@@ -1207,7 +1207,7 @@ static av_cold void free_blocks(Block *block, int sb)
     if (block->subs)
         free_blocks(block->subs, 1);
     if (sb)
-        av_freep(&block);
+        zn_av_freep(&block);
 }
 
 static av_cold void uninit(AVFilterContext *ctx)
@@ -1215,22 +1215,22 @@ static av_cold void uninit(AVFilterContext *ctx)
     MIContext *mi_ctx = ctx->priv;
     int i, m;
 
-    av_freep(&mi_ctx->pixel_mvs);
-    av_freep(&mi_ctx->pixel_weights);
-    av_freep(&mi_ctx->pixel_refs);
+    zn_av_freep(&mi_ctx->pixel_mvs);
+    zn_av_freep(&mi_ctx->pixel_weights);
+    zn_av_freep(&mi_ctx->pixel_refs);
     if (mi_ctx->int_blocks)
         for (m = 0; m < mi_ctx->b_count; m++)
             free_blocks(&mi_ctx->int_blocks[m], 0);
-    av_freep(&mi_ctx->int_blocks);
+    zn_av_freep(&mi_ctx->int_blocks);
 
     for (i = 0; i < NB_FRAMES; i++) {
         Frame *frame = &mi_ctx->frames[i];
-        av_freep(&frame->blocks);
-        av_frame_free(&frame->avf);
+        zn_av_freep(&frame->blocks);
+        zn_av_frame_free(&frame->avf);
     }
 
     for (i = 0; i < 3; i++)
-        av_freep(&mi_ctx->mv_table[i]);
+        zn_av_freep(&mi_ctx->mv_table[i]);
 }
 
 static const AVFilterPad minterpolate_inputs[] = {

@@ -52,7 +52,7 @@ static int dfa_read_header(AVFormatContext *s)
     version = avio_rl16(pb);
     frames = avio_rl16(pb);
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

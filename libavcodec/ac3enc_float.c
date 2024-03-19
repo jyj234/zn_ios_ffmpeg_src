@@ -86,7 +86,7 @@ static void sum_square_butterfly(AC3EncodeContext *s, float sum[4],
 static av_cold int ac3_float_mdct_init(AC3EncodeContext *s)
 {
     const float scale = -2.0 / AC3_WINDOW_SIZE;
-    float *window = av_malloc_array(AC3_BLOCK_SIZE, sizeof(*window));
+    float *window = zn_av_malloc_array(AC3_BLOCK_SIZE, sizeof(*window));
     if (!window) {
         av_log(s->avctx, AV_LOG_ERROR, "Cannot allocate memory.\n");
         return AVERROR(ENOMEM);

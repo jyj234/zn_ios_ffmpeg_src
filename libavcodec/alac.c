@@ -481,10 +481,10 @@ static av_cold int alac_decode_close(AVCodecContext *avctx)
 
     int ch;
     for (ch = 0; ch < FFMIN(alac->channels, 2); ch++) {
-        av_freep(&alac->predict_error_buffer[ch]);
+        zn_av_freep(&alac->predict_error_buffer[ch]);
         if (!alac->direct_output)
-            av_freep(&alac->output_samples_buffer[ch]);
-        av_freep(&alac->extra_bits_buffer[ch]);
+            zn_av_freep(&alac->output_samples_buffer[ch]);
+        zn_av_freep(&alac->extra_bits_buffer[ch]);
     }
 
     return 0;

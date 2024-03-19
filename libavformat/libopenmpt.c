@@ -96,14 +96,14 @@ static int read_header_openmpt(AVFormatContext *s)
     size = avio_read(s->pb, buf, size);
     if (size < 0) {
         av_log(s, AV_LOG_ERROR, "Reading input buffer failed.\n");
-        av_freep(&buf);
+        zn_av_freep(&buf);
         return size;
     }
 
 #if OPENMPT_API_VERSION_AT_LEAST(0,3,0)
     error = OPENMPT_ERROR_OK;
     openmpt->module = openmpt_module_create_from_memory2(buf, size, openmpt_logfunc, s, NULL, NULL, &error, NULL, NULL);
-    av_freep(&buf);
+    zn_av_freep(&buf);
     if (!openmpt->module) {
         if (error == OPENMPT_ERROR_OUT_OF_MEMORY)
             return AVERROR(ENOMEM);
@@ -114,7 +114,7 @@ static int read_header_openmpt(AVFormatContext *s)
     }
 #else
     openmpt->module = openmpt_module_create_from_memory(buf, size, openmpt_logfunc, s, NULL);
-    av_freep(&buf);
+    zn_av_freep(&buf);
     if (!openmpt->module)
             return AVERROR_INVALIDDATA;
 #endif
@@ -143,7 +143,7 @@ static int read_header_openmpt(AVFormatContext *s)
     add_meta(s, "comment", openmpt_module_get_metadata(openmpt->module, "message"));
     add_meta(s, "date",    openmpt_module_get_metadata(openmpt->module, "date"));
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 64, 1, AV_TIME_BASE);
@@ -152,7 +152,7 @@ static int read_header_openmpt(AVFormatContext *s)
     st->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;
     st->codecpar->codec_id    = AV_NE(AV_CODEC_ID_PCM_F32BE, AV_CODEC_ID_PCM_F32LE);
     st->codecpar->sample_rate = openmpt->sample_rate;
-    ret = av_channel_layout_copy(&st->codecpar->ch_layout, &openmpt->ch_layout);
+    ret = zn_av_channel_layout_copy(&st->codecpar->ch_layout, &openmpt->ch_layout);
     if (ret < 0)
         return ret;
 

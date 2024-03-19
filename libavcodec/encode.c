@@ -127,7 +127,7 @@ int ff_get_encode_buffer(AVCodecContext *avctx, AVPacket *avpkt, int64_t size, i
 fail:
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "get_encode_buffer() failed\n");
-        av_packet_unref(avpkt);
+        zn_av_packet_unref(avpkt);
     }
 
     return ret;
@@ -159,10 +159,10 @@ static int pad_last_frame(AVCodecContext *s, AVFrame *frame, const AVFrame *src,
 
     frame->format         = src->format;
     frame->nb_samples     = out_samples;
-    ret = av_channel_layout_copy(&frame->ch_layout, &s->ch_layout);
+    ret = zn_av_channel_layout_copy(&frame->ch_layout, &s->ch_layout);
     if (ret < 0)
         goto fail;
-    ret = av_frame_get_buffer(frame, 0);
+    ret = zn_av_frame_get_buffer(frame, 0);
     if (ret < 0)
         goto fail;
 
@@ -303,7 +303,7 @@ int ff_encode_encode_cb(AVCodecContext *avctx, AVPacket *avpkt,
             avpkt->dts = avpkt->pts;
     } else {
 unref:
-        av_packet_unref(avpkt);
+        zn_av_packet_unref(avpkt);
     }
 
     if (frame)
@@ -389,7 +389,7 @@ static int encode_receive_packet_internal(AVCodecContext *avctx, AVPacket *avpkt
     if (ffcodec(avctx->codec)->cb_type == FF_CODEC_CB_TYPE_RECEIVE_PACKET) {
         ret = ffcodec(avctx->codec)->cb.receive_packet(avctx, avpkt);
         if (ret < 0)
-            av_packet_unref(avpkt);
+            zn_av_packet_unref(avpkt);
         else
             // Encoders must always return ref-counted buffers.
             // Side-data only packets have no data and can be not ref-counted.
@@ -515,7 +515,7 @@ finish:
     return 0;
 }
 
-int attribute_align_arg avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame)
+int attribute_align_arg zn_avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame)
 {
     AVCodecInternal *avci = avctx->internal;
     int ret;
@@ -553,12 +553,12 @@ FF_ENABLE_DEPRECATION_WARNINGS
     return 0;
 }
 
-int attribute_align_arg avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt)
+int attribute_align_arg zn_avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt)
 {
     AVCodecInternal *avci = avctx->internal;
     int ret;
 
-    av_packet_unref(avpkt);
+    zn_av_packet_unref(avpkt);
 
     if (!avcodec_is_open(avctx) || !av_codec_is_encoder(avctx->codec))
         return AVERROR(EINVAL);
@@ -779,7 +779,7 @@ int ff_encode_preinit(AVCodecContext *avctx)
         ec->intra_only_flag = AV_PKT_FLAG_KEY;
 
     if (ffcodec(avctx->codec)->cb_type == FF_CODEC_CB_TYPE_ENCODE) {
-        avci->in_frame = av_frame_alloc();
+        avci->in_frame = zn_av_frame_alloc();
         if (!avci->in_frame)
             return AVERROR(ENOMEM);
     }
@@ -791,7 +791,7 @@ int ff_encode_preinit(AVCodecContext *avctx)
             return AVERROR(ENOSYS);
         }
 
-        avci->recon_frame = av_frame_alloc();
+        avci->recon_frame = zn_av_frame_alloc();
         if (!avci->recon_frame)
             return AVERROR(ENOMEM);
     }
@@ -822,7 +822,7 @@ int ff_encode_alloc_frame(AVCodecContext *avctx, AVFrame *frame)
         frame->sample_rate = avctx->sample_rate;
         frame->format      = avctx->sample_fmt;
         if (!frame->ch_layout.nb_channels) {
-            ret = av_channel_layout_copy(&frame->ch_layout, &avctx->ch_layout);
+            ret = zn_av_channel_layout_copy(&frame->ch_layout, &avctx->ch_layout);
             if (ret < 0)
                 return ret;
         }
@@ -884,7 +884,7 @@ AVCPBProperties *ff_encode_add_cpb_side_data(AVCodecContext *avctx)
 
     tmp = av_realloc_array(avctx->coded_side_data, avctx->nb_coded_side_data + 1, sizeof(*tmp));
     if (!tmp) {
-        av_freep(&props);
+        zn_av_freep(&props);
         return NULL;
     }
 

@@ -284,10 +284,10 @@ dshow_read_close(AVFormatContext *s)
     if (ctx->device_filter[AudioDevice])
         IBaseFilter_Release(ctx->device_filter[AudioDevice]);
 
-    av_freep(&ctx->device_name[0]);
-    av_freep(&ctx->device_name[1]);
-    av_freep(&ctx->device_unique_name[0]);
-    av_freep(&ctx->device_unique_name[1]);
+    zn_av_freep(&ctx->device_name[0]);
+    zn_av_freep(&ctx->device_name[1]);
+    zn_av_freep(&ctx->device_unique_name[0]);
+    zn_av_freep(&ctx->device_unique_name[1]);
 
     if(ctx->mutex)
         CloseHandle(ctx->mutex);
@@ -299,8 +299,8 @@ dshow_read_close(AVFormatContext *s)
     pktl = ctx->pktl;
     while (pktl) {
         PacketListEntry *next = pktl->next;
-        av_packet_unref(&pktl->pkt);
-        av_free(pktl);
+        zn_av_packet_unref(&pktl->pkt);
+        zn_av_free(pktl);
         pktl = next;
     }
 
@@ -356,7 +356,7 @@ callback(void *priv_data, int index, uint8_t *buf, int buf_size, int64_t time, e
         goto fail;
 
     if(av_new_packet(&pktl_next->pkt, buf_size) < 0) {
-        av_free(pktl_next);
+        zn_av_free(pktl_next);
         goto fail;
     }
 
@@ -439,7 +439,7 @@ dshow_get_device_media_types(AVFormatContext *avctx, enum dshowDeviceType devtyp
 
     if (has_audio || has_video) {
         int nb_types = has_audio + has_video;
-        *media_types = av_malloc_array(nb_types, sizeof(enum FFMAVMediaType));
+        *media_types = zn_av_malloc_array(nb_types, sizeof(enum FFMAVMediaType));
         if (*media_types) {
             if (has_audio)
                 (*media_types)[0] = AVMEDIA_TYPE_AUDIO;
@@ -593,19 +593,19 @@ dshow_cycle_devices(AVFormatContext *avctx, ICreateDevEnum *devenum,
         }
 
     fail:
-        av_freep(&media_types);
+        zn_av_freep(&media_types);
         if (device) {
-            av_freep(&device->device_name);
-            av_freep(&device->device_description);
-            // NB: no need to av_freep(&device->media_types), its only moved to device once nothing can fail anymore
-            av_free(device);
+            zn_av_freep(&device->device_name);
+            zn_av_freep(&device->device_description);
+            // NB: no need to zn_av_freep(&device->media_types), its only moved to device once nothing can fail anymore
+            zn_av_free(device);
         }
         if (olestr && co_malloc)
             IMalloc_Free(co_malloc, olestr);
         if (bind_ctx)
             IBindCtx_Release(bind_ctx);
-        av_freep(&friendly_name);
-        av_freep(&unique_name);
+        zn_av_freep(&friendly_name);
+        zn_av_freep(&unique_name);
         if (bag)
             IPropertyBag_Release(bag);
         IMoniker_Release(m);
@@ -688,7 +688,7 @@ struct dshow_format_info {
     int channels;
 };
 
-// user must av_free the returned pointer
+// user must zn_av_free the returned pointer
 static struct dshow_format_info *dshow_get_format_info(AM_MEDIA_TYPE *type)
 {
     struct dshow_format_info *fmt_info = NULL;
@@ -859,7 +859,7 @@ dshow_cycle_formats(AVFormatContext *avctx, enum dshowDeviceType devtype,
                     requested_sample_size = fmt_info->sample_size;
                     requested_channels    = fmt_info->channels;
                 }
-                av_free(fmt_info);  // free but don't set to NULL to enable below check
+                zn_av_free(fmt_info);  // free but don't set to NULL to enable below check
             }
 
             if (type && type->pbFormat)
@@ -921,7 +921,7 @@ dshow_cycle_formats(AVFormatContext *avctx, enum dshowDeviceType devtype,
             if (!pformat_set) {
                 const char *chroma = av_chroma_location_name(fmt_info->chroma_loc);
                 if (fmt_info->pix_fmt == AV_PIX_FMT_NONE) {
-                    const AVCodec *codec = avcodec_find_decoder(fmt_info->codec_id);
+                    const AVCodec *codec = zn_avcodec_find_decoder(fmt_info->codec_id);
                     if (fmt_info->codec_id == AV_CODEC_ID_NONE || !codec) {
                         av_log(avctx, AV_LOG_INFO, "  unknown compression type 0x%X", (int) bih->biCompression);
                     } else {
@@ -1027,7 +1027,7 @@ dshow_cycle_formats(AVFormatContext *avctx, enum dshowDeviceType devtype,
             type = NULL;
         }
 next:
-        av_freep(&fmt_info);
+        zn_av_freep(&fmt_info);
         if (type && type->pbFormat)
             CoTaskMemFree(type->pbFormat);
         CoTaskMemFree(type);
@@ -1065,7 +1065,7 @@ end:
         CoTaskMemFree(previous_match_type->pbFormat);
     CoTaskMemFree(previous_match_type);
     IAMStreamConfig_Release(config);
-    av_free(caps);
+    zn_av_free(caps);
     if (pformat_set)
         *pformat_set = format_set;
 }
@@ -1266,8 +1266,8 @@ next:
             IKsPropertySet_Release(p);
         if (device_pin != pin)
             IPin_Release(pin);
-        av_free(name_buf);
-        av_free(pin_buf);
+        zn_av_free(name_buf);
+        zn_av_free(pin_buf);
         if (pin_id)
             CoTaskMemFree(pin_id);
     }
@@ -1536,7 +1536,7 @@ dshow_add_device(AVFormatContext *avctx,
 
     type.pbFormat = NULL;
 
-    st = avformat_new_stream(avctx, NULL);
+    st = zn_avformat_new_stream(avctx, NULL);
     if (!st) {
         ret = AVERROR(ENOMEM);
         goto error;
@@ -1629,7 +1629,7 @@ dshow_add_device(AVFormatContext *avctx,
     ret = 0;
 
 error:
-    av_freep(&fmt_info);
+    zn_av_freep(&fmt_info);
     if (type.pbFormat)
         CoTaskMemFree(type.pbFormat);
     return ret;
@@ -1668,7 +1668,7 @@ static int parse_device_name(AVFormatContext *avctx)
             device_name[1] = av_strdup(device_name[1]);
     }
 
-    av_free(name);
+    zn_av_free(name);
     return ret;
 }
 
@@ -1865,7 +1865,7 @@ static int dshow_read_packet(AVFormatContext *s, AVPacket *pkt)
         if (pktl) {
             *pkt = pktl->pkt;
             ctx->pktl = ctx->pktl->next;
-            av_free(pktl);
+            zn_av_free(pktl);
             ctx->curbufsize[pkt->stream_index] -= pkt->size;
         }
         ResetEvent(ctx->event[1]);

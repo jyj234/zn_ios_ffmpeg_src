@@ -145,7 +145,7 @@ static int argo_cvg_read_header(AVFormatContext *s)
     const char *filename = av_basename(s->url);
     ArgoCVGDemuxContext *ctx = s->priv_data;
 
-    if (!(st = avformat_new_stream(s, NULL)))
+    if (!(st = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
     if ((ret = avio_read(s->pb, buf, ARGO_CVG_HEADER_SIZE)) < 0)

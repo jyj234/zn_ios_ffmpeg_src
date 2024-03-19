@@ -162,7 +162,7 @@ static int set_params(AVFilterContext *ctx, const char *params)
             if (*params)
                 params++;               /* skip ':' */
             ret = set_param(ctx, info, i, param);
-            av_free(param);
+            zn_av_free(param);
             if (ret < 0)
                 return ret;
         }
@@ -178,7 +178,7 @@ static int load_path(AVFilterContext *ctx, void **handle_ptr, const char *prefix
         return AVERROR(ENOMEM);
     av_log(ctx, AV_LOG_DEBUG, "Looking for frei0r effect in '%s'.\n", path);
     *handle_ptr = dlopen(path, RTLD_NOW|RTLD_LOCAL);
-    av_free(path);
+    zn_av_free(path);
     return 0;
 }
 
@@ -220,7 +220,7 @@ static av_cold int frei0r_init(AVFilterContext *ctx,
                 goto check_path_end;
             }
             ret = load_path(ctx, &s->dl_handle, p1, dl_name);
-            av_free(p1);
+            zn_av_free(p1);
             if (ret < 0)
                 goto check_path_end;
             if (s->dl_handle)
@@ -228,7 +228,7 @@ static av_cold int frei0r_init(AVFilterContext *ctx,
         }
 
     check_path_end:
-        av_free(path);
+        zn_av_free(path);
         if (ret < 0)
             return ret;
     }
@@ -239,7 +239,7 @@ static av_cold int frei0r_init(AVFilterContext *ctx,
             goto home_path_end;
         }
         ret = load_path(ctx, &s->dl_handle, prefix, dl_name);
-        av_free(prefix);
+        zn_av_free(prefix);
 
     home_path_end:
         freeenv_utf8(path);
@@ -373,20 +373,20 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         if (!in2)
             goto fail;
         av_frame_copy(in2, in);
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         in = in2;
     }
 
-    s->update(s->instance, in->pts * av_q2d(inlink->time_base) * 1000,
+    s->update(s->instance, in->pts * zn_av_q2d(inlink->time_base) * 1000,
                    (const uint32_t *)in->data[0],
                    (uint32_t *)out->data[0]);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return AVERROR(ENOMEM);
 }
 

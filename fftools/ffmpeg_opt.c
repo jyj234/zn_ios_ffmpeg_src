@@ -113,24 +113,24 @@ static void uninit_options(OptionsContext *o)
             SpecifierOpt **so = dst;
             int i, *count = (int*)(so + 1);
             for (i = 0; i < *count; i++) {
-                av_freep(&(*so)[i].specifier);
+                zn_av_freep(&(*so)[i].specifier);
                 if (po->flags & OPT_STRING)
-                    av_freep(&(*so)[i].u.str);
+                    zn_av_freep(&(*so)[i].u.str);
             }
-            av_freep(so);
+            zn_av_freep(so);
             *count = 0;
         } else if (po->flags & OPT_OFFSET && po->flags & OPT_STRING)
-            av_freep(dst);
+            zn_av_freep(dst);
         po++;
     }
 
     for (i = 0; i < o->nb_stream_maps; i++)
-        av_freep(&o->stream_maps[i].linklabel);
-    av_freep(&o->stream_maps);
+        zn_av_freep(&o->stream_maps[i].linklabel);
+    zn_av_freep(&o->stream_maps);
 #if FFMPEG_OPT_MAP_CHANNEL
-    av_freep(&o->audio_channel_maps);
+    zn_av_freep(&o->audio_channel_maps);
 #endif
-    av_freep(&o->attachments);
+    zn_av_freep(&o->attachments);
 
     av_dict_free(&o->streamid);
 }
@@ -302,7 +302,7 @@ static int apply_sync_offsets(void)
 
 static int opt_filter_threads(void *optctx, const char *opt, const char *arg)
 {
-    av_free(filter_nbthreads);
+    zn_av_free(filter_nbthreads);
     filter_nbthreads = av_strdup(arg);
     return 0;
 }
@@ -469,7 +469,7 @@ static int opt_map(void *optctx, const char *opt, const char *arg)
     }
     ret = 0;
 fail:
-    av_freep(&map);
+    zn_av_freep(&map);
     return ret;
 }
 
@@ -515,7 +515,7 @@ static int opt_map_channel(void *optctx, const char *opt, const char *arg)
         m->file_idx = m->stream_idx = -1;
         if (n == 1)
             m->ofile_idx = m->ostream_idx = -1;
-        av_free(mapchan);
+        zn_av_free(mapchan);
         return 0;
     }
 
@@ -569,7 +569,7 @@ static int opt_map_channel(void *optctx, const char *opt, const char *arg)
     }
     ret = 0;
 end:
-    av_free(mapchan);
+    zn_av_free(mapchan);
     return ret;
 fail:
     ret = AVERROR(EINVAL);
@@ -579,7 +579,7 @@ fail:
 
 static int opt_sdp_file(void *optctx, const char *opt, const char *arg)
 {
-    av_free(sdp_filename);
+    zn_av_free(sdp_filename);
     sdp_filename = av_strdup(arg);
     return 0;
 }
@@ -594,7 +594,7 @@ static int opt_vaapi_device(void *optctx, const char *opt, const char *arg)
     if (!tmp)
         return AVERROR(ENOMEM);
     err = hw_device_init_from_string(tmp, NULL);
-    av_free(tmp);
+    zn_av_free(tmp);
     return err;
 }
 #endif
@@ -610,7 +610,7 @@ static int opt_qsv_device(void *optctx, const char *opt, const char *arg)
         return AVERROR(ENOMEM);
 
     err = hw_device_init_from_string(tmp, NULL);
-    av_free(tmp);
+    zn_av_free(tmp);
 
     return err;
 }
@@ -680,8 +680,8 @@ int find_codec(void *logctx, const char *name,
         avcodec_find_decoder_by_name(name);
 
     if (!codec && (desc = avcodec_descriptor_get_by_name(name))) {
-        codec = encoder ? avcodec_find_encoder(desc->id) :
-                          avcodec_find_decoder(desc->id);
+        codec = encoder ? zn_avcodec_find_encoder(desc->id) :
+                          zn_avcodec_find_decoder(desc->id);
         if (codec)
             av_log(logctx, AV_LOG_VERBOSE, "Matched %s '%s' for codec '%s'.\n",
                    codec_string, codec->name, desc->name);
@@ -750,7 +750,7 @@ int assert_file_overwrite(const char *filename)
 char *file_read(const char *filename)
 {
     AVIOContext *pb      = NULL;
-    int ret = avio_open(&pb, filename, AVIO_FLAG_READ);
+    int ret = zn_avio_open(&pb, filename, AVIO_FLAG_READ);
     AVBPrint bprint;
     char *str;
 
@@ -761,7 +761,7 @@ char *file_read(const char *filename)
 
     av_bprint_init(&bprint, 0, AV_BPRINT_SIZE_UNLIMITED);
     ret = avio_read_to_bprint(pb, &bprint, SIZE_MAX);
-    avio_closep(&pb);
+    zn_avio_closep(&pb);
     if (ret < 0) {
         av_bprint_finalize(&bprint, NULL);
         return NULL;
@@ -949,7 +949,7 @@ static int opt_target(void *optctx, const char *opt, const char *arg)
 
 static int opt_vstats_file(void *optctx, const char *opt, const char *arg)
 {
-    av_free (vstats_filename);
+    zn_av_free (vstats_filename);
     vstats_filename = av_strdup (arg);
     return 0;
 }
@@ -1068,7 +1068,7 @@ static int opt_old2new(void *optctx, const char *opt, const char *arg)
     if (!s)
         return AVERROR(ENOMEM);
     ret = parse_option(o, s, arg, options);
-    av_free(s);
+    zn_av_free(s);
     return ret;
 }
 
@@ -1101,7 +1101,7 @@ static int opt_qscale(void *optctx, const char *opt, const char *arg)
     if (!s)
         return AVERROR(ENOMEM);
     ret = parse_option(o, s, arg, options);
-    av_free(s);
+    zn_av_free(s);
     return ret;
 }
 
@@ -1145,7 +1145,7 @@ static int opt_timecode(void *optctx, const char *opt, const char *arg)
     ret = parse_option(o, "metadata:g", tcr, options);
     if (ret >= 0)
         ret = av_dict_set(&o->g->codec_opts, "gop_timecode", arg, 0);
-    av_free(tcr);
+    zn_av_free(tcr);
     return ret;
 }
 
@@ -1357,7 +1357,7 @@ fail:
     uninit_parse_context(&octx);
     if (ret < 0 && ret != AVERROR_EXIT) {
         av_log(NULL, AV_LOG_FATAL, "Error %s: %s\n",
-               errmsg ? errmsg : "", av_err2str(ret));
+               errmsg ? errmsg : "", zn_av_err2str(ret));
     }
     return ret;
 }
@@ -1372,7 +1372,7 @@ static int opt_progress(void *optctx, const char *opt, const char *arg)
     ret = avio_open2(&avio, arg, AVIO_FLAG_WRITE, &int_cb, NULL);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Failed to open progress URL \"%s\": %s\n",
-               arg, av_err2str(ret));
+               arg, zn_av_err2str(ret));
         return ret;
     }
     progress_avio = avio;

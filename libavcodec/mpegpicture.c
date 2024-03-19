@@ -109,7 +109,7 @@ int ff_mpeg_framesize_alloc(AVCodecContext *avctx, MotionEstContext *me,
     // we also use this buffer for encoding in encode_mb_internal() needig an additional 32 lines
     if (!FF_ALLOCZ_TYPED_ARRAY(sc->edge_emu_buffer, alloc_size * EMU_EDGE_HEIGHT) ||
         !FF_ALLOCZ_TYPED_ARRAY(me->scratchpad,      alloc_size * 4 * 16 * 2)) {
-        av_freep(&sc->edge_emu_buffer);
+        zn_av_freep(&sc->edge_emu_buffer);
         return AVERROR(ENOMEM);
     }
 
@@ -393,5 +393,5 @@ void av_cold ff_mpv_picture_free(Picture *pic)
 {
     free_picture_tables(pic);
     ff_mpeg_unref_picture(pic);
-    av_frame_free(&pic->f);
+    zn_av_frame_free(&pic->f);
 }

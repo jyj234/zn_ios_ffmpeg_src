@@ -105,7 +105,7 @@ int ff_hls_senc_parse_audio_setup_info(AVStream *st, HLSAudioSetupInfo *info)
 
         ret = avpriv_ac3_parse_header(&ac3hdr, info->setup_data, info->setup_data_length);
         if (ret < 0) {
-            av_free(ac3hdr);
+            zn_av_free(ac3hdr);
             return ret;
         }
 
@@ -114,7 +114,7 @@ int ff_hls_senc_parse_audio_setup_info(AVStream *st, HLSAudioSetupInfo *info)
         av_channel_layout_from_mask(&st->codecpar->ch_layout, ac3hdr->channel_layout);
         st->codecpar->bit_rate          = ac3hdr->bit_rate;
 
-        av_free(ac3hdr);
+        zn_av_free(ac3hdr);
     } else {  /*  Parse 'dec3' EC3SpecificBox */
         GetBitContext gb;
         uint64_t mask;
@@ -290,7 +290,7 @@ static int get_next_adts_frame(CodecParserContext *ctx, AudioFrame *frame)
     frame->header_length = adts_hdr->crc_absent ? AV_AAC_ADTS_HEADER_SIZE : AV_AAC_ADTS_HEADER_SIZE + 2;
     frame->length = adts_hdr->frame_length;
 
-    av_free(adts_hdr);
+    zn_av_free(adts_hdr);
 
     return 0;
 }
@@ -316,13 +316,13 @@ static int get_next_ac3_eac3_sync_frame(CodecParserContext *ctx, AudioFrame *fra
 
     ret = avpriv_ac3_parse_header(&hdr, frame->data, ctx->buf_end - frame->data);
     if (ret < 0) {
-        av_free(hdr);
+        zn_av_free(hdr);
         return ret;
     }
 
     frame->length = hdr->frame_size;
 
-    av_free(hdr);
+    zn_av_free(hdr);
 
     return 0;
 }

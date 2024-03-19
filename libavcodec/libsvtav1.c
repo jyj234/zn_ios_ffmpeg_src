@@ -432,7 +432,7 @@ static av_cold int eb_enc_init(AVCodecContext *avctx)
         }
     }
 
-    svt_enc->frame = av_frame_alloc();
+    svt_enc->frame = zn_av_frame_alloc();
     if (!svt_enc->frame)
         return AVERROR(ENOMEM);
 
@@ -590,12 +590,12 @@ static av_cold int eb_enc_close(AVCodecContext *avctx)
         svt_av1_enc_deinit_handle(svt_enc->svt_handle);
     }
     if (svt_enc->in_buf) {
-        av_free(svt_enc->in_buf->p_buffer);
-        av_freep(&svt_enc->in_buf);
+        zn_av_free(svt_enc->in_buf->p_buffer);
+        zn_av_freep(&svt_enc->in_buf);
     }
 
     av_buffer_pool_uninit(&svt_enc->pool);
-    av_frame_free(&svt_enc->frame);
+    zn_av_frame_free(&svt_enc->frame);
 
     return 0;
 }

@@ -37,7 +37,7 @@ static av_cold int audio_read_header(AVFormatContext *s1)
     AVStream *st;
     int ret;
 
-    st = avformat_new_stream(s1, NULL);
+    st = zn_avformat_new_stream(s1, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -67,7 +67,7 @@ static int audio_read_packet(AVFormatContext *s1, AVPacket *pkt)
 
     ret = sio_read(s->hdl, pkt->data, pkt->size);
     if (ret == 0 || sio_eof(s->hdl)) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
         return AVERROR_EOF;
     }
 

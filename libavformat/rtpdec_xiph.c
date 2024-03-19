@@ -53,7 +53,7 @@ struct PayloadContext {
 static void xiph_close_context(PayloadContext * data)
 {
     ffio_free_dyn_buf(&data->fragment);
-    av_freep(&data->split_buf);
+    zn_av_freep(&data->split_buf);
 }
 
 
@@ -135,12 +135,12 @@ static int xiph_handle_packet(AVFormatContext *ctx, PayloadContext *data,
 
         if (num_pkts > 0) {
             if (len > data->split_buf_size || !data->split_buf) {
-                av_freep(&data->split_buf);
+                zn_av_freep(&data->split_buf);
                 data->split_buf_size = 2 * len;
                 data->split_buf = av_malloc(data->split_buf_size);
                 if (!data->split_buf) {
                     av_log(ctx, AV_LOG_ERROR, "Out of memory.\n");
-                    av_packet_unref(pkt);
+                    zn_av_packet_unref(pkt);
                     return AVERROR(ENOMEM);
                 }
             }
@@ -345,7 +345,7 @@ static int xiph_parse_fmtp_pair(AVFormatContext *s,
             av_log(s, AV_LOG_ERROR, "Packet too large\n");
             result = AVERROR_INVALIDDATA;
         }
-        av_free(decoded_packet);
+        zn_av_free(decoded_packet);
     }
     return result;
 }

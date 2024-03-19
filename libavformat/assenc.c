@@ -99,8 +99,8 @@ static void purge_dialogues(AVFormatContext *s, int force)
         avio_print(s->pb, "Dialogue: ", dialogue->line, "\r\n");
         if (dialogue == ass->last_added_dialogue)
             ass->last_added_dialogue = next;
-        av_freep(&dialogue->line);
-        av_free(dialogue);
+        zn_av_freep(&dialogue->line);
+        zn_av_free(dialogue);
         if (next)
             next->prev = NULL;
         dialogue = ass->dialogue_cache = next;
@@ -192,7 +192,7 @@ static int write_packet(AVFormatContext *s, AVPacket *pkt)
                                  ass->ssa_mode ? "Marked=" : "",
                                  layer, hh1, mm1, ss1, ms1, hh2, mm2, ss2, ms2, p);
     if (!dialogue->line) {
-        av_free(dialogue);
+        zn_av_free(dialogue);
         return AVERROR(ENOMEM);
     }
     insert_dialogue(ass, dialogue);

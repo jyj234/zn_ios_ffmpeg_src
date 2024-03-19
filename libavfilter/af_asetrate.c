@@ -80,7 +80,7 @@ static av_cold int config_props(AVFilterLink *outlink)
     } else {
         outlink->time_base = intb;
         sr->rescale_pts = 1;
-        if (av_q2d(intb) > 1.0 / FFMAX(inrate, outlink->sample_rate))
+        if (zn_av_q2d(intb) > 1.0 / FFMAX(inrate, outlink->sample_rate))
             av_log(ctx, AV_LOG_WARNING, "Time base is inaccurate\n");
     }
     return 0;

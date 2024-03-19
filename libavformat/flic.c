@@ -105,7 +105,7 @@ static int flic_read_header(AVFormatContext *s)
         speed = FLIC_DEFAULT_SPEED;
 
     /* initialize the decoder streams */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     flic->video_stream_index = st->index;
@@ -145,7 +145,7 @@ static int flic_read_header(AVFormatContext *s)
      */
     if (AV_RL16(&preamble[4]) == FLIC_TFTD_CHUNK_AUDIO) {
         /* TFTD videos have an extra 22050 Hz 8-bit mono audio stream */
-        ast = avformat_new_stream(s, NULL);
+        ast = zn_avformat_new_stream(s, NULL);
         if (!ast)
             return AVERROR(ENOMEM);
 

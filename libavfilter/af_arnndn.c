@@ -158,17 +158,17 @@ static void rnnoise_model_free(RNNModel *model)
 #define FREE_MAYBE(ptr) do { if (ptr) free(ptr); } while (0)
 #define FREE_DENSE(name) do { \
     if (model->name) { \
-        av_free((void *) model->name->input_weights); \
-        av_free((void *) model->name->bias); \
-        av_free((void *) model->name); \
+        zn_av_free((void *) model->name->input_weights); \
+        zn_av_free((void *) model->name->bias); \
+        zn_av_free((void *) model->name); \
     } \
     } while (0)
 #define FREE_GRU(name) do { \
     if (model->name) { \
-        av_free((void *) model->name->input_weights); \
-        av_free((void *) model->name->recurrent_weights); \
-        av_free((void *) model->name->bias); \
-        av_free((void *) model->name); \
+        zn_av_free((void *) model->name->input_weights); \
+        zn_av_free((void *) model->name->recurrent_weights); \
+        zn_av_free((void *) model->name->bias); \
+        zn_av_free((void *) model->name); \
     } \
     } while (0)
 
@@ -180,7 +180,7 @@ static void rnnoise_model_free(RNNModel *model)
     FREE_GRU(denoise_gru);
     FREE_DENSE(denoise_output);
     FREE_DENSE(vad_output);
-    av_free(model);
+    zn_av_free(model);
 }
 
 static int rnnoise_model_from_file(FILE *f, RNNModel **rnn)
@@ -197,12 +197,12 @@ static int rnnoise_model_from_file(FILE *f, RNNModel **rnn)
     if (fscanf(f, "rnnoise-nu model file version %d\n", &in) != 1 || in != 1)
         return AVERROR_INVALIDDATA;
 
-    ret = av_calloc(1, sizeof(RNNModel));
+    ret = zn_av_calloc(1, sizeof(RNNModel));
     if (!ret)
         return AVERROR(ENOMEM);
 
 #define ALLOC_LAYER(type, name) \
-    name = av_calloc(1, sizeof(type)); \
+    name = zn_av_calloc(1, sizeof(type)); \
     if (!name) { \
         rnnoise_model_free(ret); \
         return AVERROR(ENOMEM); \
@@ -240,7 +240,7 @@ static int rnnoise_model_from_file(FILE *f, RNNModel **rnn)
     } while (0)
 
 #define INPUT_ARRAY(name, len) do { \
-    float *values = av_calloc((len), sizeof(float)); \
+    float *values = zn_av_calloc((len), sizeof(float)); \
     if (!values) { \
         rnnoise_model_free(ret); \
         return AVERROR(ENOMEM); \
@@ -256,7 +256,7 @@ static int rnnoise_model_from_file(FILE *f, RNNModel **rnn)
     } while (0)
 
 #define INPUT_ARRAY3(name, len0, len1, len2) do { \
-    float *values = av_calloc(FFALIGN((len0), 4) * FFALIGN((len1), 4) * (len2), sizeof(float)); \
+    float *values = zn_av_calloc(FFALIGN((len0), 4) * FFALIGN((len1), 4) * (len2), sizeof(float)); \
     if (!values) { \
         rnnoise_model_free(ret); \
         return AVERROR(ENOMEM); \
@@ -354,7 +354,7 @@ static int config_input(AVFilterLink *inlink)
     s->channels = inlink->ch_layout.nb_channels;
 
     if (!s->st)
-        s->st = av_calloc(s->channels, sizeof(DenoiseState));
+        s->st = zn_av_calloc(s->channels, sizeof(DenoiseState));
     if (!s->st)
         return AVERROR(ENOMEM);
 
@@ -362,9 +362,9 @@ static int config_input(AVFilterLink *inlink)
         DenoiseState *st = &s->st[i];
 
         st->rnn[0].model = s->model[0];
-        st->rnn[0].vad_gru_state = av_calloc(sizeof(float), FFALIGN(s->model[0]->vad_gru_size, 16));
-        st->rnn[0].noise_gru_state = av_calloc(sizeof(float), FFALIGN(s->model[0]->noise_gru_size, 16));
-        st->rnn[0].denoise_gru_state = av_calloc(sizeof(float), FFALIGN(s->model[0]->denoise_gru_size, 16));
+        st->rnn[0].vad_gru_state = zn_av_calloc(sizeof(float), FFALIGN(s->model[0]->vad_gru_size, 16));
+        st->rnn[0].noise_gru_state = zn_av_calloc(sizeof(float), FFALIGN(s->model[0]->noise_gru_size, 16));
+        st->rnn[0].denoise_gru_state = zn_av_calloc(sizeof(float), FFALIGN(s->model[0]->denoise_gru_size, 16));
         if (!st->rnn[0].vad_gru_state ||
             !st->rnn[0].noise_gru_state ||
             !st->rnn[0].denoise_gru_state)
@@ -1434,7 +1434,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_audio_buffer(outlink, FRAME_SIZE);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -1443,7 +1443,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, rnnoise_channels, &td, NULL,
                       FFMIN(outlink->ch_layout.nb_channels, ff_filter_get_nb_threads(ctx)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -1528,9 +1528,9 @@ static void free_model(AVFilterContext *ctx, int n)
     s->model[n] = NULL;
 
     for (int ch = 0; ch < s->channels && s->st; ch++) {
-        av_freep(&s->st[ch].rnn[n].vad_gru_state);
-        av_freep(&s->st[ch].rnn[n].noise_gru_state);
-        av_freep(&s->st[ch].rnn[n].denoise_gru_state);
+        zn_av_freep(&s->st[ch].rnn[n].vad_gru_state);
+        zn_av_freep(&s->st[ch].rnn[n].noise_gru_state);
+        zn_av_freep(&s->st[ch].rnn[n].denoise_gru_state);
     }
 }
 
@@ -1568,13 +1568,13 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioRNNContext *s = ctx->priv;
 
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
     free_model(ctx, 0);
     for (int ch = 0; ch < s->channels && s->st; ch++) {
         av_tx_uninit(&s->st[ch].tx);
         av_tx_uninit(&s->st[ch].txi);
     }
-    av_freep(&s->st);
+    zn_av_freep(&s->st);
 }
 
 static const AVFilterPad inputs[] = {

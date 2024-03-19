@@ -476,7 +476,7 @@ static int create_frame(AVFilterContext *ctx, int64_t pts)
         s->eof_frames = 0;
     return ff_filter_frame(outlink, out);
 error:
-    av_frame_free(&out);
+    zn_av_frame_free(&out);
     return ret;
 }
 
@@ -499,7 +499,7 @@ static int activate(AVFilterContext *ctx)
             return ret;
         if (ret > 0) {
             pts = frame->pts;
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
         }
     }
 
@@ -562,7 +562,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     GraphMonitorContext *s = ctx->priv;
 
-    av_freep(&s->cache);
+    zn_av_freep(&s->cache);
     s->cache_size = s->cache_index = 0;
 }
 

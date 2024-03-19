@@ -134,7 +134,7 @@ static void celt_frame_setup_input(OpusEncContext *s, CeltFrame *f)
         memcpy(b->overlap, input, bps*cur->nb_samples);
     }
 
-    av_frame_free(&cur);
+    zn_av_frame_free(&cur);
 
     for (int sf = 0; sf < subframes; sf++) {
         if (sf != (subframes - 1))
@@ -154,7 +154,7 @@ static void celt_frame_setup_input(OpusEncContext *s, CeltFrame *f)
 
         /* Last frame isn't popped off and freed yet - we need it for overlap */
         if (sf != (subframes - 1))
-            av_frame_free(&cur);
+            zn_av_frame_free(&cur);
     }
 }
 
@@ -520,19 +520,19 @@ static void opus_packet_assembler(OpusEncContext *s, AVPacket *avpkt)
 /* Used as overlap for the first frame and padding for the last encoded packet */
 static AVFrame *spawn_empty_frame(OpusEncContext *s)
 {
-    AVFrame *f = av_frame_alloc();
+    AVFrame *f = zn_av_frame_alloc();
     int ret;
     if (!f)
         return NULL;
     f->format         = s->avctx->sample_fmt;
     f->nb_samples     = s->avctx->frame_size;
-    ret = av_channel_layout_copy(&f->ch_layout, &s->avctx->ch_layout);
+    ret = zn_av_channel_layout_copy(&f->ch_layout, &s->avctx->ch_layout);
     if (ret < 0) {
-        av_frame_free(&f);
+        zn_av_frame_free(&f);
         return NULL;
     }
-    if (av_frame_get_buffer(f, 4)) {
-        av_frame_free(&f);
+    if (zn_av_frame_get_buffer(f, 4)) {
+        zn_av_frame_free(&f);
         return NULL;
     }
     for (int i = 0; i < s->channels; i++) {
@@ -618,9 +618,9 @@ static av_cold int opus_encode_end(AVCodecContext *avctx)
         av_tx_uninit(&s->tx[i]);
 
     ff_celt_pvq_uninit(&s->pvq);
-    av_freep(&s->dsp);
-    av_freep(&s->frame);
-    av_freep(&s->rc);
+    zn_av_freep(&s->dsp);
+    zn_av_freep(&s->frame);
+    zn_av_freep(&s->rc);
     ff_af_queue_close(&s->afq);
     ff_opus_psy_end(&s->psyctx);
     ff_bufqueue_discard_all(&s->bufqueue);

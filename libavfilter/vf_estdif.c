@@ -513,13 +513,13 @@ static int config_input(AVFilterLink *inlink)
     ret = filter(ctx, s->prev, s->prev->pts * 2,
                  s->prev->duration * (s->mode ? 1 : 2));
     if (ret < 0 || s->mode == 0) {
-        av_frame_free(&s->prev);
+        zn_av_frame_free(&s->prev);
         s->prev = in;
         return ret;
     }
 
     ret = filter(ctx, s->prev, s->prev->pts + in->pts, in->duration);
-    av_frame_free(&s->prev);
+    zn_av_frame_free(&s->prev);
     s->prev = in;
     return ret;
 }
@@ -556,7 +556,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ESTDIFContext *s = ctx->priv;
 
-    av_frame_free(&s->prev);
+    zn_av_frame_free(&s->prev);
 }
 
 static const AVFilterPad estdif_inputs[] = {

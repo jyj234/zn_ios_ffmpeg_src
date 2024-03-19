@@ -436,7 +436,7 @@ static int filter_frame(AVFilterContext *ctx)
         } else {
             out = ff_get_audio_buffer(outlink, in->nb_samples);
             if (!out) {
-                av_frame_free(&in);
+                zn_av_frame_free(&in);
                 return AVERROR(ENOMEM);
             }
             av_frame_copy_props(out, in);
@@ -448,7 +448,7 @@ static int filter_frame(AVFilterContext *ctx)
                                         outlink->time_base);
 
         if (out != in)
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
         return ff_filter_frame(outlink, out);
     }
 
@@ -481,7 +481,7 @@ static int activate(AVFilterContext *ctx)
     int ret, status;
     int64_t pts;
 
-    ret = av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
+    ret = zn_av_channel_layout_copy(&s->ch_layout, &inlink->ch_layout);
     if (ret < 0)
         return ret;
     if (strcmp(s->ch_layout_str, "all"))
@@ -528,7 +528,7 @@ static int config_input(AVFilterLink *inlink)
     s->max_period = inlink->sample_rate / 10;
 
     s->prev_gain = 1.;
-    s->cc = av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->cc));
+    s->cc = zn_av_calloc(inlink->ch_layout.nb_channels, sizeof(*s->cc));
     if (!s->cc)
         return AVERROR(ENOMEM);
 
@@ -579,7 +579,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     ff_bufqueue_discard_all(&s->queue);
     av_channel_layout_uninit(&s->ch_layout);
-    av_freep(&s->cc);
+    zn_av_freep(&s->cc);
 }
 
 static const AVFilterPad inputs[] = {

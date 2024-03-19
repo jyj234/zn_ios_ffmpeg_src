@@ -610,23 +610,23 @@ static int allocate_3dlut(AVFilterContext *ctx, int lutsize, int prelut)
         return AVERROR(EINVAL);
     }
 
-    av_freep(&lut3d->lut);
-    lut3d->lut = av_malloc_array(lutsize * lutsize * lutsize, sizeof(*lut3d->lut));
+    zn_av_freep(&lut3d->lut);
+    lut3d->lut = zn_av_malloc_array(lutsize * lutsize * lutsize, sizeof(*lut3d->lut));
     if (!lut3d->lut)
         return AVERROR(ENOMEM);
 
     if (prelut) {
         lut3d->prelut.size = PRELUT_SIZE;
         for (i = 0; i < 3; i++) {
-            av_freep(&lut3d->prelut.lut[i]);
-            lut3d->prelut.lut[i] = av_malloc_array(PRELUT_SIZE, sizeof(*lut3d->prelut.lut[0]));
+            zn_av_freep(&lut3d->prelut.lut[i]);
+            lut3d->prelut.lut[i] = zn_av_malloc_array(PRELUT_SIZE, sizeof(*lut3d->prelut.lut[0]));
             if (!lut3d->prelut.lut[i])
                 return AVERROR(ENOMEM);
         }
     } else {
         lut3d->prelut.size = 0;
         for (i = 0; i < 3; i++) {
-            av_freep(&lut3d->prelut.lut[i]);
+            zn_av_freep(&lut3d->prelut.lut[i]);
         }
     }
     lut3d->lutsize = lutsize;
@@ -1061,8 +1061,8 @@ static int parse_cinespace(AVFilterContext *ctx, FILE *f)
 
 end:
     for (int c = 0; c < 3; c++) {
-        av_freep(&in_prelut[c]);
-        av_freep(&out_prelut[c]);
+        zn_av_freep(&in_prelut[c]);
+        zn_av_freep(&out_prelut[c]);
     }
     return ret;
 }
@@ -1168,7 +1168,7 @@ static AVFrame *apply_lut(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return NULL;
         }
         av_frame_copy_props(out, in);
@@ -1180,7 +1180,7 @@ static AVFrame *apply_lut(AVFilterLink *inlink, AVFrame *in)
                       FFMIN(outlink->h, ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return out;
 }
@@ -1244,7 +1244,7 @@ static av_cold int lut3d_init(AVFilterContext *ctx)
     f = avpriv_fopen_utf8(lut3d->file, "r");
     if (!f) {
         ret = AVERROR(errno);
-        av_log(ctx, AV_LOG_ERROR, "%s: %s\n", lut3d->file, av_err2str(ret));
+        av_log(ctx, AV_LOG_ERROR, "%s: %s\n", lut3d->file, zn_av_err2str(ret));
         return ret;
     }
 
@@ -1285,10 +1285,10 @@ static av_cold void lut3d_uninit(AVFilterContext *ctx)
 {
     LUT3DContext *lut3d = ctx->priv;
     int i;
-    av_freep(&lut3d->lut);
+    zn_av_freep(&lut3d->lut);
 
     for (i = 0; i < 3; i++) {
-        av_freep(&lut3d->prelut.lut[i]);
+        zn_av_freep(&lut3d->prelut.lut[i]);
     }
 }
 
@@ -1540,7 +1540,7 @@ static av_cold void haldclut_uninit(AVFilterContext *ctx)
 {
     LUT3DContext *lut3d = ctx->priv;
     ff_framesync_uninit(&lut3d->fs);
-    av_freep(&lut3d->lut);
+    zn_av_freep(&lut3d->lut);
 }
 
 FRAMESYNC_DEFINE_CLASS_EXT(haldclut, LUT3DContext, fs,
@@ -2128,7 +2128,7 @@ static av_cold int lut1d_init(AVFilterContext *ctx)
     f = avpriv_fopen_utf8(lut1d->file, "r");
     if (!f) {
         ret = AVERROR(errno);
-        av_log(ctx, AV_LOG_ERROR, "%s: %s\n", lut1d->file, av_err2str(ret));
+        av_log(ctx, AV_LOG_ERROR, "%s: %s\n", lut1d->file, zn_av_err2str(ret));
         return ret;
     }
 
@@ -2172,7 +2172,7 @@ static AVFrame *apply_1d_lut(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return NULL;
         }
         av_frame_copy_props(out, in);
@@ -2184,7 +2184,7 @@ static AVFrame *apply_1d_lut(AVFilterLink *inlink, AVFrame *in)
                       FFMIN(outlink->h, ff_filter_get_nb_threads(ctx)));
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return out;
 }

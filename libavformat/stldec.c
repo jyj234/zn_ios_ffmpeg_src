@@ -72,7 +72,7 @@ static int64_t get_pts(char **buf, int *duration)
 static int stl_read_header(AVFormatContext *s)
 {
     STLContext *stl = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

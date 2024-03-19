@@ -95,7 +95,7 @@ static int h264_extradata_to_annexb(AVBSFContext *ctx, const int padding)
         if (bytestream2_get_bytes_left(gb) < unit_size + !sps_done) {
             av_log(ctx, AV_LOG_ERROR, "Global extradata truncated, "
                    "corrupted stream or invalid MP4/AVCC bitstream\n");
-            av_free(out);
+            zn_av_free(out);
             return AVERROR_INVALIDDATA;
         }
         if ((err = av_reallocp(&out, total_size + padding)) < 0)
@@ -129,7 +129,7 @@ pps:
                "The resulting stream may not play.\n");
     }
 
-    av_freep(&ctx->par_out->extradata);
+    zn_av_freep(&ctx->par_out->extradata);
     ctx->par_out->extradata      = out;
     ctx->par_out->extradata_size = total_size;
 
@@ -184,7 +184,7 @@ static int h264_mp4toannexb_filter(AVBSFContext *ctx, AVPacket *opkt)
     /* nothing to filter */
     if (!s->extradata_parsed) {
         av_packet_move_ref(opkt, in);
-        av_packet_free(&in);
+        zn_av_packet_free(&in);
         return 0;
     }
 
@@ -293,8 +293,8 @@ static int h264_mp4toannexb_filter(AVBSFContext *ctx, AVPacket *opkt)
 
 fail:
     if (ret < 0)
-        av_packet_unref(opkt);
-    av_packet_free(&in);
+        zn_av_packet_unref(opkt);
+    zn_av_packet_free(&in);
 
     return ret;
 }

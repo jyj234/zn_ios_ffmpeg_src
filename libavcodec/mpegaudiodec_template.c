@@ -293,7 +293,7 @@ static av_cold int decode_init(AVCodecContext * avctx)
         if (!fdsp)
             return AVERROR(ENOMEM);
         s->butterflies_float = fdsp->butterflies_float;
-        av_free(fdsp);
+        zn_av_free(fdsp);
     }
 #endif
 
@@ -1735,7 +1735,7 @@ static av_cold int decode_close_mp3on4(AVCodecContext * avctx)
     int i;
 
     for (i = 0; i < s->frames; i++)
-        av_freep(&s->mp3decctx[i]);
+        zn_av_freep(&s->mp3decctx[i]);
 
     return 0;
 }

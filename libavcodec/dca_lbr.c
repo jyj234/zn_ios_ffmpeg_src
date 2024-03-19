@@ -1832,9 +1832,9 @@ av_cold void ff_dca_lbr_close(DCALbrDecoder *s)
 {
     s->sample_rate = 0;
 
-    av_freep(&s->ts_buffer);
+    zn_av_freep(&s->ts_buffer);
     s->ts_size = 0;
 
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
     av_tx_uninit(&s->imdct);
 }

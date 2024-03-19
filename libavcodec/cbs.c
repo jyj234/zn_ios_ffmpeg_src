@@ -107,7 +107,7 @@ av_cold int ff_cbs_init(CodedBitstreamContext **ctx_ptr,
     if (type->priv_data_size) {
         ctx->priv_data = av_mallocz(ctx->codec->priv_data_size);
         if (!ctx->priv_data) {
-            av_freep(&ctx);
+            zn_av_freep(&ctx);
             return AVERROR(ENOMEM);
         }
         if (type->priv_class) {
@@ -142,13 +142,13 @@ av_cold void ff_cbs_close(CodedBitstreamContext **ctx_ptr)
     if (ctx->codec->close)
         ctx->codec->close(ctx);
 
-    av_freep(&ctx->write_buffer);
+    zn_av_freep(&ctx->write_buffer);
 
     if (ctx->codec->priv_class && ctx->priv_data)
         av_opt_free(ctx->priv_data);
 
-    av_freep(&ctx->priv_data);
-    av_freep(ctx_ptr);
+    zn_av_freep(&ctx->priv_data);
+    zn_av_freep(ctx_ptr);
 }
 
 static void cbs_unit_uninit(CodedBitstreamUnit *unit)
@@ -180,7 +180,7 @@ av_cold void ff_cbs_fragment_free(CodedBitstreamFragment *frag)
 {
     ff_cbs_fragment_reset(frag);
 
-    av_freep(&frag->units);
+    zn_av_freep(&frag->units);
     frag->nb_units_allocated = 0;
 }
 
@@ -445,7 +445,7 @@ int ff_cbs_write_extradata(CodedBitstreamContext *ctx,
     if (err < 0)
         return err;
 
-    av_freep(&par->extradata);
+    zn_av_freep(&par->extradata);
     par->extradata_size = 0;
 
     if (!frag->data_size)
@@ -747,7 +747,7 @@ static int cbs_insert_unit(CodedBitstreamFragment *frag,
             memmove(units + position + 1, units + position,
                     (frag->nb_units - position) * sizeof(*units));
     } else {
-        units = av_malloc_array(frag->nb_units*2 + 1, sizeof(*units));
+        units = zn_av_malloc_array(frag->nb_units*2 + 1, sizeof(*units));
         if (!units)
             return AVERROR(ENOMEM);
 
@@ -764,7 +764,7 @@ static int cbs_insert_unit(CodedBitstreamFragment *frag,
     memset(units + position, 0, sizeof(*units));
 
     if (units != frag->units) {
-        av_free(frag->units);
+        zn_av_free(frag->units);
         frag->units = units;
     }
 
@@ -821,7 +821,7 @@ static int cbs_insert_unit_data(CodedBitstreamFragment *frag,
         data_ref = av_buffer_create(data, data_size, NULL, NULL, 0);
     if (!data_ref) {
         if (!data_buf)
-            av_free(data);
+            zn_av_free(data);
         return AVERROR(ENOMEM);
     }
 

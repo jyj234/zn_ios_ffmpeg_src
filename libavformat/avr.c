@@ -42,7 +42,7 @@ static int avr_read_header(AVFormatContext *s)
     uint16_t chan, sign, bps;
     AVStream *st;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

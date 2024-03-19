@@ -218,7 +218,7 @@ static int nlmeans_plane(AVFilterContext *avctx, cl_mem dst, cl_mem src,
         dxdy[i * 8 + 6] = tmp[i * 8 + 5]; // dy2
         dxdy[i * 8 + 7] = tmp[i * 8 + 7]; // dy3
     }
-    av_freep(&tmp);
+    zn_av_freep(&tmp);
 
     for (i = 0; i < nb_pixel / 4; i++) {
         cl_int *dx_cur = dxdy + 8 * i;
@@ -262,7 +262,7 @@ static int nlmeans_plane(AVFilterContext *avctx, cl_mem dst, cl_mem src,
                                      2, NULL, worksize3, NULL, 0, NULL, NULL);
         CL_FAIL_ON_ERROR(AVERROR(EIO), "Failed to enqueue kernel: %d.\n", cle);
     }
-    av_freep(&dxdy);
+    zn_av_freep(&dxdy);
 
     // average
     CL_SET_KERNEL_ARG(ctx->average_kernel, 0, cl_mem, &dst);
@@ -277,9 +277,9 @@ static int nlmeans_plane(AVFilterContext *avctx, cl_mem dst, cl_mem src,
     CL_FAIL_ON_ERROR(AVERROR(EIO), "Failed to flush command queue: %d.\n", cle);
 fail:
     if (tmp)
-        av_freep(&tmp);
+        zn_av_freep(&tmp);
     if (dxdy)
-        av_freep(&dxdy);
+        zn_av_freep(&dxdy);
     return err;
 }
 
@@ -362,7 +362,7 @@ static int nlmeans_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
     if (overflow > 0)
         av_log(avctx, AV_LOG_ERROR, "integral image overflow %d\n", overflow);
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     av_log(ctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(output->format),
@@ -372,8 +372,8 @@ static int nlmeans_opencl_filter_frame(AVFilterLink *inlink, AVFrame *input)
 
 fail:
     clFinish(ctx->command_queue);
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

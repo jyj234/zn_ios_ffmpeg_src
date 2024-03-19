@@ -273,8 +273,8 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     VBDecContext *c = avctx->priv_data;
 
-    av_freep(&c->frame);
-    av_freep(&c->prev_frame);
+    zn_av_freep(&c->frame);
+    zn_av_freep(&c->prev_frame);
 
     return 0;
 }

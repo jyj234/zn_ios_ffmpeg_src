@@ -80,13 +80,13 @@ static int video_decode(const char *input_filename)
 
     draw_horiz_band_called = 0;
 
-    result = avformat_open_input(&fmt_ctx, input_filename, NULL, NULL);
+    result = zn_avformat_open_input(&fmt_ctx, input_filename, NULL, NULL);
     if (result < 0) {
         av_log(NULL, AV_LOG_ERROR, "Can't open file\n");
         return result;
     }
 
-    result = avformat_find_stream_info(fmt_ctx, NULL);
+    result = zn_avformat_find_stream_info(fmt_ctx, NULL);
     if (result < 0) {
         av_log(NULL, AV_LOG_ERROR, "Can't get stream info\n");
         return result;
@@ -100,19 +100,19 @@ static int video_decode(const char *input_filename)
 
     origin_par = fmt_ctx->streams[video_stream]->codecpar;
 
-    codec = avcodec_find_decoder(origin_par->codec_id);
+    codec = zn_avcodec_find_decoder(origin_par->codec_id);
     if (!codec) {
         av_log(NULL, AV_LOG_ERROR, "Can't find decoder\n");
         return -1;
     }
 
-    ctx = avcodec_alloc_context3(codec);
+    ctx = zn_avcodec_alloc_context3(codec);
     if (!ctx) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate decoder context\n");
         return AVERROR(ENOMEM);
     }
 
-    result = avcodec_parameters_to_context(ctx, origin_par);
+    result = zn_avcodec_parameters_to_context(ctx, origin_par);
     if (result) {
         av_log(NULL, AV_LOG_ERROR, "Can't copy decoder context\n");
         return result;
@@ -121,19 +121,19 @@ static int video_decode(const char *input_filename)
     ctx->draw_horiz_band = draw_horiz_band;
     ctx->thread_count = 1;
 
-    result = avcodec_open2(ctx, codec, NULL);
+    result = zn_avcodec_open2(ctx, codec, NULL);
     if (result < 0) {
         av_log(ctx, AV_LOG_ERROR, "Can't open decoder\n");
         return result;
     }
 
-    fr = av_frame_alloc();
+    fr = zn_av_frame_alloc();
     if (!fr) {
         av_log(NULL, AV_LOG_ERROR, "Can't allocate frame\n");
         return AVERROR(ENOMEM);
     }
 
-    pkt = av_packet_alloc();
+    pkt = zn_av_packet_alloc();
     if (!pkt) {
         av_log(NULL, AV_LOG_ERROR, "Cannot allocate packet\n");
         return AVERROR(ENOMEM);
@@ -161,16 +161,16 @@ static int video_decode(const char *input_filename)
 
     result = 0;
     while (result >= 0) {
-        result = av_read_frame(fmt_ctx, pkt);
+        result = zn_av_read_frame(fmt_ctx, pkt);
         if (result >= 0 && pkt->stream_index != video_stream) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             continue;
         }
 
         // pkt will be empty on read error/EOF
-        result = avcodec_send_packet(ctx, pkt);
+        result = zn_avcodec_send_packet(ctx, pkt);
 
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
 
         if (result < 0) {
             av_log(NULL, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
@@ -178,7 +178,7 @@ static int video_decode(const char *input_filename)
         }
 
         while (result >= 0) {
-            result = avcodec_receive_frame(ctx, fr);
+            result = zn_avcodec_receive_frame(ctx, fr);
             if (result == AVERROR_EOF)
                 goto finish;
             else if (result == AVERROR(EAGAIN)) {
@@ -210,12 +210,12 @@ static int video_decode(const char *input_filename)
     }
 
 finish:
-    av_packet_free(&pkt);
-    av_frame_free(&fr);
-    avformat_close_input(&fmt_ctx);
+    zn_av_packet_free(&pkt);
+    zn_av_frame_free(&fr);
+    zn_avformat_close_input(&fmt_ctx);
     avcodec_free_context(&ctx);
-    av_freep(&byte_buffer);
-    av_freep(&slice_byte_buffer);
+    zn_av_freep(&byte_buffer);
+    zn_av_freep(&slice_byte_buffer);
     return 0;
 }
 

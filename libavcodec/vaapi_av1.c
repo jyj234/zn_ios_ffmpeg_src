@@ -74,12 +74,12 @@ static int vaapi_av1_decode_init(AVCodecContext *avctx)
 {
     VAAPIAV1DecContext *ctx = avctx->internal->hwaccel_priv_data;
 
-    ctx->tmp_frame = av_frame_alloc();
+    ctx->tmp_frame = zn_av_frame_alloc();
     if (!ctx->tmp_frame)
         return AVERROR(ENOMEM);
 
     for (int i = 0; i < FF_ARRAY_ELEMS(ctx->ref_tab); i++) {
-        ctx->ref_tab[i].frame = av_frame_alloc();
+        ctx->ref_tab[i].frame = zn_av_frame_alloc();
         if (!ctx->ref_tab[i].frame)
             return AVERROR(ENOMEM);
         ctx->ref_tab[i].valid = 0;
@@ -92,10 +92,10 @@ static int vaapi_av1_decode_uninit(AVCodecContext *avctx)
 {
     VAAPIAV1DecContext *ctx = avctx->internal->hwaccel_priv_data;
 
-    av_frame_free(&ctx->tmp_frame);
+    zn_av_frame_free(&ctx->tmp_frame);
 
     for (int i = 0; i < FF_ARRAY_ELEMS(ctx->ref_tab); i++)
-        av_frame_free(&ctx->ref_tab[i].frame);
+        zn_av_frame_free(&ctx->ref_tab[i].frame);
 
     return ff_vaapi_decode_uninit(avctx);
 }

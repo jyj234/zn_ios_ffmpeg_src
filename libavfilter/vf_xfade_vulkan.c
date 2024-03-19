@@ -449,7 +449,7 @@ static int xfade_frame(AVFilterContext *avctx, AVFrame *frame_a, AVFrame *frame_
     return ff_filter_frame(outlink, output);
 
 fail:
-    av_frame_free(&output);
+    zn_av_frame_free(&output);
     return err;
 }
 
@@ -587,8 +587,8 @@ static int activate(AVFilterContext *avctx)
                 s->passthrough = 1;
             }
             ret = xfade_frame(avctx, frame_a, frame_b);
-            av_frame_free(&frame_a);
-            av_frame_free(&frame_b);
+            zn_av_frame_free(&frame_a);
+            zn_av_frame_free(&frame_b);
             return ret;
         }
 

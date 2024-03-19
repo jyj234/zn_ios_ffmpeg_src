@@ -209,7 +209,7 @@ static int config_output(AVFilterLink *outlink)
 {
     AudioStatsContext *s = outlink->src->priv;
 
-    s->chstats = av_calloc(sizeof(*s->chstats), outlink->ch_layout.nb_channels);
+    s->chstats = zn_av_calloc(sizeof(*s->chstats), outlink->ch_layout.nb_channels);
     if (!s->chstats)
         return AVERROR(ENOMEM);
 
@@ -219,11 +219,11 @@ static int config_output(AVFilterLink *outlink)
     for (int i = 0; i < s->nb_channels; i++) {
         ChannelStats *p = &s->chstats[i];
 
-        p->win_samples = av_calloc(s->tc_samples, sizeof(*p->win_samples));
+        p->win_samples = zn_av_calloc(s->tc_samples, sizeof(*p->win_samples));
         if (!p->win_samples)
             return AVERROR(ENOMEM);
 
-        p->sorted_samples = av_calloc(s->tc_samples, sizeof(*p->sorted_samples));
+        p->sorted_samples = zn_av_calloc(s->tc_samples, sizeof(*p->sorted_samples));
         if (!p->sorted_samples)
             return AVERROR(ENOMEM);
     }
@@ -932,11 +932,11 @@ static av_cold void uninit(AVFilterContext *ctx)
         for (int i = 0; i < s->nb_channels; i++) {
             ChannelStats *p = &s->chstats[i];
 
-            av_freep(&p->win_samples);
-            av_freep(&p->sorted_samples);
+            zn_av_freep(&p->win_samples);
+            zn_av_freep(&p->sorted_samples);
         }
     }
-    av_freep(&s->chstats);
+    zn_av_freep(&s->chstats);
 }
 
 static const AVFilterPad astats_inputs[] = {

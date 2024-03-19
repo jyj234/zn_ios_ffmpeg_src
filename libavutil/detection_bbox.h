@@ -91,7 +91,7 @@ av_get_detection_bbox(const AVDetectionBBoxHeader *header, unsigned int idx)
 /**
  * Allocates memory for AVDetectionBBoxHeader, plus an array of {@code nb_bboxes}
  * AVDetectionBBox, and initializes the variables.
- * Can be freed with a normal av_free() call.
+ * Can be freed with a normal zn_av_free() call.
  *
  * @param nb_bboxes number of AVDetectionBBox structures to allocate
  * @param out_size if non-NULL, the size in bytes of the resulting data array is

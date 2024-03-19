@@ -32,7 +32,7 @@ void ff_srtp_free(struct SRTPContext *s)
 {
     if (!s)
         return;
-    av_freep(&s->aes);
+    zn_av_freep(&s->aes);
     if (s->hmac)
         av_hmac_free(s->hmac);
     s->hmac = NULL;

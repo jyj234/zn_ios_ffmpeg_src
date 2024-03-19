@@ -75,10 +75,10 @@ static int tmv_read_header(AVFormatContext *s)
     if (avio_rl32(pb) != TMV_TAG)
         return -1;
 
-    if (!(vst = avformat_new_stream(s, NULL)))
+    if (!(vst = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
-    if (!(ast = avformat_new_stream(s, NULL)))
+    if (!(ast = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
     ast->codecpar->sample_rate = avio_rl16(pb);
@@ -117,7 +117,7 @@ static int tmv_read_header(AVFormatContext *s)
 
     ast->codecpar->codec_type            = AVMEDIA_TYPE_AUDIO;
     ast->codecpar->codec_id              = AV_CODEC_ID_PCM_U8;
-    av_channel_layout_default(&ast->codecpar->ch_layout, !!(features & TMV_STEREO) + 1);
+    zn_av_channel_layout_default(&ast->codecpar->ch_layout, !!(features & TMV_STEREO) + 1);
     ast->codecpar->bits_per_coded_sample = 8;
     ast->codecpar->bit_rate              = ast->codecpar->sample_rate *
                                            ast->codecpar->bits_per_coded_sample;

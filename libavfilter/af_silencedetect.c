@@ -168,11 +168,11 @@ static int config_input(AVFilterLink *inlink)
     s->channels = inlink->ch_layout.nb_channels;
     s->duration = av_rescale(s->duration, inlink->sample_rate, AV_TIME_BASE);
     s->independent_channels = s->mono ? s->channels : 1;
-    s->nb_null_samples = av_calloc(s->independent_channels,
+    s->nb_null_samples = zn_av_calloc(s->independent_channels,
                                    sizeof(*s->nb_null_samples));
     if (!s->nb_null_samples)
         return AVERROR(ENOMEM);
-    s->start = av_malloc_array(sizeof(*s->start), s->independent_channels);
+    s->start = zn_av_malloc_array(sizeof(*s->start), s->independent_channels);
     if (!s->start)
         return AVERROR(ENOMEM);
     for (c = 0; c < s->independent_channels; c++)
@@ -239,8 +239,8 @@ static av_cold void uninit(AVFilterContext *ctx)
     for (c = 0; c < s->independent_channels; c++)
         if (s->start[c] > INT64_MIN)
             update(s, NULL, 0, c, 0, s->time_base);
-    av_freep(&s->nb_null_samples);
-    av_freep(&s->start);
+    zn_av_freep(&s->nb_null_samples);
+    zn_av_freep(&s->start);
 }
 
 static const AVFilterPad silencedetect_inputs[] = {

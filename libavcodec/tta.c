@@ -107,13 +107,13 @@ static int allocate_buffers(AVCodecContext *avctx)
     TTAContext *s = avctx->priv_data;
 
     if (s->bps < 3) {
-        s->decode_buffer = av_calloc(s->frame_length,
+        s->decode_buffer = zn_av_calloc(s->frame_length,
                                      sizeof(*s->decode_buffer) * s->channels);
         if (!s->decode_buffer)
             return AVERROR(ENOMEM);
     } else
         s->decode_buffer = NULL;
-    s->ch_ctx = av_malloc_array(avctx->ch_layout.nb_channels, sizeof(*s->ch_ctx));
+    s->ch_ctx = zn_av_malloc_array(avctx->ch_layout.nb_channels, sizeof(*s->ch_ctx));
     if (!s->ch_ctx)
         return AVERROR(ENOMEM);
 
@@ -404,9 +404,9 @@ static av_cold int tta_decode_close(AVCodecContext *avctx)
     TTAContext *s = avctx->priv_data;
 
     if (s->bps < 3)
-        av_freep(&s->decode_buffer);
+        zn_av_freep(&s->decode_buffer);
     s->decode_buffer = NULL;
-    av_freep(&s->ch_ctx);
+    zn_av_freep(&s->ch_ctx);
 
     return 0;
 }

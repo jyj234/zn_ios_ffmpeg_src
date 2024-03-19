@@ -77,14 +77,14 @@ static int mjpega_dump_header(AVBSFContext *ctx, AVPacket *out)
                 bytestream_put_buffer(&out_buf, in->data + 2, in->size - 2); /* skip already written SOI */
 
                 out->size = out_buf - out->data;
-                av_packet_free(&in);
+                zn_av_packet_free(&in);
                 return 0;
             case APP1:
                 if (i + 8 < in->size && AV_RL32(in->data + i + 8) == AV_RL32("mjpg")) {
                     av_log(ctx, AV_LOG_ERROR, "bitstream already formatted\n");
-                    av_packet_unref(out);
+                    zn_av_packet_unref(out);
                     av_packet_move_ref(out, in);
-                    av_packet_free(&in);
+                    zn_av_packet_free(&in);
                     return 0;
                 }
             }
@@ -92,8 +92,8 @@ static int mjpega_dump_header(AVBSFContext *ctx, AVPacket *out)
     }
     av_log(ctx, AV_LOG_ERROR, "could not find SOS marker in bitstream\n");
 fail:
-    av_packet_unref(out);
-    av_packet_free(&in);
+    zn_av_packet_unref(out);
+    zn_av_packet_free(&in);
     return AVERROR_INVALIDDATA;
 }
 

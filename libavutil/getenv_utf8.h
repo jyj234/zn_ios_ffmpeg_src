@@ -39,7 +39,7 @@ static inline char *getenv_utf8(const char *varname)
         return NULL;
 
     var_w = _wgetenv(varname_w);
-    av_free(varname_w);
+    zn_av_free(varname_w);
 
     if (!var_w)
         return NULL;
@@ -54,7 +54,7 @@ static inline char *getenv_utf8(const char *varname)
 
 static inline void freeenv_utf8(char *var)
 {
-    av_free(var);
+    zn_av_free(var);
 }
 
 static inline char *getenv_dup(const char *varname)

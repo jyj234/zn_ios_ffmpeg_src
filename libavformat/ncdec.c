@@ -46,7 +46,7 @@ static int nc_probe(const AVProbeData *probe_packet)
 
 static int nc_read_header(AVFormatContext *s)
 {
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

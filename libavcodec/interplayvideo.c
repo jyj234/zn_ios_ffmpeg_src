@@ -1168,10 +1168,10 @@ static av_cold int ipvideo_decode_init(AVCodecContext *avctx)
 
     ff_hpeldsp_init(&s->hdsp, avctx->flags);
 
-    s->last_frame        = av_frame_alloc();
-    s->second_last_frame = av_frame_alloc();
-    s->cur_decode_frame  = av_frame_alloc();
-    s->prev_decode_frame = av_frame_alloc();
+    s->last_frame        = zn_av_frame_alloc();
+    s->second_last_frame = zn_av_frame_alloc();
+    s->cur_decode_frame  = zn_av_frame_alloc();
+    s->prev_decode_frame = zn_av_frame_alloc();
     if (!s->last_frame || !s->second_last_frame ||
         !s->cur_decode_frame || !s->prev_decode_frame) {
         return AVERROR(ENOMEM);
@@ -1352,10 +1352,10 @@ static av_cold int ipvideo_decode_end(AVCodecContext *avctx)
 {
     IpvideoContext *s = avctx->priv_data;
 
-    av_frame_free(&s->last_frame);
-    av_frame_free(&s->second_last_frame);
-    av_frame_free(&s->cur_decode_frame);
-    av_frame_free(&s->prev_decode_frame);
+    zn_av_frame_free(&s->last_frame);
+    zn_av_frame_free(&s->second_last_frame);
+    zn_av_frame_free(&s->cur_decode_frame);
+    zn_av_frame_free(&s->prev_decode_frame);
 
     return 0;
 }

@@ -665,7 +665,7 @@ static int decode_frame(AVCodecContext *avctx, AVFrame *picture,
             return AVERROR(ENOMEM);
     } else {
         s->avmv_size = 0;
-        av_freep(&s->avmv);
+        zn_av_freep(&s->avmv);
     }
     s->avmv_index = 0;
 
@@ -814,7 +814,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
     ff_snow_common_end(s);
 
     s->avmv_size = 0;
-    av_freep(&s->avmv);
+    zn_av_freep(&s->avmv);
 
     return 0;
 }

@@ -87,7 +87,7 @@ AVFilterGraph *avfilter_graph_alloc(void)
 
     ret->internal = av_mallocz(sizeof(*ret->internal));
     if (!ret->internal) {
-        av_freep(&ret);
+        zn_av_freep(&ret);
         return NULL;
     }
 
@@ -126,13 +126,13 @@ void avfilter_graph_free(AVFilterGraph **graph)
 
     ff_graph_thread_free(*graph);
 
-    av_freep(&(*graph)->sink_links);
+    zn_av_freep(&(*graph)->sink_links);
 
     av_opt_free(*graph);
 
-    av_freep(&(*graph)->filters);
-    av_freep(&(*graph)->internal);
-    av_freep(graph);
+    zn_av_freep(&(*graph)->filters);
+    zn_av_freep(&(*graph)->internal);
+    zn_av_freep(graph);
 }
 
 int avfilter_graph_create_filter(AVFilterContext **filt_ctx, const AVFilter *filt,
@@ -174,7 +174,7 @@ AVFilterContext *avfilter_graph_alloc_filter(AVFilterGraph *graph,
         } else {
             int ret = ff_graph_thread_init(graph);
             if (ret < 0) {
-                av_log(graph, AV_LOG_ERROR, "Error initializing threading: %s.\n", av_err2str(ret));
+                av_log(graph, AV_LOG_ERROR, "Error initializing threading: %s.\n", zn_av_err2str(ret));
                 return NULL;
             }
         }
@@ -350,7 +350,7 @@ static int filter_query_formats(AVFilterContext *ctx)
     if ((ret = ctx->filter->formats.query_func(ctx)) < 0) {
         if (ret != AVERROR(EAGAIN))
             av_log(ctx, AV_LOG_ERROR, "Query format failed for '%s': %s\n",
-                   ctx->name, av_err2str(ret));
+                   ctx->name, zn_av_err2str(ret));
         return ret;
     }
     ret = filter_check_formats(ctx);
@@ -659,7 +659,7 @@ static int pick_format(AVFilterLink *link, AVFilterLink *ref)
             return AVERROR(EINVAL);
         }
         link->incfg.channel_layouts->nb_channel_layouts = 1;
-        ret = av_channel_layout_copy(&link->ch_layout, &link->incfg.channel_layouts->channel_layouts[0]);
+        ret = zn_av_channel_layout_copy(&link->ch_layout, &link->incfg.channel_layouts->channel_layouts[0]);
         if (ret < 0)
             return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT
@@ -757,7 +757,7 @@ static int reduce_formats_on_filter(AVFilterContext *filter)
 
             for (k = 0; k < outlink->incfg.channel_layouts->nb_channel_layouts; k++) {
                 if (!av_channel_layout_compare(&fmts->channel_layouts[k], fmt)) {
-                    ret = av_channel_layout_copy(&fmts->channel_layouts[0], fmt);
+                    ret = zn_av_channel_layout_copy(&fmts->channel_layouts[0], fmt);
                     if (ret < 0)
                         return ret;
                     fmts->nb_channel_layouts = 1;
@@ -902,8 +902,8 @@ static void swap_channel_layouts_on_filter(AVFilterContext *filter)
             int matched_channels, extra_channels;
             int score = 100000;
 
-            av_channel_layout_copy(&in_chlayout, &link->outcfg.channel_layouts->channel_layouts[0]);
-            av_channel_layout_copy(&out_chlayout, &outlink->incfg.channel_layouts->channel_layouts[j]);
+            zn_av_channel_layout_copy(&in_chlayout, &link->outcfg.channel_layouts->channel_layouts[0]);
+            zn_av_channel_layout_copy(&out_chlayout, &outlink->incfg.channel_layouts->channel_layouts[j]);
             in_channels            = in_chlayout.nb_channels;
             out_channels           = out_chlayout.nb_channels;
             count_diff             = out_channels - in_channels;
@@ -1148,7 +1148,7 @@ static int graph_config_pointers(AVFilterGraph *graph, void *log_ctx)
             sink_links_count += f->nb_inputs;
         }
     }
-    sinks = av_calloc(sink_links_count, sizeof(*sinks));
+    sinks = zn_av_calloc(sink_links_count, sizeof(*sinks));
     if (!sinks)
         return AVERROR(ENOMEM);
     for (i = 0; i < graph->nb_filters; i++) {

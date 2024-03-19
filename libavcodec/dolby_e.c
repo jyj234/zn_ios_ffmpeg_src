@@ -1159,7 +1159,7 @@ static av_cold int dolby_e_close(AVCodecContext *avctx)
         av_tx_uninit(&s->imdct[1][i]);
     }
 
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->fdsp);
     return 0;
 }
 

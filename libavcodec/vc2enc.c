@@ -1011,10 +1011,10 @@ static av_cold int vc2_encode_end(AVCodecContext *avctx)
 
     for (i = 0; i < 3; i++) {
         ff_vc2enc_free_transforms(&s->transform_args[i].t);
-        av_freep(&s->plane[i].coef_buf);
+        zn_av_freep(&s->plane[i].coef_buf);
     }
 
-    av_freep(&s->slice_args);
+    zn_av_freep(&s->slice_args);
 
     return 0;
 }
@@ -1161,7 +1161,7 @@ static av_cold int vc2_encode_init(AVCodecContext *avctx)
     s->num_x = s->plane[0].dwt_width/s->slice_width;
     s->num_y = s->plane[0].dwt_height/s->slice_height;
 
-    s->slice_args = av_calloc(s->num_x*s->num_y, sizeof(SliceArgs));
+    s->slice_args = zn_av_calloc(s->num_x*s->num_y, sizeof(SliceArgs));
     if (!s->slice_args)
         return AVERROR(ENOMEM);
 

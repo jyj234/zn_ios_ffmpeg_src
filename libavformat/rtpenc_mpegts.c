@@ -39,16 +39,16 @@ static int rtp_mpegts_write_close(AVFormatContext *s)
     MuxChain *chain = s->priv_data;
 
     if (chain->mpegts_ctx) {
-        av_write_trailer(chain->mpegts_ctx);
+        zn_av_write_trailer(chain->mpegts_ctx);
         ffio_free_dyn_buf(&chain->mpegts_ctx->pb);
-        avformat_free_context(chain->mpegts_ctx);
+        zn_avformat_free_context(chain->mpegts_ctx);
     }
     if (chain->rtp_ctx) {
-        av_write_trailer(chain->rtp_ctx);
-        avformat_free_context(chain->rtp_ctx);
+        zn_av_write_trailer(chain->rtp_ctx);
+        zn_avformat_free_context(chain->rtp_ctx);
     }
 
-    av_packet_free(&chain->pkt);
+    zn_av_packet_free(&chain->pkt);
 
     return 0;
 }
@@ -57,8 +57,8 @@ static int rtp_mpegts_write_header(AVFormatContext *s)
 {
     MuxChain *chain = s->priv_data;
     AVFormatContext *mpegts_ctx = NULL, *rtp_ctx = NULL;
-    const AVOutputFormat *mpegts_format = av_guess_format("mpegts", NULL, NULL);
-    const AVOutputFormat *rtp_format    = av_guess_format("rtp", NULL, NULL);
+    const AVOutputFormat *mpegts_format = zn_av_guess_format("mpegts", NULL, NULL);
+    const AVOutputFormat *rtp_format    = zn_av_guess_format("rtp", NULL, NULL);
     int i, ret = AVERROR(ENOMEM);
     AVStream *st;
     AVDictionary *mpegts_muxer_options = NULL;
@@ -66,30 +66,30 @@ static int rtp_mpegts_write_header(AVFormatContext *s)
 
     if (!mpegts_format || !rtp_format)
         return AVERROR(ENOSYS);
-    mpegts_ctx = avformat_alloc_context();
+    mpegts_ctx = zn_avformat_alloc_context();
     if (!mpegts_ctx)
         return AVERROR(ENOMEM);
-    chain->pkt = av_packet_alloc();
+    chain->pkt = zn_av_packet_alloc();
     if (!chain->pkt)
         goto fail;
     mpegts_ctx->oformat   = mpegts_format;
     mpegts_ctx->max_delay = s->max_delay;
     av_dict_copy(&mpegts_ctx->metadata, s->metadata, 0);
     for (i = 0; i < s->nb_streams; i++) {
-        AVStream* st = avformat_new_stream(mpegts_ctx, NULL);
+        AVStream* st = zn_avformat_new_stream(mpegts_ctx, NULL);
         if (!st)
             goto fail;
         st->time_base           = s->streams[i]->time_base;
         st->sample_aspect_ratio = s->streams[i]->sample_aspect_ratio;
         st->id                  = s->streams[i]->id;
-        avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
+        zn_avcodec_parameters_copy(st->codecpar, s->streams[i]->codecpar);
     }
     if ((ret = avio_open_dyn_buf(&mpegts_ctx->pb)) < 0)
         goto fail;
 
     av_dict_copy(&mpegts_muxer_options, chain->mpegts_muxer_options, 0);
 
-    ret = avformat_write_header(mpegts_ctx, &mpegts_muxer_options);
+    ret = zn_avformat_write_header(mpegts_ctx, &mpegts_muxer_options);
     av_dict_free(&mpegts_muxer_options);
     if (ret < 0)
         goto fail;
@@ -100,13 +100,13 @@ static int rtp_mpegts_write_header(AVFormatContext *s)
     chain->mpegts_ctx = mpegts_ctx;
     mpegts_ctx = NULL;
 
-    rtp_ctx = avformat_alloc_context();
+    rtp_ctx = zn_avformat_alloc_context();
     if (!rtp_ctx) {
         ret = AVERROR(ENOMEM);
         goto fail;
     }
     rtp_ctx->oformat = rtp_format;
-    st = avformat_new_stream(rtp_ctx, NULL);
+    st = zn_avformat_new_stream(rtp_ctx, NULL);
     if (!st) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -116,7 +116,7 @@ static int rtp_mpegts_write_header(AVFormatContext *s)
     st->codecpar->codec_id = AV_CODEC_ID_MPEG2TS;
     rtp_ctx->pb = s->pb;
     av_dict_copy(&rtp_muxer_options, chain->rtp_muxer_options, 0);
-    ret = avformat_write_header(rtp_ctx, &rtp_muxer_options);
+    ret = zn_avformat_write_header(rtp_ctx, &rtp_muxer_options);
     av_dict_free(&rtp_muxer_options);
     if (ret < 0)
         goto fail;
@@ -129,9 +129,9 @@ fail:
     if (mpegts_ctx) {
         ffio_free_dyn_buf(&mpegts_ctx->pb);
         av_dict_free(&mpegts_ctx->metadata);
-        avformat_free_context(mpegts_ctx);
+        zn_avformat_free_context(mpegts_ctx);
     }
-    avformat_free_context(rtp_ctx);
+    zn_avformat_free_context(rtp_ctx);
     rtp_mpegts_write_close(s);
     return ret;
 }
@@ -152,10 +152,10 @@ static int rtp_mpegts_write_packet(AVFormatContext *s, AVPacket *pkt)
     size = avio_close_dyn_buf(chain->mpegts_ctx->pb, &buf);
     chain->mpegts_ctx->pb = NULL;
     if (size == 0) {
-        av_free(buf);
+        zn_av_free(buf);
         return 0;
     }
-    av_packet_unref(local_pkt);
+    zn_av_packet_unref(local_pkt);
     local_pkt->data         = buf;
     local_pkt->size         = size;
     local_pkt->stream_index = 0;
@@ -168,7 +168,7 @@ static int rtp_mpegts_write_packet(AVFormatContext *s, AVPacket *pkt)
                                      s->streams[pkt->stream_index]->time_base,
                                      chain->rtp_ctx->streams[0]->time_base);
     ret = av_write_frame(chain->rtp_ctx, local_pkt);
-    av_free(buf);
+    zn_av_free(buf);
 
     return ret;
 }

@@ -65,7 +65,7 @@ TimeFilter *ff_timefilter_new(double time_base,
 
 void ff_timefilter_destroy(TimeFilter *self)
 {
-    av_freep(&self);
+    zn_av_freep(&self);
 }
 
 void ff_timefilter_reset(TimeFilter *self)

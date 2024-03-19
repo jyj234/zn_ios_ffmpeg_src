@@ -132,7 +132,7 @@ static double gammafilter(int i, double f)
 static int subband_bufer_alloc(DCAEncContext *c)
 {
     int ch, band;
-    int32_t *bufer = av_calloc(MAX_CHANNELS * DCAENC_SUBBANDS *
+    int32_t *bufer = zn_av_calloc(MAX_CHANNELS * DCAENC_SUBBANDS *
                                (SUBBAND_SAMPLES + DCA_ADPCM_COEFFS),
                                sizeof(int32_t));
     if (!bufer)
@@ -154,7 +154,7 @@ static void subband_bufer_free(DCAEncContext *c)
 {
     if (c->subband[0][0]) {
         int32_t *bufer = c->subband[0][0] - DCA_ADPCM_COEFFS;
-        av_free(bufer);
+        zn_av_free(bufer);
         c->subband[0][0] = NULL;
     }
 }

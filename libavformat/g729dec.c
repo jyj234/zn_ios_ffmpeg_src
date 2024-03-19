@@ -36,7 +36,7 @@ static int g729_read_header(AVFormatContext *s)
     AVStream* st;
     G729DemuxerContext *s1 = s->priv_data;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

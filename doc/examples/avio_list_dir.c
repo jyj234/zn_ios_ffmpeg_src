@@ -69,14 +69,14 @@ static int list_op(const char *input_dir)
     char filemode[4], uid_and_gid[20];
 
     if ((ret = avio_open_dir(&ctx, input_dir, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open directory: %s.\n", av_err2str(ret));
+        av_log(NULL, AV_LOG_ERROR, "Cannot open directory: %s.\n", zn_av_err2str(ret));
         goto fail;
     }
 
     cnt = 0;
     for (;;) {
         if ((ret = avio_read_dir(ctx, &entry)) < 0) {
-            av_log(NULL, AV_LOG_ERROR, "Cannot list directory: %s.\n", av_err2str(ret));
+            av_log(NULL, AV_LOG_ERROR, "Cannot list directory: %s.\n", zn_av_err2str(ret));
             goto fail;
         }
         if (!entry)

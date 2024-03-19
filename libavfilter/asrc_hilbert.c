@@ -72,7 +72,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     HilbertContext *s = ctx->priv;
 
-    av_freep(&s->taps);
+    zn_av_freep(&s->taps);
 }
 
 static av_cold int query_formats(AVFilterContext *ctx)
@@ -102,7 +102,7 @@ static av_cold int config_props(AVFilterLink *outlink)
     float overlap;
     int i;
 
-    s->taps = av_malloc_array(s->nb_taps, sizeof(*s->taps));
+    s->taps = zn_av_malloc_array(s->nb_taps, sizeof(*s->taps));
     if (!s->taps)
         return AVERROR(ENOMEM);
 

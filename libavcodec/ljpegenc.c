@@ -262,7 +262,7 @@ static av_cold int ljpeg_encode_close(AVCodecContext *avctx)
 {
     LJpegEncContext *s = avctx->priv_data;
 
-    av_freep(&s->scratch);
+    zn_av_freep(&s->scratch);
 
     return 0;
 }
@@ -275,7 +275,7 @@ static av_cold int ljpeg_encode_init(AVCodecContext *avctx)
     if (ret < 0)
         return ret;
 
-    s->scratch = av_malloc_array(avctx->width + 1, sizeof(*s->scratch));
+    s->scratch = zn_av_malloc_array(avctx->width + 1, sizeof(*s->scratch));
     if (!s->scratch)
         return AVERROR(ENOMEM);
 

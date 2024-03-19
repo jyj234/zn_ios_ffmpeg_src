@@ -358,12 +358,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     td.in = in, td.out = out;
     ff_filter_execute(ctx, filter_slice, &td, NULL,
                       FFMIN(outlink->h, ff_filter_get_nb_threads(ctx)));
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return err;
 }
 

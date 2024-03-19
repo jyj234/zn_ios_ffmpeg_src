@@ -72,9 +72,9 @@ static void free_buffers(AVCodecContext *avctx)
 {
     PixletContext *ctx = avctx->priv_data;
 
-    av_freep(&ctx->filter[0]);
-    av_freep(&ctx->filter[1]);
-    av_freep(&ctx->prediction);
+    zn_av_freep(&ctx->filter[0]);
+    zn_av_freep(&ctx->filter[1]);
+    zn_av_freep(&ctx->prediction);
 }
 
 static av_cold int pixlet_close(AVCodecContext *avctx)
@@ -91,9 +91,9 @@ static int init_decoder(AVCodecContext *avctx)
     PixletContext *ctx = avctx->priv_data;
     int i, plane;
 
-    ctx->filter[0]  = av_malloc_array(ctx->h, sizeof(int16_t));
-    ctx->filter[1]  = av_malloc_array(FFMAX(ctx->h, ctx->w) + 16, sizeof(int16_t));
-    ctx->prediction = av_malloc_array((ctx->w >> NB_LEVELS), sizeof(int16_t));
+    ctx->filter[0]  = zn_av_malloc_array(ctx->h, sizeof(int16_t));
+    ctx->filter[1]  = zn_av_malloc_array(FFMAX(ctx->h, ctx->w) + 16, sizeof(int16_t));
+    ctx->prediction = zn_av_malloc_array((ctx->w >> NB_LEVELS), sizeof(int16_t));
     if (!ctx->filter[0] || !ctx->filter[1] || !ctx->prediction)
         return AVERROR(ENOMEM);
 

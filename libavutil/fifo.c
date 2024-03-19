@@ -60,7 +60,7 @@ AVFifo *av_fifo_alloc2(size_t nb_elems, size_t elem_size,
     }
     f = av_mallocz(sizeof(*f));
     if (!f) {
-        av_free(buffer);
+        zn_av_free(buffer);
         return NULL;
     }
     f->buffer    = buffer;
@@ -286,8 +286,8 @@ void av_fifo_reset2(AVFifo *f)
 void av_fifo_freep2(AVFifo **f)
 {
     if (*f) {
-        av_freep(&(*f)->buffer);
-        av_freep(f);
+        zn_av_freep(&(*f)->buffer);
+        zn_av_freep(f);
     }
 }
 
@@ -310,7 +310,7 @@ AVFifoBuffer *av_fifo_alloc_array(size_t nmemb, size_t size)
         return NULL;
     f = av_mallocz(sizeof(AVFifoBuffer));
     if (!f) {
-        av_free(buffer);
+        zn_av_free(buffer);
         return NULL;
     }
     f->buffer = buffer;
@@ -327,8 +327,8 @@ AVFifoBuffer *av_fifo_alloc(unsigned int size)
 void av_fifo_free(AVFifoBuffer *f)
 {
     if (f) {
-        av_freep(&f->buffer);
-        av_free(f);
+        zn_av_freep(&f->buffer);
+        zn_av_free(f);
     }
 }
 

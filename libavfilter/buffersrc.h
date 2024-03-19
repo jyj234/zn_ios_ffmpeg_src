@@ -68,7 +68,7 @@ unsigned av_buffersrc_get_nb_failed_requests(AVFilterContext *buffer_src);
  * passed to this filter.
  *
  * It should be allocated with av_buffersrc_parameters_alloc() and freed with
- * av_free(). All the allocated fields in it remain owned by the caller.
+ * zn_av_free(). All the allocated fields in it remain owned by the caller.
  */
 typedef struct AVBufferSrcParameters {
     /**
@@ -127,7 +127,7 @@ typedef struct AVBufferSrcParameters {
 
 /**
  * Allocate a new AVBufferSrcParameters instance. It should be freed by the
- * caller with av_free().
+ * caller with zn_av_free().
  */
 AVBufferSrcParameters *av_buffersrc_parameters_alloc(void);
 

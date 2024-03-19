@@ -358,8 +358,8 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     ProSumerContext *s = avctx->priv_data;
 
-    av_freep(&s->initial_line);
-    av_freep(&s->decbuffer);
+    zn_av_freep(&s->initial_line);
+    zn_av_freep(&s->decbuffer);
 
     return 0;
 }

@@ -171,7 +171,7 @@ static av_cold int mpc8_decode_init(AVCodecContext * avctx)
 
     avctx->sample_fmt = AV_SAMPLE_FMT_S16P;
     av_channel_layout_uninit(&avctx->ch_layout);
-    av_channel_layout_default(&avctx->ch_layout, channels);
+    zn_av_channel_layout_default(&avctx->ch_layout, channels);
 
     ff_thread_once(&init_static_once, mpc8_init_static);
 

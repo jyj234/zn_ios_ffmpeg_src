@@ -149,7 +149,7 @@ static int get_stats(AVCodecContext *avctx, int eos)
 
         av_base64_encode(avctx->stats_out, b64_size, ctx->pass_data, ctx->pass_pos);
 
-        av_freep(&ctx->pass_data);
+        zn_av_freep(&ctx->pass_data);
     }
 
     rav1e_data_unref(buf);
@@ -185,8 +185,8 @@ static av_cold int librav1e_encode_close(AVCodecContext *avctx)
         ctx->rframe = NULL;
     }
 
-    av_frame_free(&ctx->frame);
-    av_freep(&ctx->pass_data);
+    zn_av_frame_free(&ctx->frame);
+    zn_av_freep(&ctx->pass_data);
 
     return 0;
 }
@@ -199,7 +199,7 @@ static av_cold int librav1e_encode_init(AVCodecContext *avctx)
     int rret;
     int ret = 0;
 
-    ctx->frame = av_frame_alloc();
+    ctx->frame = zn_av_frame_alloc();
     if (!ctx->frame)
         return AVERROR(ENOMEM);
 
@@ -444,7 +444,7 @@ static void frame_data_free(void *data)
         return;
 
     av_buffer_unref(&fd->frame_opaque_ref);
-    av_free(data);
+    zn_av_free(data);
 }
 
 static int librav1e_receive_packet(AVCodecContext *avctx, AVPacket *pkt)

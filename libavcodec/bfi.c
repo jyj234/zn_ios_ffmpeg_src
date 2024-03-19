@@ -179,7 +179,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 static av_cold int bfi_decode_close(AVCodecContext *avctx)
 {
     BFIContext *bfi = avctx->priv_data;
-    av_freep(&bfi->dst);
+    zn_av_freep(&bfi->dst);
     return 0;
 }
 

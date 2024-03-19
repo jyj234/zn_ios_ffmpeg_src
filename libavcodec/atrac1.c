@@ -372,7 +372,7 @@ static av_cold int atrac1_decode_init(AVCodecContext *avctx)
     if (!fdsp)
         return AVERROR(ENOMEM);
     q->vector_fmul_window = fdsp->vector_fmul_window;
-    av_free(fdsp);
+    zn_av_free(fdsp);
 
     q->bands[0] = q->low;
     q->bands[1] = q->mid;

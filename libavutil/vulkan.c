@@ -132,20 +132,20 @@ int ff_vk_load_props(FFVulkanContext *s)
 
     vk->GetPhysicalDeviceQueueFamilyProperties2(s->hwctx->phys_dev, &s->tot_nb_qfs, NULL);
 
-    s->qf_props = av_calloc(s->tot_nb_qfs, sizeof(*s->qf_props));
+    s->qf_props = zn_av_calloc(s->tot_nb_qfs, sizeof(*s->qf_props));
     if (!s->qf_props)
         return AVERROR(ENOMEM);
 
-    s->query_props = av_calloc(s->tot_nb_qfs, sizeof(*s->query_props));
+    s->query_props = zn_av_calloc(s->tot_nb_qfs, sizeof(*s->query_props));
     if (!s->qf_props) {
-        av_freep(&s->qf_props);
+        zn_av_freep(&s->qf_props);
         return AVERROR(ENOMEM);
     }
 
-    s->video_props = av_calloc(s->tot_nb_qfs, sizeof(*s->video_props));
+    s->video_props = zn_av_calloc(s->tot_nb_qfs, sizeof(*s->video_props));
     if (!s->video_props) {
-        av_freep(&s->qf_props);
-        av_freep(&s->query_props);
+        zn_av_freep(&s->qf_props);
+        zn_av_freep(&s->query_props);
         return AVERROR(ENOMEM);
     }
 
@@ -170,7 +170,7 @@ int ff_vk_load_props(FFVulkanContext *s)
                                                             &s->coop_mat_props_nb, NULL);
 
         if (s->coop_mat_props_nb) {
-            s->coop_mat_props = av_malloc_array(s->coop_mat_props_nb,
+            s->coop_mat_props = zn_av_malloc_array(s->coop_mat_props_nb,
                                                 sizeof(VkCooperativeMatrixPropertiesKHR));
             for (int i = 0; i < s->coop_mat_props_nb; i++) {
                 s->coop_mat_props[i] = (VkCooperativeMatrixPropertiesKHR) {
@@ -268,16 +268,16 @@ void ff_vk_exec_pool_free(FFVulkanContext *s, FFVkExecPool *pool)
 
         ff_vk_exec_discard_deps(s, e);
 
-        av_free(e->frame_deps);
-        av_free(e->buf_deps);
-        av_free(e->queue_family_dst);
-        av_free(e->layout_dst);
-        av_free(e->access_dst);
-        av_free(e->frame_update);
-        av_free(e->frame_locked);
-        av_free(e->sem_sig);
-        av_free(e->sem_sig_val_dst);
-        av_free(e->sem_wait);
+        zn_av_free(e->frame_deps);
+        zn_av_free(e->buf_deps);
+        zn_av_free(e->queue_family_dst);
+        zn_av_free(e->layout_dst);
+        zn_av_free(e->access_dst);
+        zn_av_free(e->frame_update);
+        zn_av_free(e->frame_locked);
+        zn_av_free(e->sem_sig);
+        zn_av_free(e->sem_sig_val_dst);
+        zn_av_free(e->sem_wait);
     }
 
     if (pool->cmd_bufs)
@@ -288,9 +288,9 @@ void ff_vk_exec_pool_free(FFVulkanContext *s, FFVkExecPool *pool)
     if (pool->query_pool)
         vk->DestroyQueryPool(s->hwctx->act_dev, pool->query_pool, s->hwctx->alloc);
 
-    av_free(pool->query_data);
-    av_free(pool->cmd_bufs);
-    av_free(pool->contexts);
+    zn_av_free(pool->query_data);
+    zn_av_free(pool->cmd_bufs);
+    zn_av_free(pool->contexts);
 }
 
 int ff_vk_exec_pool_init(FFVulkanContext *s, FFVkQueueFamilyCtx *qf,
@@ -382,7 +382,7 @@ int ff_vk_exec_pool_init(FFVulkanContext *s, FFVkQueueFamilyCtx *qf,
         pool->qd_size = (pool->query_results + pool->query_statuses)*(query_64bit ? 8 : 4);
 
         /* Allocate space for the query data */
-        pool->query_data = av_calloc(nb_contexts, pool->qd_size);
+        pool->query_data = zn_av_calloc(nb_contexts, pool->qd_size);
         if (!pool->query_data) {
             err = AVERROR(ENOMEM);
             goto fail;
@@ -390,7 +390,7 @@ int ff_vk_exec_pool_init(FFVulkanContext *s, FFVkQueueFamilyCtx *qf,
     }
 
     /* Allocate space for the contexts */
-    pool->contexts = av_calloc(nb_contexts, sizeof(*pool->contexts));
+    pool->contexts = zn_av_calloc(nb_contexts, sizeof(*pool->contexts));
     if (!pool->contexts) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -563,7 +563,7 @@ void ff_vk_exec_discard_deps(FFVulkanContext *s, FFVkExecContext *e)
         }
         e->frame_update[j] = 0;
         if (f->buf[0])
-            av_frame_free(&e->frame_deps[j]);
+            zn_av_frame_free(&e->frame_deps[j]);
     }
     e->nb_frame_deps = 0;
 
@@ -937,7 +937,7 @@ static void destroy_avvkbuf(void *opaque, uint8_t *data)
     FFVulkanContext *s = opaque;
     FFVkBuffer *buf = (FFVkBuffer *)data;
     ff_vk_free_buf(s, buf);
-    av_free(buf);
+    zn_av_free(buf);
 }
 
 int ff_vk_create_avbuf(FFVulkanContext *s, AVBufferRef **ref, size_t size,
@@ -952,7 +952,7 @@ int ff_vk_create_avbuf(FFVulkanContext *s, AVBufferRef **ref, size_t size,
 
     err = ff_vk_create_buf(s, vkb, size, pNext, alloc_pNext, usage, flags);
     if (err < 0) {
-        av_free(vkb);
+        zn_av_free(vkb);
         return err;
     }
 
@@ -1072,7 +1072,7 @@ static void free_data_buf(void *opaque, uint8_t *data)
     FFVulkanContext *ctx = opaque;
     FFVkBuffer *buf = (FFVkBuffer *)data;
     ff_vk_free_buf(ctx, buf);
-    av_free(data);
+    zn_av_free(data);
 }
 
 static AVBufferRef *alloc_data_buf(void *opaque, size_t size)
@@ -1084,7 +1084,7 @@ static AVBufferRef *alloc_data_buf(void *opaque, size_t size)
 
     ref = av_buffer_create(buf, size, free_data_buf, opaque, 0);
     if (!ref)
-        av_free(buf);
+        zn_av_free(buf);
     return ref;
 }
 
@@ -1225,7 +1225,7 @@ static void destroy_imageviews(void *opaque, uint8_t *data)
     for (int i = 0; i < iv->nb_views; i++)
         vk->DestroyImageView(s->hwctx->act_dev, iv->views[i], s->hwctx->alloc);
 
-    av_free(iv);
+    zn_av_free(iv);
 }
 
 int ff_vk_create_imageviews(FFVulkanContext *s, FFVkExecContext *e,
@@ -1297,7 +1297,7 @@ int ff_vk_create_imageviews(FFVulkanContext *s, FFVkExecContext *e,
 fail:
     for (int i = 0; i < iv->nb_views; i++)
         vk->DestroyImageView(s->hwctx->act_dev, iv->views[i], s->hwctx->alloc);
-    av_free(iv);
+    zn_av_free(iv);
     return err;
 }
 
@@ -1483,13 +1483,13 @@ int ff_vk_pipeline_descriptor_set_add(FFVulkanContext *s, FFVulkanPipeline *pl,
     set = &set[pl->nb_descriptor_sets];
     memset(set, 0, sizeof(*set));
 
-    set->binding = av_calloc(nb, sizeof(*set->binding));
+    set->binding = zn_av_calloc(nb, sizeof(*set->binding));
     if (!set->binding)
         return AVERROR(ENOMEM);
 
-    set->binding_offset = av_calloc(nb, sizeof(*set->binding_offset));
+    set->binding_offset = zn_av_calloc(nb, sizeof(*set->binding_offset));
     if (!set->binding_offset) {
-        av_freep(&set->binding);
+        zn_av_freep(&set->binding);
         return AVERROR(ENOMEM);
     }
 
@@ -1579,11 +1579,11 @@ int ff_vk_exec_pipeline_register(FFVulkanContext *s, FFVkExecPool *pool,
 {
     int err;
 
-    pl->desc_bind = av_calloc(pl->nb_descriptor_sets, sizeof(*pl->desc_bind));
+    pl->desc_bind = zn_av_calloc(pl->nb_descriptor_sets, sizeof(*pl->desc_bind));
     if (!pl->desc_bind)
         return AVERROR(ENOMEM);
 
-    pl->bound_buffer_indices = av_calloc(pl->nb_descriptor_sets,
+    pl->bound_buffer_indices = zn_av_calloc(pl->nb_descriptor_sets,
                                          sizeof(*pl->bound_buffer_indices));
     if (!pl->bound_buffer_indices)
         return AVERROR(ENOMEM);
@@ -1796,7 +1796,7 @@ static int init_pipeline_layout(FFVulkanContext *s, FFVulkanPipeline *pl)
 
     ret = vk->CreatePipelineLayout(s->hwctx->act_dev, &pipeline_layout_info,
                                    s->hwctx->alloc, &pl->pipeline_layout);
-    av_free(desc_layouts);
+    zn_av_free(desc_layouts);
     if (ret != VK_SUCCESS) {
         av_log(s, AV_LOG_ERROR, "Unable to init pipeline layout: %s\n",
                ff_vk_ret2str(ret));
@@ -1883,23 +1883,23 @@ void ff_vk_pipeline_free(FFVulkanContext *s, FFVulkanPipeline *pl)
         if (set->layout)
             vk->DestroyDescriptorSetLayout(s->hwctx->act_dev, set->layout,
                                            s->hwctx->alloc);
-        av_free(set->binding);
-        av_free(set->binding_offset);
+        zn_av_free(set->binding);
+        zn_av_free(set->binding_offset);
     }
 
-    av_freep(&pl->desc_set);
-    av_freep(&pl->desc_bind);
-    av_freep(&pl->bound_buffer_indices);
-    av_freep(&pl->push_consts);
+    zn_av_freep(&pl->desc_set);
+    zn_av_freep(&pl->desc_bind);
+    zn_av_freep(&pl->bound_buffer_indices);
+    zn_av_freep(&pl->push_consts);
     pl->push_consts_num = 0;
 }
 
 void ff_vk_uninit(FFVulkanContext *s)
 {
-    av_freep(&s->query_props);
-    av_freep(&s->qf_props);
-    av_freep(&s->video_props);
-    av_freep(&s->coop_mat_props);
+    zn_av_freep(&s->query_props);
+    zn_av_freep(&s->qf_props);
+    zn_av_freep(&s->video_props);
+    zn_av_freep(&s->coop_mat_props);
 
     av_buffer_unref(&s->frames_ref);
 }

@@ -864,11 +864,11 @@ static av_cold int mss2_decode_end(AVCodecContext *avctx)
 {
     MSS2Context *const ctx = avctx->priv_data;
 
-    av_frame_free(&ctx->last_pic);
+    zn_av_frame_free(&ctx->last_pic);
 
     ff_mss12_decode_end(&ctx->c);
-    av_freep(&ctx->c.pal_pic);
-    av_freep(&ctx->c.last_pal_pic);
+    zn_av_freep(&ctx->c.pal_pic);
+    zn_av_freep(&ctx->c.last_pal_pic);
     ff_vc1_decode_end(avctx);
 
     return 0;
@@ -882,7 +882,7 @@ static av_cold int mss2_decode_init(AVCodecContext *avctx)
     c->avctx = avctx;
     if (ret = ff_mss12_decode_init(c, 1, &ctx->sc[0], &ctx->sc[1]))
         return ret;
-    ctx->last_pic   = av_frame_alloc();
+    ctx->last_pic   = zn_av_frame_alloc();
     c->pal_stride   = c->mask_stride;
     c->pal_pic      = av_mallocz(c->pal_stride * avctx->height);
     c->last_pal_pic = av_mallocz(c->pal_stride * avctx->height);

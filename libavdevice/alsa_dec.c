@@ -64,7 +64,7 @@ static av_cold int audio_read_header(AVFormatContext *s1)
     int ret;
     enum AVCodecID codec_id;
 
-    st = avformat_new_stream(s1, NULL);
+    st = zn_avformat_new_stream(s1, NULL);
     if (!st) {
         av_log(s1, AV_LOG_ERROR, "Cannot add stream\n");
 

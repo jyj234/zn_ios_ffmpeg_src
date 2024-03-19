@@ -144,13 +144,13 @@ static int config_input(AVFilterLink *inlink)
     s->bins   = 1 << ((s->depth + 1) / 2);
     s->fine_size = s->bins * s->bins * inlink->w;
     s->coarse_size = s->bins * inlink->w;
-    s->coarse = av_calloc(s->nb_threads, sizeof(*s->coarse));
-    s->fine   = av_calloc(s->nb_threads, sizeof(*s->fine));
+    s->coarse = zn_av_calloc(s->nb_threads, sizeof(*s->coarse));
+    s->fine   = zn_av_calloc(s->nb_threads, sizeof(*s->fine));
     if (!s->coarse || !s->fine)
         return AVERROR(ENOMEM);
     for (int i = 0; i < s->nb_threads; i++) {
-        s->coarse[i] = av_malloc_array(s->coarse_size, sizeof(**s->coarse));
-        s->fine[i]   = av_malloc_array(s->fine_size, sizeof(**s->fine));
+        s->coarse[i] = zn_av_malloc_array(s->coarse_size, sizeof(**s->coarse));
+        s->fine[i]   = zn_av_malloc_array(s->fine_size, sizeof(**s->fine));
         if (!s->coarse[i] || !s->fine[i])
             return AVERROR(ENOMEM);
     }
@@ -218,7 +218,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -226,7 +226,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     td.in = in; td.out = out;
     ff_filter_execute(ctx, filter_slice, &td, NULL, s->nb_threads);
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -235,12 +235,12 @@ static av_cold void uninit(AVFilterContext *ctx)
     MedianContext *s = ctx->priv;
 
     for (int i = 0; i < s->nb_threads && s->coarse && s->fine; i++) {
-        av_freep(&s->coarse[i]);
-        av_freep(&s->fine[i]);
+        zn_av_freep(&s->coarse[i]);
+        zn_av_freep(&s->fine[i]);
     }
 
-    av_freep(&s->coarse);
-    av_freep(&s->fine);
+    zn_av_freep(&s->coarse);
+    zn_av_freep(&s->fine);
 }
 
 static int process_command(AVFilterContext *ctx, const char *cmd, const char *args,

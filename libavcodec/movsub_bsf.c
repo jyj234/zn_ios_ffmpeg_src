@@ -52,8 +52,8 @@ static int text2movsub(AVBSFContext *ctx, AVPacket *out)
 
 fail:
     if (ret < 0)
-        av_packet_unref(out);
-    av_packet_free(&in);
+        zn_av_packet_unref(out);
+    zn_av_packet_free(&in);
     return ret;
 }
 
@@ -71,7 +71,7 @@ static int mov2textsub(AVBSFContext *ctx, AVPacket *pkt)
         return ret;
 
     if (pkt->size < 2) {
-       av_packet_unref(pkt);
+       zn_av_packet_unref(pkt);
        return AVERROR_INVALIDDATA;
     }
 

@@ -59,10 +59,10 @@ void ff_write_pass1_stats(MpegEncContext *s)
 static double get_fps(AVCodecContext *avctx)
 {
     if (avctx->framerate.num > 0 && avctx->framerate.den > 0)
-        return av_q2d(avctx->framerate);
+        return zn_av_q2d(avctx->framerate);
 
 FF_DISABLE_DEPRECATION_WARNINGS
-    return 1.0 / av_q2d(avctx->time_base)
+    return 1.0 / zn_av_q2d(avctx->time_base)
 #if FF_API_TICKS_PER_FRAME
         / FFMAX(avctx->ticks_per_frame, 1)
 #endif
@@ -358,11 +358,11 @@ static int init_pass2(MpegEncContext *s)
         return -1;
     }
 
-    qscale         = av_malloc_array(rcc->num_entries, sizeof(double));
-    blurred_qscale = av_malloc_array(rcc->num_entries, sizeof(double));
+    qscale         = zn_av_malloc_array(rcc->num_entries, sizeof(double));
+    blurred_qscale = zn_av_malloc_array(rcc->num_entries, sizeof(double));
     if (!qscale || !blurred_qscale) {
-        av_free(qscale);
-        av_free(blurred_qscale);
+        zn_av_free(qscale);
+        zn_av_free(blurred_qscale);
         return AVERROR(ENOMEM);
     }
     toobig = 0;
@@ -439,8 +439,8 @@ static int init_pass2(MpegEncContext *s)
             ++toobig;
         }
     }
-    av_free(qscale);
-    av_free(blurred_qscale);
+    zn_av_free(qscale);
+    zn_av_free(blurred_qscale);
 
     /* check bitrate calculations and print info */
     qscale_sum = 0.0;
@@ -684,7 +684,7 @@ av_cold void ff_rate_control_uninit(MpegEncContext *s)
     emms_c();
 
     av_expr_free(rcc->rc_eq_eval);
-    av_freep(&rcc->entry);
+    zn_av_freep(&rcc->entry);
 }
 
 int ff_vbv_update(MpegEncContext *s, int frame_size)

@@ -53,7 +53,7 @@ static av_cold int apac_close(AVCodecContext *avctx)
 {
     APACContext *s = avctx->priv_data;
 
-    av_freep(&s->bitstream);
+    zn_av_freep(&s->bitstream);
     s->bitstream_size = 0;
 
     for (int ch = 0; ch < 2; ch++) {
@@ -87,7 +87,7 @@ static av_cold int apac_init(AVCodecContext *avctx)
         c->bit_length = avctx->bits_per_coded_sample;
         c->block_length = 8;
         c->have_code = 0;
-        c->samples = av_audio_fifo_alloc(avctx->sample_fmt, 1, 1024);
+        c->samples = zn_av_audio_fifo_alloc(avctx->sample_fmt, 1, 1024);
         if (!c->samples)
             return AVERROR(ENOMEM);
     }
@@ -229,7 +229,7 @@ static int apac_decode(AVCodecContext *avctx, AVFrame *frame,
                 }
             }
 
-            av_audio_fifo_write(c->samples, samples, c->block_length);
+            zn_av_audio_fifo_write(c->samples, samples, c->block_length);
         }
 
         s->cur_ch = 0;
@@ -237,7 +237,7 @@ static int apac_decode(AVCodecContext *avctx, AVFrame *frame,
 end:
     nb_samples = frame->nb_samples;
     for (int ch = 0; ch < avctx->ch_layout.nb_channels; ch++)
-        nb_samples = FFMIN(av_audio_fifo_size(s->ch[ch].samples), nb_samples);
+        nb_samples = FFMIN(zn_av_audio_fifo_size(s->ch[ch].samples), nb_samples);
 
     frame->nb_samples = nb_samples;
     for (int ch = 0; ch < avctx->ch_layout.nb_channels; ch++) {

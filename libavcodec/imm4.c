@@ -497,7 +497,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     ff_bswapdsp_init(&s->bdsp);
     ff_idctdsp_init(&s->idsp, avctx);
 
-    s->prev_frame = av_frame_alloc();
+    s->prev_frame = zn_av_frame_alloc();
     if (!s->prev_frame)
         return AVERROR(ENOMEM);
 
@@ -517,8 +517,8 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     IMM4Context *s = avctx->priv_data;
 
-    av_frame_free(&s->prev_frame);
-    av_freep(&s->bitstream);
+    zn_av_frame_free(&s->prev_frame);
+    zn_av_freep(&s->bitstream);
     s->bitstream_size = 0;
 
     return 0;

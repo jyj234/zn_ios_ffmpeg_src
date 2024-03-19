@@ -175,7 +175,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
                          elbg->codebook_length, elbg->max_steps_nb,
                          elbg->codeword_closest_codebook_idxs, &elbg->lfg, 0);
     if (ret < 0) {
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         return ret;
     }
 
@@ -185,11 +185,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         uint32_t *pal;
 
         if (!out) {
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, frame);
-        av_frame_free(&frame);
+        zn_av_frame_free(&frame);
         pal = (uint32_t *)out->data[1];
         p0 = (uint8_t *)out->data[0];
 
@@ -239,9 +239,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     avpriv_elbg_free(&elbg->ctx);
 
-    av_freep(&elbg->codebook);
-    av_freep(&elbg->codeword);
-    av_freep(&elbg->codeword_closest_codebook_idxs);
+    zn_av_freep(&elbg->codebook);
+    zn_av_freep(&elbg->codeword);
+    zn_av_freep(&elbg->codeword_closest_codebook_idxs);
 }
 
 static const AVFilterPad elbg_inputs[] = {

@@ -68,11 +68,11 @@ static int webm_chunk_init(AVFormatContext *s)
 
     wc->prev_pts = AV_NOPTS_VALUE;
 
-    oformat = av_guess_format("webm", s->url, "video/webm");
+    oformat = zn_av_guess_format("webm", s->url, "video/webm");
     if (!oformat)
         return AVERROR_MUXER_NOT_FOUND;
 
-    ret = avformat_alloc_output_context2(&wc->avf, oformat, NULL, NULL);
+    ret = zn_avformat_alloc_output_context2(&wc->avf, oformat, NULL, NULL);
     if (ret < 0)
         return ret;
     oc = wc->avf;
@@ -153,7 +153,7 @@ static int webm_chunk_write_header(AVFormatContext *s)
     AVStream *st = s->streams[0], *ost = oc->streams[0];
     int ret;
 
-    ret = avformat_write_header(oc, NULL);
+    ret = zn_avformat_write_header(oc, NULL);
     ff_format_io_close(s, &oc->pb);
     ffstream(st)->lowest_ts_allowed = ffstream(ost)->lowest_ts_allowed;
     ffstream(ost)->lowest_ts_allowed = 0;
@@ -208,7 +208,7 @@ static int chunk_end(AVFormatContext *s, int flush)
     avio_write(pb, buffer, buffer_size);
     ff_format_io_close(s, &pb);
 fail:
-    av_free(buffer);
+    zn_av_free(buffer);
     return (ret < 0) ? ret : 0;
 }
 
@@ -255,7 +255,7 @@ static int webm_chunk_write_trailer(AVFormatContext *s)
         if (ret < 0)
             return ret;
     }
-    ret = av_write_trailer(oc);
+    ret = zn_av_write_trailer(oc);
     if (ret < 0)
         return ret;
     return chunk_end(s, 0);
@@ -272,7 +272,7 @@ static void webm_chunk_deinit(AVFormatContext *s)
         ffio_free_dyn_buf(&wc->avf->pb);
     else
         ff_format_io_close(s, &wc->avf->pb);
-    avformat_free_context(wc->avf);
+    zn_avformat_free_context(wc->avf);
     wc->avf = NULL;
 }
 

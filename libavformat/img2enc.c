@@ -88,10 +88,10 @@ static int write_muxed_file(AVFormatContext *s, AVIOContext *pb, AVPacket *pkt)
     int ret;
 
     /* URL is not used directly as we are overriding the IO context later. */
-    ret = avformat_alloc_output_context2(&fmt, NULL, img->muxer, s->url);
+    ret = zn_avformat_alloc_output_context2(&fmt, NULL, img->muxer, s->url);
     if (ret < 0)
         return ret;
-    st = avformat_new_stream(fmt, NULL);
+    st = zn_avformat_new_stream(fmt, NULL);
     if (!st) {
         ret = AVERROR(ENOMEM);
         goto out;
@@ -105,14 +105,14 @@ static int write_muxed_file(AVFormatContext *s, AVIOContext *pb, AVPacket *pkt)
         goto out;
     pkt2->stream_index = 0;
 
-    if ((ret = avcodec_parameters_copy(st->codecpar, par))     < 0 ||
-        (ret = avformat_write_header(fmt, NULL))               < 0 ||
-        (ret = av_interleaved_write_frame(fmt, pkt2))         < 0 ||
-        (ret = av_write_trailer(fmt))) {}
+    if ((ret = zn_avcodec_parameters_copy(st->codecpar, par))     < 0 ||
+        (ret = zn_avformat_write_header(fmt, NULL))               < 0 ||
+        (ret = zn_av_interleaved_write_frame(fmt, pkt2))         < 0 ||
+        (ret = zn_av_write_trailer(fmt))) {}
 
-    av_packet_unref(pkt2);
+    zn_av_packet_unref(pkt2);
 out:
-    avformat_free_context(fmt);
+    zn_avformat_free_context(fmt);
     return ret;
 }
 

@@ -174,12 +174,12 @@ void *av_realloc_f(void *ptr, size_t nelem, size_t elsize)
     void *r;
 
     if (size_mult(elsize, nelem, &size)) {
-        av_free(ptr);
+        zn_av_free(ptr);
         return NULL;
     }
     r = av_realloc(ptr, size);
     if (!r)
-        av_free(ptr);
+        zn_av_free(ptr);
     return r;
 }
 
@@ -188,7 +188,7 @@ int av_reallocp(void *ptr, size_t size)
     void *val;
 
     if (!size) {
-        av_freep(ptr);
+        zn_av_freep(ptr);
         return 0;
     }
 
@@ -196,7 +196,7 @@ int av_reallocp(void *ptr, size_t size)
     val = av_realloc(val, size);
 
     if (!val) {
-        av_freep(ptr);
+        zn_av_freep(ptr);
         return AVERROR(ENOMEM);
     }
 
@@ -204,7 +204,7 @@ int av_reallocp(void *ptr, size_t size)
     return 0;
 }
 
-void *av_malloc_array(size_t nmemb, size_t size)
+void *zn_av_malloc_array(size_t nmemb, size_t size)
 {
     size_t result;
     if (size_mult(nmemb, size, &result) < 0)
@@ -233,7 +233,7 @@ int av_reallocp_array(void *ptr, size_t nmemb, size_t size)
     return 0;
 }
 
-void av_free(void *ptr)
+void zn_av_free(void *ptr)
 {
 #if HAVE_ALIGNED_MALLOC
     _aligned_free(ptr);
@@ -242,13 +242,13 @@ void av_free(void *ptr)
 #endif
 }
 
-void av_freep(void *arg)
+void zn_av_freep(void *arg)
 {
     void *val;
 
     memcpy(&val, arg, sizeof(val));
     memcpy(arg, &(void *){ NULL }, sizeof(val));
-    av_free(val);
+    zn_av_free(val);
 }
 
 void *av_mallocz(size_t size)
@@ -259,7 +259,7 @@ void *av_mallocz(size_t size)
     return ptr;
 }
 
-void *av_calloc(size_t nmemb, size_t size)
+void *zn_av_calloc(size_t nmemb, size_t size)
 {
     size_t result;
     if (size_mult(nmemb, size, &result) < 0)
@@ -334,7 +334,7 @@ void av_dynarray_add(void *tab_ptr, int *nb_ptr, void *elem)
         memcpy(tab_ptr, &tab, sizeof(tab));
     }, {
         *nb_ptr = 0;
-        av_freep(tab_ptr);
+        zn_av_freep(tab_ptr);
     });
 }
 
@@ -350,7 +350,7 @@ void *av_dynarray2_add(void **tab_ptr, int *nb_ptr, size_t elem_size,
         else if (CONFIG_MEMORY_POISONING)
             memset(tab_elem_data, FF_MEMORY_POISON, elem_size);
     }, {
-        av_freep(tab_ptr);
+        zn_av_freep(tab_ptr);
         *nb_ptr = 0;
     });
     return tab_elem_data;
@@ -538,12 +538,12 @@ static inline void fast_malloc(void *ptr, unsigned int *size, size_t min_size, i
     max_size = FFMIN(max_size, UINT_MAX);
 
     if (min_size > max_size) {
-        av_freep(ptr);
+        zn_av_freep(ptr);
         *size = 0;
         return;
     }
     min_size = FFMIN(max_size, FFMAX(min_size + min_size / 16 + 32, min_size));
-    av_freep(ptr);
+    zn_av_freep(ptr);
     val = zero_realloc ? av_mallocz(min_size) : av_malloc(min_size);
     memcpy(ptr, &val, sizeof(val));
     if (!val)

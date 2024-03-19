@@ -118,10 +118,10 @@ static void uri_table_destroy(URITable *table)
     int i;
 
     for (i = 0; i < table->n_uris; i++) {
-        av_freep(&table->uris[i]);
+        zn_av_freep(&table->uris[i]);
     }
 
-    av_freep(&table->uris);
+    zn_av_freep(&table->uris);
 }
 
 static LV2_URID uri_table_map(LV2_URID_Map_Handle handle, const char *uri)
@@ -137,12 +137,12 @@ static LV2_URID uri_table_map(LV2_URID_Map_Handle handle, const char *uri)
         }
     }
 
-    tmp = av_calloc(table->n_uris + 1, sizeof(char*));
+    tmp = zn_av_calloc(table->n_uris + 1, sizeof(char*));
     if (!tmp)
         return table->n_uris;
     memcpy(tmp, table->uris, table->n_uris * sizeof(char**));
 
-    av_free(table->uris);
+    zn_av_free(table->uris);
     table->uris = tmp;
     table->uris[table->n_uris] = av_malloc(len + 1);
     if (!table->uris[table->n_uris])
@@ -210,7 +210,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(ctx->outputs[0], in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -221,7 +221,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     lilv_instance_run(s->instance, in->nb_samples);
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
 
     return ff_filter_frame(ctx->outputs[0], out);
 }
@@ -290,7 +290,7 @@ static int config_output(AVFilterLink *outlink)
         outlink->sample_rate = sample_rate = inlink->sample_rate;
         if (s->nb_inputs == s->nb_outputs) {
             int ret;
-            if ((ret = av_channel_layout_copy(&outlink->ch_layout, &inlink->ch_layout)) < 0)
+            if ((ret = zn_av_channel_layout_copy(&outlink->ch_layout, &inlink->ch_layout)) < 0)
                 return ret;
 #if FF_API_OLD_CHANNEL_LAYOUT
 FF_DISABLE_DEPRECATION_WARNINGS
@@ -310,9 +310,9 @@ FF_ENABLE_DEPRECATION_WARNINGS
         return AVERROR(EINVAL);
     }
 
-    s->mins     = av_calloc(s->nb_ports, sizeof(float));
-    s->maxes    = av_calloc(s->nb_ports, sizeof(float));
-    s->controls = av_calloc(s->nb_ports, sizeof(float));
+    s->mins     = zn_av_calloc(s->nb_ports, sizeof(float));
+    s->maxes    = zn_av_calloc(s->nb_ports, sizeof(float));
+    s->controls = zn_av_calloc(s->nb_ports, sizeof(float));
 
     if (!s->mins || !s->maxes || !s->controls)
         return AVERROR(ENOMEM);
@@ -583,10 +583,10 @@ static av_cold void uninit(AVFilterContext *ctx)
     uri_table_destroy(&s->uri_table);
     lilv_instance_free(s->instance);
     lilv_world_free(s->world);
-    av_freep(&s->mins);
-    av_freep(&s->maxes);
-    av_freep(&s->controls);
-    av_freep(&s->seq_out);
+    zn_av_freep(&s->mins);
+    zn_av_freep(&s->maxes);
+    zn_av_freep(&s->controls);
+    zn_av_freep(&s->seq_out);
 }
 
 static const AVFilterPad lv2_outputs[] = {

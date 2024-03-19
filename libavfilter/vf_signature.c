@@ -190,7 +190,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
     fs->index = sc->lastindex++;
 
     memset(intpic, 0, sizeof(uint64_t)*32*32);
-    intjlut = av_malloc_array(inlink->w, sizeof(int));
+    intjlut = zn_av_malloc_array(inlink->w, sizeof(int));
     if (!intjlut)
         return AVERROR(ENOMEM);
     for (i = 0; i < inlink->w; i++) {
@@ -205,7 +205,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
         }
         p += picref->linesize[0];
     }
-    av_freep(&intjlut);
+    zn_av_freep(&intjlut);
 
     /* The following calculates a summed area table (intpic) and brings the numbers
      * in intpic to the same denominator.
@@ -250,12 +250,12 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
         int64_t* elemsignature;
         uint64_t* sortsignature;
 
-        elemsignature = av_malloc_array(elemcat->elem_count, sizeof(int64_t));
+        elemsignature = zn_av_malloc_array(elemcat->elem_count, sizeof(int64_t));
         if (!elemsignature)
             return AVERROR(ENOMEM);
-        sortsignature = av_malloc_array(elemcat->elem_count, sizeof(int64_t));
+        sortsignature = zn_av_malloc_array(elemcat->elem_count, sizeof(int64_t));
         if (!sortsignature) {
-            av_freep(&elemsignature);
+            zn_av_freep(&elemsignature);
             return AVERROR(ENOMEM);
         }
 
@@ -306,8 +306,8 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
             }
             f++;
         }
-        av_freep(&elemsignature);
-        av_freep(&sortsignature);
+        zn_av_freep(&elemsignature);
+        zn_av_freep(&sortsignature);
     }
 
     /* confidence */
@@ -494,7 +494,7 @@ static int binary_export(AVFilterContext *ctx, StreamContext *sc, const char* fi
     int len = (512 + 6 * 32 + 3*16 + 2 +
         numofsegments * (4*32 + 1 + 5*243) +
         sc->lastindex * (2 + 32 + 6*8 + 608)) / 8;
-    uint8_t* buffer = av_malloc_array(len, sizeof(uint8_t));
+    uint8_t* buffer = zn_av_malloc_array(len, sizeof(uint8_t));
     if (!buffer)
         return AVERROR(ENOMEM);
 
@@ -504,7 +504,7 @@ static int binary_export(AVFilterContext *ctx, StreamContext *sc, const char* fi
         char buf[128];
         av_strerror(err, buf, sizeof(buf));
         av_log(ctx, AV_LOG_ERROR, "cannot open file %s: %s\n", filename, buf);
-        av_freep(&buffer);
+        zn_av_freep(&buffer);
         return err;
     }
     init_put_bits(&buf, buffer, len);
@@ -556,7 +556,7 @@ static int binary_export(AVFilterContext *ctx, StreamContext *sc, const char* fi
     flush_put_bits(&buf);
     fwrite(buffer, 1, put_bytes_output(&buf), f);
     fclose(f);
-    av_freep(&buffer);
+    zn_av_freep(&buffer);
     return 0;
 }
 
@@ -708,18 +708,18 @@ static av_cold void uninit(AVFilterContext *ctx)
             while (finsig) {
                 tmp = finsig;
                 finsig = finsig->next;
-                av_freep(&tmp);
+                zn_av_freep(&tmp);
             }
             sc->finesiglist = NULL;
 
             while (cousig) {
                 tmp = cousig;
                 cousig = cousig->next;
-                av_freep(&tmp);
+                zn_av_freep(&tmp);
             }
             sc->coarsesiglist = NULL;
         }
-        av_freep(&sic->streamcontexts);
+        zn_av_freep(&sic->streamcontexts);
     }
 }
 

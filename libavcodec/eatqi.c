@@ -171,7 +171,7 @@ static int tqi_decode_frame(AVCodecContext *avctx, AVFrame *frame,
 static av_cold int tqi_decode_end(AVCodecContext *avctx)
 {
     TqiContext *t = avctx->priv_data;
-    av_freep(&t->bitstream_buf);
+    zn_av_freep(&t->bitstream_buf);
     return 0;
 }
 

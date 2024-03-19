@@ -615,8 +615,8 @@ static int graphs_build(AVFrame *in, AVFrame *out, const AVPixFmtDescriptor *des
         return print_zimg_error(ctx);
 
     if (s->tmp[job_nr])
-        av_freep(&s->tmp[job_nr]);
-    s->tmp[job_nr] = av_calloc(size, 1);
+        zn_av_freep(&s->tmp[job_nr]);
+    s->tmp[job_nr] = zn_av_calloc(size, 1);
     if (!s->tmp[job_nr])
         return AVERROR(ENOMEM);
 
@@ -653,7 +653,7 @@ static int realign_frame(const AVPixFmtDescriptor *desc, AVFrame **frame, int ne
     for (plane = 0; plane < planes; plane++) {
         int p = desc->comp[plane].plane;
         if ((uintptr_t)(*frame)->data[p] % ZIMG_ALIGNMENT || (*frame)->linesize[p] % ZIMG_ALIGNMENT) {
-            if (!(aligned = av_frame_alloc())) {
+            if (!(aligned = zn_av_frame_alloc())) {
                 ret = AVERROR(ENOMEM);
                 goto fail;
             }
@@ -662,7 +662,7 @@ static int realign_frame(const AVPixFmtDescriptor *desc, AVFrame **frame, int ne
             aligned->width  = (*frame)->width;
             aligned->height = (*frame)->height;
 
-            if ((ret = av_frame_get_buffer(aligned, ZIMG_ALIGNMENT)) < 0)
+            if ((ret = zn_av_frame_get_buffer(aligned, ZIMG_ALIGNMENT)) < 0)
                 goto fail;
 
             if (needs_copy && (ret = av_frame_copy(aligned, *frame)) < 0)
@@ -671,14 +671,14 @@ static int realign_frame(const AVPixFmtDescriptor *desc, AVFrame **frame, int ne
             if (needs_copy && (ret = av_frame_copy_props(aligned, *frame)) < 0)
                 goto fail;
 
-            av_frame_free(frame);
+            zn_av_frame_free(frame);
             *frame = aligned;
             return 0;
         }
     }
 
 fail:
-    av_frame_free(&aligned);
+    zn_av_frame_free(&aligned);
     return ret;
 }
 
@@ -883,8 +883,8 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
             if (s->jobs_ret[i] < 0)
                 ret = s->jobs_ret[i];
         if (ret < 0) {
-            av_frame_free(&in);
-            av_frame_free(&out);
+            zn_av_frame_free(&in);
+            zn_av_frame_free(&out);
             return ret;
         }
 
@@ -924,9 +924,9 @@ static int filter_frame(AVFilterLink *link, AVFrame *in)
         return ff_filter_frame(outlink, in);
     }
 fail:
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     if (ret) {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         return ret;
     }
 
@@ -938,7 +938,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     ZScaleContext *s = ctx->priv;
 
     for (int i = 0; i < s->nb_threads; i++) {
-        av_freep(&s->tmp[i]);
+        zn_av_freep(&s->tmp[i]);
         if (s->graph[i]) {
             zimg_filter_graph_free(s->graph[i]);
             s->graph[i] = NULL;

@@ -143,8 +143,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     TestSourceContext *test = ctx->priv;
 
-    av_frame_free(&test->picref);
-    av_freep(&test->lut);
+    zn_av_frame_free(&test->picref);
+    zn_av_freep(&test->lut);
 }
 
 static int config_props(AVFilterLink *outlink)
@@ -176,7 +176,7 @@ static int activate(AVFilterContext *ctx)
 
     if (test->draw_once) {
         if (test->draw_once_reset) {
-            av_frame_free(&test->picref);
+            zn_av_frame_free(&test->picref);
             test->draw_once_reset = 0;
         }
         if (!test->picref) {
@@ -658,7 +658,7 @@ static void test_fill_picture(AVFilterContext *ctx, AVFrame *frame)
     seg_size = width / 80;
     if (seg_size >= 1 && height >= 13 * seg_size) {
         int64_t p10decimals = 1;
-        double time = av_q2d(test->time_base) * test->nb_frame *
+        double time = zn_av_q2d(test->time_base) * test->nb_frame *
                       ff_exp10(test->nb_decimals);
         if (time >= INT_MAX)
             return;
@@ -2185,7 +2185,7 @@ static int zoneplate_config_props(AVFilterLink *outlink)
     if (av_image_check_size(test->w, test->h, 0, ctx) < 0)
         return AVERROR(EINVAL);
 
-    test->lut = av_calloc(lut_size, sizeof(*test->lut) * ((depth + 7) / 8));
+    test->lut = zn_av_calloc(lut_size, sizeof(*test->lut) * ((depth + 7) / 8));
     if (!test->lut)
         return AVERROR(ENOMEM);
 

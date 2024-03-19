@@ -79,8 +79,8 @@ static int config_output_props(AVFilterLink *outlink)
     int ret;
     double res;
 
-    settb->var_values[VAR_AVTB] = av_q2d(AV_TIME_BASE_Q);
-    settb->var_values[VAR_INTB] = av_q2d(inlink->time_base);
+    settb->var_values[VAR_AVTB] = zn_av_q2d(AV_TIME_BASE_Q);
+    settb->var_values[VAR_INTB] = zn_av_q2d(inlink->time_base);
     settb->var_values[VAR_SR]   = inlink->sample_rate;
 
     outlink->w = inlink->w;

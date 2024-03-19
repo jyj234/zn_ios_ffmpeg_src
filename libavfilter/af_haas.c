@@ -104,8 +104,8 @@ static int config_input(AVFilterLink *inlink)
     while (new_buf_size < min_buf_size)
         new_buf_size <<= 1;
 
-    av_freep(&s->buffer);
-    s->buffer = av_calloc(new_buf_size, sizeof(*s->buffer));
+    zn_av_freep(&s->buffer);
+    s->buffer = zn_av_calloc(new_buf_size, sizeof(*s->buffer));
     if (!s->buffer)
         return AVERROR(ENOMEM);
 
@@ -145,7 +145,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -185,7 +185,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -193,7 +193,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     HaasContext *s = ctx->priv;
 
-    av_freep(&s->buffer);
+    zn_av_freep(&s->buffer);
     s->buffer_size = 0;
 }
 

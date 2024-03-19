@@ -93,13 +93,13 @@ static int transpose_vt_filter_frame(AVFilterLink *link, AVFrame *in)
         goto fail;
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 
@@ -129,7 +129,7 @@ static int transpose_vt_recreate_hw_ctx(AVFilterLink *outlink)
     if (err < 0) {
         av_log(avctx, AV_LOG_ERROR,
                "Failed to init videotoolbox frame context, %s\n",
-               av_err2str(err));
+               zn_av_err2str(err));
         return err;
     }
 

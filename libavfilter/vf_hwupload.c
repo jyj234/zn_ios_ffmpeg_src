@@ -199,13 +199,13 @@ static int hwupload_filter_frame(AVFilterLink *link, AVFrame *input)
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input);
+    zn_av_frame_free(&input);
 
     return ff_filter_frame(outlink, output);
 
 fail:
-    av_frame_free(&input);
-    av_frame_free(&output);
+    zn_av_frame_free(&input);
+    zn_av_frame_free(&output);
     return err;
 }
 

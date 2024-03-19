@@ -736,7 +736,7 @@ static int udp_open(URLContext *h, const char *uri, int flags)
             s->burst_bits = strtoll(buf, NULL, 10);
         }
         if (av_find_info_tag(buf, sizeof(buf), "localaddr", p)) {
-            av_freep(&s->localaddr);
+            zn_av_freep(&s->localaddr);
             s->localaddr = av_strdup(buf);
             if (!s->localaddr) {
                 ret = AVERROR(ENOMEM);

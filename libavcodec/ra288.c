@@ -81,7 +81,7 @@ static av_cold int ra288_decode_init(AVCodecContext *avctx)
     if (!fdsp)
         return AVERROR(ENOMEM);
     ractx->vector_fmul = fdsp->vector_fmul;
-    av_free(fdsp);
+    zn_av_free(fdsp);
 
     return 0;
 }

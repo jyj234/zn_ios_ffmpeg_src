@@ -257,7 +257,7 @@ static int overlay_cuda_blend(FFFrameSync *fs)
 
     ret = ff_inlink_make_frame_writable(inlink, &input_main);
     if (ret < 0) {
-        av_frame_free(&input_main);
+        zn_av_frame_free(&input_main);
         return ret;
     }
 
@@ -265,14 +265,14 @@ static int overlay_cuda_blend(FFFrameSync *fs)
 
     ret = CHECK_CU(cu->cuCtxPushCurrent(cuda_ctx));
     if (ret < 0) {
-        av_frame_free(&input_main);
+        zn_av_frame_free(&input_main);
         return ret;
     }
 
     if (ctx->eval_mode == EVAL_MODE_FRAME) {
         ctx->var_values[VAR_N] = inlink->frame_count_out;
         ctx->var_values[VAR_T] = input_main->pts == AV_NOPTS_VALUE ?
-            NAN : input_main->pts * av_q2d(inlink->time_base);
+            NAN : input_main->pts * zn_av_q2d(inlink->time_base);
 
 #if FF_API_FRAME_PKT
 FF_DISABLE_DEPRECATION_WARNINGS
@@ -338,7 +338,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         break;
     default:
         av_log(ctx, AV_LOG_ERROR, "Passed unsupported overlay pixel format\n");
-        av_frame_free(&input_main);
+        zn_av_frame_free(&input_main);
         CHECK_CU(cu->cuCtxPopCurrent(&dummy));
         return AVERROR_BUG;
     }

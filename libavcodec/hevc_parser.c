@@ -343,7 +343,7 @@ static void hevc_parser_close(AVCodecParserContext *s)
     ff_h2645_packet_uninit(&ctx->pkt);
     ff_hevc_reset_sei(&ctx->sei);
 
-    av_freep(&ctx->pc.buffer);
+    zn_av_freep(&ctx->pc.buffer);
 }
 
 const AVCodecParser ff_hevc_parser = {

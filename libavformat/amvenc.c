@@ -193,7 +193,7 @@ static av_cold int amv_init(AVFormatContext *s)
     memset(amv->apad->data, 0, amv->ablock_align);
     AV_WL32(amv->apad->data + 4, amv->aframe_size);
 
-    amv->vpad = av_packet_alloc();
+    amv->vpad = zn_av_packet_alloc();
     if (!amv->vpad) {
         return AVERROR(ENOMEM);
     }
@@ -206,7 +206,7 @@ static void amv_deinit(AVFormatContext *s)
 {
     AMVContext *amv = s->priv_data;
 
-    av_packet_free(&amv->vpad);
+    zn_av_packet_free(&amv->vpad);
 }
 
 static void amv_write_vlist(AVFormatContext *s, AVCodecParameters *par)
@@ -353,7 +353,7 @@ static int amv_write_packet(AVFormatContext *s, AVPacket *pkt)
 
     if (pkt->stream_index == AMV_STREAM_VIDEO) {
         /* Save the last packet for padding. */
-        av_packet_unref(amv->vpad);
+        zn_av_packet_unref(amv->vpad);
         if ((ret = av_packet_ref(amv->vpad, pkt)) < 0)
             return ret;
     }

@@ -1047,7 +1047,7 @@ static int do_blend(FFFrameSync *fs)
 
         s->var_values[VAR_N] = inlink->frame_count_out;
         s->var_values[VAR_T] = mainpic->pts == AV_NOPTS_VALUE ?
-            NAN : mainpic->pts * av_q2d(inlink->time_base);
+            NAN : mainpic->pts * zn_av_q2d(inlink->time_base);
 #if FF_API_FRAME_PKT
 FF_DISABLE_DEPRECATION_WARNINGS
         {

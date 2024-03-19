@@ -223,8 +223,8 @@ static void free_buffers(CFHDContext *s)
 
     for (i = 0; i < FF_ARRAY_ELEMS(s->plane); i++) {
         Plane *p = &s->plane[i];
-        av_freep(&s->plane[i].idwt_buf);
-        av_freep(&s->plane[i].idwt_tmp);
+        zn_av_freep(&s->plane[i].idwt_buf);
+        zn_av_freep(&s->plane[i].idwt_tmp);
         s->plane[i].idwt_size = 0;
 
         for (j = 0; j < SUBBAND_COUNT_3D; j++)
@@ -291,15 +291,15 @@ static int alloc_buffers(AVCodecContext *avctx)
         if (s->transform_type == 0) {
             s->plane[i].idwt_size = FFALIGN(height, 8) * stride;
             s->plane[i].idwt_buf =
-                av_calloc(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_buf));
+                zn_av_calloc(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_buf));
             s->plane[i].idwt_tmp =
-                av_malloc_array(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_tmp));
+                zn_av_malloc_array(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_tmp));
         } else {
             s->plane[i].idwt_size = FFALIGN(height, 8) * stride * 2;
             s->plane[i].idwt_buf =
-                av_calloc(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_buf));
+                zn_av_calloc(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_buf));
             s->plane[i].idwt_tmp =
-                av_malloc_array(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_tmp));
+                zn_av_malloc_array(s->plane[i].idwt_size, sizeof(*s->plane[i].idwt_tmp));
         }
 
         if (!s->plane[i].idwt_buf || !s->plane[i].idwt_tmp)

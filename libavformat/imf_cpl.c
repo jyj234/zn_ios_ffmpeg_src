@@ -801,7 +801,7 @@ static void imf_marker_resource_free(FFIMFMarkerResource *rsrc)
         return;
     for (uint32_t i = 0; i < rsrc->marker_count; i++)
         imf_marker_free(&rsrc->markers[i]);
-    av_freep(&rsrc->markers);
+    zn_av_freep(&rsrc->markers);
 }
 
 static void imf_marker_virtual_track_free(FFIMFMarkerVirtualTrack *vt)
@@ -810,14 +810,14 @@ static void imf_marker_virtual_track_free(FFIMFMarkerVirtualTrack *vt)
         return;
     for (uint32_t i = 0; i < vt->resource_count; i++)
         imf_marker_resource_free(&vt->resources[i]);
-    av_freep(&vt->resources);
+    zn_av_freep(&vt->resources);
 }
 
 static void imf_trackfile_virtual_track_free(FFIMFTrackFileVirtualTrack *vt)
 {
     if (!vt)
         return;
-    av_freep(&vt->resources);
+    zn_av_freep(&vt->resources);
 }
 
 static void imf_cpl_init(FFIMFCPL *cpl)
@@ -849,27 +849,27 @@ void ff_imf_cpl_free(FFIMFCPL *cpl)
         return;
 
     if (cpl->tc)
-        av_freep(&cpl->tc);
+        zn_av_freep(&cpl->tc);
 
     xmlFree(cpl->content_title_utf8);
 
     imf_marker_virtual_track_free(cpl->main_markers_track);
 
     if (cpl->main_markers_track)
-        av_freep(&cpl->main_markers_track);
+        zn_av_freep(&cpl->main_markers_track);
 
     imf_trackfile_virtual_track_free(cpl->main_image_2d_track);
 
     if (cpl->main_image_2d_track)
-        av_freep(&cpl->main_image_2d_track);
+        zn_av_freep(&cpl->main_image_2d_track);
 
     for (uint32_t i = 0; i < cpl->main_audio_track_count; i++)
         imf_trackfile_virtual_track_free(&cpl->main_audio_tracks[i]);
 
     if (cpl->main_audio_tracks)
-        av_freep(&cpl->main_audio_tracks);
+        zn_av_freep(&cpl->main_audio_tracks);
 
-    av_freep(&cpl);
+    zn_av_freep(&cpl);
 }
 
 int ff_imf_parse_cpl(void *log_ctx, AVIOContext *in, FFIMFCPL **cpl)

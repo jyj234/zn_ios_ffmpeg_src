@@ -276,28 +276,28 @@ static int activate(AVFilterContext *ctx)
         if (ret > 0) {
             if (s->pts == AV_NOPTS_VALUE)
                 s->pts = frame->pts;
-            ret = av_audio_fifo_write(s->fifo[i], (void **)frame->extended_data,
+            ret = zn_av_audio_fifo_write(s->fifo[i], (void **)frame->extended_data,
                                       frame->nb_samples);
-            av_frame_free(&frame);
+            zn_av_frame_free(&frame);
             if (ret < 0)
                 return ret;
         }
     }
 
-    available = FFMIN(av_audio_fifo_size(s->fifo[0]), av_audio_fifo_size(s->fifo[1]));
+    available = FFMIN(zn_av_audio_fifo_size(s->fifo[0]), zn_av_audio_fifo_size(s->fifo[1]));
     if (available > s->size) {
         const int out_samples = available - s->size;
         AVFrame *out;
 
         if (!s->cache[0] || s->cache[0]->nb_samples < available) {
-            av_frame_free(&s->cache[0]);
+            zn_av_frame_free(&s->cache[0]);
             s->cache[0] = ff_get_audio_buffer(outlink, available);
             if (!s->cache[0])
                 return AVERROR(ENOMEM);
         }
 
         if (!s->cache[1] || s->cache[1]->nb_samples < available) {
-            av_frame_free(&s->cache[1]);
+            zn_av_frame_free(&s->cache[1]);
             s->cache[1] = ff_get_audio_buffer(outlink, available);
             if (!s->cache[1])
                 return AVERROR(ENOMEM);
@@ -334,32 +334,32 @@ static int activate(AVFilterContext *ctx)
             if (!silence)
                 return AVERROR(ENOMEM);
 
-            av_audio_fifo_write(s->fifo[0], (void **)silence->extended_data,
+            zn_av_audio_fifo_write(s->fifo[0], (void **)silence->extended_data,
                                 silence->nb_samples);
 
-            av_audio_fifo_write(s->fifo[1], (void **)silence->extended_data,
+            zn_av_audio_fifo_write(s->fifo[1], (void **)silence->extended_data,
                                 silence->nb_samples);
 
-            av_frame_free(&silence);
+            zn_av_frame_free(&silence);
         }
     }
 
     if (s->eof &&
-        (av_audio_fifo_size(s->fifo[0]) <= s->size ||
-         av_audio_fifo_size(s->fifo[1]) <= s->size)) {
+        (zn_av_audio_fifo_size(s->fifo[0]) <= s->size ||
+         zn_av_audio_fifo_size(s->fifo[1]) <= s->size)) {
         ff_outlink_set_status(outlink, AVERROR_EOF, s->pts);
         return 0;
     }
 
-    if ((av_audio_fifo_size(s->fifo[0]) > s->size &&
-         av_audio_fifo_size(s->fifo[1]) > s->size) || s->eof) {
+    if ((zn_av_audio_fifo_size(s->fifo[0]) > s->size &&
+         zn_av_audio_fifo_size(s->fifo[1]) > s->size) || s->eof) {
         ff_filter_set_ready(ctx, 10);
         return 0;
     }
 
     if (ff_outlink_frame_wanted(outlink) && !s->eof) {
         for (int i = 0; i < 2; i++) {
-            if (av_audio_fifo_size(s->fifo[i]) > s->size)
+            if (zn_av_audio_fifo_size(s->fifo[i]) > s->size)
                 continue;
             ff_inlink_request_frame(ctx->inputs[i]);
             return 0;
@@ -376,8 +376,8 @@ static int config_output(AVFilterLink *outlink)
 
     s->pts = AV_NOPTS_VALUE;
 
-    s->fifo[0] = av_audio_fifo_alloc(outlink->format, outlink->ch_layout.nb_channels, s->size);
-    s->fifo[1] = av_audio_fifo_alloc(outlink->format, outlink->ch_layout.nb_channels, s->size);
+    s->fifo[0] = zn_av_audio_fifo_alloc(outlink->format, outlink->ch_layout.nb_channels, s->size);
+    s->fifo[1] = zn_av_audio_fifo_alloc(outlink->format, outlink->ch_layout.nb_channels, s->size);
     if (!s->fifo[0] || !s->fifo[1])
         return AVERROR(ENOMEM);
 
@@ -413,13 +413,13 @@ static av_cold void uninit(AVFilterContext *ctx)
 
     av_audio_fifo_free(s->fifo[0]);
     av_audio_fifo_free(s->fifo[1]);
-    av_frame_free(&s->cache[0]);
-    av_frame_free(&s->cache[1]);
-    av_frame_free(&s->mean_sum[0]);
-    av_frame_free(&s->mean_sum[1]);
-    av_frame_free(&s->num_sum);
-    av_frame_free(&s->den_sum[0]);
-    av_frame_free(&s->den_sum[1]);
+    zn_av_frame_free(&s->cache[0]);
+    zn_av_frame_free(&s->cache[1]);
+    zn_av_frame_free(&s->mean_sum[0]);
+    zn_av_frame_free(&s->mean_sum[1]);
+    zn_av_frame_free(&s->num_sum);
+    zn_av_frame_free(&s->den_sum[0]);
+    zn_av_frame_free(&s->den_sum[1]);
 }
 
 static const AVFilterPad inputs[] = {

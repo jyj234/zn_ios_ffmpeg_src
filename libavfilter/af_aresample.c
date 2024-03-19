@@ -61,7 +61,7 @@ static av_cold int preinit(AVFilterContext *ctx)
 static av_cold void uninit(AVFilterContext *ctx)
 {
     AResampleContext *aresample = ctx->priv;
-    swr_free(&aresample->swr);
+    zn_swr_free(&aresample->swr);
 }
 
 static int query_formats(AVFilterContext *ctx)
@@ -137,14 +137,14 @@ static int config_output(AVFilterLink *outlink)
     enum AVSampleFormat out_format;
     char inchl_buf[128], outchl_buf[128];
 
-    ret = swr_alloc_set_opts2(&aresample->swr,
+    ret = zn_swr_alloc_set_opts2(&aresample->swr,
                               &outlink->ch_layout, outlink->format, outlink->sample_rate,
                               &inlink->ch_layout, inlink->format, inlink->sample_rate,
                                          0, ctx);
     if (ret < 0)
         return ret;
 
-    ret = swr_init(aresample->swr);
+    ret = zn_swr_init(aresample->swr);
     if (ret < 0)
         return ret;
 
@@ -188,7 +188,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *insamplesref)
     outsamplesref = ff_get_audio_buffer(outlink, n_out);
 
     if(!outsamplesref) {
-        av_frame_free(&insamplesref);
+        zn_av_frame_free(&insamplesref);
         return AVERROR(ENOMEM);
     }
 
@@ -200,7 +200,7 @@ FF_DISABLE_DEPRECATION_WARNINGS
     outsamplesref->channel_layout        = outlink->channel_layout;
 FF_ENABLE_DEPRECATION_WARNINGS
 #endif
-    ret = av_channel_layout_copy(&outsamplesref->ch_layout, &outlink->ch_layout);
+    ret = zn_av_channel_layout_copy(&outsamplesref->ch_layout, &outlink->ch_layout);
     if (ret < 0)
         return ret;
     outsamplesref->sample_rate           = outlink->sample_rate;
@@ -213,11 +213,11 @@ FF_ENABLE_DEPRECATION_WARNINGS
     } else {
         outsamplesref->pts  = AV_NOPTS_VALUE;
     }
-    n_out = swr_convert(aresample->swr, outsamplesref->extended_data, n_out,
+    n_out = zn_swr_convert(aresample->swr, outsamplesref->extended_data, n_out,
                                  (void *)insamplesref->extended_data, n_in);
     if (n_out <= 0) {
-        av_frame_free(&outsamplesref);
-        av_frame_free(&insamplesref);
+        zn_av_frame_free(&outsamplesref);
+        zn_av_frame_free(&insamplesref);
         ff_inlink_request_frame(inlink);
         return 0;
     }
@@ -227,7 +227,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
     outsamplesref->nb_samples  = n_out;
 
     ret = ff_filter_frame(outlink, outsamplesref);
-    av_frame_free(&insamplesref);
+    zn_av_frame_free(&insamplesref);
     return ret;
 }
 
@@ -248,9 +248,9 @@ static int flush_frame(AVFilterLink *outlink, int final, AVFrame **outsamplesref
     pts = swr_next_pts(aresample->swr, INT64_MIN);
     pts = ROUNDED_DIV(pts, inlink->sample_rate);
 
-    n_out = swr_convert(aresample->swr, outsamplesref->extended_data, n_out, final ? NULL : (void*)outsamplesref->extended_data, 0);
+    n_out = zn_swr_convert(aresample->swr, outsamplesref->extended_data, n_out, final ? NULL : (void*)outsamplesref->extended_data, 0);
     if (n_out <= 0) {
-        av_frame_free(&outsamplesref);
+        zn_av_frame_free(&outsamplesref);
         return (n_out == 0) ? AVERROR_EOF : n_out;
     }
 

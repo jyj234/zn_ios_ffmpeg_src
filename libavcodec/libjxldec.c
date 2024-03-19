@@ -105,7 +105,7 @@ static av_cold int libjxl_decode_init(AVCodecContext *avctx)
 
     ctx->avpkt = avctx->internal->in_pkt;
     ctx->pts = 0;
-    ctx->frame = av_frame_alloc();
+    ctx->frame = zn_av_frame_alloc();
     if (!ctx->frame)
         return AVERROR(ENOMEM);
 
@@ -372,7 +372,7 @@ static int libjxl_receive_frame(AVCodecContext *avctx, AVFrame *frame)
         size_t remaining;
 
         if (!pkt->size) {
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
             ret = ff_decode_get_packet(avctx, pkt);
             if (ret < 0 && ret != AVERROR_EOF)
                 return ret;
@@ -529,7 +529,7 @@ static av_cold int libjxl_decode_close(AVCodecContext *avctx)
         JxlDecoderDestroy(ctx->decoder);
     ctx->decoder = NULL;
     av_buffer_unref(&ctx->iccp);
-    av_frame_free(&ctx->frame);
+    zn_av_frame_free(&ctx->frame);
 
     return 0;
 }

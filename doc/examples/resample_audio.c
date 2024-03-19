@@ -134,7 +134,7 @@ int main(int argc, char **argv)
     av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", dst_sample_fmt, 0);
 
     /* initialize the resampling context */
-    if ((ret = swr_init(swr_ctx)) < 0) {
+    if ((ret = zn_swr_init(swr_ctx)) < 0) {
         fprintf(stderr, "Failed to initialize the resampling context\n");
         goto end;
     }
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
     /* allocate source and destination samples buffers */
 
     src_nb_channels = src_ch_layout.nb_channels;
-    ret = av_samples_alloc_array_and_samples(&src_data, &src_linesize, src_nb_channels,
+    ret = zn_zn_av_samples_alloc_array_and_samples(&src_data, &src_linesize, src_nb_channels,
                                              src_nb_samples, src_sample_fmt, 0);
     if (ret < 0) {
         fprintf(stderr, "Could not allocate source samples\n");
@@ -157,7 +157,7 @@ int main(int argc, char **argv)
 
     /* buffer is going to be directly written to a rawaudio file, no alignment */
     dst_nb_channels = dst_ch_layout.nb_channels;
-    ret = av_samples_alloc_array_and_samples(&dst_data, &dst_linesize, dst_nb_channels,
+    ret = zn_zn_av_samples_alloc_array_and_samples(&dst_data, &dst_linesize, dst_nb_channels,
                                              dst_nb_samples, dst_sample_fmt, 0);
     if (ret < 0) {
         fprintf(stderr, "Could not allocate destination samples\n");
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
         dst_nb_samples = av_rescale_rnd(swr_get_delay(swr_ctx, src_rate) +
                                         src_nb_samples, dst_rate, src_rate, AV_ROUND_UP);
         if (dst_nb_samples > max_dst_nb_samples) {
-            av_freep(&dst_data[0]);
+            zn_av_freep(&dst_data[0]);
             ret = av_samples_alloc(dst_data, &dst_linesize, dst_nb_channels,
                                    dst_nb_samples, dst_sample_fmt, 1);
             if (ret < 0)
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
         }
 
         /* convert to destination format */
-        ret = swr_convert(swr_ctx, dst_data, dst_nb_samples, (const uint8_t **)src_data, src_nb_samples);
+        ret = zn_swr_convert(swr_ctx, dst_data, dst_nb_samples, (const uint8_t **)src_data, src_nb_samples);
         if (ret < 0) {
             fprintf(stderr, "Error while converting\n");
             goto end;
@@ -208,13 +208,13 @@ end:
     fclose(dst_file);
 
     if (src_data)
-        av_freep(&src_data[0]);
-    av_freep(&src_data);
+        zn_av_freep(&src_data[0]);
+    zn_av_freep(&src_data);
 
     if (dst_data)
-        av_freep(&dst_data[0]);
-    av_freep(&dst_data);
+        zn_av_freep(&dst_data[0]);
+    zn_av_freep(&dst_data);
 
-    swr_free(&swr_ctx);
+    zn_swr_free(&swr_ctx);
     return ret < 0;
 }

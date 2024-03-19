@@ -371,7 +371,7 @@ static int mp3_read_header(AVFormatContext *s)
     s->metadata = si->id3v2_meta;
     si->id3v2_meta = NULL;
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     sti = ffstream(st);

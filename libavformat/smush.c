@@ -139,7 +139,7 @@ static int smush_read_header(AVFormatContext *ctx)
         return AVERROR_INVALIDDATA;
     }
 
-    vst = avformat_new_stream(ctx, 0);
+    vst = zn_avformat_new_stream(ctx, 0);
     if (!vst)
         return AVERROR(ENOMEM);
 
@@ -167,7 +167,7 @@ static int smush_read_header(AVFormatContext *ctx)
     }
 
     if (got_audio) {
-        ast = avformat_new_stream(ctx, 0);
+        ast = zn_avformat_new_stream(ctx, 0);
         if (!ast)
             return AVERROR(ENOMEM);
 

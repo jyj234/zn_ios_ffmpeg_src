@@ -219,7 +219,7 @@ static char *opencl_get_platform_string(cl_platform_id platform_id,
         return NULL;
     cle = clGetPlatformInfo(platform_id, key, size, str, &size);
     if (cle != CL_SUCCESS) {
-        av_free(str);
+        zn_av_free(str);
         return NULL;
     }
     av_assert0(strlen(str) + 1 == size);
@@ -240,7 +240,7 @@ static char *opencl_get_device_string(cl_device_id device_id,
         return NULL;
     cle = clGetDeviceInfo(device_id, key, size, str, &size);
     if (cle != CL_SUCCESS) {
-        av_free(str);
+        zn_av_free(str);
         return NULL;
     }
     av_assert0(strlen(str) + 1== size);
@@ -256,7 +256,7 @@ static int opencl_check_platform_extension(cl_platform_id platform_id,
                                      CL_PLATFORM_EXTENSIONS);
     if (str && strstr(str, name))
         found = 1;
-    av_free(str);
+    zn_av_free(str);
     return found;
 }
 
@@ -269,7 +269,7 @@ static int opencl_check_device_extension(cl_device_id device_id,
                                    CL_DEVICE_EXTENSIONS);
     if (str && strstr(str, name))
         found = 1;
-    av_free(str);
+    zn_av_free(str);
     return found;
 }
 
@@ -310,7 +310,7 @@ static int opencl_enumerate_platforms(AVHWDeviceContext *hwdev,
     av_log(hwdev, AV_LOG_DEBUG, "%u OpenCL platforms found.\n",
            *nb_platforms);
 
-    *platforms = av_malloc_array(*nb_platforms, sizeof(**platforms));
+    *platforms = zn_av_malloc_array(*nb_platforms, sizeof(**platforms));
     if (!*platforms)
         return AVERROR(ENOMEM);
 
@@ -318,7 +318,7 @@ static int opencl_enumerate_platforms(AVHWDeviceContext *hwdev,
     if (cle != CL_SUCCESS) {
         av_log(hwdev, AV_LOG_ERROR, "Failed to get list of OpenCL "
                "platforms: %d.\n", cle);
-        av_freep(platforms);
+        zn_av_freep(platforms);
         return AVERROR(ENODEV);
     }
 
@@ -354,7 +354,7 @@ static int opencl_filter_platform(AVHWDeviceContext *hwdev,
                    param->key, str);
             ret = 1;
         }
-        av_free(str);
+        zn_av_free(str);
     }
 
     return ret;
@@ -384,7 +384,7 @@ static int opencl_enumerate_devices(AVHWDeviceContext *hwdev,
     av_log(hwdev, AV_LOG_DEBUG, "%u OpenCL devices found on "
            "platform \"%s\".\n", *nb_devices, platform_name);
 
-    *devices = av_malloc_array(*nb_devices, sizeof(**devices));
+    *devices = zn_av_malloc_array(*nb_devices, sizeof(**devices));
     if (!*devices)
         return AVERROR(ENOMEM);
 
@@ -393,7 +393,7 @@ static int opencl_enumerate_devices(AVHWDeviceContext *hwdev,
     if (cle != CL_SUCCESS) {
         av_log(hwdev, AV_LOG_ERROR, "Failed to get list of devices "
                "on platform \"%s\": %d.\n", platform_name, cle);
-        av_freep(devices);
+        zn_av_freep(devices);
         return AVERROR(ENODEV);
     }
 
@@ -460,7 +460,7 @@ static int opencl_filter_device(AVHWDeviceContext *hwdev,
                    param->key, str);
             ret = 1;
         }
-        av_free(str);
+        zn_av_free(str);
     }
 
     return ret;
@@ -522,7 +522,7 @@ static int opencl_device_create_internal(AVHWDeviceContext *hwdev,
             selector->platform_index != p)
             continue;
 
-        av_freep(&platform_name_src);
+        zn_av_freep(&platform_name_src);
         platform_name_src = opencl_get_platform_string(platforms[p],
                                                            CL_PLATFORM_NAME);
         if (platform_name_src)
@@ -553,7 +553,7 @@ static int opencl_device_create_internal(AVHWDeviceContext *hwdev,
                 selector->device_index != d)
                 continue;
 
-            av_freep(&device_name_src);
+            zn_av_freep(&device_name_src);
             device_name_src = opencl_get_device_string(devices[d],
                                                            CL_DEVICE_NAME);
             if (device_name_src)
@@ -579,7 +579,7 @@ static int opencl_device_create_internal(AVHWDeviceContext *hwdev,
             hwctx->device_id = devices[d];
         }
 
-        av_freep(&devices);
+        zn_av_freep(&devices);
     }
 
     if (found == 0) {
@@ -616,10 +616,10 @@ static int opencl_device_create_internal(AVHWDeviceContext *hwdev,
 
     err = 0;
 fail:
-    av_freep(&platform_name_src);
-    av_freep(&device_name_src);
-    av_freep(&platforms);
-    av_freep(&devices);
+    zn_av_freep(&platform_name_src);
+    zn_av_freep(&device_name_src);
+    zn_av_freep(&platforms);
+    zn_av_freep(&devices);
     return err;
 }
 
@@ -797,7 +797,7 @@ static int opencl_device_init(AVHWDeviceContext *hwdev)
         } else {
             priv->qsv_mapping_usable = 1;
         }
-        av_free(props);
+        zn_av_free(props);
     }
 #endif
 
@@ -961,7 +961,7 @@ static int opencl_enumerate_intel_media_vaapi_devices(AVHWDeviceContext *hwdev,
         return AVERROR_UNKNOWN;
     }
 
-    *devices = av_malloc_array(*nb_devices, sizeof(**devices));
+    *devices = zn_av_malloc_array(*nb_devices, sizeof(**devices));
     if (!*devices)
         return AVERROR(ENOMEM);
 
@@ -971,7 +971,7 @@ static int opencl_enumerate_intel_media_vaapi_devices(AVHWDeviceContext *hwdev,
     if (cle != CL_SUCCESS) {
         av_log(hwdev, AV_LOG_ERROR, "Failed to get list of VAAPI-supporting "
                "devices on platform \"%s\": %d.\n", platform_name, cle);
-        av_freep(devices);
+        zn_av_freep(devices);
         return AVERROR_UNKNOWN;
     }
 
@@ -1049,7 +1049,7 @@ static int opencl_enumerate_dxva2_devices(AVHWDeviceContext *hwdev,
         return AVERROR_UNKNOWN;
     }
 
-    *devices = av_malloc_array(*nb_devices, sizeof(**devices));
+    *devices = zn_av_malloc_array(*nb_devices, sizeof(**devices));
     if (!*devices)
         return AVERROR(ENOMEM);
 
@@ -1060,7 +1060,7 @@ static int opencl_enumerate_dxva2_devices(AVHWDeviceContext *hwdev,
     if (cle != CL_SUCCESS) {
         av_log(hwdev, AV_LOG_ERROR, "Failed to get list of DXVA2-supporting "
                "devices on platform \"%s\": %d.\n", platform_name, cle);
-        av_freep(devices);
+        zn_av_freep(devices);
         return AVERROR_UNKNOWN;
     }
 
@@ -1120,7 +1120,7 @@ static int opencl_enumerate_d3d11_devices(AVHWDeviceContext *hwdev,
         return AVERROR_UNKNOWN;
     }
 
-    *devices = av_malloc_array(*nb_devices, sizeof(**devices));
+    *devices = zn_av_malloc_array(*nb_devices, sizeof(**devices));
     if (!*devices)
         return AVERROR(ENOMEM);
 
@@ -1131,7 +1131,7 @@ static int opencl_enumerate_d3d11_devices(AVHWDeviceContext *hwdev,
     if (cle != CL_SUCCESS) {
         av_log(hwdev, AV_LOG_ERROR, "Failed to get list of D3D11-supporting "
                "devices on platform \"%s\": %d.\n", platform_name, cle);
-        av_freep(devices);
+        zn_av_freep(devices);
         return AVERROR_UNKNOWN;
     }
 
@@ -1530,7 +1530,7 @@ static int opencl_frames_get_constraints(AVHWDeviceContext *hwdev,
     }
 
     image_formats =
-        av_malloc_array(nb_image_formats, sizeof(*image_formats));
+        zn_av_malloc_array(nb_image_formats, sizeof(*image_formats));
     if (!image_formats) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -1590,10 +1590,10 @@ static int opencl_frames_get_constraints(AVHWDeviceContext *hwdev,
         ++pix_fmts_found;
     }
 
-    av_freep(&image_formats);
+    zn_av_freep(&image_formats);
 
     constraints->valid_hw_formats =
-        av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
+        zn_av_malloc_array(2, sizeof(*constraints->valid_hw_formats));
     if (!constraints->valid_hw_formats) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -1604,7 +1604,7 @@ static int opencl_frames_get_constraints(AVHWDeviceContext *hwdev,
     return 0;
 
 fail:
-    av_freep(&image_formats);
+    zn_av_freep(&image_formats);
     return err;
 }
 
@@ -1623,7 +1623,7 @@ static void opencl_pool_free(void *opaque, uint8_t *data)
         }
     }
 
-    av_free(desc);
+    zn_av_free(desc);
 }
 
 static AVBufferRef *opencl_pool_alloc(void *opaque, size_t size)
@@ -1678,7 +1678,7 @@ static AVBufferRef *opencl_pool_alloc(void *opaque, size_t size)
 fail:
     for (p = 0; desc->planes[p]; p++)
         clReleaseMemObject(desc->planes[p]);
-    av_free(desc);
+    zn_av_free(desc);
     return NULL;
 }
 
@@ -1732,7 +1732,7 @@ static void opencl_frames_uninit(AVHWFramesContext *hwfc)
             }
         }
     }
-    av_freep(&priv->mapped_frames);
+    zn_av_freep(&priv->mapped_frames);
 #endif
 
     if (priv->command_queue) {
@@ -1772,7 +1772,7 @@ static int opencl_transfer_get_formats(AVHWFramesContext *hwfc,
 {
     enum AVPixelFormat *fmts;
 
-    fmts = av_malloc_array(2, sizeof(*fmts));
+    fmts = zn_av_malloc_array(2, sizeof(*fmts));
     if (!fmts)
         return AVERROR(ENOMEM);
 
@@ -1950,7 +1950,7 @@ static void opencl_unmap_frame(AVHWFramesContext *hwfc,
 
     opencl_wait_events(hwfc, events, e);
 
-    av_free(map);
+    zn_av_free(map);
 }
 
 static int opencl_map_frame(AVHWFramesContext *hwfc, AVFrame *dst,
@@ -2044,7 +2044,7 @@ fail:
     }
     if (p > 0)
         opencl_wait_events(hwfc, events, p);
-    av_freep(&map);
+    zn_av_freep(&map);
     return err;
 }
 
@@ -2072,7 +2072,7 @@ static void opencl_unmap_from_drm_beignet(AVHWFramesContext *dst_fc,
         }
     }
 
-    av_free(mapping);
+    zn_av_free(mapping);
 }
 
 static int opencl_map_from_drm_beignet(AVHWFramesContext *dst_fc,
@@ -2154,7 +2154,7 @@ fail:
         if (mapping->frame.planes[p])
             clReleaseMemObject(mapping->frame.planes[p]);
     }
-    av_free(mapping);
+    zn_av_free(mapping);
     memset(dst->data, 0, sizeof(dst->data));
     return err;
 }
@@ -2168,7 +2168,7 @@ static int opencl_map_from_vaapi(AVHWFramesContext *dst_fc,
     AVFrame *tmp;
     int err;
 
-    tmp = av_frame_alloc();
+    tmp = zn_av_frame_alloc();
     if (!tmp)
         return AVERROR(ENOMEM);
 
@@ -2185,7 +2185,7 @@ static int opencl_map_from_vaapi(AVHWFramesContext *dst_fc,
     err = ff_hwframe_map_replace(dst, src);
 
 fail:
-    av_frame_free(&tmp);
+    zn_av_frame_free(&tmp);
     return err;
 }
 
@@ -2238,7 +2238,7 @@ static void opencl_unmap_from_qsv(AVHWFramesContext *dst_fc,
         }
     }
 
-    av_free(desc);
+    zn_av_free(desc);
 }
 
 static int opencl_map_from_qsv(AVHWFramesContext *dst_fc, AVFrame *dst,
@@ -2332,7 +2332,7 @@ fail:
     for (p = 0; p < desc->nb_planes; p++)
         if (desc->planes[p])
             clReleaseMemObject(desc->planes[p]);
-    av_freep(&desc);
+    zn_av_freep(&desc);
     memset(dst->data, 0, sizeof(dst->data));
     return err;
 }
@@ -2459,7 +2459,7 @@ static int opencl_frames_derive_from_dxva2(AVHWFramesContext *dst_fc,
     frames_priv->nb_mapped_frames = src_hwctx->nb_surfaces;
 
     frames_priv->mapped_frames =
-        av_calloc(frames_priv->nb_mapped_frames,
+        zn_av_calloc(frames_priv->nb_mapped_frames,
                   sizeof(*frames_priv->mapped_frames));
     if (!frames_priv->mapped_frames)
         return AVERROR(ENOMEM);
@@ -2497,7 +2497,7 @@ fail:
                 clReleaseMemObject(desc->planes[p]);
         }
     }
-    av_freep(&frames_priv->mapped_frames);
+    zn_av_freep(&frames_priv->mapped_frames);
     frames_priv->nb_mapped_frames = 0;
     return err;
 }
@@ -2615,7 +2615,7 @@ static int opencl_frames_derive_from_d3d11(AVHWFramesContext *dst_fc,
     frames_priv->nb_mapped_frames = src_fc->initial_pool_size;
 
     frames_priv->mapped_frames =
-        av_calloc(frames_priv->nb_mapped_frames,
+        zn_av_calloc(frames_priv->nb_mapped_frames,
                   sizeof(*frames_priv->mapped_frames));
     if (!frames_priv->mapped_frames)
         return AVERROR(ENOMEM);
@@ -2651,7 +2651,7 @@ fail:
                 clReleaseMemObject(desc->planes[p]);
         }
     }
-    av_freep(&frames_priv->mapped_frames);
+    zn_av_freep(&frames_priv->mapped_frames);
     frames_priv->nb_mapped_frames = 0;
     return err;
 }
@@ -2679,7 +2679,7 @@ static void opencl_unmap_from_drm_arm(AVHWFramesContext *dst_fc,
     for (i = 0; i < mapping->nb_objects; i++)
         clReleaseMemObject(mapping->object_buffers[i]);
 
-    av_free(mapping);
+    zn_av_free(mapping);
 }
 
 static int opencl_map_from_drm_arm(AVHWFramesContext *dst_fc, AVFrame *dst,
@@ -2811,7 +2811,7 @@ fail:
         if (mapping->object_buffers[i])
             clReleaseMemObject(mapping->object_buffers[i]);
     }
-    av_free(mapping);
+    zn_av_free(mapping);
     memset(dst->data, 0, sizeof(dst->data));
     return err;
 }

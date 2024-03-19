@@ -129,8 +129,8 @@ static int vivo_read_header(AVFormatContext *s)
     int64_t duration = 0;
     char *end_value;
 
-    vst = avformat_new_stream(s, NULL);
-    ast = avformat_new_stream(s, NULL);
+    vst = zn_avformat_new_stream(s, NULL);
+    ast = zn_avformat_new_stream(s, NULL);
     if (!ast || !vst)
         return AVERROR(ENOMEM);
 

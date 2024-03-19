@@ -233,8 +233,8 @@ int ff_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **error
     ret = av_bprint_finalize(&bp, error);
 done:
 
-    av_free(name);
-    av_free(message);
+    zn_av_free(name);
+    zn_av_free(message);
 
     if (class_class) {
         (*env)->DeleteLocalRef(env, class_class);
@@ -279,7 +279,7 @@ int ff_jni_exception_check(JNIEnv *env, int log, void *log_ctx)
     (*env)->DeleteLocalRef(env, exception);
 
     av_log(log_ctx, AV_LOG_ERROR, "%s\n", message);
-    av_free(message);
+    zn_av_free(message);
 
     return -1;
 }

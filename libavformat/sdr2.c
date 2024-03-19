@@ -37,11 +37,11 @@ static int sdr2_read_header(AVFormatContext *s)
 {
     AVStream *st, *ast;
 
-    ast = avformat_new_stream(s, 0);
+    ast = zn_avformat_new_stream(s, 0);
     if (!ast)
         return AVERROR(ENOMEM);
 
-    st = avformat_new_stream(s, 0);
+    st = zn_avformat_new_stream(s, 0);
     if (!st)
         return AVERROR(ENOMEM);
 

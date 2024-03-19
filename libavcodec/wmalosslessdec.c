@@ -279,7 +279,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
         return AVERROR_INVALIDDATA;
     }
 
-    s->frame = av_frame_alloc();
+    s->frame = zn_av_frame_alloc();
     if (!s->frame)
         return AVERROR(ENOMEM);
 
@@ -1318,8 +1318,8 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     WmallDecodeCtx *s = avctx->priv_data;
 
-    av_frame_free(&s->frame);
-    av_freep(&s->frame_data);
+    zn_av_frame_free(&s->frame);
+    zn_av_freep(&s->frame_data);
 
     return 0;
 }

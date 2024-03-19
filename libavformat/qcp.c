@@ -91,7 +91,7 @@ static int qcp_read_header(AVFormatContext *s)
 {
     AVIOContext *pb = s->pb;
     QCPContext    *c  = s->priv_data;
-    AVStream      *st = avformat_new_stream(s, NULL);
+    AVStream      *st = zn_avformat_new_stream(s, NULL);
     uint8_t       buf[16];
     int           i;
     unsigned      nb_rates;

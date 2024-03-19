@@ -78,7 +78,7 @@ static av_cold int ac3_fixed_mdct_init(AC3EncodeContext *s)
     float fwin[AC3_BLOCK_SIZE];
     const float scale = -1.0f;
 
-    int32_t *iwin = av_malloc_array(AC3_BLOCK_SIZE, sizeof(*iwin));
+    int32_t *iwin = zn_av_malloc_array(AC3_BLOCK_SIZE, sizeof(*iwin));
     if (!iwin)
         return AVERROR(ENOMEM);
 

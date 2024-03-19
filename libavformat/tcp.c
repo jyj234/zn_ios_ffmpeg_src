@@ -167,13 +167,13 @@ static int tcp_open(URLContext *h, const char *uri, int flags)
                 s->listen = 1;
         }
         if (av_find_info_tag(buf, sizeof(buf), "local_port", p)) {
-            av_freep(&s->local_port);
+            zn_av_freep(&s->local_port);
             s->local_port = av_strdup(buf);
             if (!s->local_port)
                 return AVERROR(ENOMEM);
         }
         if (av_find_info_tag(buf, sizeof(buf), "local_addr", p)) {
-            av_freep(&s->local_addr);
+            zn_av_freep(&s->local_addr);
             s->local_addr = av_strdup(buf);
             if (!s->local_addr)
                 return AVERROR(ENOMEM);

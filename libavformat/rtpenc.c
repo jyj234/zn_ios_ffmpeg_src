@@ -280,7 +280,7 @@ static int rtp_write_header(AVFormatContext *s1)
     return 0;
 
 fail:
-    av_freep(&s->buf);
+    zn_av_freep(&s->buf);
     return ret;
 }
 
@@ -655,7 +655,7 @@ static int rtp_write_trailer(AVFormatContext *s1)
      * be NULL here even if it was successfully allocated at the start. */
     if (s1->pb && (s->flags & FF_RTP_FLAG_SEND_BYE))
         rtcp_send_sr(s1, ff_ntp_time(), 1);
-    av_freep(&s->buf);
+    zn_av_freep(&s->buf);
 
     return 0;
 }

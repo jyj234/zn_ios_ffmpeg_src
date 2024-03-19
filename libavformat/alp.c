@@ -114,7 +114,7 @@ static int alp_read_header(AVFormatContext *s)
         return AVERROR_PATCHWELCOME;
     }
 
-    if (!(st = avformat_new_stream(s, NULL)))
+    if (!(st = zn_avformat_new_stream(s, NULL)))
         return AVERROR(ENOMEM);
 
     par                         = st->codecpar;
@@ -126,7 +126,7 @@ static int alp_read_header(AVFormatContext *s)
     if (hdr->num_channels > 2 || hdr->num_channels == 0)
         return AVERROR_INVALIDDATA;
 
-    av_channel_layout_default(&par->ch_layout, hdr->num_channels);
+    zn_av_channel_layout_default(&par->ch_layout, hdr->num_channels);
     par->bits_per_coded_sample  = 4;
     par->block_align            = 1;
     par->bit_rate               = par->ch_layout.nb_channels *

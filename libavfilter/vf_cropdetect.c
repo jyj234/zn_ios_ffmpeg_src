@@ -189,14 +189,14 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     CropDetectContext *s = ctx->priv;
 
-    av_freep(&s->tmpbuf);
-    av_freep(&s->filterbuf);
-    av_freep(&s->gradients);
-    av_freep(&s->directions);
-    av_freep(&s->bboxes[0]);
-    av_freep(&s->bboxes[1]);
-    av_freep(&s->bboxes[2]);
-    av_freep(&s->bboxes[3]);
+    zn_av_freep(&s->tmpbuf);
+    zn_av_freep(&s->filterbuf);
+    zn_av_freep(&s->gradients);
+    zn_av_freep(&s->directions);
+    zn_av_freep(&s->bboxes[0]);
+    zn_av_freep(&s->bboxes[1]);
+    zn_av_freep(&s->bboxes[2]);
+    zn_av_freep(&s->bboxes[3]);
 }
 
 static int config_input(AVFilterLink *inlink)
@@ -223,7 +223,7 @@ static int config_input(AVFilterLink *inlink)
     s->window_size = FFMAX(s->reset_count, 15);
     s->tmpbuf      = av_malloc(bufsize);
     s->filterbuf   = av_malloc(bufsize * s->max_pixsteps[0]);
-    s->gradients   = av_calloc(bufsize, sizeof(*s->gradients));
+    s->gradients   = zn_av_calloc(bufsize, sizeof(*s->gradients));
     s->directions  = av_malloc(bufsize);
     s->bboxes[0]   = av_malloc(s->window_size * sizeof(*s->bboxes[0]));
     s->bboxes[1]   = av_malloc(s->window_size * sizeof(*s->bboxes[1]));
@@ -435,7 +435,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *frame)
         av_log(ctx, AV_LOG_INFO,
                "x1:%d x2:%d y1:%d y2:%d w:%d h:%d x:%d y:%d pts:%"PRId64" t:%f limit:%f crop=%d:%d:%d:%d\n",
                s->x1, s->x2, s->y1, s->y2, w, h, x, y, frame->pts,
-               frame->pts == AV_NOPTS_VALUE ? -1 : frame->pts * av_q2d(inlink->time_base),
+               frame->pts == AV_NOPTS_VALUE ? -1 : frame->pts * zn_av_q2d(inlink->time_base),
                s->limit, w, h, x, y);
     }
 

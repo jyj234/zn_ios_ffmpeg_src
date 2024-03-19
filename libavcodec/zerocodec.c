@@ -105,7 +105,7 @@ static av_cold int zerocodec_decode_close(AVCodecContext *avctx)
 {
     ZeroCodecContext *zc = avctx->priv_data;
 
-    av_frame_free(&zc->previous_frame);
+    zn_av_frame_free(&zc->previous_frame);
 
     ff_inflate_end(&zc->zstream);
 
@@ -119,7 +119,7 @@ static av_cold int zerocodec_decode_init(AVCodecContext *avctx)
     avctx->pix_fmt             = AV_PIX_FMT_UYVY422;
     avctx->bits_per_raw_sample = 8;
 
-    zc->previous_frame = av_frame_alloc();
+    zc->previous_frame = zn_av_frame_alloc();
     if (!zc->previous_frame)
         return AVERROR(ENOMEM);
 

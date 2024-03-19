@@ -642,7 +642,7 @@ static int flv_init(struct AVFormatContext *s)
         case AVMEDIA_TYPE_VIDEO:
             if (s->streams[i]->avg_frame_rate.den &&
                 s->streams[i]->avg_frame_rate.num) {
-                flv->framerate = av_q2d(s->streams[i]->avg_frame_rate);
+                flv->framerate = zn_av_q2d(s->streams[i]->avg_frame_rate);
             }
             if (flv->video_par) {
                 av_log(s, AV_LOG_ERROR,
@@ -1058,7 +1058,7 @@ static int flv_write_packet(AVFormatContext *s, AVPacket *pkt)
         }
     }
 fail:
-    av_free(data);
+    zn_av_free(data);
 
     return ret;
 }
@@ -1084,7 +1084,7 @@ static void flv_deinit(AVFormatContext *s)
 
     while (filepos) {
         FLVFileposition *next = filepos->next;
-        av_free(filepos);
+        zn_av_free(filepos);
         filepos = next;
     }
     flv->filepositions = flv->head_filepositions = NULL;

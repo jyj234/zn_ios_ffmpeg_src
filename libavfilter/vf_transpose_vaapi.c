@@ -157,7 +157,7 @@ static int transpose_vaapi_filter_frame(AVFilterLink *inlink, AVFrame *input_fra
     if (err < 0)
         goto fail;
 
-    av_frame_free(&input_frame);
+    zn_av_frame_free(&input_frame);
 
     av_log(avctx, AV_LOG_DEBUG, "Filter output: %s, %ux%u (%"PRId64").\n",
            av_get_pix_fmt_name(output_frame->format),
@@ -166,8 +166,8 @@ static int transpose_vaapi_filter_frame(AVFilterLink *inlink, AVFrame *input_fra
     return ff_filter_frame(outlink, output_frame);
 
 fail:
-    av_frame_free(&input_frame);
-    av_frame_free(&output_frame);
+    zn_av_frame_free(&input_frame);
+    zn_av_frame_free(&output_frame);
     return err;
 }
 

@@ -1036,7 +1036,7 @@ static av_cold int encode_end(AVCodecContext *avctx)
 
     ff_huffyuv_common_end(s->temp, s->temp16);
 
-    av_freep(&avctx->stats_out);
+    zn_av_freep(&avctx->stats_out);
 
     return 0;
 }

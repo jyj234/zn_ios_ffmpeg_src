@@ -27,7 +27,7 @@ static void free_lines(SwsSlice *s)
         int n = s->plane[i].available_lines;
         int j;
         for (j = 0; j < n; ++j) {
-            av_freep(&s->plane[i].line[j]);
+            zn_av_freep(&s->plane[i].line[j]);
             if (s->is_ring)
                s->plane[i].line[j+n] = NULL;
         }
@@ -91,7 +91,7 @@ static int alloc_slice(SwsSlice *s, enum AVPixelFormat fmt, int lumLines, int ch
 
     for (i = 0; i < 4; ++i) {
         int n = size[i] * ( ring == 0 ? 1 : 3);
-        s->plane[i].line = av_calloc(n, sizeof(*s->plane[i].line));
+        s->plane[i].line = zn_av_calloc(n, sizeof(*s->plane[i].line));
         if (!s->plane[i].line)
             return AVERROR(ENOMEM);
 
@@ -110,7 +110,7 @@ static void free_slice(SwsSlice *s)
         if (s->should_free_lines)
             free_lines(s);
         for (i = 0; i < 4; ++i) {
-            av_freep(&s->plane[i].line);
+            zn_av_freep(&s->plane[i].line);
             s->plane[i].tmp = NULL;
         }
     }
@@ -290,10 +290,10 @@ int ff_init_filters(SwsContext * c)
         c->input_opaque = c->h2f_tables;
     }
 
-    c->desc  = av_calloc(c->numDesc,  sizeof(*c->desc));
+    c->desc  = zn_av_calloc(c->numDesc,  sizeof(*c->desc));
     if (!c->desc)
         return AVERROR(ENOMEM);
-    c->slice = av_calloc(c->numSlice, sizeof(*c->slice));
+    c->slice = zn_av_calloc(c->numSlice, sizeof(*c->slice));
     if (!c->slice) {
         res = AVERROR(ENOMEM);
         goto cleanup;
@@ -390,15 +390,15 @@ int ff_free_filters(SwsContext *c)
     int i;
     if (c->desc) {
         for (i = 0; i < c->numDesc; ++i)
-            av_freep(&c->desc[i].instance);
-        av_freep(&c->desc);
+            zn_av_freep(&c->desc[i].instance);
+        zn_av_freep(&c->desc);
     }
 
     if (c->slice) {
         for (i = 0; i < c->numSlice; ++i)
             free_slice(&c->slice[i]);
-        av_freep(&c->slice);
+        zn_av_freep(&c->slice);
     }
-    av_freep(&c->h2f_tables);
+    zn_av_freep(&c->h2f_tables);
     return 0;
 }

@@ -193,7 +193,7 @@ AVFrame *ff_frame_pool_get(FFFramePool *pool)
     AVFrame *frame;
     const AVPixFmtDescriptor *desc;
 
-    frame = av_frame_alloc();
+    frame = zn_av_frame_alloc();
     if (!frame) {
         return NULL;
     }
@@ -244,10 +244,10 @@ FF_ENABLE_DEPRECATION_WARNINGS
         frame->linesize[0] = pool->linesize[0];
 
         if (pool->planes > AV_NUM_DATA_POINTERS) {
-            frame->extended_data = av_calloc(pool->planes,
+            frame->extended_data = zn_av_calloc(pool->planes,
                                              sizeof(*frame->extended_data));
             frame->nb_extended_buf = pool->planes - AV_NUM_DATA_POINTERS;
-            frame->extended_buf  = av_calloc(frame->nb_extended_buf,
+            frame->extended_buf  = zn_av_calloc(frame->nb_extended_buf,
                                              sizeof(*frame->extended_buf));
             if (!frame->extended_data || !frame->extended_buf)
                 goto fail;
@@ -276,7 +276,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
 
     return frame;
 fail:
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     return NULL;
 }
 
@@ -291,5 +291,5 @@ void ff_frame_pool_uninit(FFFramePool **pool)
         av_buffer_pool_uninit(&(*pool)->pools[i]);
     }
 
-    av_freep(pool);
+    zn_av_freep(pool);
 }

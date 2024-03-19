@@ -296,7 +296,7 @@ static int mpegvideo_parse(AVCodecParserContext *s,
        function should be negligible for uncorrupted streams */
     mpegvideo_extract_headers(s, avctx, buf, buf_size);
     ff_dlog(NULL, "pict_type=%d frame_rate=%0.3f repeat_pict=%d\n",
-            s->pict_type, av_q2d(avctx->framerate), s->repeat_pict);
+            s->pict_type, zn_av_q2d(avctx->framerate), s->repeat_pict);
 
     *poutbuf = buf;
     *poutbuf_size = buf_size;

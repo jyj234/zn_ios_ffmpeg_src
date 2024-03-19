@@ -63,7 +63,7 @@ AVBufferRef *av_buffer_create(uint8_t *data, size_t size,
 
     ret = buffer_create(buf, data, size, free, opaque, flags);
     if (!ret) {
-        av_free(buf);
+        zn_av_free(buf);
         return NULL;
     }
     return ret;
@@ -71,7 +71,7 @@ AVBufferRef *av_buffer_create(uint8_t *data, size_t size,
 
 void av_buffer_default_free(void *opaque, uint8_t *data)
 {
-    av_free(data);
+    zn_av_free(data);
 }
 
 AVBufferRef *av_buffer_alloc(size_t size)
@@ -85,7 +85,7 @@ AVBufferRef *av_buffer_alloc(size_t size)
 
     ret = av_buffer_create(data, size, av_buffer_default_free, NULL, 0);
     if (!ret)
-        av_freep(&data);
+        zn_av_freep(&data);
 
     return ret;
 }
@@ -122,9 +122,9 @@ static void buffer_replace(AVBufferRef **dst, AVBufferRef **src)
 
     if (src) {
         **dst = **src;
-        av_freep(src);
+        zn_av_freep(src);
     } else
-        av_freep(dst);
+        zn_av_freep(dst);
 
     if (atomic_fetch_sub_explicit(&b->refcount, 1, memory_order_acq_rel) == 1) {
         /* b->free below might already free the structure containing *b,
@@ -132,7 +132,7 @@ static void buffer_replace(AVBufferRef **dst, AVBufferRef **src)
         int free_avbuffer = !(b->flags_internal & BUFFER_FLAG_NO_FREE);
         b->free(b->opaque, b->data);
         if (free_avbuffer)
-            av_free(b);
+            zn_av_free(b);
     }
 }
 
@@ -195,7 +195,7 @@ int av_buffer_realloc(AVBufferRef **pbuf, size_t size)
 
         buf = av_buffer_create(data, size, av_buffer_default_free, NULL, 0);
         if (!buf) {
-            av_freep(&data);
+            zn_av_freep(&data);
             return AVERROR(ENOMEM);
         }
 
@@ -300,7 +300,7 @@ static void buffer_pool_flush(AVBufferPool *pool)
         pool->pool = buf->next;
 
         buf->free(buf->opaque, buf->data);
-        av_freep(&buf);
+        zn_av_freep(&buf);
     }
 }
 
@@ -316,7 +316,7 @@ static void buffer_pool_free(AVBufferPool *pool)
     if (pool->pool_free)
         pool->pool_free(pool->opaque);
 
-    av_freep(&pool);
+    zn_av_freep(&pool);
 }
 
 void av_buffer_pool_uninit(AVBufferPool **ppool)

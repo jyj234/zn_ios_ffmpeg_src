@@ -645,12 +645,12 @@ static av_cold int decode_init(AVCodecContext *avctx)
     s->nbx = (avctx->width + 15) / 16;
     s->nby = (avctx->height + 15) / 16;
     s->nbcount = s->nbx * s->nby;
-    s->blocks = av_malloc_array(s->nbcount, sizeof(*s->blocks));
+    s->blocks = zn_av_malloc_array(s->nbcount, sizeof(*s->blocks));
     if (!s->blocks)
         return AVERROR(ENOMEM);
 
-    s->last_frame = av_frame_alloc();
-    s->current_frame = av_frame_alloc();
+    s->last_frame = zn_av_frame_alloc();
+    s->current_frame = zn_av_frame_alloc();
     if (!s->last_frame || !s->current_frame)
         return AVERROR(ENOMEM);
 
@@ -661,9 +661,9 @@ static av_cold int decode_close(AVCodecContext *avctx)
 {
     SCPRContext *s = avctx->priv_data;
 
-    av_freep(&s->blocks);
-    av_frame_free(&s->last_frame);
-    av_frame_free(&s->current_frame);
+    zn_av_freep(&s->blocks);
+    zn_av_frame_free(&s->last_frame);
+    zn_av_frame_free(&s->current_frame);
 
     return 0;
 }

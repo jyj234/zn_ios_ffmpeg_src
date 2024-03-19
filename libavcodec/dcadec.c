@@ -316,7 +316,7 @@ static av_cold int dcadec_close(AVCodecContext *avctx)
     ff_dca_xll_close(&s->xll);
     ff_dca_lbr_close(&s->lbr);
 
-    av_freep(&s->buffer);
+    zn_av_freep(&s->buffer);
     s->buffer_size = 0;
 
     return 0;

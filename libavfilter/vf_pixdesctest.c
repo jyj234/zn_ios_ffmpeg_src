@@ -37,7 +37,7 @@ typedef struct PixdescTestContext {
 static av_cold void uninit(AVFilterContext *ctx)
 {
     PixdescTestContext *priv = ctx->priv;
-    av_freep(&priv->line);
+    zn_av_freep(&priv->line);
 }
 
 static int config_props(AVFilterLink *inlink)
@@ -46,8 +46,8 @@ static int config_props(AVFilterLink *inlink)
 
     priv->pix_desc = av_pix_fmt_desc_get(inlink->format);
 
-    av_freep(&priv->line);
-    if (!(priv->line = av_malloc_array(sizeof(*priv->line), inlink->w)))
+    zn_av_freep(&priv->line);
+    if (!(priv->line = zn_av_malloc_array(sizeof(*priv->line), inlink->w)))
         return AVERROR(ENOMEM);
 
     return 0;
@@ -64,7 +64,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -102,7 +102,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
         }
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

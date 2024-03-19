@@ -188,7 +188,7 @@ static av_cold int init_bundles(BinkContext *c)
     bh = (c->avctx->height + 7) >> 3;
     blocks = bw * bh;
 
-    tmp = av_calloc(blocks, 64 * BINKB_NB_SRC);
+    tmp = zn_av_calloc(blocks, 64 * BINKB_NB_SRC);
     if (!tmp)
         return AVERROR(ENOMEM);
     for (i = 0; i < BINKB_NB_SRC; i++) {
@@ -207,7 +207,7 @@ static av_cold int init_bundles(BinkContext *c)
  */
 static av_cold void free_bundles(BinkContext *c)
 {
-    av_freep(&c->bundle[0].data);
+    zn_av_freep(&c->bundle[0].data);
 }
 
 /**
@@ -1377,7 +1377,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
     if ((ret = av_image_check_size(avctx->width, avctx->height, 0, avctx)) < 0)
         return ret;
 
-    c->last = av_frame_alloc();
+    c->last = zn_av_frame_alloc();
     if (!c->last)
         return AVERROR(ENOMEM);
 
@@ -1405,7 +1405,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 {
     BinkContext * const c = avctx->priv_data;
 
-    av_frame_free(&c->last);
+    zn_av_frame_free(&c->last);
 
     free_bundles(c);
     return 0;

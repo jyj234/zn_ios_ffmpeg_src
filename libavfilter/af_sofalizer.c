@@ -128,7 +128,7 @@ static int close_sofa(struct MySofa *sofa)
     if (sofa->hrtf)
         mysofa_free(sofa->hrtf);
     sofa->hrtf = NULL;
-    av_freep(&sofa->fir);
+    zn_av_freep(&sofa->fir);
 
     return 0;
 }
@@ -171,7 +171,7 @@ static int preload_sofa(AVFilterContext *ctx, char *filename, int *samplingrate)
                                                                        s->anglestep,
                                                                        s->radstep);
 
-    s->sofa.fir = av_calloc(s->sofa.hrtf->N * s->sofa.hrtf->R, sizeof(*s->sofa.fir));
+    s->sofa.fir = zn_av_calloc(s->sofa.hrtf->N * s->sofa.hrtf->R, sizeof(*s->sofa.fir));
     if (!s->sofa.fir)
         return AVERROR(ENOMEM);
 
@@ -243,7 +243,7 @@ static void parse_speaker_pos(AVFilterContext *ctx)
         }
     }
 
-    av_free(args);
+    zn_av_free(args);
 }
 
 static int get_speaker_pos(AVFilterContext *ctx,
@@ -581,7 +581,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
     out = ff_get_audio_buffer(outlink, in->nb_samples);
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
     av_frame_copy_props(out, in);
@@ -605,7 +605,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
                n_clippings[0] + n_clippings[1], out->nb_samples * 2);
     }
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 
@@ -746,8 +746,8 @@ static int load_data(AVFilterContext *ctx, int azim, int elev, float radius, int
     ir_samples = s->sofa.ir_samples;
 
     if (s->type == TIME_DOMAIN) {
-        s->data_ir[0] = av_calloc(n_samples, sizeof(float) * s->n_conv);
-        s->data_ir[1] = av_calloc(n_samples, sizeof(float) * s->n_conv);
+        s->data_ir[0] = zn_av_calloc(n_samples, sizeof(float) * s->n_conv);
+        s->data_ir[1] = zn_av_calloc(n_samples, sizeof(float) * s->n_conv);
 
         if (!s->data_ir[0] || !s->data_ir[1]) {
             ret = AVERROR(ENOMEM);
@@ -755,8 +755,8 @@ static int load_data(AVFilterContext *ctx, int azim, int elev, float radius, int
         }
     }
 
-    s->delay[0] = av_calloc(s->n_conv, sizeof(int));
-    s->delay[1] = av_calloc(s->n_conv, sizeof(int));
+    s->delay[0] = zn_av_calloc(s->n_conv, sizeof(int));
+    s->delay[1] = zn_av_calloc(s->n_conv, sizeof(int));
 
     if (!s->delay[0] || !s->delay[1]) {
         ret = AVERROR(ENOMEM);
@@ -764,24 +764,24 @@ static int load_data(AVFilterContext *ctx, int azim, int elev, float radius, int
     }
 
     /* get temporary IR for L and R channel */
-    data_ir_l = av_calloc(n_conv * n_samples, sizeof(*data_ir_l));
-    data_ir_r = av_calloc(n_conv * n_samples, sizeof(*data_ir_r));
+    data_ir_l = zn_av_calloc(n_conv * n_samples, sizeof(*data_ir_l));
+    data_ir_r = zn_av_calloc(n_conv * n_samples, sizeof(*data_ir_r));
     if (!data_ir_r || !data_ir_l) {
         ret = AVERROR(ENOMEM);
         goto fail;
     }
 
     if (s->type == TIME_DOMAIN) {
-        s->temp_src[0] = av_calloc(n_samples, sizeof(float));
-        s->temp_src[1] = av_calloc(n_samples, sizeof(float));
+        s->temp_src[0] = zn_av_calloc(n_samples, sizeof(float));
+        s->temp_src[1] = zn_av_calloc(n_samples, sizeof(float));
         if (!s->temp_src[0] || !s->temp_src[1]) {
             ret = AVERROR(ENOMEM);
             goto fail;
         }
     }
 
-    s->speaker_azim = av_calloc(s->n_conv, sizeof(*s->speaker_azim));
-    s->speaker_elev = av_calloc(s->n_conv, sizeof(*s->speaker_elev));
+    s->speaker_azim = zn_av_calloc(s->n_conv, sizeof(*s->speaker_azim));
+    s->speaker_elev = zn_av_calloc(s->n_conv, sizeof(*s->speaker_elev));
     if (!s->speaker_azim || !s->speaker_elev) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -853,25 +853,25 @@ static int load_data(AVFilterContext *ctx, int azim, int elev, float radius, int
     }
 
     if (s->type == TIME_DOMAIN) {
-        s->ringbuffer[0] = av_calloc(s->buffer_length, sizeof(float) * nb_input_channels);
-        s->ringbuffer[1] = av_calloc(s->buffer_length, sizeof(float) * nb_input_channels);
+        s->ringbuffer[0] = zn_av_calloc(s->buffer_length, sizeof(float) * nb_input_channels);
+        s->ringbuffer[1] = zn_av_calloc(s->buffer_length, sizeof(float) * nb_input_channels);
     } else if (s->type == FREQUENCY_DOMAIN) {
         /* get temporary HRTF memory for L and R channel */
-        data_hrtf_l = av_malloc_array(n_fft, sizeof(*data_hrtf_l) * n_conv);
-        data_hrtf_r = av_malloc_array(n_fft, sizeof(*data_hrtf_r) * n_conv);
+        data_hrtf_l = zn_av_malloc_array(n_fft, sizeof(*data_hrtf_l) * n_conv);
+        data_hrtf_r = zn_av_malloc_array(n_fft, sizeof(*data_hrtf_r) * n_conv);
         if (!data_hrtf_r || !data_hrtf_l) {
             ret = AVERROR(ENOMEM);
             goto fail;
         }
 
-        s->ringbuffer[0] = av_calloc(s->buffer_length, sizeof(float));
-        s->ringbuffer[1] = av_calloc(s->buffer_length, sizeof(float));
-        s->in_fft[0] = av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
-        s->in_fft[1] = av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
-        s->out_fft[0] = av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
-        s->out_fft[1] = av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
-        s->temp_afft[0] = av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
-        s->temp_afft[1] = av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
+        s->ringbuffer[0] = zn_av_calloc(s->buffer_length, sizeof(float));
+        s->ringbuffer[1] = zn_av_calloc(s->buffer_length, sizeof(float));
+        s->in_fft[0] = zn_av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
+        s->in_fft[1] = zn_av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
+        s->out_fft[0] = zn_av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
+        s->out_fft[1] = zn_av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
+        s->temp_afft[0] = zn_av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
+        s->temp_afft[1] = zn_av_malloc_array(s->n_fft, sizeof(AVComplexFloat));
         if (!s->in_fft[0] || !s->in_fft[1] ||
             !s->out_fft[0] || !s->out_fft[1] ||
             !s->temp_afft[0] || !s->temp_afft[1]) {
@@ -886,10 +886,10 @@ static int load_data(AVFilterContext *ctx, int azim, int elev, float radius, int
     }
 
     if (s->type == FREQUENCY_DOMAIN) {
-        fft_out_l = av_calloc(n_fft, sizeof(*fft_out_l));
-        fft_out_r = av_calloc(n_fft, sizeof(*fft_out_r));
-        fft_in_l = av_calloc(n_fft, sizeof(*fft_in_l));
-        fft_in_r = av_calloc(n_fft, sizeof(*fft_in_r));
+        fft_out_l = zn_av_calloc(n_fft, sizeof(*fft_out_l));
+        fft_out_r = zn_av_calloc(n_fft, sizeof(*fft_out_r));
+        fft_in_l = zn_av_calloc(n_fft, sizeof(*fft_in_l));
+        fft_in_r = zn_av_calloc(n_fft, sizeof(*fft_in_r));
         if (!fft_in_l || !fft_in_r ||
             !fft_out_l || !fft_out_r) {
             ret = AVERROR(ENOMEM);
@@ -935,8 +935,8 @@ static int load_data(AVFilterContext *ctx, int azim, int elev, float radius, int
     }
 
     if (s->type == FREQUENCY_DOMAIN) {
-        s->data_hrtf[0] = av_malloc_array(n_fft * s->n_conv, sizeof(AVComplexFloat));
-        s->data_hrtf[1] = av_malloc_array(n_fft * s->n_conv, sizeof(AVComplexFloat));
+        s->data_hrtf[0] = zn_av_malloc_array(n_fft * s->n_conv, sizeof(AVComplexFloat));
+        s->data_hrtf[1] = zn_av_malloc_array(n_fft * s->n_conv, sizeof(AVComplexFloat));
         if (!s->data_hrtf[0] || !s->data_hrtf[1]) {
             ret = AVERROR(ENOMEM);
             goto fail;
@@ -949,17 +949,17 @@ static int load_data(AVFilterContext *ctx, int azim, int elev, float radius, int
     }
 
 fail:
-    av_freep(&data_hrtf_l); /* free temporary HRTF memory */
-    av_freep(&data_hrtf_r);
+    zn_av_freep(&data_hrtf_l); /* free temporary HRTF memory */
+    zn_av_freep(&data_hrtf_r);
 
-    av_freep(&data_ir_l); /* free temprary IR memory */
-    av_freep(&data_ir_r);
+    zn_av_freep(&data_ir_l); /* free temprary IR memory */
+    zn_av_freep(&data_ir_r);
 
-    av_freep(&fft_out_l); /* free temporary FFT memory */
-    av_freep(&fft_out_r);
+    zn_av_freep(&fft_out_l); /* free temporary FFT memory */
+    zn_av_freep(&fft_out_r);
 
-    av_freep(&fft_in_l); /* free temporary FFT memory */
-    av_freep(&fft_in_r);
+    zn_av_freep(&fft_in_l); /* free temporary FFT memory */
+    zn_av_freep(&fft_in_r);
 
     return ret;
 }
@@ -1032,25 +1032,25 @@ static av_cold void uninit(AVFilterContext *ctx)
     s->ifft[1] = NULL;
     s->fft[0] = NULL;
     s->fft[1] = NULL;
-    av_freep(&s->delay[0]);
-    av_freep(&s->delay[1]);
-    av_freep(&s->data_ir[0]);
-    av_freep(&s->data_ir[1]);
-    av_freep(&s->ringbuffer[0]);
-    av_freep(&s->ringbuffer[1]);
-    av_freep(&s->speaker_azim);
-    av_freep(&s->speaker_elev);
-    av_freep(&s->temp_src[0]);
-    av_freep(&s->temp_src[1]);
-    av_freep(&s->temp_afft[0]);
-    av_freep(&s->temp_afft[1]);
-    av_freep(&s->in_fft[0]);
-    av_freep(&s->in_fft[1]);
-    av_freep(&s->out_fft[0]);
-    av_freep(&s->out_fft[1]);
-    av_freep(&s->data_hrtf[0]);
-    av_freep(&s->data_hrtf[1]);
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->delay[0]);
+    zn_av_freep(&s->delay[1]);
+    zn_av_freep(&s->data_ir[0]);
+    zn_av_freep(&s->data_ir[1]);
+    zn_av_freep(&s->ringbuffer[0]);
+    zn_av_freep(&s->ringbuffer[1]);
+    zn_av_freep(&s->speaker_azim);
+    zn_av_freep(&s->speaker_elev);
+    zn_av_freep(&s->temp_src[0]);
+    zn_av_freep(&s->temp_src[1]);
+    zn_av_freep(&s->temp_afft[0]);
+    zn_av_freep(&s->temp_afft[1]);
+    zn_av_freep(&s->in_fft[0]);
+    zn_av_freep(&s->in_fft[1]);
+    zn_av_freep(&s->out_fft[0]);
+    zn_av_freep(&s->out_fft[1]);
+    zn_av_freep(&s->data_hrtf[0]);
+    zn_av_freep(&s->data_hrtf[1]);
+    zn_av_freep(&s->fdsp);
 }
 
 #define OFFSET(x) offsetof(SOFAlizerContext, x)

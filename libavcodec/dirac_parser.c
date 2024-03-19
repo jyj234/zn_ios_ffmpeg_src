@@ -270,7 +270,7 @@ static void dirac_parse_close(AVCodecParserContext *s)
     DiracParseContext *pc = s->priv_data;
 
     if (pc->buffer_size > 0)
-        av_freep(&pc->buffer);
+        zn_av_freep(&pc->buffer);
 }
 
 const AVCodecParser ff_dirac_parser = {

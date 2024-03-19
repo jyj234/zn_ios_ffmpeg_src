@@ -70,7 +70,7 @@ static av_cold int fbdev_read_header(AVFormatContext *avctx)
     int ret, flags = O_RDONLY;
     const char* device;
 
-    if (!(st = avformat_new_stream(avctx, NULL)))
+    if (!(st = zn_avformat_new_stream(avctx, NULL)))
         return AVERROR(ENOMEM);
     avpriv_set_pts_info(st, 64, 1, 1000000); /* 64 bits pts in microseconds */
 
@@ -87,21 +87,21 @@ static av_cold int fbdev_read_header(AVFormatContext *avctx)
         ret = AVERROR(errno);
         av_log(avctx, AV_LOG_ERROR,
                "Could not open framebuffer device '%s': %s\n",
-               device, av_err2str(ret));
+               device, zn_av_err2str(ret));
         return ret;
     }
 
     if (ioctl(fbdev->fd, FBIOGET_VSCREENINFO, &fbdev->varinfo) < 0) {
         ret = AVERROR(errno);
         av_log(avctx, AV_LOG_ERROR,
-               "FBIOGET_VSCREENINFO: %s\n", av_err2str(ret));
+               "FBIOGET_VSCREENINFO: %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
     if (ioctl(fbdev->fd, FBIOGET_FSCREENINFO, &fbdev->fixinfo) < 0) {
         ret = AVERROR(errno);
         av_log(avctx, AV_LOG_ERROR,
-               "FBIOGET_FSCREENINFO: %s\n", av_err2str(ret));
+               "FBIOGET_FSCREENINFO: %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
@@ -122,7 +122,7 @@ static av_cold int fbdev_read_header(AVFormatContext *avctx)
     fbdev->data = mmap(NULL, fbdev->fixinfo.smem_len, PROT_READ, MAP_SHARED, fbdev->fd, 0);
     if (fbdev->data == MAP_FAILED) {
         ret = AVERROR(errno);
-        av_log(avctx, AV_LOG_ERROR, "Error in mmap(): %s\n", av_err2str(ret));
+        av_log(avctx, AV_LOG_ERROR, "Error in mmap(): %s\n", zn_av_err2str(ret));
         goto fail;
     }
 
@@ -133,7 +133,7 @@ static av_cold int fbdev_read_header(AVFormatContext *avctx)
     st->codecpar->format     = pix_fmt;
     st->avg_frame_rate       = fbdev->framerate_q;
     st->codecpar->bit_rate   =
-        fbdev->width * fbdev->height * fbdev->bytes_per_pixel * av_q2d(fbdev->framerate_q) * 8;
+        fbdev->width * fbdev->height * fbdev->bytes_per_pixel * zn_av_q2d(fbdev->framerate_q) * 8;
 
     av_log(avctx, AV_LOG_INFO,
            "w:%d h:%d bpp:%d pixfmt:%s fps:%d/%d bit_rate:%"PRId64"\n",
@@ -167,7 +167,7 @@ static int fbdev_read_packet(AVFormatContext *avctx, AVPacket *pkt)
                 "time_frame:%"PRId64" curtime:%"PRId64" delay:%"PRId64"\n",
                 fbdev->time_frame, curtime, delay);
         if (delay <= 0) {
-            fbdev->time_frame += INT64_C(1000000) / av_q2d(fbdev->framerate_q);
+            fbdev->time_frame += INT64_C(1000000) / zn_av_q2d(fbdev->framerate_q);
             break;
         }
         if (avctx->flags & AVFMT_FLAG_NONBLOCK)
@@ -183,7 +183,7 @@ static int fbdev_read_packet(AVFormatContext *avctx, AVPacket *pkt)
     /* refresh fbdev->varinfo, visible data position may change at each call */
     if (ioctl(fbdev->fd, FBIOGET_VSCREENINFO, &fbdev->varinfo) < 0) {
         av_log(avctx, AV_LOG_WARNING,
-               "Error refreshing variable info: %s\n", av_err2str(AVERROR(errno)));
+               "Error refreshing variable info: %s\n", zn_av_err2str(AVERROR(errno)));
     }
 
     pkt->pts = av_gettime();

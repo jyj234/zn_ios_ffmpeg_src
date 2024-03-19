@@ -29,7 +29,7 @@ static char **separate_output_names(const char *expr, const char *val_sep, int *
         return NULL;
     }
 
-    parsed_vals = av_calloc(MAX_SUPPORTED_OUTPUTS_NB, sizeof(*parsed_vals));
+    parsed_vals = zn_av_calloc(MAX_SUPPORTED_OUTPUTS_NB, sizeof(*parsed_vals));
     if (!parsed_vals) {
         return NULL;
     }
@@ -161,8 +161,8 @@ void ff_dnn_uninit(DnnContext *ctx)
     }
     if (ctx->model_outputnames) {
         for (int i = 0; i < ctx->nb_outputs; i++)
-            av_free(ctx->model_outputnames[i]);
+            zn_av_free(ctx->model_outputnames[i]);
 
-        av_freep(&ctx->model_outputnames);
+        zn_av_freep(&ctx->model_outputnames);
     }
 }

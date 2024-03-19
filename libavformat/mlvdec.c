@@ -88,7 +88,7 @@ static void read_string(AVFormatContext *avctx, AVIOContext *pb, const char *tag
 
     avio_read(pb, value, size);
     if (!value[0]) {
-        av_free(value);
+        zn_av_free(value);
         return;
     }
 
@@ -287,7 +287,7 @@ static int read_header(AVFormatContext *avctx)
     nb_audio_frames = avio_rl32(pb);
 
     if (nb_video_frames && mlv->class[0]) {
-        vst = avformat_new_stream(avctx, NULL);
+        vst = zn_avformat_new_stream(avctx, NULL);
         if (!vst)
             return AVERROR(ENOMEM);
         vsti = ffstream(vst);
@@ -320,7 +320,7 @@ static int read_header(AVFormatContext *avctx)
     }
 
     if (nb_audio_frames && mlv->class[1]) {
-        ast = avformat_new_stream(avctx, NULL);
+        ast = zn_avformat_new_stream(avctx, NULL);
         if (!ast)
             return AVERROR(ENOMEM);
         asti = ffstream(ast);
@@ -371,12 +371,12 @@ static int read_header(AVFormatContext *avctx)
             av_log(avctx, AV_LOG_INFO, "scanning %s\n", filename);
             ret = scan_file(avctx, vst, ast, i);
             if (ret < 0) {
-                av_log(avctx, AV_LOG_WARNING, "ignoring %s; %s\n", filename, av_err2str(ret));
+                av_log(avctx, AV_LOG_WARNING, "ignoring %s; %s\n", filename, zn_av_err2str(ret));
                 ff_format_io_close(avctx, &mlv->pb[i]);
                 continue;
             }
         }
-        av_free(filename);
+        zn_av_free(filename);
     }
 
     if (vst)

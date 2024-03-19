@@ -163,7 +163,7 @@ static void draw_curves(AVFilterContext *ctx, AVFilterLink *inlink, AVFrame *out
         }
     }
 
-    av_free(colors);
+    zn_av_free(colors);
 }
 
 static int config_video(AVFilterLink *outlink)
@@ -176,7 +176,7 @@ static int config_video(AVFilterLink *outlink)
     outlink->w = s->w;
     outlink->h = s->h;
 
-    av_frame_free(&s->video);
+    zn_av_frame_free(&s->video);
     s->video = out = ff_get_video_buffer(outlink, outlink->w, outlink->h);
     if (!out)
         return AVERROR(ENOMEM);
@@ -259,8 +259,8 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     AudioNEqualizerContext *s = ctx->priv;
 
-    av_frame_free(&s->video);
-    av_freep(&s->filters);
+    zn_av_frame_free(&s->video);
+    zn_av_freep(&s->filters);
     s->nb_filters = 0;
     s->nb_allocated = 0;
 }
@@ -555,11 +555,11 @@ static int add_filter(AudioNEqualizerContext *s, AVFilterLink *inlink)
     if (s->nb_filters >= s->nb_allocated - 1) {
         EqualizatorFilter *filters;
 
-        filters = av_calloc(s->nb_allocated, 2 * sizeof(*s->filters));
+        filters = zn_av_calloc(s->nb_allocated, 2 * sizeof(*s->filters));
         if (!filters)
             return AVERROR(ENOMEM);
         memcpy(filters, s->filters, sizeof(*s->filters) * s->nb_allocated);
-        av_free(s->filters);
+        zn_av_free(s->filters);
         s->filters = filters;
         s->nb_allocated *= 2;
     }
@@ -580,10 +580,10 @@ static int config_input(AVFilterLink *inlink)
         return AVERROR(ENOMEM);
 
     s->nb_allocated = 32 * inlink->ch_layout.nb_channels;
-    s->filters = av_calloc(inlink->ch_layout.nb_channels, 32 * sizeof(*s->filters));
+    s->filters = zn_av_calloc(inlink->ch_layout.nb_channels, 32 * sizeof(*s->filters));
     if (!s->filters) {
         s->nb_allocated = 0;
-        av_free(args);
+        zn_av_free(args);
         return AVERROR(ENOMEM);
     }
 
@@ -603,7 +603,7 @@ static int config_input(AVFilterLink *inlink)
                                                 &s->filters[s->nb_filters].freq,
                                                 &s->filters[s->nb_filters].width,
                                                 &s->filters[s->nb_filters].gain) != 4 ) {
-            av_free(args);
+            zn_av_free(args);
             return AVERROR(EINVAL);
         }
 
@@ -621,7 +621,7 @@ static int config_input(AVFilterLink *inlink)
             break;
     }
 
-    av_free(args);
+    zn_av_free(args);
 
     return ret;
 }

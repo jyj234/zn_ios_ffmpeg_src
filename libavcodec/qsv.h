@@ -31,7 +31,7 @@
  * AVCodecContext.hwaccel_context.
  * - decoding: hwaccel_context must be set on return from the get_format()
  *             callback
- * - encoding: hwaccel_context must be set before avcodec_open2()
+ * - encoding: hwaccel_context must be set before zn_avcodec_open2()
  */
 typedef struct AVQSVContext {
     /**
@@ -68,18 +68,18 @@ typedef struct AVQSVContext {
 
     /**
      * Encoding only, and only if opaque_alloc is set to non-zero. Before
-     * calling avcodec_open2(), the caller should set this field to the number
+     * calling zn_avcodec_open2(), the caller should set this field to the number
      * of extra opaque surfaces to allocate beyond what is required by the
      * encoder.
      *
-     * On return from avcodec_open2(), this field will be set by libavcodec to
+     * On return from zn_avcodec_open2(), this field will be set by libavcodec to
      * the total number of allocated opaque surfaces.
      */
     int nb_opaque_surfaces;
 
     /**
      * Encoding only, and only if opaque_alloc is set to non-zero. On return
-     * from avcodec_open2(), this field will be used by libavcodec to export the
+     * from zn_avcodec_open2(), this field will be used by libavcodec to export the
      * array of the allocated opaque surfaces to the caller, so they can be
      * passed to other parts of the pipeline.
      *
@@ -93,7 +93,7 @@ typedef struct AVQSVContext {
 
     /**
      * Encoding only, and only if opaque_alloc is set to non-zero. On return
-     * from avcodec_open2(), this field will be set to the surface type used in
+     * from zn_avcodec_open2(), this field will be set to the surface type used in
      * the opaque allocation request.
      */
     int opaque_alloc_type;
@@ -102,7 +102,7 @@ typedef struct AVQSVContext {
 /**
  * Allocate a new context.
  *
- * It must be freed by the caller with av_free().
+ * It must be freed by the caller with zn_av_free().
  */
 AVQSVContext *av_qsv_alloc_context(void);
 

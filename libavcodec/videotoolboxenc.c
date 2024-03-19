@@ -311,7 +311,7 @@ static void set_async_error(VTEncContext *vtctx, int err)
     while (info) {
         BufNode *next = info->next;
         CFRelease(info->cm_buffer);
-        av_free(info);
+        zn_av_free(info);
         info = next;
     }
 
@@ -392,10 +392,10 @@ static int vtenc_q_pop(VTEncContext *vtctx, bool wait, CMSampleBufferRef *buf, E
     if (sei && *buf) {
         *sei = info->sei;
     } else if (info->sei) {
-        if (info->sei->data) av_free(info->sei->data);
-        av_free(info->sei);
+        if (info->sei->data) zn_av_free(info->sei->data);
+        zn_av_free(info->sei);
     }
-    av_free(info);
+    zn_av_free(info);
 
 
     return 0;
@@ -1196,7 +1196,7 @@ static int vtenc_create_encoder(AVCodecContext   *avctx,
                                kCFStringEncodingUTF8);
             av_log(avctx, AV_LOG_DEBUG, "Init the encoder: %s\n", name);
 
-            av_freep(&name);
+            zn_av_freep(&name);
         }
         if (encoderID != NULL)
             CFRelease(encoderID);
@@ -2574,7 +2574,7 @@ static int vtenc_send_frame(AVCodecContext *avctx,
             int ret = ff_alloc_a53_sei(frame, 0, &sei->data, &sei->size);
             if (ret < 0) {
                 av_log(avctx, AV_LOG_ERROR, "Not enough memory for closed captions, skipping\n");
-                av_free(sei);
+                zn_av_free(sei);
                 sei = NULL;
             }
         }
@@ -2656,8 +2656,8 @@ static av_cold int vtenc_frame(
 
     status = vtenc_cm_to_avpacket(avctx, buf, pkt, sei);
     if (sei) {
-        if (sei->data) av_free(sei->data);
-        av_free(sei);
+        if (sei->data) zn_av_free(sei->data);
+        zn_av_free(sei);
     }
     CFRelease(buf);
     if (status) goto end_nopkt;
@@ -2666,7 +2666,7 @@ static av_cold int vtenc_frame(
     return 0;
 
 end_nopkt:
-    av_packet_unref(pkt);
+    zn_av_packet_unref(pkt);
     return status;
 }
 

@@ -82,7 +82,7 @@ void av_mediacodec_default_free(AVCodecContext *avctx)
         ctx->surface = NULL;
     }
 
-    av_freep(&avctx->hwaccel_context);
+    zn_av_freep(&avctx->hwaccel_context);
 }
 
 int av_mediacodec_release_buffer(AVMediaCodecBuffer *buffer, int render)

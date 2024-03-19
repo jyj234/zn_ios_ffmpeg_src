@@ -167,7 +167,7 @@ static int mpc8_parse_seektable(AVFormatContext *s, int64_t off)
     ret = avio_read(s->pb, buf, size);
     if (ret != size) {
         av_log(s, AV_LOG_ERROR, "seek table truncated\n");
-        av_free(buf);
+        zn_av_free(buf);
         return AVERROR_INVALIDDATA;
     }
     memset(buf+size, 0, AV_INPUT_BUFFER_PADDING_SIZE);
@@ -176,14 +176,14 @@ static int mpc8_parse_seektable(AVFormatContext *s, int64_t off)
     size = gb_get_v(&gb);
     if(size > UINT_MAX/4 || size > c->samples/1152){
         av_log(s, AV_LOG_ERROR, "Seek table is too big\n");
-        av_free(buf);
+        zn_av_free(buf);
         return AVERROR_INVALIDDATA;
     }
     seekd = get_bits(&gb, 4);
     for(i = 0; i < 2; i++){
         pos = gb_get_v(&gb);
         if (av_sat_add64(pos, c->header_pos) != pos + (uint64_t)c->header_pos) {
-            av_free(buf);
+            zn_av_free(buf);
             return AVERROR_INVALIDDATA;
         }
 
@@ -193,7 +193,7 @@ static int mpc8_parse_seektable(AVFormatContext *s, int64_t off)
     }
     for(; i < size; i++){
         if (get_bits_left(&gb) < 13) {
-            av_free(buf);
+            zn_av_free(buf);
             return AVERROR_INVALIDDATA;
         }
         t = get_unary(&gb, 1, 33) << 12;
@@ -205,7 +205,7 @@ static int mpc8_parse_seektable(AVFormatContext *s, int64_t off)
         ppos[1] = ppos[0];
         ppos[0] = pos;
     }
-    av_free(buf);
+    zn_av_free(buf);
     return 0;
 }
 
@@ -275,7 +275,7 @@ static int mpc8_read_header(AVFormatContext *s)
     c->samples = ffio_read_varlen(pb);
     ffio_read_varlen(pb); //silence samples at the beginning
 
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
     st->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

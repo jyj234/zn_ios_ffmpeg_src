@@ -60,11 +60,11 @@ void enc_free(Encoder **penc)
     if (!enc)
         return;
 
-    av_frame_free(&enc->sq_frame);
+    zn_av_frame_free(&enc->sq_frame);
 
-    av_packet_free(&enc->pkt);
+    zn_av_packet_free(&enc->pkt);
 
-    av_freep(penc);
+    zn_av_freep(penc);
 }
 
 int enc_alloc(Encoder **penc, const AVCodec *codec)
@@ -77,7 +77,7 @@ int enc_alloc(Encoder **penc, const AVCodec *codec)
     if (!enc)
         return AVERROR(ENOMEM);
 
-    enc->pkt = av_packet_alloc();
+    enc->pkt = zn_av_packet_alloc();
     if (!enc->pkt)
         goto fail;
 
@@ -206,7 +206,7 @@ int enc_open(OutputStream *ost, const AVFrame *frame)
     case AVMEDIA_TYPE_AUDIO:
         enc_ctx->sample_fmt     = frame->format;
         enc_ctx->sample_rate    = frame->sample_rate;
-        ret = av_channel_layout_copy(&enc_ctx->ch_layout, &frame->ch_layout);
+        ret = zn_av_channel_layout_copy(&enc_ctx->ch_layout, &frame->ch_layout);
         if (ret < 0)
             return ret;
 
@@ -304,11 +304,11 @@ int enc_open(OutputStream *ost, const AVFrame *frame)
     ret = hw_device_setup_for_encode(ost, frame ? frame->hw_frames_ctx : NULL);
     if (ret < 0) {
         av_log(ost, AV_LOG_ERROR,
-               "Encoding hardware device setup failed: %s\n", av_err2str(ret));
+               "Encoding hardware device setup failed: %s\n", zn_av_err2str(ret));
         return ret;
     }
 
-    if ((ret = avcodec_open2(ost->enc_ctx, enc, &ost->encoder_opts)) < 0) {
+    if ((ret = zn_avcodec_open2(ost->enc_ctx, enc, &ost->encoder_opts)) < 0) {
         if (ret != AVERROR_EXPERIMENTAL)
             av_log(ost, AV_LOG_ERROR, "Error while opening encoder - maybe "
                    "incorrect parameters such as bit_rate, rate, width or height.\n");
@@ -318,7 +318,7 @@ int enc_open(OutputStream *ost, const AVFrame *frame)
     e->opened = 1;
 
     if (ost->sq_idx_encode >= 0) {
-        e->sq_frame = av_frame_alloc();
+        e->sq_frame = zn_av_frame_alloc();
         if (!e->sq_frame)
             return AVERROR(ENOMEM);
     }
@@ -509,9 +509,9 @@ void enc_stats_write(OutputStream *ost, EncStats *es,
         case ENC_STATS_TIMEBASE_IN:     avio_printf(io, "%d/%d",    tbi.num, tbi.den);              continue;
         case ENC_STATS_PTS:             avio_printf(io, "%"PRId64,  pts);                           continue;
         case ENC_STATS_PTS_IN:          avio_printf(io, "%"PRId64,  ptsi);                          continue;
-        case ENC_STATS_PTS_TIME:        avio_printf(io, "%g",       pts * av_q2d(tb));              continue;
+        case ENC_STATS_PTS_TIME:        avio_printf(io, "%g",       pts * zn_av_q2d(tb));              continue;
         case ENC_STATS_PTS_TIME_IN:     avio_printf(io, "%g",       ptsi == INT64_MAX ?
-                                                                    INFINITY : ptsi * av_q2d(tbi)); continue;
+                                                                    INFINITY : ptsi * zn_av_q2d(tbi)); continue;
         case ENC_STATS_FRAME_NUM:       avio_printf(io, "%"PRIu64,  frame_num);                     continue;
         case ENC_STATS_FRAME_NUM_IN:    avio_printf(io, "%"PRIu64,  fd ? fd->dec.frame_num : -1);   continue;
         }
@@ -525,15 +525,15 @@ void enc_stats_write(OutputStream *ost, EncStats *es,
         } else {
             switch (c->type) {
             case ENC_STATS_DTS:         avio_printf(io, "%"PRId64,  pkt->dts);                      continue;
-            case ENC_STATS_DTS_TIME:    avio_printf(io, "%g",       pkt->dts * av_q2d(tb));         continue;
+            case ENC_STATS_DTS_TIME:    avio_printf(io, "%g",       pkt->dts * zn_av_q2d(tb));         continue;
             case ENC_STATS_PKT_SIZE:    avio_printf(io, "%d",       pkt->size);                     continue;
             case ENC_STATS_BITRATE: {
-                double duration = FFMAX(pkt->duration, 1) * av_q2d(tb);
+                double duration = FFMAX(pkt->duration, 1) * zn_av_q2d(tb);
                 avio_printf(io, "%g",  8.0 * pkt->size / duration);
                 continue;
             }
             case ENC_STATS_AVG_BITRATE: {
-                double duration = pkt->dts * av_q2d(tb);
+                double duration = pkt->dts * zn_av_q2d(tb);
                 avio_printf(io, "%g",  duration > 0 ? 8.0 * e->data_size / duration : -1.);
                 continue;
             }
@@ -597,11 +597,11 @@ static int update_video_stats(OutputStream *ost, const AVPacket *pkt, int write_
 
     fprintf(vstats_file,"f_size= %6d ", pkt->size);
     /* compute pts value */
-    ti1 = pkt->dts * av_q2d(pkt->time_base);
+    ti1 = pkt->dts * zn_av_q2d(pkt->time_base);
     if (ti1 < 0.01)
         ti1 = 0.01;
 
-    bitrate     = (pkt->size * 8) / av_q2d(enc->time_base) / 1000.0;
+    bitrate     = (pkt->size * 8) / zn_av_q2d(enc->time_base) / 1000.0;
     avg_bitrate = (double)(e->data_size * 8) / ti1 / 1000.0;
     fprintf(vstats_file, "s_size= %8.0fkB time= %0.3f br= %7.1fkbits/s avg_br= %7.1fkbits/s ",
            (double)e->data_size / 1024, ti1, bitrate, avg_bitrate);
@@ -641,7 +641,7 @@ static int encode_frame(OutputFile *of, OutputStream *ost, AVFrame *frame)
 
     update_benchmark(NULL);
 
-    ret = avcodec_send_frame(enc, frame);
+    ret = zn_avcodec_send_frame(enc, frame);
     if (ret < 0 && !(ret == AVERROR_EOF && !frame)) {
         av_log(ost, AV_LOG_ERROR, "Error submitting %s frame to the encoder\n",
                type_desc);
@@ -649,9 +649,9 @@ static int encode_frame(OutputFile *of, OutputStream *ost, AVFrame *frame)
     }
 
     while (1) {
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
 
-        ret = avcodec_receive_packet(enc, pkt);
+        ret = zn_avcodec_receive_packet(enc, pkt);
         update_benchmark("%s_%s %d.%d", action, type_desc,
                          ost->file_index, ost->index);
 
@@ -695,7 +695,7 @@ static int encode_frame(OutputFile *of, OutputStream *ost, AVFrame *frame)
         if ((ret = trigger_fix_sub_duration_heartbeat(ost, pkt)) < 0) {
             av_log(NULL, AV_LOG_ERROR,
                    "Subtitle heartbeat logic failed in %s! (%s)\n",
-                   __func__, av_err2str(ret));
+                   __func__, zn_av_err2str(ret));
             return ret;
         }
 
@@ -786,7 +786,7 @@ static enum AVPictureType forced_kf_apply(void *logctx, KeyframeForceCtx *kf,
     if (kf->ref_pts == AV_NOPTS_VALUE)
         kf->ref_pts = in_picture->pts;
 
-    pts_time = (in_picture->pts - kf->ref_pts) * av_q2d(tb);
+    pts_time = (in_picture->pts - kf->ref_pts) * zn_av_q2d(tb);
     if (kf->index < kf->nb_pts &&
         av_compare_ts(in_picture->pts, tb, kf->pts[kf->index], AV_TIME_BASE_Q) >= 0) {
         kf->index++;

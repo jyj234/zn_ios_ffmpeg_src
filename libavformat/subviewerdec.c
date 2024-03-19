@@ -85,7 +85,7 @@ static int read_ts(const char *s, int64_t *start, int *duration)
 static int subviewer_read_header(AVFormatContext *s)
 {
     SubViewerContext *subviewer = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     AVBPrint header;
     int res = 0, new_event = 1;
     int64_t pts_start = AV_NOPTS_VALUE;

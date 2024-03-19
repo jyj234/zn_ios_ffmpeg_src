@@ -853,9 +853,9 @@ static void mkv_deinit(AVFormatContext *s)
     ffio_free_dyn_buf(&mkv->tags.bc);
     ffio_free_dyn_buf(&mkv->tmp_bc);
 
-    av_freep(&mkv->cur_block.h2645_nalu_list.nalus);
-    av_freep(&mkv->cues.entries);
-    av_freep(&mkv->tracks);
+    zn_av_freep(&mkv->cur_block.h2645_nalu_list.nalus);
+    zn_av_freep(&mkv->cues.entries);
+    zn_av_freep(&mkv->tracks);
 }
 
 /**
@@ -1381,27 +1381,27 @@ static void mkv_write_video_color(EbmlWriter *writer, const AVStream *st,
         ebml_writer_open_master(writer, MATROSKA_ID_VIDEOCOLORMASTERINGMETA);
         if (metadata->has_primaries) {
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_RX,
-                                  av_q2d(metadata->display_primaries[0][0]));
+                                  zn_av_q2d(metadata->display_primaries[0][0]));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_RY,
-                                  av_q2d(metadata->display_primaries[0][1]));
+                                  zn_av_q2d(metadata->display_primaries[0][1]));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_GX,
-                                  av_q2d(metadata->display_primaries[1][0]));
+                                  zn_av_q2d(metadata->display_primaries[1][0]));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_GY,
-                                  av_q2d(metadata->display_primaries[1][1]));
+                                  zn_av_q2d(metadata->display_primaries[1][1]));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_BX,
-                                  av_q2d(metadata->display_primaries[2][0]));
+                                  zn_av_q2d(metadata->display_primaries[2][0]));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_BY,
-                                  av_q2d(metadata->display_primaries[2][1]));
+                                  zn_av_q2d(metadata->display_primaries[2][1]));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_WHITEX,
-                                  av_q2d(metadata->white_point[0]));
+                                  zn_av_q2d(metadata->white_point[0]));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_WHITEY,
-                                  av_q2d(metadata->white_point[1]));
+                                  zn_av_q2d(metadata->white_point[1]));
         }
         if (metadata->has_luminance) {
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_LUMINANCEMAX,
-                                  av_q2d(metadata->max_luminance));
+                                  zn_av_q2d(metadata->max_luminance));
             ebml_writer_add_float(writer, MATROSKA_ID_VIDEOCOLOR_LUMINANCEMIN,
-                                  av_q2d(metadata->min_luminance));
+                                  zn_av_q2d(metadata->min_luminance));
         }
         ebml_writer_close_or_discard_master(writer);
     }
@@ -2167,7 +2167,7 @@ static int mkv_write_simpletag(AVIOContext *pb, const AVDictionaryEntry *t)
     ebml_writer_add_string(&writer, MATROSKA_ID_TAGSTRING, t->value);
     ret = ebml_writer_write(&writer, pb);
 
-    av_freep(&key);
+    zn_av_freep(&key);
     return ret;
 }
 
@@ -3080,7 +3080,7 @@ static int mkv_write_packet(AVFormatContext *s, const AVPacket *pkt)
     // check if we have an audio packet cached
     if (mkv->cur_audio_pkt->size > 0) {
         ret = mkv_write_packet_internal(s, mkv->cur_audio_pkt);
-        av_packet_unref(mkv->cur_audio_pkt);
+        zn_av_packet_unref(mkv->cur_audio_pkt);
         if (ret < 0) {
             av_log(s, AV_LOG_ERROR,
                    "Could not write cached audio packet ret:%d\n", ret);
@@ -3287,7 +3287,7 @@ after_cues:
             const mkv_track *track = &mkv->tracks[i];
 
             if (track->duration_offset > 0) {
-                double duration_sec = track->duration * av_q2d(st->time_base);
+                double duration_sec = track->duration * zn_av_q2d(st->time_base);
                 char duration_string[DURATION_STRING_LENGTH + 1] = "";
                 ebml_master simpletag;
 
@@ -3378,7 +3378,7 @@ static int mkv_init(struct AVFormatContext *s)
 
     mkv->cur_audio_pkt = ffformatcontext(s)->pkt;
 
-    mkv->tracks = av_calloc(s->nb_streams, sizeof(*mkv->tracks));
+    mkv->tracks = zn_av_calloc(s->nb_streams, sizeof(*mkv->tracks));
     if (!mkv->tracks)
         return AVERROR(ENOMEM);
 

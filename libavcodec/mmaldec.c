@@ -106,7 +106,7 @@ static void ffmmal_poolref_unref(FFPoolRef *ref)
     if (ref &&
         atomic_fetch_add_explicit(&ref->refcount, -1, memory_order_acq_rel) == 1) {
         mmal_pool_destroy(ref->pool);
-        av_free(ref);
+        zn_av_free(ref);
     }
 }
 
@@ -117,7 +117,7 @@ static void ffmmal_release_frame(void *opaque, uint8_t *data)
     mmal_buffer_header_release(ref->buffer);
     ffmmal_poolref_unref(ref->pool);
 
-    av_free(ref);
+    zn_av_free(ref);
 }
 
 // Setup frame with a new reference to buffer. The buffer must have been
@@ -136,7 +136,7 @@ static int ffmmal_set_ref(AVFrame *frame, FFPoolRef *pool,
                                      ffmmal_release_frame, NULL,
                                      AV_BUFFER_FLAG_READONLY);
     if (!frame->buf[0]) {
-        av_free(ref);
+        zn_av_free(ref);
         return AVERROR(ENOMEM);
     }
 
@@ -174,7 +174,7 @@ static void ffmmal_stop_decoder(AVCodecContext *avctx)
             atomic_fetch_add(&ctx->packets_buffered, -1);
 
         av_buffer_unref(&buffer->ref);
-        av_free(buffer);
+        zn_av_free(buffer);
     }
     ctx->waiting_buffers_tail = NULL;
 
@@ -211,7 +211,7 @@ static void input_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer)
         av_buffer_unref(&entry->ref);
         if (entry->flags & MMAL_BUFFER_HEADER_FLAG_FRAME_END)
             atomic_fetch_add(&ctx->packets_buffered, -1);
-        av_free(entry);
+        zn_av_free(entry);
     }
     mmal_buffer_header_release(buffer);
 }
@@ -549,7 +549,7 @@ static int ffmmal_add_packet(AVCodecContext *avctx, AVPacket *avpkt,
         if (buf) {
             buffer->ref = av_buffer_ref(buf);
             if (!buffer->ref) {
-                av_free(buffer);
+                zn_av_free(buffer);
                 ret = AVERROR(ENOMEM);
                 goto done;
             }
@@ -564,7 +564,7 @@ static int ffmmal_add_packet(AVCodecContext *avctx, AVPacket *avpkt,
     } while (size);
 
 done:
-    av_packet_unref(avpkt);
+    zn_av_packet_unref(avpkt);
     return ret;
 }
 
@@ -604,7 +604,7 @@ static int ffmmal_fill_input_port(AVCodecContext *avctx)
             av_buffer_unref(&buffer->ref);
             if (buffer->flags & MMAL_BUFFER_HEADER_FLAG_FRAME_END)
                 atomic_fetch_add(&ctx->packets_buffered, -1);
-            av_free(buffer);
+            zn_av_free(buffer);
         }
 
         if (status) {

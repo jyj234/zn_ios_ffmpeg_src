@@ -147,7 +147,7 @@ static int read_header(AVFormatContext *ctx)
     if (error = al_get_error(ad->device, &error_msg)) goto fail;
 
     /* Create stream */
-    if (!(st = avformat_new_stream(ctx, NULL))) {
+    if (!(st = zn_avformat_new_stream(ctx, NULL))) {
         error = AVERROR(ENOMEM);
         goto fail;
     }
@@ -211,7 +211,7 @@ static int read_packet(AVFormatContext* ctx, AVPacket *pkt)
 fail:
     /* Handle failure */
     if (pkt->data)
-        av_packet_unref(pkt);
+        zn_av_packet_unref(pkt);
     if (error_msg)
         av_log(ctx, AV_LOG_ERROR, "Error: %s\n", error_msg);
     return error;

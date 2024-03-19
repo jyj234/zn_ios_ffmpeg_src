@@ -339,7 +339,7 @@ static av_cold int init(AVFilterContext *ctx)
         }
     }
 
-    cat->in = av_calloc(ctx->nb_inputs, sizeof(*cat->in));
+    cat->in = zn_av_calloc(ctx->nb_inputs, sizeof(*cat->in));
     if (!cat->in)
         return AVERROR(ENOMEM);
     cat->nb_in_active = ctx->nb_outputs;
@@ -350,7 +350,7 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     ConcatContext *cat = ctx->priv;
 
-    av_freep(&cat->in);
+    zn_av_freep(&cat->in);
 }
 
 static int activate(AVFilterContext *ctx)

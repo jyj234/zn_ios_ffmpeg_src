@@ -65,7 +65,7 @@ static av_cold int mediacodec_decode_close(AVCodecContext *avctx)
     ff_mediacodec_dec_close(avctx, s->ctx);
     s->ctx = NULL;
 
-    av_packet_unref(&s->buffered_pkt);
+    zn_av_packet_unref(&s->buffered_pkt);
 
     return 0;
 }
@@ -116,7 +116,7 @@ static int h2645_ps_to_nalu(const uint8_t *src, int src_size, uint8_t **out, int
     }
 done:
     if (ret < 0) {
-        av_freep(out);
+        zn_av_freep(out);
         *out_size = 0;
     }
 
@@ -168,13 +168,13 @@ static int h264_set_extradata(AVCodecContext *avctx, FFAMediaFormat *format)
             goto done;
         }
         ff_AMediaFormat_setBuffer(format, "csd-0", (void*)data, data_size);
-        av_freep(&data);
+        zn_av_freep(&data);
 
         if ((ret = h2645_ps_to_nalu(pps->data, pps->data_size, &data, &data_size)) < 0) {
             goto done;
         }
         ff_AMediaFormat_setBuffer(format, "csd-1", (void*)data, data_size);
-        av_freep(&data);
+        zn_av_freep(&data);
     } else {
         const int warn = is_avc && (avctx->codec_tag == MKTAG('a','v','c','1') ||
                                     avctx->codec_tag == MKTAG('a','v','c','2'));
@@ -267,7 +267,7 @@ static int hevc_set_extradata(AVCodecContext *avctx, FFAMediaFormat *format)
 
         ff_AMediaFormat_setBuffer(format, "csd-0", data, data_size);
 
-        av_freep(&data);
+        zn_av_freep(&data);
     } else {
         const int warn = is_nalff && avctx->codec_tag == MKTAG('h','v','c','1');
         av_log(avctx, warn ? AV_LOG_WARNING : AV_LOG_DEBUG,
@@ -278,9 +278,9 @@ static int hevc_set_extradata(AVCodecContext *avctx, FFAMediaFormat *format)
 done:
     ff_hevc_ps_uninit(&ps);
 
-    av_freep(&vps_data);
-    av_freep(&sps_data);
-    av_freep(&pps_data);
+    zn_av_freep(&vps_data);
+    zn_av_freep(&sps_data);
+    zn_av_freep(&pps_data);
 
     return ret;
 }
@@ -469,7 +469,7 @@ static int mediacodec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
                 ret = ff_mediacodec_dec_receive(avctx, s->ctx, frame, true);
                 /* Try again if both input port and output port return EAGAIN.
                  * If no data is consumed and no frame in output, it can make
-                 * both avcodec_send_packet() and avcodec_receive_frame()
+                 * both zn_avcodec_send_packet() and zn_avcodec_receive_frame()
                  * return EAGAIN, which violate the design.
                  */
                 if (ff_AMediaCodec_infoTryAgainLater(s->ctx->codec, index) &&
@@ -487,7 +487,7 @@ static int mediacodec_receive_frame(AVCodecContext *avctx, AVFrame *frame)
                 s->buffered_pkt.size -= ret;
                 s->buffered_pkt.data += ret;
                 if (s->buffered_pkt.size <= 0) {
-                    av_packet_unref(&s->buffered_pkt);
+                    zn_av_packet_unref(&s->buffered_pkt);
                 } else {
                     av_log(avctx, AV_LOG_WARNING,
                            "could not send entire packet in single input buffer (%d < %d)\n",
@@ -527,7 +527,7 @@ static void mediacodec_decode_flush(AVCodecContext *avctx)
 {
     MediaCodecH264DecContext *s = avctx->priv_data;
 
-    av_packet_unref(&s->buffered_pkt);
+    zn_av_packet_unref(&s->buffered_pkt);
 
     ff_mediacodec_dec_flush(avctx, s->ctx);
 }

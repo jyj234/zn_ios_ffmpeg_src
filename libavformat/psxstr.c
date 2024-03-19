@@ -192,7 +192,7 @@ static int str_read_packet(AVFormatContext *s,
 
                 if(str->channels[channel].video_stream_index < 0){
                     /* allocate a new AVStream */
-                    st = avformat_new_stream(s, NULL);
+                    st = zn_avformat_new_stream(s, NULL);
                     if (!st)
                         return AVERROR(ENOMEM);
                     avpriv_set_pts_info(st, 64, 1, 15);
@@ -212,7 +212,7 @@ static int str_read_packet(AVFormatContext *s,
                 if(pkt->size != sector_count*VIDEO_DATA_CHUNK_SIZE){
                     if(pkt->data)
                         av_log(s, AV_LOG_ERROR, "mismatching sector_count\n");
-                    av_packet_unref(pkt);
+                    zn_av_packet_unref(pkt);
                     ret = av_new_packet(pkt, sector_count * VIDEO_DATA_CHUNK_SIZE);
                     if (ret < 0)
                         return ret;
@@ -243,7 +243,7 @@ static int str_read_packet(AVFormatContext *s,
             if(str->channels[channel].audio_stream_index < 0){
                 int fmt = sector[0x13];
                 /* allocate a new AVStream */
-                st = avformat_new_stream(s, NULL);
+                st = zn_avformat_new_stream(s, NULL);
                 if (!st)
                     return AVERROR(ENOMEM);
 
@@ -252,7 +252,7 @@ static int str_read_packet(AVFormatContext *s,
                 st->codecpar->codec_type  = AVMEDIA_TYPE_AUDIO;
                 st->codecpar->codec_id    = AV_CODEC_ID_ADPCM_XA;
                 st->codecpar->codec_tag   = 0;  /* no fourcc */
-                av_channel_layout_default(&st->codecpar->ch_layout, (fmt & 1) + 1);
+                zn_av_channel_layout_default(&st->codecpar->ch_layout, (fmt & 1) + 1);
                 st->codecpar->sample_rate = (fmt&4)?18900:37800;
             //    st->codecpar->bit_rate = 0; //FIXME;
                 st->codecpar->block_align = 128;
@@ -287,7 +287,7 @@ static int str_read_close(AVFormatContext *s)
     int i;
     for(i=0; i<32; i++){
         if(str->channels[i].tmp_pkt.data)
-            av_packet_unref(&str->channels[i].tmp_pkt);
+            zn_av_packet_unref(&str->channels[i].tmp_pkt);
     }
 
     return 0;

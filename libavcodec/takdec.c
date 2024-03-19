@@ -933,7 +933,7 @@ static av_cold int tak_decode_close(AVCodecContext *avctx)
 {
     TAKDecContext *s = avctx->priv_data;
 
-    av_freep(&s->decode_buffer);
+    zn_av_freep(&s->decode_buffer);
 
     return 0;
 }

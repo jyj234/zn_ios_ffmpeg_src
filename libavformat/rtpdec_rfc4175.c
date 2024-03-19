@@ -113,7 +113,7 @@ static int rfc4175_parse_format(AVStream *stream, PayloadContext *data)
 
     if (data->framerate.den > 0) {
         stream->avg_frame_rate = data->framerate;
-        stream->codecpar->bit_rate = data->frame_size * av_q2d(data->framerate) * 8;
+        stream->codecpar->bit_rate = data->frame_size * zn_av_q2d(data->framerate) * 8;
     }
 
     return 0;
@@ -193,7 +193,7 @@ static int rfc4175_parse_sdp_line(AVFormatContext *s, int st_index,
         stream->codecpar->height = data->height;
 
         ret = rfc4175_parse_format(stream, data);
-        av_freep(&data->sampling);
+        zn_av_freep(&data->sampling);
 
         return ret;
     }
@@ -210,7 +210,7 @@ static int rfc4175_finalize_packet(PayloadContext *data, AVPacket *pkt,
     if (!data->interlaced || data->field) {
         ret = av_packet_from_data(pkt, data->frame, data->frame_size);
         if (ret < 0) {
-            av_freep(&data->frame);
+            zn_av_freep(&data->frame);
         }
         data->frame = NULL;
     }

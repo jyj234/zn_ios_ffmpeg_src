@@ -156,7 +156,7 @@ static void free_debug_matches(AbsoluteFrameMotion *afm) {
     }
 
     while (av_fifo_read(afm->debug_matches, &dm, 1) >= 0)
-        av_freep(&dm.matches);
+        zn_av_freep(&dm.matches);
 
     av_fifo_freep2(&afm->debug_matches);
 }
@@ -1060,19 +1060,19 @@ static av_cold void deshake_opencl_uninit(AVFilterContext *avctx)
         free_debug_matches(&ctx->abs_motion);
 
     if (ctx->gauss_kernel)
-        av_freep(&ctx->gauss_kernel);
+        zn_av_freep(&ctx->gauss_kernel);
 
     if (ctx->ransac_err)
-        av_freep(&ctx->ransac_err);
+        zn_av_freep(&ctx->ransac_err);
 
     if (ctx->matches_host)
-        av_freep(&ctx->matches_host);
+        zn_av_freep(&ctx->matches_host);
 
     if (ctx->matches_contig_host)
-        av_freep(&ctx->matches_contig_host);
+        zn_av_freep(&ctx->matches_contig_host);
 
     if (ctx->inliers)
-        av_freep(&ctx->inliers);
+        zn_av_freep(&ctx->inliers);
 
     ff_framequeue_free(&ctx->fq);
 
@@ -1155,18 +1155,18 @@ static int deshake_opencl_init(AVFilterContext *avctx)
     ff_framequeue_global_init(&fqg);
     ff_framequeue_init(&ctx->fq, &fqg);
     ctx->eof = 0;
-    ctx->smooth_window = (int)(av_q2d(avctx->inputs[0]->frame_rate) * ctx->smooth_window_multiplier);
+    ctx->smooth_window = (int)(zn_av_q2d(avctx->inputs[0]->frame_rate) * ctx->smooth_window_multiplier);
     ctx->curr_frame = 0;
 
     memset(&zeroed_ulong8, 0, sizeof(cl_ulong8));
 
-    ctx->gauss_kernel = av_malloc_array(ctx->smooth_window, sizeof(float));
+    ctx->gauss_kernel = zn_av_malloc_array(ctx->smooth_window, sizeof(float));
     if (!ctx->gauss_kernel) {
         err = AVERROR(ENOMEM);
         goto fail;
     }
 
-    ctx->ransac_err = av_malloc_array(MATCHES_CONTIG_SIZE, sizeof(float));
+    ctx->ransac_err = zn_av_malloc_array(MATCHES_CONTIG_SIZE, sizeof(float));
     if (!ctx->ransac_err) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -1198,25 +1198,25 @@ static int deshake_opencl_init(AVFilterContext *avctx)
     ctx->abs_motion.data_start_offset = -1;
     ctx->abs_motion.data_end_offset = -1;
 
-    pattern_host = av_malloc_array(BREIFN, sizeof(PointPair));
+    pattern_host = zn_av_malloc_array(BREIFN, sizeof(PointPair));
     if (!pattern_host) {
         err = AVERROR(ENOMEM);
         goto fail;
     }
 
-    ctx->matches_host = av_malloc_array(image_grid_32, sizeof(MotionVector));
+    ctx->matches_host = zn_av_malloc_array(image_grid_32, sizeof(MotionVector));
     if (!ctx->matches_host) {
         err = AVERROR(ENOMEM);
         goto fail;
     }
 
-    ctx->matches_contig_host = av_malloc_array(MATCHES_CONTIG_SIZE, sizeof(MotionVector));
+    ctx->matches_contig_host = zn_av_malloc_array(MATCHES_CONTIG_SIZE, sizeof(MotionVector));
     if (!ctx->matches_contig_host) {
         err = AVERROR(ENOMEM);
         goto fail;
     }
 
-    ctx->inliers = av_malloc_array(MATCHES_CONTIG_SIZE, sizeof(MotionVector));
+    ctx->inliers = zn_av_malloc_array(MATCHES_CONTIG_SIZE, sizeof(MotionVector));
     if (!ctx->inliers) {
         err = AVERROR(ENOMEM);
         goto fail;
@@ -1327,12 +1327,12 @@ static int deshake_opencl_init(AVFilterContext *avctx)
     }
 
     ctx->initialized = 1;
-    av_freep(&pattern_host);
+    zn_av_freep(&pattern_host);
 
     return 0;
 
 fail:
-    av_freep(&pattern_host);
+    zn_av_freep(&pattern_host);
     return err;
 }
 
@@ -1691,15 +1691,15 @@ FF_ENABLE_DEPRECATION_WARNINGS
     ++deshake_ctx->curr_frame;
 
     if (deshake_ctx->debug_on)
-        av_freep(&debug_matches.matches);
+        zn_av_freep(&debug_matches.matches);
 
     if (deshake_ctx->should_crop) {
         err = av_frame_copy_props(cropped_frame, input_frame);
         if (err < 0)
             goto fail;
 
-        av_frame_free(&transformed_frame);
-        av_frame_free(&input_frame);
+        zn_av_frame_free(&transformed_frame);
+        zn_av_frame_free(&input_frame);
         return ff_filter_frame(outlink, cropped_frame);
 
     } else {
@@ -1707,8 +1707,8 @@ FF_ENABLE_DEPRECATION_WARNINGS
         if (err < 0)
             goto fail;
 
-        av_frame_free(&cropped_frame);
-        av_frame_free(&input_frame);
+        zn_av_frame_free(&cropped_frame);
+        zn_av_frame_free(&input_frame);
         return ff_filter_frame(outlink, transformed_frame);
     }
 
@@ -1717,11 +1717,11 @@ fail:
 
     if (deshake_ctx->debug_on)
         if (debug_matches.matches)
-            av_freep(&debug_matches.matches);
+            zn_av_freep(&debug_matches.matches);
 
-    av_frame_free(&input_frame);
-    av_frame_free(&transformed_frame);
-    av_frame_free(&cropped_frame);
+    zn_av_frame_free(&input_frame);
+    zn_av_frame_free(&transformed_frame);
+    zn_av_frame_free(&cropped_frame);
     return err;
 }
 
@@ -1978,7 +1978,7 @@ end:
         if (num_vectors == 0) {
             debug_matches.matches = NULL;
         } else {
-            debug_matches.matches = av_malloc_array(num_vectors, sizeof(MotionVector));
+            debug_matches.matches = zn_av_malloc_array(num_vectors, sizeof(MotionVector));
 
             if (!debug_matches.matches) {
                 err = AVERROR(ENOMEM);
@@ -2004,7 +2004,7 @@ end:
 
 fail:
     clFinish(deshake_ctx->command_queue);
-    av_frame_free(&input_frame);
+    zn_av_frame_free(&input_frame);
     return err;
 }
 

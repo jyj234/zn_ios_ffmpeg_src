@@ -75,11 +75,11 @@ static av_cold int xan_decode_end(AVCodecContext *avctx)
 {
     XanContext *s = avctx->priv_data;
 
-    av_frame_free(&s->last_frame);
+    zn_av_frame_free(&s->last_frame);
 
-    av_freep(&s->buffer1);
-    av_freep(&s->buffer2);
-    av_freep(&s->palettes);
+    zn_av_freep(&s->buffer1);
+    zn_av_freep(&s->buffer2);
+    zn_av_freep(&s->palettes);
 
     return 0;
 }
@@ -102,7 +102,7 @@ static av_cold int xan_decode_init(AVCodecContext *avctx)
     if (!s->buffer2)
         return AVERROR(ENOMEM);
 
-    s->last_frame = av_frame_alloc();
+    s->last_frame = zn_av_frame_alloc();
     if (!s->last_frame)
         return AVERROR(ENOMEM);
 

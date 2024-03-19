@@ -156,7 +156,7 @@ static av_cold int che_configure(AACContext *ac,
     } else {
         if (ac->che[type][id])
             AAC_RENAME(ff_aac_sbr_ctx_close)(&ac->che[type][id]->sbr);
-        av_freep(&ac->che[type][id]);
+        zn_av_freep(&ac->che[type][id]);
     }
     return 0;
 }
@@ -506,7 +506,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         ac->oc[1].ch_layout.nb_channels = channels;
     }
 
-    av_channel_layout_copy(&avctx->ch_layout, &ac->oc[1].ch_layout);
+    zn_av_channel_layout_copy(&avctx->ch_layout, &ac->oc[1].ch_layout);
     ac->oc[1].status = oc_type;
 
     if (get_new_frame) {
@@ -3415,7 +3415,7 @@ static av_cold int aac_decode_close(AVCodecContext *avctx)
         for (type = 0; type < 4; type++) {
             if (ac->che[type][i])
                 AAC_RENAME(ff_aac_sbr_ctx_close)(&ac->che[type][i]->sbr);
-            av_freep(&ac->che[type][i]);
+            zn_av_freep(&ac->che[type][i]);
         }
     }
 
@@ -3427,7 +3427,7 @@ static av_cold int aac_decode_close(AVCodecContext *avctx)
     av_tx_uninit(&ac->mdct1024);
     av_tx_uninit(&ac->mdct_ltp);
 
-    av_freep(&ac->fdsp);
+    zn_av_freep(&ac->fdsp);
     return 0;
 }
 

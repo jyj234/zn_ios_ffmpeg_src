@@ -334,7 +334,7 @@ static int fill_model_input_ov(OVModel *ov_model, OVRequestItem *request)
                      + input.width * input.height * input.channels * get_datatype_size(input.dt);
     }
 #if HAVE_OPENVINO2
-    av_freep(&input_data_ptr);
+    zn_av_freep(&input_data_ptr);
 #else
     ie_blob_free(&input_blob);
 #endif
@@ -467,7 +467,7 @@ static void infer_completion_callback(void *args)
         }
 
         task->inference_done++;
-        av_freep(&request->lltasks[i]);
+        zn_av_freep(&request->lltasks[i]);
         output.data = (uint8_t *)output.data
                       + output.width * output.height * output.channels * get_datatype_size(output.dt);
     }
@@ -481,7 +481,7 @@ static void infer_completion_callback(void *args)
 #else
         ie_infer_request_free(&request->infer_request);
 #endif
-        av_freep(&request);
+        zn_av_freep(&request);
         av_log(ctx, AV_LOG_ERROR, "Failed to push back request_queue.\n");
         return;
     }
@@ -504,22 +504,22 @@ static void dnn_free_model_ov(DNNModel **model)
             ie_infer_request_free(&item->infer_request);
 #endif
         }
-        av_freep(&item->lltasks);
-        av_freep(&item);
+        zn_av_freep(&item->lltasks);
+        zn_av_freep(&item);
     }
     ff_safe_queue_destroy(ov_model->request_queue);
 
     while (ff_queue_size(ov_model->lltask_queue) != 0) {
         LastLevelTaskItem *item = ff_queue_pop_front(ov_model->lltask_queue);
-        av_freep(&item);
+        zn_av_freep(&item);
     }
     ff_queue_destroy(ov_model->lltask_queue);
 
     while (ff_queue_size(ov_model->task_queue) != 0) {
         TaskItem *item = ff_queue_pop_front(ov_model->task_queue);
-        av_frame_free(&item->in_frame);
-        av_frame_free(&item->out_frame);
-        av_freep(&item);
+        zn_av_frame_free(&item->in_frame);
+        zn_av_frame_free(&item->out_frame);
+        zn_av_freep(&item);
     }
     ff_queue_destroy(ov_model->task_queue);
 #if HAVE_OPENVINO2
@@ -542,12 +542,12 @@ static void dnn_free_model_ov(DNNModel **model)
         ie_network_free(&ov_model->network);
     if (ov_model->core)
         ie_core_free(&ov_model->core);
-    av_free(ov_model->all_output_names);
-    av_free(ov_model->all_input_names);
+    zn_av_free(ov_model->all_output_names);
+    zn_av_free(ov_model->all_input_names);
 #endif
     av_opt_free(&ov_model->ctx);
-    av_freep(&ov_model);
-    av_freep(model);
+    zn_av_freep(&ov_model);
+    zn_av_freep(model);
 }
 
 
@@ -805,7 +805,7 @@ static int init_model_ov(OVModel *ov_model, const char *input_name, const char *
 #endif
         item->callback.args = item;
         if (ff_safe_queue_push_back(ov_model->request_queue, item) < 0) {
-            av_freep(&item);
+            zn_av_freep(&item);
             ret = AVERROR(ENOMEM);
             goto err;
         }
@@ -824,7 +824,7 @@ static int init_model_ov(OVModel *ov_model, const char *input_name, const char *
         }
 #endif
 
-        item->lltasks = av_malloc_array(ctx->options.batch_size, sizeof(*item->lltasks));
+        item->lltasks = zn_av_malloc_array(ctx->options.batch_size, sizeof(*item->lltasks));
         if (!item->lltasks) {
             ret = AVERROR(ENOMEM);
             goto err;
@@ -878,7 +878,7 @@ static int execute_model_ov(OVRequestItem *request, Queue *inferenceq)
 #else
         ie_infer_request_free(&request->infer_request);
 #endif
-        av_freep(&request);
+        zn_av_freep(&request);
         return 0;
     }
 
@@ -951,7 +951,7 @@ err:
 #else
         ie_infer_request_free(&request->infer_request);
 #endif
-        av_freep(&request);
+        zn_av_freep(&request);
     }
     return ret;
 }
@@ -1089,7 +1089,7 @@ static int extract_lltask_from_task(DNNFunctionType func_type, TaskItem *task, Q
         task->inference_done = 0;
         lltask->task = task;
         if (ff_queue_push_back(lltask_queue, lltask) < 0) {
-            av_freep(&lltask);
+            zn_av_freep(&lltask);
             return AVERROR(ENOMEM);
         }
         return 0;
@@ -1129,7 +1129,7 @@ static int extract_lltask_from_task(DNNFunctionType func_type, TaskItem *task, Q
             lltask->task = task;
             lltask->bbox_index = i;
             if (ff_queue_push_back(lltask_queue, lltask) < 0) {
-                av_freep(&lltask);
+                zn_av_freep(&lltask);
                 return AVERROR(ENOMEM);
             }
         }
@@ -1253,8 +1253,8 @@ static int get_output_ov(void *model, const char *input_name, int input_width, i
     *output_width = task.out_frame->width;
     *output_height = task.out_frame->height;
 err:
-    av_frame_free(&task.out_frame);
-    av_frame_free(&task.in_frame);
+    zn_av_frame_free(&task.out_frame);
+    zn_av_frame_free(&task.in_frame);
     return ret;
 }
 
@@ -1280,7 +1280,7 @@ static DNNModel *dnn_load_model_ov(const char *model_filename, DNNFunctionType f
 
     ov_model = av_mallocz(sizeof(OVModel));
     if (!ov_model) {
-        av_freep(&model);
+        zn_av_freep(&model);
         return NULL;
     }
     model->model = ov_model;
@@ -1412,12 +1412,12 @@ static int dnn_execute_model_ov(const DNNModel *model, DNNExecBaseParams *exec_p
 
     ret = ff_dnn_fill_task(task, exec_params, ov_model, ctx->options.async, 1);
     if (ret != 0) {
-        av_freep(&task);
+        zn_av_freep(&task);
         return ret;
     }
 
     if (ff_queue_push_back(ov_model->task_queue, task) < 0) {
-        av_freep(&task);
+        zn_av_freep(&task);
         av_log(ctx, AV_LOG_ERROR, "unable to push back task_queue.\n");
         return AVERROR(ENOMEM);
     }

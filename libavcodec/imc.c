@@ -1010,7 +1010,7 @@ static av_cold int imc_decode_close(AVCodecContext * avctx)
 {
     IMCContext *q = avctx->priv_data;
 
-    av_free(q->fdsp);
+    zn_av_free(q->fdsp);
     av_tx_uninit(&q->mdct);
 
     return 0;

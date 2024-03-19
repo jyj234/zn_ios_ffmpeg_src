@@ -858,8 +858,8 @@ static void gxf_deinit(AVFormatContext *s)
 {
     GXFContext *gxf = s->priv_data;
 
-    av_freep(&gxf->flt_entries);
-    av_freep(&gxf->map_offsets);
+    zn_av_freep(&gxf->flt_entries);
+    zn_av_freep(&gxf->map_offsets);
 }
 
 static int gxf_parse_mpeg_frame(GXFStreamContext *sc, const uint8_t *buf, int size)

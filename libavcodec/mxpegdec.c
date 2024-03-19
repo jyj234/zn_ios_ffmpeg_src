@@ -53,11 +53,11 @@ static av_cold int mxpeg_decode_end(AVCodecContext *avctx)
     ff_mjpeg_decode_end(avctx);
 
     for (i = 0; i < 2; ++i)
-        av_frame_free(&s->picture[i]);
+        zn_av_frame_free(&s->picture[i]);
 
     s->bitmask_size = 0;
-    av_freep(&s->mxm_bitmask);
-    av_freep(&s->completion_bitmask);
+    zn_av_freep(&s->mxm_bitmask);
+    zn_av_freep(&s->completion_bitmask);
 
     return 0;
 }
@@ -66,8 +66,8 @@ static av_cold int mxpeg_decode_init(AVCodecContext *avctx)
 {
     MXpegDecodeContext *s = avctx->priv_data;
 
-    s->picture[0] = av_frame_alloc();
-    s->picture[1] = av_frame_alloc();
+    s->picture[0] = zn_av_frame_alloc();
+    s->picture[1] = zn_av_frame_alloc();
     if (!s->picture[0] || !s->picture[1])
         return AVERROR(ENOMEM);
 
@@ -106,7 +106,7 @@ static int mxpeg_decode_mxm(MXpegDecodeContext *s,
 
     if (s->bitmask_size != bitmask_size) {
         s->bitmask_size = 0;
-        av_freep(&s->mxm_bitmask);
+        zn_av_freep(&s->mxm_bitmask);
         s->mxm_bitmask = av_malloc(bitmask_size);
         if (!s->mxm_bitmask) {
             av_log(s->jpg.avctx, AV_LOG_ERROR,
@@ -114,7 +114,7 @@ static int mxpeg_decode_mxm(MXpegDecodeContext *s,
             return AVERROR(ENOMEM);
         }
 
-        av_freep(&s->completion_bitmask);
+        zn_av_freep(&s->completion_bitmask);
         s->completion_bitmask = av_mallocz(bitmask_size);
         if (!s->completion_bitmask) {
             av_log(s->jpg.avctx, AV_LOG_ERROR,

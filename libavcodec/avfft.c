@@ -53,7 +53,7 @@ FFTContext *av_fft_init(int nbits, int inverse)
     ret = av_tx_init(&s->ctx, &s->fn, AV_TX_FLOAT_FFT, inverse, 1 << nbits,
                      &scale, AV_TX_INPLACE);
     if (ret < 0) {
-        av_free(s);
+        zn_av_free(s);
         return NULL;
     }
 
@@ -77,7 +77,7 @@ av_cold void av_fft_end(FFTContext *s)
         AVTXWrapper *w = (AVTXWrapper *)s;
         av_tx_uninit(&w->ctx);
         av_tx_uninit(&w->ctx2);
-        av_free(w);
+        zn_av_free(w);
     }
 }
 
@@ -91,7 +91,7 @@ FFTContext *av_mdct_init(int nbits, int inverse, double scale)
 
     ret = av_tx_init(&s->ctx, &s->fn, AV_TX_FLOAT_MDCT, inverse, 1 << (nbits - 1), &scale_f, 0);
     if (ret < 0) {
-        av_free(s);
+        zn_av_free(s);
         return NULL;
     }
 
@@ -100,7 +100,7 @@ FFTContext *av_mdct_init(int nbits, int inverse, double scale)
                          &scale_f, AV_TX_FULL_IMDCT);
         if (ret < 0) {
             av_tx_uninit(&s->ctx);
-            av_free(s);
+            zn_av_free(s);
             return NULL;
         }
     }
@@ -132,7 +132,7 @@ av_cold void av_mdct_end(FFTContext *s)
         AVTXWrapper *w = (AVTXWrapper *)s;
         av_tx_uninit(&w->ctx2);
         av_tx_uninit(&w->ctx);
-        av_free(w);
+        zn_av_free(w);
     }
 }
 
@@ -154,7 +154,7 @@ RDFTContext *av_rdft_init(int nbits, enum RDFTransformType trans)
     ret = av_tx_init(&s->ctx, &s->fn, AV_TX_FLOAT_RDFT, trans == IDFT_C2R,
                      1 << nbits, &scale, AV_TX_INPLACE);
     if (ret < 0) {
-        av_free(s);
+        zn_av_free(s);
         return NULL;
     }
 
@@ -180,7 +180,7 @@ av_cold void av_rdft_end(RDFTContext *s)
     if (s) {
         AVTXWrapper *w = (AVTXWrapper *)s;
         av_tx_uninit(&w->ctx);
-        av_free(w);
+        zn_av_free(w);
     }
 }
 
@@ -211,7 +211,7 @@ DCTContext *av_dct_init(int nbits, enum DCTTransformType inverse)
                      (inverse == DCT_III), 1 << (nbits - (inverse == DCT_III)),
                      &scale_map[inverse], s->out_of_place ? 0 : AV_TX_INPLACE);
     if (ret < 0) {
-        av_free(s);
+        zn_av_free(s);
         return NULL;
     }
 
@@ -219,7 +219,7 @@ DCTContext *av_dct_init(int nbits, enum DCTTransformType inverse)
         s->tmp = av_malloc((1 << (nbits + 1))*sizeof(float));
         if (!s->tmp) {
             av_tx_uninit(&s->ctx);
-            av_free(s);
+            zn_av_free(s);
             return NULL;
         }
     }
@@ -243,7 +243,7 @@ av_cold void av_dct_end(DCTContext *s)
     if (s) {
         AVTXWrapper *w = (AVTXWrapper *)s;
         av_tx_uninit(&w->ctx);
-        av_free(w->tmp);
-        av_free(w);
+        zn_av_free(w->tmp);
+        zn_av_free(w);
     }
 }

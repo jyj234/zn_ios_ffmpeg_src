@@ -180,13 +180,13 @@ static int filter_frame(AVFilterLink *link, AVFrame *in, enum FlipType type)
 
     RET(av_frame_copy_props(out, in));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
     return ff_filter_frame(outlink, out);
 
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return err;
 }
 

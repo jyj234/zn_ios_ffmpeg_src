@@ -54,25 +54,25 @@ static av_cold int cri_decode_init(AVCodecContext *avctx)
     const AVCodec *codec;
     int ret;
 
-    s->jpgframe = av_frame_alloc();
+    s->jpgframe = zn_av_frame_alloc();
     if (!s->jpgframe)
         return AVERROR(ENOMEM);
 
-    s->jpkt = av_packet_alloc();
+    s->jpkt = zn_av_packet_alloc();
     if (!s->jpkt)
         return AVERROR(ENOMEM);
 
-    codec = avcodec_find_decoder(AV_CODEC_ID_MJPEG);
+    codec = zn_avcodec_find_decoder(AV_CODEC_ID_MJPEG);
     if (!codec)
         return AVERROR_BUG;
-    s->jpeg_avctx = avcodec_alloc_context3(codec);
+    s->jpeg_avctx = zn_avcodec_alloc_context3(codec);
     if (!s->jpeg_avctx)
         return AVERROR(ENOMEM);
     s->jpeg_avctx->flags = avctx->flags;
     s->jpeg_avctx->flags2 = avctx->flags2;
     s->jpeg_avctx->dct_algo = avctx->dct_algo;
     s->jpeg_avctx->idct_algo = avctx->idct_algo;
-    ret = avcodec_open2(s->jpeg_avctx, codec, NULL);
+    ret = zn_avcodec_open2(s->jpeg_avctx, codec, NULL);
     if (ret < 0)
         return ret;
 
@@ -352,17 +352,17 @@ skip:
         unsigned offset = 0;
 
         for (int tile = 0; tile < 4; tile++) {
-            av_packet_unref(s->jpkt);
+            zn_av_packet_unref(s->jpkt);
             s->jpkt->data = (uint8_t *)s->data + offset;
             s->jpkt->size = s->tile_size[tile];
 
-            ret = avcodec_send_packet(s->jpeg_avctx, s->jpkt);
+            ret = zn_avcodec_send_packet(s->jpeg_avctx, s->jpkt);
             if (ret < 0) {
                 av_log(avctx, AV_LOG_ERROR, "Error submitting a packet for decoding\n");
                 return ret;
             }
 
-            ret = avcodec_receive_frame(s->jpeg_avctx, s->jpgframe);
+            ret = zn_avcodec_receive_frame(s->jpeg_avctx, s->jpgframe);
             if (ret < 0 || s->jpgframe->format != AV_PIX_FMT_GRAY16 ||
                 s->jpeg_avctx->width  * 2 != avctx->width ||
                 s->jpeg_avctx->height * 2 != avctx->height) {
@@ -419,8 +419,8 @@ static av_cold int cri_decode_close(AVCodecContext *avctx)
 {
     CRIContext *s = avctx->priv_data;
 
-    av_frame_free(&s->jpgframe);
-    av_packet_free(&s->jpkt);
+    zn_av_frame_free(&s->jpgframe);
+    zn_av_packet_free(&s->jpkt);
     avcodec_free_context(&s->jpeg_avctx);
 
     return 0;

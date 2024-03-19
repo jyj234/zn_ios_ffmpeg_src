@@ -410,7 +410,7 @@ static av_cold int libopus_encode_init(AVCodecContext *avctx)
     }
     avctx->extradata_size = header_size;
 
-    opus->samples = av_calloc(frame_size, channels *
+    opus->samples = zn_av_calloc(frame_size, channels *
                                av_get_bytes_per_sample(avctx->sample_fmt));
     if (!opus->samples) {
         av_log(avctx, AV_LOG_ERROR, "Failed to allocate samples buffer.\n");
@@ -536,7 +536,7 @@ static av_cold int libopus_encode_close(AVCodecContext *avctx)
 
     ff_af_queue_close(&opus->afq);
 
-    av_freep(&opus->samples);
+    zn_av_freep(&opus->samples);
 
     return 0;
 }

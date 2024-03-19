@@ -249,7 +249,7 @@ static int ape_read_header(AVFormatContext * s)
                ape->seektablelength / sizeof(uint32_t), ape->totalframes);
         return AVERROR_INVALIDDATA;
     }
-    ape->frames       = av_malloc_array(ape->totalframes, sizeof(APEFrame));
+    ape->frames       = zn_av_malloc_array(ape->totalframes, sizeof(APEFrame));
     if(!ape->frames)
         return AVERROR(ENOMEM);
     ape->firstframe   = ape->junklength + ape->descriptorlength + ape->headerlength + ape->seektablelength + ape->wavheaderlength;
@@ -325,7 +325,7 @@ static int ape_read_header(AVFormatContext * s)
            ape->compressiontype);
 
     /* now we are ready: build format streams */
-    st = avformat_new_stream(s, NULL);
+    st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 
@@ -424,7 +424,7 @@ static int ape_read_close(AVFormatContext * s)
 {
     APEContext *ape = s->priv_data;
 
-    av_freep(&ape->frames);
+    zn_av_freep(&ape->frames);
     return 0;
 }
 

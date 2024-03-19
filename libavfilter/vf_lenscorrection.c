@@ -208,7 +208,7 @@ static av_cold void uninit(AVFilterContext *ctx)
     int i;
 
     for (i = 0; i < FF_ARRAY_ELEMS(rect->correction); i++) {
-        av_freep(&rect->correction[i]);
+        zn_av_freep(&rect->correction[i]);
     }
 }
 
@@ -275,7 +275,7 @@ static int config_output(AVFilterLink *outlink)
         int h = rect->planeheight[plane];
 
         if (!rect->correction[plane])
-            rect->correction[plane] = av_malloc_array(w, h * sizeof(**rect->correction));
+            rect->correction[plane] = zn_av_malloc_array(w, h * sizeof(**rect->correction));
         if (!rect->correction[plane])
             return AVERROR(ENOMEM);
         calc_correction(ctx, plane);
@@ -304,7 +304,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ThreadData td;
 
     if (!out) {
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
         return AVERROR(ENOMEM);
     }
 
@@ -314,7 +314,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     ff_filter_execute(ctx, filter_slice, &td, NULL,
                       FFMIN(rect->planeheight[1], ff_filter_get_nb_threads(ctx)));
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
 

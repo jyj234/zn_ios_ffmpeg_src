@@ -200,10 +200,10 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     TInterlaceContext *tinterlace = ctx->priv;
 
-    av_frame_free(&tinterlace->cur );
-    av_frame_free(&tinterlace->next);
-    av_freep(&tinterlace->black_data[0][0]);
-    av_freep(&tinterlace->black_data[1][0]);
+    zn_av_frame_free(&tinterlace->cur );
+    zn_av_frame_free(&tinterlace->next);
+    zn_av_freep(&tinterlace->black_data[0][0]);
+    zn_av_freep(&tinterlace->black_data[1][0]);
     ff_ccfifo_uninit(&tinterlace->cc_fifo);
 }
 
@@ -378,7 +378,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *picref)
     AVFrame *cur, *next, *out;
     int field, tff, full, ret;
 
-    av_frame_free(&tinterlace->cur);
+    zn_av_frame_free(&tinterlace->cur);
     tinterlace->cur  = tinterlace->next;
     tinterlace->next = picref;
 
@@ -420,7 +420,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                            inlink->format, inlink->w, inlink->h,
                            FIELD_UPPER_AND_LOWER, 1, tinterlace->mode == MODE_MERGEX2 ? (1 + inlink->frame_count_out) & 1 ? FIELD_UPPER : FIELD_LOWER : FIELD_LOWER, tinterlace->flags);
         if (tinterlace->mode != MODE_MERGEX2)
-            av_frame_free(&tinterlace->next);
+            zn_av_frame_free(&tinterlace->next);
         break;
 
     case MODE_DROP_ODD:  /* only output even frames, odd  frames are dropped; height unchanged, half framerate */
@@ -428,7 +428,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
         out = av_frame_clone(tinterlace->mode == MODE_DROP_EVEN ? cur : next);
         if (!out)
             return AVERROR(ENOMEM);
-        av_frame_free(&tinterlace->next);
+        zn_av_frame_free(&tinterlace->next);
         break;
 
     case MODE_PAD: /* expand each frame to double height, but pad alternate
@@ -498,7 +498,7 @@ FF_ENABLE_DEPRECATION_WARNINGS
                            inlink->format, inlink->w, inlink->h,
                            tff ? FIELD_LOWER : FIELD_UPPER, 1, tff ? FIELD_LOWER : FIELD_UPPER,
                            tinterlace->flags);
-        av_frame_free(&tinterlace->next);
+        zn_av_frame_free(&tinterlace->next);
         break;
     case MODE_INTERLACEX2: /* re-interlace preserving image height, double frame rate */
         /* output current frame first */

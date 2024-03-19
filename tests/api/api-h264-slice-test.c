@@ -51,9 +51,9 @@ static int decode(AVCodecContext *dec_ctx, AVFrame *frame,
     static uint64_t frame_cnt = 0;
     int ret;
 
-    ret = avcodec_send_packet(dec_ctx, pkt);
+    ret = zn_avcodec_send_packet(dec_ctx, pkt);
     if (ret < 0) {
-        fprintf(stderr, "Error sending a packet for decoding: %s\n", av_err2str(ret));
+        fprintf(stderr, "Error sending a packet for decoding: %s\n", zn_av_err2str(ret));
         return ret;
     }
 
@@ -62,11 +62,11 @@ static int decode(AVCodecContext *dec_ctx, AVFrame *frame,
         char sum[AV_HASH_MAX_SIZE * 2 + 1];
         struct AVHashContext *hash;
 
-        ret = avcodec_receive_frame(dec_ctx, frame);
+        ret = zn_avcodec_receive_frame(dec_ctx, frame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             return 0;
         } else if (ret < 0) {
-            fprintf(stderr, "Error during decoding: %s\n", av_err2str(ret));
+            fprintf(stderr, "Error during decoding: %s\n", zn_av_err2str(ret));
             return ret;
         }
 
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
     setmode(fileno(stdout), O_BINARY);
 #endif
 
-    if (!(pkt = av_packet_alloc())) {
+    if (!(pkt = zn_av_packet_alloc())) {
         return -1;
     }
 
@@ -141,13 +141,13 @@ int main(int argc, char **argv)
         goto err;
     p = nal;
 
-    if (!(codec = avcodec_find_decoder(AV_CODEC_ID_H264))) {
+    if (!(codec = zn_avcodec_find_decoder(AV_CODEC_ID_H264))) {
         fprintf(stderr, "Codec not found\n");
         ret = -1;
         goto err;
     }
 
-    if (!(c = avcodec_alloc_context3(codec))) {
+    if (!(c = zn_avcodec_alloc_context3(codec))) {
         fprintf(stderr, "Could not allocate video codec context\n");
         ret = -1;
         goto err;
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
     c->thread_type = FF_THREAD_SLICE;
     c->thread_count = threads;
 
-    if ((ret = avcodec_open2(c, codec, NULL)) < 0) {
+    if ((ret = zn_avcodec_open2(c, codec, NULL)) < 0) {
         fprintf(stderr, "Could not open codec\n");
         goto err;
     }
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
     fprintf(stderr, "WARN: not using threads, only checking decoding slice NALUs\n");
 #endif
 
-    if (!(frame = av_frame_alloc())) {
+    if (!(frame = zn_av_frame_alloc())) {
         fprintf(stderr, "Could not allocate video frame\n");
         ret = -1;
         goto err;
@@ -226,12 +226,12 @@ int main(int argc, char **argv)
 
 err:
     if (nal)
-        av_free(nal);
+        zn_av_free(nal);
     if (file)
         fclose(file);
-    av_frame_free(&frame);
+    zn_av_frame_free(&frame);
     avcodec_free_context(&c);
-    av_packet_free(&pkt);
+    zn_av_packet_free(&pkt);
 
     return ret;
 }

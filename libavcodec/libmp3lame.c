@@ -80,10 +80,10 @@ static av_cold int mp3lame_encode_close(AVCodecContext *avctx)
 {
     LAMEContext *s = avctx->priv_data;
 
-    av_freep(&s->samples_flt[0]);
-    av_freep(&s->samples_flt[1]);
-    av_freep(&s->buffer);
-    av_freep(&s->fdsp);
+    zn_av_freep(&s->samples_flt[0]);
+    zn_av_freep(&s->samples_flt[1]);
+    zn_av_freep(&s->buffer);
+    zn_av_freep(&s->fdsp);
 
     ff_af_queue_close(&s->afq);
 
@@ -161,7 +161,7 @@ static av_cold int mp3lame_encode_init(AVCodecContext *avctx)
     if (avctx->sample_fmt == AV_SAMPLE_FMT_FLTP) {
         int ch;
         for (ch = 0; ch < avctx->ch_layout.nb_channels; ch++) {
-            s->samples_flt[ch] = av_malloc_array(avctx->frame_size,
+            s->samples_flt[ch] = zn_av_malloc_array(avctx->frame_size,
                                            sizeof(*s->samples_flt[ch]));
             if (!s->samples_flt[ch]) {
                 ret = AVERROR(ENOMEM);

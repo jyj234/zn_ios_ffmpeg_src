@@ -46,8 +46,8 @@ static void check_add_bytes(LLVidDSPContext *c, int width)
 {
     uint8_t *dst0 = av_mallocz(width);
     uint8_t *dst1 = av_mallocz(width);
-    uint8_t *src0 = av_calloc(width, sizeof(*src0));
-    uint8_t *src1 = av_calloc(width, sizeof(*src1));
+    uint8_t *src0 = zn_av_calloc(width, sizeof(*src0));
+    uint8_t *src1 = zn_av_calloc(width, sizeof(*src1));
     declare_func(void, uint8_t *dst, uint8_t *src, ptrdiff_t w);
 
     init_buffer(src0, src1, uint8_t, width);
@@ -64,20 +64,20 @@ static void check_add_bytes(LLVidDSPContext *c, int width)
         bench_new(dst1, src1, width);
     }
 
-    av_free(src0);
-    av_free(src1);
-    av_free(dst0);
-    av_free(dst1);
+    zn_av_free(src0);
+    zn_av_free(src1);
+    zn_av_free(dst0);
+    zn_av_free(dst1);
 }
 
 static void check_add_median_pred(LLVidDSPContext *c, int width) {
     int A0, A1, B0, B1;
     uint8_t *dst0 = av_mallocz(width);
     uint8_t *dst1 = av_mallocz(width);
-    uint8_t *src0  = av_calloc(width, sizeof(*src0));
-    uint8_t *src1  = av_calloc(width, sizeof(*src1));
-    uint8_t *diff0 = av_calloc(width, sizeof(*diff0));
-    uint8_t *diff1 = av_calloc(width, sizeof(*diff1));
+    uint8_t *src0  = zn_av_calloc(width, sizeof(*src0));
+    uint8_t *src1  = zn_av_calloc(width, sizeof(*src1));
+    uint8_t *diff0 = zn_av_calloc(width, sizeof(*diff0));
+    uint8_t *diff1 = zn_av_calloc(width, sizeof(*diff1));
     declare_func(void, uint8_t *dst, const uint8_t *src1,
                  const uint8_t *diff, ptrdiff_t w,
                  int *left, int *left_top);
@@ -99,12 +99,12 @@ static void check_add_median_pred(LLVidDSPContext *c, int width) {
         bench_new(dst1, src1, diff1, width, &A1, &B1);
     }
 
-    av_free(src0);
-    av_free(src1);
-    av_free(diff0);
-    av_free(diff1);
-    av_free(dst0);
-    av_free(dst1);
+    zn_av_free(src0);
+    zn_av_free(src1);
+    zn_av_free(diff0);
+    zn_av_free(diff1);
+    zn_av_free(dst0);
+    zn_av_free(dst1);
 }
 
 static void check_add_left_pred(LLVidDSPContext *c, int width, int acc, const char * report)
@@ -112,8 +112,8 @@ static void check_add_left_pred(LLVidDSPContext *c, int width, int acc, const ch
     int res0, res1;
     uint8_t *dst0 = av_mallocz(width);
     uint8_t *dst1 = av_mallocz(width);
-    uint8_t *src0 = av_calloc(width, sizeof(*src0));
-    uint8_t *src1 = av_calloc(width, sizeof(*src1));
+    uint8_t *src0 = zn_av_calloc(width, sizeof(*src0));
+    uint8_t *src1 = zn_av_calloc(width, sizeof(*src1));
     declare_func(int, uint8_t *dst, uint8_t *src, ptrdiff_t w, int acc);
 
     init_buffer(src0, src1, uint8_t, width);
@@ -130,19 +130,19 @@ static void check_add_left_pred(LLVidDSPContext *c, int width, int acc, const ch
         bench_new(dst1, src1, width, acc);
     }
 
-    av_free(src0);
-    av_free(src1);
-    av_free(dst0);
-    av_free(dst1);
+    zn_av_free(src0);
+    zn_av_free(src1);
+    zn_av_free(dst0);
+    zn_av_free(dst1);
 }
 
 static void check_add_left_pred_16(LLVidDSPContext *c, unsigned mask, int width, unsigned acc, const char * report)
 {
     int res0, res1;
-    uint16_t *dst0 = av_calloc(width, sizeof(*dst0));
-    uint16_t *dst1 = av_calloc(width, sizeof(*dst1));
-    uint16_t *src0 = av_calloc(width, sizeof(*src0));
-    uint16_t *src1 = av_calloc(width, sizeof(*src1));
+    uint16_t *dst0 = zn_av_calloc(width, sizeof(*dst0));
+    uint16_t *dst1 = zn_av_calloc(width, sizeof(*dst1));
+    uint16_t *src0 = zn_av_calloc(width, sizeof(*src0));
+    uint16_t *src1 = zn_av_calloc(width, sizeof(*src1));
     declare_func(int, uint16_t *dst, uint16_t *src, unsigned mask, ptrdiff_t w, unsigned acc);
 
     init_buffer(src0, src1, uint16_t, width);
@@ -159,10 +159,10 @@ static void check_add_left_pred_16(LLVidDSPContext *c, unsigned mask, int width,
         bench_new(dst1, src1, mask, width, acc);
     }
 
-    av_free(src0);
-    av_free(src1);
-    av_free(dst0);
-    av_free(dst1);
+    zn_av_free(src0);
+    zn_av_free(src1);
+    zn_av_free(dst0);
+    zn_av_free(dst1);
 }
 
 static void check_add_gradient_pred(LLVidDSPContext *c, int w) {
@@ -188,8 +188,8 @@ static void check_add_gradient_pred(LLVidDSPContext *c, int w) {
         bench_new(src1 + stride + 32, stride, w);
     }
 
-    av_free(src0);
-    av_free(src1);
+    zn_av_free(src0);
+    zn_av_free(src1);
 }
 
 void checkasm_check_llviddsp(void)

@@ -261,7 +261,7 @@ static int film_write_header(AVFormatContext *format_context)
      * The latter occurs even in cases where the frame rate is even; for example, in
      * Lunar: Silver Star Story, the base frequency is 600 and each frame, the ticks
      * are incremented by 25 for an evenly spaced framerate of 24fps. */
-    bytestream_put_be32(&ptr, av_q2d(av_inv_q(video->time_base)));
+    bytestream_put_be32(&ptr, zn_av_q2d(av_inv_q(video->time_base)));
 
     bytestream_put_be32(&ptr, packet_count);
 

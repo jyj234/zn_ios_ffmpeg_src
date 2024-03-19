@@ -49,7 +49,7 @@ static int ipu_read_probe(const AVProbeData *p)
 static int ipu_read_header(AVFormatContext *s)
 {
     AVIOContext *pb = s->pb;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
 
     if (!st)
         return AVERROR(ENOMEM);

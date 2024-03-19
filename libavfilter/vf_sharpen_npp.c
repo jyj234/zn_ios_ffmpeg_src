@@ -52,19 +52,19 @@ static int nppsharpen_init(AVFilterContext* ctx)
 {
     NPPSharpenContext* s = ctx->priv;
 
-    s->own_frame = av_frame_alloc();
+    s->own_frame = zn_av_frame_alloc();
     if (!s->own_frame)
         goto fail;
 
-    s->tmp_frame = av_frame_alloc();
+    s->tmp_frame = zn_av_frame_alloc();
     if (!s->tmp_frame)
         goto fail;
 
     return 0;
 
 fail:
-    av_frame_free(&s->own_frame);
-    av_frame_free(&s->tmp_frame);
+    zn_av_frame_free(&s->own_frame);
+    zn_av_frame_free(&s->tmp_frame);
     return AVERROR(ENOMEM);
 }
 
@@ -127,8 +127,8 @@ static void nppsharpen_uninit(AVFilterContext* ctx)
     NPPSharpenContext* s = ctx->priv;
 
     av_buffer_unref(&s->frames_ctx);
-    av_frame_free(&s->own_frame);
-    av_frame_free(&s->tmp_frame);
+    zn_av_frame_free(&s->own_frame);
+    zn_av_frame_free(&s->tmp_frame);
 }
 
 static int nppsharpen_config_props(AVFilterLink* outlink)
@@ -187,7 +187,7 @@ static int nppsharpen_filter_frame(AVFilterLink* link, AVFrame* in)
     CUcontext dummy;
     int ret = 0;
 
-    out = av_frame_alloc();
+    out = zn_av_frame_alloc();
     if (!out) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -213,15 +213,15 @@ static int nppsharpen_filter_frame(AVFilterLink* link, AVFrame* in)
     if (ret < 0)
         goto pop_ctx;
 
-    av_frame_free(&in);
+    zn_av_frame_free(&in);
 
 pop_ctx:
     CHECK_CU(device_hwctx->internal->cuda_dl->cuCtxPopCurrent(&dummy));
     if (!ret)
         return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 

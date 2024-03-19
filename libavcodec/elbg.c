@@ -477,8 +477,8 @@ int avpriv_elbg_do(ELBGContext **elbgp, int *points, int dim, int numpoints,
 
 #define ALLOCATE_IF_NECESSARY(field, new_elements, multiplicator)            \
     if (elbg->field ## _allocated < new_elements) {                          \
-        av_freep(&elbg->field);                                              \
-        elbg->field = av_malloc_array(new_elements,                          \
+        zn_av_freep(&elbg->field);                                              \
+        elbg->field = zn_av_malloc_array(new_elements,                          \
                                       multiplicator * sizeof(*elbg->field)); \
         if (!elbg->field) {                                                  \
             elbg->field ## _allocated = 0;                                   \
@@ -518,13 +518,13 @@ av_cold void avpriv_elbg_free(ELBGContext **elbgp)
     if (!elbg)
         return;
 
-    av_freep(&elbg->size_part);
-    av_freep(&elbg->utility);
-    av_freep(&elbg->cell_buffer);
-    av_freep(&elbg->cells);
-    av_freep(&elbg->utility_inc);
-    av_freep(&elbg->scratchbuf);
-    av_freep(&elbg->temp_points);
+    zn_av_freep(&elbg->size_part);
+    zn_av_freep(&elbg->utility);
+    zn_av_freep(&elbg->cell_buffer);
+    zn_av_freep(&elbg->cells);
+    zn_av_freep(&elbg->utility_inc);
+    zn_av_freep(&elbg->scratchbuf);
+    zn_av_freep(&elbg->temp_points);
 
-    av_freep(elbgp);
+    zn_av_freep(elbgp);
 }

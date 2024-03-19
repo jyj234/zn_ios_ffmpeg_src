@@ -339,8 +339,8 @@ void av_expr_free(AVExpr *e)
     av_expr_free(e->param[0]);
     av_expr_free(e->param[1]);
     av_expr_free(e->param[2]);
-    av_freep(&e->var);
-    av_freep(&e);
+    zn_av_freep(&e->var);
+    zn_av_freep(&e);
 }
 
 static int parse_primary(AVExpr **e, Parser *p)
@@ -391,7 +391,7 @@ static int parse_primary(AVExpr **e, Parser *p)
     }
     p->s++; // "("
     if (*next == '(') { // special case do-nothing
-        av_freep(&d);
+        zn_av_freep(&d);
         if ((ret = parse_expr(&d, p)) < 0)
             return ret;
         if (p->s[0] != ')') {
@@ -733,7 +733,7 @@ int av_expr_parse(AVExpr **expr, const char *s,
     e = NULL;
 end:
     av_expr_free(e);
-    av_free(w);
+    zn_av_free(w);
     return ret;
 }
 

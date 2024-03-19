@@ -68,7 +68,7 @@ AVVideoHint *av_video_hint_create_side_data(AVFrame *frame,
 
     buf = av_buffer_create((uint8_t *)hint, size, NULL, NULL, 0);
     if (!buf) {
-        av_freep(&hint);
+        zn_av_freep(&hint);
         return NULL;
     }
 

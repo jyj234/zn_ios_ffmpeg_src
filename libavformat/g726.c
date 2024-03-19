@@ -34,7 +34,7 @@ typedef struct G726Context {
 static int g726_read_header(AVFormatContext *s)
 {
     G726Context *c = s->priv_data;
-    AVStream *st = avformat_new_stream(s, NULL);
+    AVStream *st = zn_avformat_new_stream(s, NULL);
     if (!st)
         return AVERROR(ENOMEM);
 

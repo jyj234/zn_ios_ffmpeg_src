@@ -146,7 +146,7 @@ static int sunrast_decode_frame(AVCodecContext *avctx, AVFrame *p,
     buf += maplength;
 
     if (maplength && depth < 8) {
-        ptr = ptr2 = av_malloc_array((w + 15), h);
+        ptr = ptr2 = zn_av_malloc_array((w + 15), h);
         if (!ptr)
             return AVERROR(ENOMEM);
         stride = (w + 15 >> 3) * depth;
@@ -212,7 +212,7 @@ static int sunrast_decode_frame(AVCodecContext *avctx, AVFrame *p,
             ptr  += p->linesize[0];
             ptr2 += (w + 15 >> 3) * depth;
         }
-        av_freep(&ptr_free);
+        zn_av_freep(&ptr_free);
     }
 
     *got_frame = 1;

@@ -88,9 +88,9 @@ static int config_input(AVFilterLink *inlink)
 
     if (s->block_samples == 0 && s->block_size > 0) {
         s->block_samples = s->block_size;
-        s->mid = av_calloc(s->block_samples * 2, sizeof(*s->mid));
+        s->mid = zn_av_calloc(s->block_samples * 2, sizeof(*s->mid));
         for (int i = 0; i < 3; i++) {
-            s->side[i] = av_calloc(s->block_samples * 2, sizeof(*s->side[0]));
+            s->side[i] = zn_av_calloc(s->block_samples * 2, sizeof(*s->side[0]));
             if (!s->side[i])
                 return AVERROR(ENOMEM);
         }
@@ -151,7 +151,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in, int eof)
     } else {
         out = ff_get_audio_buffer(outlink, s->block_samples > 0 ? s->block_samples : in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         av_frame_copy_props(out, in);
@@ -261,11 +261,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in, int eof)
     }
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     if (!drop) {
         return ff_filter_frame(outlink, out);
     } else {
-        av_frame_free(&out);
+        zn_av_frame_free(&out);
         ff_filter_set_ready(ctx, 10);
         return 0;
     }
@@ -333,9 +333,9 @@ static av_cold void uninit(AVFilterContext *ctx)
 {
     CrossfeedContext *s = ctx->priv;
 
-    av_freep(&s->mid);
+    zn_av_freep(&s->mid);
     for (int i = 0; i < 3; i++)
-        av_freep(&s->side[i]);
+        zn_av_freep(&s->side[i]);
 }
 
 #define OFFSET(x) offsetof(CrossfeedContext, x)

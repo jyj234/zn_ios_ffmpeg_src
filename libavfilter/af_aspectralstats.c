@@ -127,27 +127,27 @@ static int config_output(AVFilterLink *outlink)
     if (s->hop_size <= 0)
         return AVERROR(EINVAL);
 
-    s->stats = av_calloc(s->nb_channels, sizeof(*s->stats));
+    s->stats = zn_av_calloc(s->nb_channels, sizeof(*s->stats));
     if (!s->stats)
         return AVERROR(ENOMEM);
 
-    s->fft = av_calloc(s->nb_channels, sizeof(*s->fft));
+    s->fft = zn_av_calloc(s->nb_channels, sizeof(*s->fft));
     if (!s->fft)
         return AVERROR(ENOMEM);
 
-    s->magnitude = av_calloc(s->nb_channels, sizeof(*s->magnitude));
+    s->magnitude = zn_av_calloc(s->nb_channels, sizeof(*s->magnitude));
     if (!s->magnitude)
         return AVERROR(ENOMEM);
 
-    s->prev_magnitude = av_calloc(s->nb_channels, sizeof(*s->prev_magnitude));
+    s->prev_magnitude = zn_av_calloc(s->nb_channels, sizeof(*s->prev_magnitude));
     if (!s->prev_magnitude)
         return AVERROR(ENOMEM);
 
-    s->fft_in = av_calloc(s->nb_channels, sizeof(*s->fft_in));
+    s->fft_in = zn_av_calloc(s->nb_channels, sizeof(*s->fft_in));
     if (!s->fft_in)
         return AVERROR(ENOMEM);
 
-    s->fft_out = av_calloc(s->nb_channels, sizeof(*s->fft_out));
+    s->fft_out = zn_av_calloc(s->nb_channels, sizeof(*s->fft_out));
     if (!s->fft_out)
         return AVERROR(ENOMEM);
 
@@ -156,19 +156,19 @@ static int config_output(AVFilterLink *outlink)
         if (ret < 0)
             return ret;
 
-        s->fft_in[ch] = av_calloc(s->win_size, sizeof(**s->fft_in));
+        s->fft_in[ch] = zn_av_calloc(s->win_size, sizeof(**s->fft_in));
         if (!s->fft_in[ch])
             return AVERROR(ENOMEM);
 
-        s->fft_out[ch] = av_calloc(s->win_size, sizeof(**s->fft_out));
+        s->fft_out[ch] = zn_av_calloc(s->win_size, sizeof(**s->fft_out));
         if (!s->fft_out[ch])
             return AVERROR(ENOMEM);
 
-        s->magnitude[ch] = av_calloc(s->win_size, sizeof(**s->magnitude));
+        s->magnitude[ch] = zn_av_calloc(s->win_size, sizeof(**s->magnitude));
         if (!s->magnitude[ch])
             return AVERROR(ENOMEM);
 
-        s->prev_magnitude[ch] = av_calloc(s->win_size, sizeof(**s->prev_magnitude));
+        s->prev_magnitude[ch] = zn_av_calloc(s->win_size, sizeof(**s->prev_magnitude));
         if (!s->prev_magnitude[ch])
             return AVERROR(ENOMEM);
     }
@@ -517,7 +517,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     } else {
         out = ff_get_audio_buffer(outlink, in->nb_samples);
         if (!out) {
-            av_frame_free(&in);
+            zn_av_frame_free(&in);
             return AVERROR(ENOMEM);
         }
         ret = av_frame_copy_props(out, in);
@@ -535,11 +535,11 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     set_metadata(s, metadata);
 
     if (out != in)
-        av_frame_free(&in);
+        zn_av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 fail:
-    av_frame_free(&in);
-    av_frame_free(&out);
+    zn_av_frame_free(&in);
+    zn_av_frame_free(&out);
     return ret;
 }
 
@@ -580,24 +580,24 @@ static av_cold void uninit(AVFilterContext *ctx)
         if (s->fft)
             av_tx_uninit(&s->fft[ch]);
         if (s->fft_in)
-            av_freep(&s->fft_in[ch]);
+            zn_av_freep(&s->fft_in[ch]);
         if (s->fft_out)
-            av_freep(&s->fft_out[ch]);
+            zn_av_freep(&s->fft_out[ch]);
         if (s->magnitude)
-            av_freep(&s->magnitude[ch]);
+            zn_av_freep(&s->magnitude[ch]);
         if (s->prev_magnitude)
-            av_freep(&s->prev_magnitude[ch]);
+            zn_av_freep(&s->prev_magnitude[ch]);
     }
 
-    av_freep(&s->fft);
-    av_freep(&s->magnitude);
-    av_freep(&s->prev_magnitude);
-    av_freep(&s->fft_in);
-    av_freep(&s->fft_out);
-    av_freep(&s->stats);
+    zn_av_freep(&s->fft);
+    zn_av_freep(&s->magnitude);
+    zn_av_freep(&s->prev_magnitude);
+    zn_av_freep(&s->fft_in);
+    zn_av_freep(&s->fft_out);
+    zn_av_freep(&s->stats);
 
-    av_freep(&s->window_func_lut);
-    av_frame_free(&s->window);
+    zn_av_freep(&s->window_func_lut);
+    zn_av_frame_free(&s->window);
 }
 
 static const AVFilterPad aspectralstats_outputs[] = {

@@ -64,13 +64,13 @@ av_cold int ff_ffv1_init_slice_state(const FFV1Context *f, FFV1Context *fs)
 
         if (fs->ac != AC_GOLOMB_RICE) {
             if (!p->state)
-                p->state = av_malloc_array(p->context_count, CONTEXT_SIZE *
+                p->state = zn_av_malloc_array(p->context_count, CONTEXT_SIZE *
                                      sizeof(uint8_t));
             if (!p->state)
                 return AVERROR(ENOMEM);
         } else {
             if (!p->vlc_state) {
-                p->vlc_state = av_calloc(p->context_count, sizeof(*p->vlc_state));
+                p->vlc_state = zn_av_calloc(p->context_count, sizeof(*p->vlc_state));
                 if (!p->vlc_state)
                     return AVERROR(ENOMEM);
                 for (i = 0; i < p->context_count; i++) {
@@ -130,9 +130,9 @@ av_cold int ff_ffv1_init_slice_contexts(FFV1Context *f)
         fs->slice_x      = sxs;
         fs->slice_y      = sys;
 
-        fs->sample_buffer = av_malloc_array((fs->width + 6), 3 * MAX_PLANES *
+        fs->sample_buffer = zn_av_malloc_array((fs->width + 6), 3 * MAX_PLANES *
                                       sizeof(*fs->sample_buffer));
-        fs->sample_buffer32 = av_malloc_array((fs->width + 6), 3 * MAX_PLANES *
+        fs->sample_buffer32 = zn_av_malloc_array((fs->width + 6), 3 * MAX_PLANES *
                                         sizeof(*fs->sample_buffer32));
         if (!fs->sample_buffer || !fs->sample_buffer32)
             goto memfail;
@@ -150,7 +150,7 @@ int ff_ffv1_allocate_initial_states(FFV1Context *f)
     int i;
 
     for (i = 0; i < f->quant_table_count; i++) {
-        f->initial_states[i] = av_malloc_array(f->context_count[i],
+        f->initial_states[i] = zn_av_malloc_array(f->context_count[i],
                                          sizeof(*f->initial_states[i]));
         if (!f->initial_states[i])
             return AVERROR(ENOMEM);
@@ -198,25 +198,25 @@ av_cold int ff_ffv1_close(AVCodecContext *avctx)
         for (i = 0; i < s->plane_count; i++) {
             PlaneContext *p = &fs->plane[i];
 
-            av_freep(&p->state);
-            av_freep(&p->vlc_state);
+            zn_av_freep(&p->state);
+            zn_av_freep(&p->vlc_state);
         }
-        av_freep(&fs->sample_buffer);
-        av_freep(&fs->sample_buffer32);
+        zn_av_freep(&fs->sample_buffer);
+        zn_av_freep(&fs->sample_buffer32);
     }
 
-    av_freep(&avctx->stats_out);
+    zn_av_freep(&avctx->stats_out);
     for (j = 0; j < s->quant_table_count; j++) {
-        av_freep(&s->initial_states[j]);
+        zn_av_freep(&s->initial_states[j]);
         for (i = 0; i < s->max_slice_count; i++) {
             FFV1Context *sf = s->slice_context[i];
-            av_freep(&sf->rc_stat2[j]);
+            zn_av_freep(&sf->rc_stat2[j]);
         }
-        av_freep(&s->rc_stat2[j]);
+        zn_av_freep(&s->rc_stat2[j]);
     }
 
     for (i = 0; i < s->max_slice_count; i++)
-        av_freep(&s->slice_context[i]);
+        zn_av_freep(&s->slice_context[i]);
 
     return 0;
 }

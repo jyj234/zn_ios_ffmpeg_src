@@ -294,7 +294,7 @@ static int64_t parse_chunk(AVFormatContext *s, AVIOContext *pb,
 
             if (ch->index < 0) {
                 AVCodecParameters *par;
-                st = avformat_new_stream(s, NULL);
+                st = zn_avformat_new_stream(s, NULL);
                 if (!st)
                     return AVERROR(ENOMEM);
                 par = st->codecpar;
@@ -409,7 +409,7 @@ static int usm_read_packet(AVFormatContext *s, AVPacket *pkt)
 static int usm_read_close(AVFormatContext *s)
 {
     USMDemuxContext *usm = s->priv_data;
-    av_freep(&usm->header);
+    zn_av_freep(&usm->header);
     usm->header_size = 0;
     return 0;
 }

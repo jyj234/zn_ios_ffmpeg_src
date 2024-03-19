@@ -64,14 +64,14 @@ void av_bsf_free(AVBSFContext **pctx)
             ff_bsf(ctx->filter)->close(ctx);
         if (ctx->filter->priv_class)
             av_opt_free(ctx->priv_data);
-        av_freep(&ctx->priv_data);
+        zn_av_freep(&ctx->priv_data);
     }
-    av_packet_free(&bsfi->buffer_pkt);
+    zn_av_packet_free(&bsfi->buffer_pkt);
 
     avcodec_parameters_free(&ctx->par_in);
     avcodec_parameters_free(&ctx->par_out);
 
-    av_freep(pctx);
+    zn_av_freep(pctx);
 }
 
 static void *bsf_child_next(void *obj, void *prev)
@@ -133,7 +133,7 @@ int av_bsf_alloc(const AVBitStreamFilter *filter, AVBSFContext **pctx)
             av_opt_set_defaults(ctx->priv_data);
         }
     }
-    bsfi->buffer_pkt = av_packet_alloc();
+    bsfi->buffer_pkt = zn_av_packet_alloc();
     if (!bsfi->buffer_pkt) {
         ret = AVERROR(ENOMEM);
         goto fail;
@@ -172,7 +172,7 @@ int av_bsf_init(AVBSFContext *ctx)
 
     /* initialize output parameters to be the same as input
      * init below might overwrite that */
-    ret = avcodec_parameters_copy(ctx->par_out, ctx->par_in);
+    ret = zn_avcodec_parameters_copy(ctx->par_out, ctx->par_in);
     if (ret < 0)
         return ret;
 
@@ -193,7 +193,7 @@ void av_bsf_flush(AVBSFContext *ctx)
 
     bsfi->eof = 0;
 
-    av_packet_unref(bsfi->buffer_pkt);
+    zn_av_packet_unref(bsfi->buffer_pkt);
 
     if (ff_bsf(ctx->filter)->flush)
         ff_bsf(ctx->filter)->flush(ctx);
@@ -206,7 +206,7 @@ int av_bsf_send_packet(AVBSFContext *ctx, AVPacket *pkt)
 
     if (!pkt || AVPACKET_IS_EMPTY(pkt)) {
         if (pkt)
-            av_packet_unref(pkt);
+            zn_av_packet_unref(pkt);
         bsfi->eof = 1;
         return 0;
     }
@@ -243,7 +243,7 @@ int ff_bsf_get_packet(AVBSFContext *ctx, AVPacket **pkt)
     if (AVPACKET_IS_EMPTY(bsfi->buffer_pkt))
         return AVERROR(EAGAIN);
 
-    tmp_pkt = av_packet_alloc();
+    tmp_pkt = zn_av_packet_alloc();
     if (!tmp_pkt)
         return AVERROR(ENOMEM);
 
@@ -288,7 +288,7 @@ static int bsf_list_init(AVBSFContext *bsf)
     AVRational tb = bsf->time_base_in;
 
     for (i = 0; i < lst->nb_bsfs; ++i) {
-        ret = avcodec_parameters_copy(lst->bsfs[i]->par_in, cod_par);
+        ret = zn_avcodec_parameters_copy(lst->bsfs[i]->par_in, cod_par);
         if (ret < 0)
             goto fail;
 
@@ -303,7 +303,7 @@ static int bsf_list_init(AVBSFContext *bsf)
     }
 
     bsf->time_base_out = tb;
-    ret = avcodec_parameters_copy(bsf->par_out, cod_par);
+    ret = zn_avcodec_parameters_copy(bsf->par_out, cod_par);
 
 fail:
     return ret;
@@ -338,7 +338,7 @@ static int bsf_list_filter(AVBSFContext *bsf, AVPacket *out)
             ret = av_bsf_send_packet(lst->bsfs[lst->idx], eof ? NULL : out);
             av_assert1(ret != AVERROR(EAGAIN));
             if (ret < 0) {
-                av_packet_unref(out);
+                zn_av_packet_unref(out);
                 return ret;
             }
             lst->idx++;
@@ -367,8 +367,8 @@ static void bsf_list_close(AVBSFContext *bsf)
 
     for (i = 0; i < lst->nb_bsfs; ++i)
         av_bsf_free(&lst->bsfs[i]);
-    av_freep(&lst->bsfs);
-    av_freep(&lst->item_name);
+    zn_av_freep(&lst->bsfs);
+    zn_av_freep(&lst->item_name);
 }
 
 static const char *bsf_list_item_name(void *ctx)
@@ -431,8 +431,8 @@ void av_bsf_list_free(AVBSFList **lst)
 
     for (i = 0; i < (*lst)->nb_bsfs; ++i)
         av_bsf_free(&(*lst)->bsfs[i]);
-    av_free((*lst)->bsfs);
-    av_freep(lst);
+    zn_av_free((*lst)->bsfs);
+    zn_av_freep(lst);
 }
 
 int av_bsf_list_append(AVBSFList *lst, AVBSFContext *bsf)
@@ -493,7 +493,7 @@ int av_bsf_list_finalize(AVBSFList **lst, AVBSFContext **bsf)
 
     if ((*lst)->nb_bsfs == 1) {
         *bsf = (*lst)->bsfs[0];
-        av_freep(&(*lst)->bsfs);
+        zn_av_freep(&(*lst)->bsfs);
         (*lst)->nb_bsfs = 0;
         goto end;
     }
@@ -508,7 +508,7 @@ int av_bsf_list_finalize(AVBSFList **lst, AVBSFContext **bsf)
     ctx->nb_bsfs = (*lst)->nb_bsfs;
 
 end:
-    av_freep(lst);
+    zn_av_freep(lst);
     return ret;
 }
 
@@ -538,7 +538,7 @@ int av_bsf_list_parse_str(const char *str, AVBSFContext **bsf_lst)
     do {
         char *bsf_str = av_get_token(&str, ",");
         ret = bsf_parse_single(bsf_str, lst);
-        av_free(bsf_str);
+        zn_av_free(bsf_str);
         if (ret < 0)
             goto end;
     } while (*str && *++str);

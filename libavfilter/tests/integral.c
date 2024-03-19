@@ -54,8 +54,8 @@ int main(void)
     const int ii_lz_32 = ((ii_w + 1) + 3) & ~3;
 
     // "+1" is for the space of the top 0-line
-    uint32_t *ii  = av_calloc(ii_h + 1, ii_lz_32 * sizeof(*ii));
-    uint32_t *ii2 = av_calloc(ii_h + 1, ii_lz_32 * sizeof(*ii2));
+    uint32_t *ii  = zn_av_calloc(ii_h + 1, ii_lz_32 * sizeof(*ii));
+    uint32_t *ii2 = zn_av_calloc(ii_h + 1, ii_lz_32 * sizeof(*ii2));
 
     if (!ii || !ii2)
         return -1;
@@ -89,7 +89,7 @@ int main(void)
     }
 
 end:
-    av_freep(&ii);
-    av_freep(&ii2);
+    zn_av_freep(&ii);
+    zn_av_freep(&ii2);
     return ret;
 }

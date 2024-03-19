@@ -201,10 +201,10 @@ static av_cold int a64multi_close_encoder(AVCodecContext *avctx)
 
     avpriv_elbg_free(&c->elbg);
 
-    av_freep(&c->mc_meta_charset);
-    av_freep(&c->mc_best_cb);
-    av_freep(&c->mc_charmap);
-    av_freep(&c->mc_colram);
+    zn_av_freep(&c->mc_meta_charset);
+    zn_av_freep(&c->mc_best_cb);
+    zn_av_freep(&c->mc_charmap);
+    zn_av_freep(&c->mc_colram);
     return 0;
 }
 
@@ -233,9 +233,9 @@ static av_cold int a64multi_encode_init(AVCodecContext *avctx)
                            a64_palette[mc_colors[a]][2] * 0.11;
     }
 
-    if (!(c->mc_meta_charset = av_calloc(c->mc_lifetime, 32000 * sizeof(int))) ||
+    if (!(c->mc_meta_charset = zn_av_calloc(c->mc_lifetime, 32000 * sizeof(int))) ||
        !(c->mc_best_cb       = av_malloc(CHARSET_CHARS * 32 * sizeof(int)))     ||
-       !(c->mc_charmap       = av_calloc(c->mc_lifetime, 1000 * sizeof(int))) ||
+       !(c->mc_charmap       = zn_av_calloc(c->mc_lifetime, 1000 * sizeof(int))) ||
        !(c->mc_colram        = av_mallocz(CHARSET_CHARS * sizeof(uint8_t)))) {
         av_log(avctx, AV_LOG_ERROR, "Failed to allocate buffer memory.\n");
         return AVERROR(ENOMEM);
